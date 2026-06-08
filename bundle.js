@@ -30,9 +30,9 @@ const html = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Vianne Jewels">
+<meta name="apple-mobile-web-app-title" content="Vianne">
 <meta name="theme-color" content="#1E5C45">
-<title>Vianne Jewels ERP</title>
+<title>Vianne</title>
 <style>${css}</style>
 </head><body>
 <div id="root"></div>
@@ -42,10 +42,10 @@ const html = `<!DOCTYPE html>
 <script>${app}</script>
 </body></html>`;
 
-const outHtml = path.join(__dirname, 'vianne-jewels-erp.html');
+const outHtml = path.join(__dirname, 'Vianne.html');
 const indexHtml = path.join(__dirname, 'index.html');
 fs.writeFileSync(outHtml, html);
 fs.writeFileSync(indexHtml, html);
 
 const kb = (html.length / 1024).toFixed(1);
-console.log('BUNDLED: ' + kb + ' KB → vianne-jewels-erp.html + index.html');
+console.log('BUNDLED: ' + kb + ' KB → Vianne.html + index.html');

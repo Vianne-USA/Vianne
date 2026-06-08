@@ -1,8 +1,8 @@
 {
-  "name": "vianne-jewels-erp",
+  "name": "vianne",
   "version": "2.0.0",
   "private": true,
-  "description": "Vianne Jewels ERP — self-contained trade show app",
+  "description": "Vianne — self-contained trade show ERP for Vianne Jewels",
   "scripts": {
     "compile": "node transform.js",
     "bundle": "node bundle.js",

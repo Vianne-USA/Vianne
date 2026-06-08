@@ -2,7 +2,7 @@ const babel = require('@babel/core');
 const fs = require('fs');
 const path = require('path');
 
-const jsxPath = path.join(__dirname, 'vianne-jewels-erp.jsx');
+const jsxPath = path.join(__dirname, 'Vianne.jsx');
 const outPath = path.join(__dirname, 'compiled.js');
 
 const jsx = fs.readFileSync(jsxPath, 'utf8');

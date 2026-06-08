@@ -1,15 +1,13 @@
-# Vianne Jewels ERP
+# Vianne
 
-Self-contained trade show ERP for B2B diamond jewelry operations. Runs entirely in the browser — no backend, no bundler at runtime.
+Self-contained trade show ERP for Vianne Jewels. Runs entirely in the browser — no backend at runtime.
 
 **Stack:** React 17 (ES5 compiled), jsQR scanner, localStorage persistence.
 
 ## Quick start
 
-Open `index.html` in a browser (or serve locally):
-
 ```bash
-cd vianne-jck
+cd Vianne
 python3 -m http.server 8080
 # → http://localhost:8080
 ```
@@ -25,7 +23,7 @@ python3 -m http.server 8080
 
 ## Build from source
 
-Edit `vianne-jewels-erp.jsx`, then:
+Edit `Vianne.jsx`, then:
 
 ```bash
 npm install
@@ -34,33 +32,25 @@ npm run build
 
 Outputs:
 - `compiled.js` — ES5 app code (~247 KB)
-- `vianne-jewels-erp.html` — full self-contained bundle (~629 KB)
-- `index.html` — same as above (deploy entry point)
+- `Vianne.html` + `index.html` — self-contained bundle (~629 KB)
 
 ## Project files
 
 | File | Purpose |
 |------|---------|
-| `vianne-jewels-erp.jsx` | React source — edit this for features |
+| `Vianne.jsx` | React source — edit this for features |
 | `transform.js` | Babel compile (JSX → ES5) |
 | `bundle.js` | Assembles React + jsQR + app into HTML |
 | `SPEC.md` | Full architecture & development guide |
 
-## Features
+## GitHub
 
-- Lookup with smart filters, QR scanner, single & multi sell flows
-- Sales, history, inventory audit, customers, analytics
-- Role-based permissions (Admin / Manager / Staff)
-- Multi-currency display with editable exchange rates
-- Multi-event support (JCK Las Vegas 2026, IIJS, etc.)
-- Invoice print (no GST — international B2B)
+Repo: `viannejewelsusa/Vianne`
 
-## Optional: product photos
-
-The app patches images from `window.VJ_IMG` when available. To load the full JCK catalog photos from `vianne-jck-2026`, add before the app script in a custom bundle:
-
-```html
-<script src="../vianne-jck-2026/js/images.js"></script>
+```bash
+git pull origin main
+npm run build
+git add .
+git commit -m "describe change"
+git push origin main
 ```
-
-Then set `window.VJ_IMG = IMGS` or use the built-in patch logic in `App`.

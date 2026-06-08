@@ -1,0 +1,22 @@
+{
+  "name": "vianne-jewels-erp",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Vianne Jewels ERP — self-contained trade show app",
+  "scripts": {
+    "compile": "node transform.js",
+    "bundle": "node bundle.js",
+    "build": "npm run compile && npm run bundle"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.0"
+  },
+  "dependencies": {
+    "jsqr": "^1.4.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}

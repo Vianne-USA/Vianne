@@ -1,6 +1,3 @@
 node_modules/
 compiled.js
-www/
 .DS_Store
-ios/App/Pods/
-ios/DerivedData/

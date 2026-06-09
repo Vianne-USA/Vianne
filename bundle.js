@@ -61,7 +61,5 @@ const indexHtml = path.join(__dirname, 'index.html');
 fs.writeFileSync(outHtml, html);
 fs.writeFileSync(indexHtml, html);
 
-require('./sync-www.js');
-
 const kb = (html.length / 1024).toFixed(1);
 console.log('BUNDLED: ' + kb + ' KB → Vianne.html + index.html');

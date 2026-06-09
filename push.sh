@@ -22,9 +22,8 @@ npm run build
 
 echo "=== 4. Commit & push ==="
 git add Vianne.jsx index.html Vianne.html vercel.json manifest.webmanifest assets/ \
-  capacitor.config.json sync-www.js scripts/ ios/ \
   package.json package-lock.json transform.js bundle.js post_patch.py README.md SPEC.md \
-  .gitignore .nojekyll push.sh DEPLOY.md IOS.md
+  .gitignore .nojekyll push.sh DEPLOY.md
 git diff --cached --quiet || git commit -m "${1:-Update Vianne app}"
 git push origin main
 

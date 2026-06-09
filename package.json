@@ -7,12 +7,7 @@
     "compile": "node transform.js",
     "patch": "python3 post_patch.py",
     "bundle": "node bundle.js",
-    "build": "npm run compile && npm run patch && npm run bundle",
-    "sync:www": "node sync-www.js",
-    "ios:icons": "node scripts/setup-ios-icons.js",
-    "cap:sync": "npm run build && npx cap sync ios",
-    "cap:open": "npx cap open ios",
-    "ios:setup": "npm run cap:sync && node scripts/patch-ios-plist.js && npm run ios:icons && node scripts/setup-ios-splash.js"
+    "build": "npm run compile && npm run patch && npm run bundle"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
@@ -21,18 +16,8 @@
     "@babel/preset-react": "^7.26.0"
   },
   "dependencies": {
-    "@capacitor/cli": "^8.4.0",
-    "@capacitor/core": "^8.4.0",
-    "@capacitor/ios": "^8.4.0",
-    "@capacitor/splash-screen": "^8.0.1",
-    "@capacitor/status-bar": "^8.0.1",
     "jsqr": "^1.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
-  },
-  "capacitor": {
-    "platforms": [
-      "ios"
-    ]
   }
 }

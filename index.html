@@ -8,9 +8,9 @@
 <meta name="theme-color" content="#1E5C45">
 <title>Vianne</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#163D2E}
-#root{min-height:100vh}
+html,body{height:100%;min-height:100dvh;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#163D2E;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+#root{min-height:100dvh}
 button,input,select,textarea{font-family:inherit;font-size:16px}
 input,select,textarea{-webkit-appearance:none;appearance:none}
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -10577,7 +10577,7 @@ function ToastContainer() {
       left: 0,
       right: 0,
       zIndex: 9999,
-      padding: "10px 12px",
+      padding: "calc(10px + env(safe-area-inset-top,0px)) 12px 10px",
       display: "flex",
       flexDirection: "column",
       gap: 6,
@@ -12665,11 +12665,11 @@ function Login(_ref7) {
   return /*#__PURE__*/React.createElement("div", {
     style: {
       background: GD,
-      minHeight: "100vh",
+      minHeight: "100dvh",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: 20,
+      padding: "calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px))",
       fontFamily: "Lato,sans-serif"
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -12926,13 +12926,13 @@ function EventHub(_ref8) {
   return /*#__PURE__*/React.createElement("div", {
     style: {
       background: "#f5f0e8",
-      minHeight: "100vh",
+      minHeight: "100dvh",
       fontFamily: "Lato,sans-serif"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
-      padding: "13px 16px",
+      padding: "calc(13px + env(safe-area-inset-top,0px)) 16px 13px",
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between"
@@ -18194,7 +18194,7 @@ function InventoryTab(p) {
     }),
     value: auditLoc,
     onChange: function onChange(ev) {
-      return sauditLoc(ev.target.value);
+      return saLoc(ev.target.value);
     }
   }, ["Exhibition", "Office", "Storage", "Vault", "All"].map(function (l) {
     return /*#__PURE__*/React.createElement("option", {
@@ -18268,7 +18268,7 @@ function InventoryTab(p) {
       fontSize: 12
     }),
     onClick: function onClick() {
-      sauditScanned([]);
+      saScanned([]);
     }
   }, "\u21BA Clear"), /*#__PURE__*/React.createElement("button", {
     style: S.btn({
@@ -18284,7 +18284,7 @@ function InventoryTab(p) {
     onScanned: function onScanned(code, item) {
       sscan(false);
       if (item && !auditScanned.find(function (s) {
-        return s.id === item.id;
+        return s.item && s.item.id === item.id;
       })) {
         saScanned(function (p) {
           return [].concat(_toConsumableArray(p), [{
@@ -23349,8 +23349,6 @@ function EventERP(_ref47) {
     _useState146 = _slicedToArray(_useState145, 2),
     showFilter = _useState146[0],
     sShowFilter = _useState146[1];
-  var photoSearch = p.photoSearch;
-  var sPhotoSearch = p.sPhotoSearch;
   var _useState147 = useState("All"),
     _useState148 = _slicedToArray(_useState147, 2),
     fCat = _useState148[0],
@@ -23631,7 +23629,7 @@ function EventERP(_ref47) {
   });
   var missing = locItems.filter(function (i) {
     return !auditScanned.find(function (s) {
-      return s.id === i.id;
+      return (s.item ? s.item.id : s.id) === i.id;
     });
   });
   var TABS = [{
@@ -23680,8 +23678,8 @@ function EventERP(_ref47) {
         missing: missing.map(function (i) {
           return i.id;
         }),
-        items: auditScanned.map(function (i) {
-          return i.id;
+        items: auditScanned.map(function (s) {
+          return s.item ? s.item.id : s.id;
         })
       };
       var na = [rec].concat(_toConsumableArray(audits));
@@ -23698,7 +23696,7 @@ function EventERP(_ref47) {
     style: {
       maxWidth: 430,
       margin: "0 auto",
-      minHeight: "100vh",
+      minHeight: "100dvh",
       display: "flex",
       flexDirection: "column",
       background: GD,
@@ -23707,7 +23705,7 @@ function EventERP(_ref47) {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
-      padding: "9px 13px",
+      padding: "calc(9px + env(safe-area-inset-top,0px)) 13px 9px",
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
@@ -24007,9 +24005,9 @@ function EventERP(_ref47) {
     atab: atab,
     sat: sat,
     showSwitch: showSwitch,
-    ssw: ssw
-  ,
-    onAddLead: onAddLead}), tab === "sales" && /*#__PURE__*/React.createElement(SalesTab, {
+    ssw: ssw,
+    onAddLead: onAddLead
+  }), tab === "sales" && /*#__PURE__*/React.createElement(SalesTab, {
     ev: ev,
     inv: inv,
     si: si,
@@ -24429,15 +24427,10 @@ function EventERP(_ref47) {
     showSwitch: showSwitch,
     ssw: ssw
   }), scan && /*#__PURE__*/React.createElement(QRScanner, {
-    onScanned: function onScanned(code) {
+    inv: inv,
+    onScanned: function onScanned(code, item) {
       sscan(false);
-      var f = inv.find(function (i) {
-        return i.id === code;
-      });
-      if (f) sdet(f);else toast.warn("Item not found", "Code: " + code);
-    },
-    onClose: function onClose() {
-      return sscan(false);
+      if (item) sdet(item);else toast.warn("Item not found", "Code: " + code);
     }
   }), invm && /*#__PURE__*/React.createElement(InvoiceSheet, {
     sale: invm,
@@ -24446,7 +24439,7 @@ function EventERP(_ref47) {
     }
   }), showSwitch && /*#__PURE__*/React.createElement(Sheet, {
     onClose: function onClose() {
-      return sshowSwitch(false);
+      return ssw(false);
     },
     title: "Switch Event"
   }, /*#__PURE__*/React.createElement("div", {
@@ -24460,7 +24453,7 @@ function EventERP(_ref47) {
       key: e.id,
       onClick: function onClick() {
         onSwitch(e);
-        sshowSwitch(false);
+        ssw(false);
       },
       style: _objectSpread({}, S.card({
         margin: 0,

@@ -16,9 +16,9 @@ const jsqr = fs.readFileSync(
 const app = fs.readFileSync(path.join(__dirname, 'compiled.js'), 'utf8');
 
 const css = `*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#163D2E}
-#root{min-height:100vh}
+html,body{height:100%;min-height:100dvh;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#163D2E;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+#root{min-height:100dvh}
 button,input,select,textarea{font-family:inherit;font-size:16px}
 input,select,textarea{-webkit-appearance:none;appearance:none}
 ::-webkit-scrollbar{width:4px;height:4px}

@@ -29,7 +29,7 @@ function ToastContainer(){
   if(!toasts.length)return null;
   const cols={success:{bg:"#1E5C45",ic:"✅"},error:{bg:"#a03030",ic:"⚠️"},warn:{bg:"#C8963A",ic:"📦"},info:{bg:"#1a3a6c",ic:"ℹ️"}};
   return(
-    <div style={{position:"fixed",top:0,left:0,right:0,zIndex:9999,padding:"10px 12px",display:"flex",flexDirection:"column",gap:6,pointerEvents:"none"}}>
+    <div style={{position:"fixed",top:0,left:0,right:0,zIndex:9999,padding:"calc(10px + env(safe-area-inset-top,0px)) 12px 10px",display:"flex",flexDirection:"column",gap:6,pointerEvents:"none"}}>
       {toasts.map(t=>{
         const col=cols[t.type]||cols.success;
         return(
@@ -256,7 +256,7 @@ function Login({onLogin}){
   const go=()=>{const usr=USERS.find(x=>x.un===u.toLowerCase()&&x.pw===p);if(usr)onLogin(usr);else se("Invalid username or password");};
   const doBio=()=>{try{const ch=new Uint8Array(32);window.crypto.getRandomValues(ch);navigator.credentials.get({publicKey:{challenge:ch,timeout:60000,userVerification:"required",rpId:window.location.hostname||"localhost"}}).then(function(cr){if(cr)onLogin(USERS[0]);}).catch(function(err){if(err.name!=="NotAllowedError")toast.error("Biometric failed",err.message);});}catch(err){toast.error("Biometric failed",err.message);}};
   const isIOS=/iPhone|iPad/.test(navigator.userAgent);
-  return(<div style={{background:GD,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:20,fontFamily:"Lato,sans-serif"}}>
+  return(<div style={{background:GD,minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",padding:"calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px))",fontFamily:"Lato,sans-serif"}}>
     <div style={{width:"100%",maxWidth:380,background:CRD,borderRadius:22,padding:"36px 28px 32px",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
       <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:28}}><Lotus sz={52}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:21,fontWeight:700,color:G,letterSpacing:"0.14em",textTransform:"uppercase",lineHeight:1.1}}>VIANNE JEWELS</div><div style={{fontSize:9,color:T4,letterSpacing:"0.12em",textTransform:"uppercase",marginTop:4,lineHeight:1.5}}>THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div>
       <div style={{fontSize:12,fontWeight:700,color:T1,letterSpacing:"0.18em",textAlign:"center",marginBottom:20,textTransform:"uppercase"}}>SIGN IN TO CONTINUE</div>
@@ -273,8 +273,8 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const [sc,ssc]=useState(false),[form,sf]=useState({name:"",loc:"",start:"",end:"",color:G}),[xlf,sxl]=useState(null),[msg,smsg]=useState(""),[loading,sl]=useState(false);
   const pr=gp(user.role);
   const create=()=>{if(!form.name.trim())return;const fin=(inv)=>{onCreate({id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[]});ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,inv=>{sl(false);fin(inv);},err=>{sl(false);smsg(err);});}else fin([...DI.slice(0,5)]);};
-  return(<div style={{background:"#f5f0e8",minHeight:"100vh",fontFamily:"Lato,sans-serif"}}>
-    <div style={{background:G,padding:"13px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+  return(<div style={{background:"#f5f0e8",minHeight:"100dvh",fontFamily:"Lato,sans-serif"}}>
+    <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) 16px 13px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
       <div style={{display:"flex",alignItems:"center",gap:10}}><Lotus sz={28}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
       <div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:26,height:26,background:GO,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:G}}>{user.name[0]}</div><span style={{color:CR,fontSize:11,fontWeight:600}}>{user.name}</span><button onClick={onLogout} style={{background:"rgba(255,255,255,0.12)",border:"none",borderRadius:7,color:CR,padding:"5px 9px",cursor:"pointer",fontSize:11,fontWeight:600}}>🚪 Sign Out</button></div>
     </div>
@@ -1714,7 +1714,7 @@ function InventoryTab(p){
             <div style={{...S.card({margin:0,marginBottom:12})}}>
               <div style={S.sh}>🔍 STOCK AUDIT</div>
               <span style={S.lbl}>LOCATION</span>
-              <select style={S.inp({marginBottom:10})} value={auditLoc} onChange={ev=>sauditLoc(ev.target.value)}>
+              <select style={S.inp({marginBottom:10})} value={auditLoc} onChange={ev=>saLoc(ev.target.value)}>
                 {["Exhibition","Office","Storage","Vault","All"].map(l=><option key={l}>{l}</option>)}
               </select>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
@@ -1724,11 +1724,11 @@ function InventoryTab(p){
               </div>
               <div style={{display:"flex",gap:7,marginBottom:12}}>
                 <button style={S.btn({flex:1,padding:"10px",fontSize:12})} onClick={()=>sscan(x=>!x)}>{scan?"⬛ Stop Scanning":"📷 Scan Item"}</button>
-                <button style={S.bOut({flex:1,padding:"10px",fontSize:12})} onClick={()=>{sauditScanned([]);}}>↺ Clear</button>
+                <button style={S.bOut({flex:1,padding:"10px",fontSize:12})} onClick={()=>{saScanned([]);}}>↺ Clear</button>
                 <button style={S.btn({flex:1,padding:"10px",fontSize:12,background:GO,color:G})} onClick={saveAudit}>💾 Save Audit</button>
               </div>
             </div>
-            {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item&&!auditScanned.find(s=>s.id===item.id)){saScanned(p=>[...p,{item,scannedAt:tstr()}]);}else if(!item){toast.warn("Item not found","Code: "+code);}}}/>}
+            {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item&&!auditScanned.find(s=>s.item&&s.item.id===item.id)){saScanned(p=>[...p,{item,scannedAt:tstr()}]);}else if(!item){toast.warn("Item not found","Code: "+code);}}}/>}
             {missing.length>0&&<div style={{marginBottom:10}}><div style={{fontSize:10,fontWeight:700,color:RE,textTransform:"uppercase",marginBottom:7}}>⚠ NOT SCANNED ({missing.length})</div>{missing.map(i=><div key={i.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 10px",background:REBG,borderRadius:8,marginBottom:5}}><div style={{width:32,height:32,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>{getImg(i)?<img src={getImg(i)} alt="" style={{width:32,height:32,objectFit:"cover"}}/>:<span style={{fontSize:16}}>{i.em}</span>}</div><div><div style={{fontSize:11,fontWeight:700,color:RE}}>{i.id}</div><div style={{fontSize:9,color:RE}}>{i.cat}</div></div></div>)}</div>}
             {auditScanned.length>0&&<div style={{marginBottom:10}}><div style={{fontSize:10,fontWeight:700,color:"#27ae60",textTransform:"uppercase",marginBottom:7}}>✓ CONFIRMED ({auditScanned.length})</div>{auditScanned.map(({item,scannedAt})=><div key={item.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 10px",background:"#edf7f0",borderRadius:8,marginBottom:5}}><div style={{width:32,height:32,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>{getImg(item)?<img src={getImg(item)} alt="" style={{width:32,height:32,objectFit:"cover"}}/>:<span style={{fontSize:16}}>{item.em}</span>}</div><div style={{flex:1}}><div style={{fontSize:11,fontWeight:700,color:T1}}>{item.id}</div><div style={{fontSize:9,color:T3}}>{scannedAt}</div></div><span style={{color:"#27ae60",fontWeight:700}}>✓</span></div>)}</div>}
             {audits.length>0&&<div><div style={{...S.sh,marginTop:4}}>📋 AUDIT HISTORY</div>{audits.map(r=><div key={r.id} style={{...S.cc({marginBottom:9})}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div><div style={{fontWeight:700,fontSize:12,color:T1}}>{r.loc}</div><div style={{fontSize:10,color:T3}}>{r.date} {r.time}</div></div><div style={{textAlign:"right"}}><div style={{fontWeight:700,color:r.missing.length>0?RE:"#27ae60",fontSize:13}}>{r.scanned}/{r.expected}</div><div style={{fontSize:9,color:T3}}>scanned/expected</div></div></div>{r.missing.length>0?<div style={{fontSize:10,color:RE}}>Missing: {r.missing.join(", ")}</div>:<div style={{fontSize:10,color:"#27ae60",fontWeight:600}}>✓ All confirmed</div>}</div>)}</div>}
@@ -3203,8 +3203,6 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const [mlNF,smlNF]=useState([]);
   const [mlScan,smlScan]=useState(false);
   const [showFilter,sShowFilter]=useState(false);
-  var photoSearch=p.photoSearch;
-  var sPhotoSearch=p.sPhotoSearch;
   const [fCat,sfCat]=useState("All");
   const [fCol,sfCol]=useState("All");
   const [fMetal,sfMetal]=useState("All");
@@ -3273,18 +3271,18 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const totalRev=sales.reduce((s,x)=>s+x.total,0);
   const stf=[...new Set(sales.map(s=>s.staff))];
   const locItems=inv.filter(i=>i.loc===auditLoc&&i.st!=="sold");
-  const missing=locItems.filter(i=>!auditScanned.find(s=>s.id===i.id));
+  const missing=locItems.filter(i=>!auditScanned.find(s=>(s.item?s.item.id:s.id)===i.id));
   const TABS=[{id:"lookup",l:"LOOKUP",ic:"🔍"},...(pr.vH?[{id:"sales",l:"SALES",ic:"💰"},{id:"history",l:"HISTORY",ic:"🕐"}]:[]),...(pr.vA?[{id:"analytics",l:"ANALYTICS",ic:"📊"}]:[]),{id:"inventory",l:"STOCK",ic:"📦"},{id:"customers",l:"CUSTOMERS",ic:"👥"},{id:"admin",l:"SETTINGS",ic:"⚙"}];
   const addLead=()=>toast.info("Add customers via Customers tab","Complete a sale to auto-create a customer.");
-  const saveAudit=()=>{if(auditScanned.length===0){toast.warn("No items scanned","Scan items before saving.");}else{const rec={id:uid("AUD"),loc:auditLoc,date:dstr(),time:tstr(),expected:locItems.length,scanned:auditScanned.length,missing:missing.map(i=>i.id),items:auditScanned.map(i=>i.id)};const na=[rec,...audits];sAudits(na);syncUp(null,null,null,na);toast.success("Audit saved",""+auditScanned.length+" scanned · "+missing.length+" missing");}};
+  const saveAudit=()=>{if(auditScanned.length===0){toast.warn("No items scanned","Scan items before saving.");}else{const rec={id:uid("AUD"),loc:auditLoc,date:dstr(),time:tstr(),expected:locItems.length,scanned:auditScanned.length,missing:missing.map(i=>i.id),items:auditScanned.map(s=>(s.item?s.item.id:s.id))};const na=[rec,...audits];sAudits(na);syncUp(null,null,null,na);toast.success("Audit saved",""+auditScanned.length+" scanned · "+missing.length+" missing");}};
   // Computed for lookup display (avoids IIFE in JSX)
   const lkQ = jc.trim();
   const lkResults = applyFilters(inv, lkQ || null);
   const lkShowResults = lkQ.length > 0 || activeFilters > 0;
 
   return(
-    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",display:"flex",flexDirection:"column",background:GD,fontFamily:"Lato,sans-serif"}}>
-      <div style={{background:G,padding:"9px 13px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100dvh",display:"flex",flexDirection:"column",background:GD,fontFamily:"Lato,sans-serif"}}>
+      <div style={{background:G,padding:"calc(9px + env(safe-area-inset-top,0px)) 13px 9px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:7}}><button onClick={onBack} style={{background:"none",border:"none",color:GO,cursor:"pointer",fontSize:16,padding:"0 3px 0 0"}}>‹</button><Lotus sz={24}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:7,color:GO,textTransform:"uppercase",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ev.name}</div></div></div>
         <div style={{display:"flex",alignItems:"center",gap:5}}>
           <select value={cur} onChange={ev=>scur(ev.target.value)} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",color:CR,borderRadius:5,padding:"2px 5px",fontSize:9,fontWeight:600,cursor:"pointer"}}>{Object.keys(CURR).map(k=><option key={k} style={{color:T1}}>{k}</option>)}</select>
@@ -3299,7 +3297,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
         {TABS.map(t=><button key={t.id} onClick={()=>st(t.id)} style={{flexShrink:0,background:"none",border:"none",borderBottom:tab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:tab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:10,fontWeight:tab===t.id?700:500,padding:"9px 10px",cursor:"pointer",whiteSpace:"nowrap"}}>{t.ic} {t.l}</button>)}
       </div>
       <div style={{flex:1,background:CRD,overflowY:"auto"}}>
-        {tab==="lookup"&&<LookupTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
+        {tab==="lookup"&&<LookupTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,onAddLead:onAddLead}}/>}
 
         {tab==="sales"&&<SalesTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,onAddLead:onAddLead}}/>}
 
@@ -3313,13 +3311,13 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
         {tab==="admin"&&<AdminTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
 
-        {scan&&<QRScanner onScanned={code=>{sscan(false);const f=inv.find(i=>i.id===code);if(f)sdet(f);else toast.warn("Item not found","Code: "+code);}} onClose={()=>sscan(false)}/>}
+        {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item)sdet(item);else toast.warn("Item not found","Code: "+code);}}/>}
         {invm&&<InvoiceSheet sale={invm} onClose={()=>sinvm(null)}/>}
         {showSwitch&&(
-          <Sheet onClose={()=>sshowSwitch(false)} title="Switch Event">
+          <Sheet onClose={()=>ssw(false)} title="Switch Event">
             <div style={{fontSize:11,color:T3,marginBottom:14}}>Select an event to switch. Your data is saved automatically.</div>
             {allEvents.map(e=>(
-              <div key={e.id} onClick={()=>{onSwitch(e);sshowSwitch(false);}} style={{...S.card({margin:0,marginBottom:10,cursor:"pointer",border:e.id===ev.id?"2px solid "+G:"1px solid "+CRD2})}}>
+              <div key={e.id} onClick={()=>{onSwitch(e);ssw(false);}} style={{...S.card({margin:0,marginBottom:10,cursor:"pointer",border:e.id===ev.id?"2px solid "+G:"1px solid "+CRD2})}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div><div style={{fontWeight:700,fontSize:13,color:T1}}>{e.name}</div><div style={{fontSize:10,color:T3,marginTop:2}}>{e.loc} · {e.start}</div></div>
                   <div style={{display:"flex",gap:6,alignItems:"center"}}><Bdg t={e.status==="active"?"gr":"m"} ch={e.status}/>{e.id===ev.id&&<Bdg t="g" ch="Current"/>}</div>

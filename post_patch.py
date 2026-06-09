@@ -95,16 +95,18 @@ for call_fn in ['LookupTab', 'SalesTab']:
     if 'onAddLead' not in c[call:end]:
         c = c[:end] + ',\n    onAddLead: onAddLead' + c[end:]
 
-# 9. Remove stray p.photoSearch from EventERP
+# 9. Remove stray p.photoSearch from EventERP (EventERP is last tab component before App)
 erp = c.find('function EventERP(')
-erp_end = c.find('\nfunction LookupTab(', erp)
+erp_end = c.find('\nfunction App(', erp)
 if erp >= 0 and erp_end > erp:
     erp_body = c[erp:erp_end]
-    if 'var photoSearch = p.photoSearch' in erp_body:
-        erp_body = erp_body.replace(
-            '\n  var photoSearch = p.photoSearch;\n  var sPhotoSearch = p.sPhotoSearch;', '', 1
-        )
-        c = c[:erp] + erp_body + c[erp_end:]
+    for stray in [
+        '\n  var photoSearch = p.photoSearch;\n  var sPhotoSearch = p.sPhotoSearch;',
+        '\n  var photoSearch = p.photoSearch;',
+        '\n  var sPhotoSearch = p.sPhotoSearch;',
+    ]:
+        erp_body = erp_body.replace(stray, '')
+    c = c[:erp] + erp_body + c[erp_end:]
 
 path.write_text(c)
 print('Post-patch done:', len(c) // 1024, 'KB')

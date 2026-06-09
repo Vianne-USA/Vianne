@@ -4,11 +4,11 @@ set -e
 cd "$(dirname "$0")"
 
 echo "=== 1. Check GitHub access ==="
-PUSH_OK=$(gh api repos/viannejewelsusa/Vianne --jq .permissions.push 2>/dev/null || echo "error")
+PUSH_OK=$(gh api repos/Vianne-USA/Vianne --jq .permissions.push 2>/dev/null || echo "error")
 if [ "$PUSH_OK" != "true" ]; then
-  echo "ERROR: Cannot push to viannejewelsusa/Vianne (permissions.push = $PUSH_OK)"
+  echo "ERROR: Cannot push to Vianne-USA/Vianne (permissions.push = $PUSH_OK)"
   echo "Ask Naman to:"
-  echo "  1. Create repo: https://github.com/viannejewelsusa/Vianne"
+  echo "  1. Repo exists: https://github.com/Vianne-USA/Vianne"
   echo "  2. Add RUCHITJIYANI as Write collaborator"
   echo "  3. Connect repo in Vercel → Project Settings → Git"
   exit 1

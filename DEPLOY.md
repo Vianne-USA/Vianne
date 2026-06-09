@@ -6,7 +6,7 @@
 Ruchit Mac (edit Vianne.jsx)
     ↓ npm run build
     ↓ git push
-GitHub (viannejewelsusa/Vianne)
+GitHub (Vianne-USA/Vianne)
     ↓ auto-trigger
 Vercel (live webapp)
 ```
@@ -14,8 +14,7 @@ Vercel (live webapp)
 ## One-time setup (Naman / org admin)
 
 ### 1. Create GitHub repo
-- https://github.com/organizations/viannejewelsusa/repositories/new
-- Name: **Vianne**
+- Repo: **https://github.com/Vianne-USA/Vianne** (already created)
 - Public, empty (no README)
 
 ### 2. Add collaborators
@@ -24,7 +23,7 @@ Vercel (live webapp)
 
 ### 3. Connect Vercel to GitHub
 - Vercel → **vianne** project → **Settings** → **Git**
-- Connect repository: `viannejewelsusa/Vianne`
+- Connect repository: `Vianne-USA/Vianne`
 - Production branch: `main`
 - Build settings (should match `vercel.json`):
   - Framework: Other
@@ -89,18 +88,18 @@ npm run build
 ```bash
 npm run build                                    # must succeed
 python3 -m http.server 8080                      # test locally
-gh api repos/viannejewelsusa/Vianne --jq .permissions.push   # must be true
+gh api repos/Vianne-USA/Vianne --jq .permissions.push   # must be true
 ```
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
-| `Repository not found` | Naman creates `viannejewelsusa/Vianne` repo |
+| `Repository not found` | Use correct repo: `Vianne-USA/Vianne` not `viannejewelsusa/Vianne` |
 | `Permission denied 403` | Naman adds RUCHITJIYANI as **Write** |
 | Vercel looks for `public/` | Output Directory = `.` in Vercel settings |
 | Wrong folder on Mac | Use `/Users/rj/Downloads/VIANNE/Vianne` (not ~/Downloads/Vianne) |
-| `fatal: origin does not exist` | `git remote add origin https://github.com/viannejewelsusa/Vianne.git` |
+| `fatal: origin does not exist` | `git remote add origin https://github.com/Vianne-USA/Vianne.git` |
 
 ## Files in git
 

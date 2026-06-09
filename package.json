@@ -1,12 +1,13 @@
 {
   "name": "vianne",
-  "version": "2.0.0",
+  "version": "6.0.0",
   "private": true,
   "description": "Vianne — self-contained trade show ERP for Vianne Jewels",
   "scripts": {
     "compile": "node transform.js",
+    "patch": "python3 post_patch.py",
     "bundle": "node bundle.js",
-    "build": "npm run compile && npm run bundle"
+    "build": "npm run compile && npm run patch && npm run bundle"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

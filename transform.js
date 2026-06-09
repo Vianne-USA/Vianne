@@ -9,7 +9,7 @@ const jsx = fs.readFileSync(jsxPath, 'utf8');
 const code = jsx
   .replace(
     'import{useState,useRef,useEffect}from"react";',
-    'var _React=React;var useState=_React.useState;var useRef=_React.useRef;var useEffect=_React.useEffect;'
+    'var _R=React;var useState=_R.useState;var useRef=_R.useRef;var useEffect=_R.useEffect;'
   )
   .replace('export default function App()', 'function App()')
   + '\nReactDOM.render(React.createElement(App,null),document.getElementById("root"));';
@@ -24,5 +24,4 @@ const result = babel.transformSync(code, {
 });
 
 fs.writeFileSync(outPath, result.code);
-const kb = (result.code.length / 1024).toFixed(1);
-console.log('SUCCESS: ' + kb + ' KB');
+console.log('SUCCESS:', Math.round(result.code.length / 1024) + 'KB');

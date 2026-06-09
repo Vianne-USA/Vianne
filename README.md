@@ -1,25 +1,15 @@
 # Vianne
 
-Self-contained trade show ERP for Vianne Jewels. Runs entirely in the browser — no backend at runtime.
+Self-contained trade show ERP for Vianne Jewels (v6.0). Runs entirely in the browser.
 
-**Stack:** React 17 (ES5 compiled), jsQR scanner, localStorage persistence.
+**Stack:** React 17 → ES5, jsQR, toasts, dark mode, photo search, direct sale entry.
 
 ## Quick start
 
 ```bash
 cd Vianne
 python3 -m http.server 8080
-# → http://localhost:8080
 ```
-
-## Login (demo)
-
-| User    | Password    | Role    |
-|---------|-------------|---------|
-| nilay   | nilay123    | Admin   |
-| naman   | naman123    | Admin   |
-| jimit   | jimit123    | Manager |
-| naresh  | naresh123   | Staff   |
 
 ## Build from source
 
@@ -30,22 +20,23 @@ npm install
 npm run build
 ```
 
-Outputs:
-- `compiled.js` — ES5 app code (~247 KB)
-- `Vianne.html` + `index.html` — self-contained bundle (~629 KB)
+Pipeline: `transform.js` → `post_patch.py` → `bundle.js`
 
-## Project files
+Outputs: `index.html` + `Vianne.html` (~763 KB)
 
-| File | Purpose |
-|------|---------|
-| `Vianne.jsx` | React source — edit this for features |
-| `transform.js` | Babel compile (JSX → ES5) |
-| `bundle.js` | Assembles React + jsQR + app into HTML |
-| `SPEC.md` | Full architecture & development guide |
+## Login (demo)
 
-## GitHub
+| User    | Password    | Role    |
+|---------|-------------|---------|
+| nilay   | nilay123    | Admin   |
+| naman   | naman123    | Admin   |
+| ruchit  | ruchit123   | Admin   |
+| jimit   | jimit123    | Manager |
+| naresh  | naresh123   | Staff   |
 
-Repo: `viannejewelsusa/Vianne`
+## Deploy
+
+Push to GitHub → Vercel auto-deploys.
 
 ```bash
 git pull origin main
@@ -54,3 +45,5 @@ git add .
 git commit -m "describe change"
 git push origin main
 ```
+
+See `SPEC.md` for full architecture (v6.0).

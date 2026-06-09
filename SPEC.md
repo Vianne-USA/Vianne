@@ -1,179 +1,336 @@
-# Vianne Jewels ERP — Complete Cursor Build Specification
-## Full Source Code Reference + Future Development Guide
+# Vianne Jewels ERP — Cursor Specification v6.0
+## Complete Development Reference
 
-**Version:** 2.0 (Post-JCK Las Vegas 2026)
-**Date:** June 2026
-**Stack:** React 17 (pre-compiled ES5), Node.js backend (planned)
-**Primary file:** `vianne-jewels-erp.html` (629KB, fully self-contained)
-
----
-
-## 1. PROJECT OVERVIEW
-
-Vianne Jewels ERP is a **self-contained HTML app** built for B2B diamond jewelry trade show operations. It runs entirely in the browser with no backend, no bundler, and no external dependencies. Everything is inlined: React 17, ReactDOM 17, jsQR scanner library, and the compiled app code.
-
-### How it was built
-- **Source:** `vianne-jewels-erp.jsx` (150KB, 1668 lines of React JSX)
-- **Compile command:** `node transform.js` using Babel with `@babel/preset-env` (targets IE11/iOS9 = ES5) + `@babel/preset-react` + `@babel/plugin-proposal-object-rest-spread`
-- **Output:** `compiled.js` (247KB pure ES5 JS, zero arrow functions, zero const/let)
-- **Bundle:** React + ReactDOM + jsQR + compiled.js all inlined into one HTML file
-
-### Critical constraints for any edits
-1. **NO ES6+ syntax in compiled output** — the Claude artifact renderer and some older WebViews fail on `class`, `=>`, `const`, `let`. All code must compile to pure ES5.
-2. **NO CDN dependencies** — the artifact sandbox blocks external URLs. Everything must be inlined.
-3. **Babel scoping bug** — variables defined after a block-body arrow function `i => { ... }` get scoped inside that callback by Babel. Fix: use expression-body arrows `i => expr` for filter/map functions that are followed by other `const` declarations.
-4. **Function size limit** — the artifact renderer's old Babel parser fails on JSX functions > ~15KB. EventERP's JSX return is split into 9 separate tab components.
-5. **Always recompile from JSX** — never patch `compiled.js` directly for feature changes. Patches to `compiled.js` are wiped on next compile. Add features to the JSX source first.
+**Date:** June 2026  
+**Source:** `vianne-jewels-erp.jsx` (242KB, 3397 lines)  
+**Output:** `vianne-jewels-erp.html` (763KB, zero external dependencies)  
+**Stack:** React 17 pre-compiled to ES5, fully self-contained HTML  
+**Functions (28):** ToastContainer, useDark, toggleDark, getDark, Bdg, Lotus, Sheet, QRScanner, parseXL, Login, EventHub, ManageEvent, SaleSuccess, ItemCard, InvoiceSheet, UserManager, PhotoSearch, SingleLookup, MultiLookup, LookupTab, InventoryTab, AnalyticsTab, CurrencyManager, AdminTab, SalesTab, HistoryTab, CustomersTab, EventERP
 
 ---
 
-## 2. FILE STRUCTURE
+## 1. CRITICAL RULES — READ BEFORE ANY EDIT
 
-```
-vianne-jewels-erp.html          ← The deliverable (629KB, zero dependencies)
-vianne-jewels-erp.jsx           ← Source code (150KB, edit this)
-transform.js                    ← Babel compile script
-node_modules/
-  react/umd/react.production.min.js          (11KB)
-  react-dom/umd/react-dom.production.min.js  (117KB)
-  jsqr/dist/jsQR.js                          (250KB)
-  @babel/core
-  @babel/preset-env
-  @babel/preset-react
-  @babel/plugin-proposal-object-rest-spread
+### Rule 1 — No ES6+ in output
+Target is IE11/iOS9 (ES5). Banned: `async/await`, `class`, `?.`, `??`, backtick strings, `flatMap`, `import/export`.  
+Allowed: `const`, `let`, `=>`, destructuring, spread `...`, `Promise`.
+
+---
+
+### Rule 2 — Babel Scoping Bug (MOST CRITICAL)
+Variables declared after a block-body arrow `() => { }` get compiled inside that block.
+
+```jsx
+// ✅ CORRECT — expressions first, block functions LAST
+const totalRev = sales.reduce((s,x) => s+x.total, 0);
+const fi = inv.filter(i => !isq || i.id.includes(isq));
+const addLead   = () => { ... };   // block body — LAST
+const saveAudit = () => { ... };   // block body — LAST
 ```
 
-### transform.js (compile script)
+---
+
+### Rule 3 — useState / Props Scoping Bug
+Babel compiles `useState` hooks and prop extractions into the wrong parent function.
+
+**Safe pattern:**
+```javascript
+// State that MUST live in parent (not child component):
+// LookupTab owns — NOT SingleLookup:
+var _ps = useState(false);
+var photoSearch  = _ps[0];
+var sPhotoSearch = _ps[1];
+var _cn = useState("");
+var custName  = _cn[0];
+var sCustName = _cn[1];
+```
+
+**Never inject `var x = p.x` into a function that uses `_refN` destructuring (e.g. EventERP uses `_ref47`, not `p`).**  
+The post-compile patch script must check function signature before inserting prop declarations.
+
+---
+
+### Rule 4 — Post-Compile Patch Script (run after EVERY compile)
+
+```python
+import re
+
+with open('compiled.js') as f:
+    c = f.read()
+
+# 1. AdminTab missing vars
+adm = c.find('function AdminTab(p) {')
+ms = list(re.finditer(r'\n  var \w+ = p\.\w+;', c[adm:adm+5000]))
+last = adm + ms[-1].end()
+for v in ['totalRev','audits','ist','atab','sat']:
+    if f'var {v}' not in c[adm:last+300]:
+        c = c[:last] + f'\n  var {v} = p.{v};' + c[last:]
+
+# 2. InventoryTab aliases
+inv = c.find('function InventoryTab(p) {')
+ms2 = list(re.finditer(r'\n  var \w+ = p\.\w+;', c[inv:inv+5000]))
+last2 = inv + ms2[-1].end()
+for alias, prop in [('sauditLoc','saLoc'),('sauditScanned','saScanned')]:
+    if f'var {alias}' not in c[inv:last2+300]:
+        c = c[:last2] + f'\n  var {alias} = p.{prop};' + c[last2:]
+
+# 3. No GST in sellMulti
+c = c.replace(
+    'cgst: Math.round(ip * 0.015 * 100) / 100,\n          sgst: Math.round(ip * 0.015 * 100) / 100,',
+    'cgst: 0,\n          sgst: 0,'
+)
+
+# 4. SingleLookup scope fixes (BEFORE return statement)
+sl = c.find('function SingleLookup(p) {')
+sl_ret = c.find('\n  return ', sl)
+for decl in [
+    'var custName = p.custName !== undefined ? p.custName : ""; var sCustName = p.sCustName || function(){};',
+    'var photoSearch = p.photoSearch; var sPhotoSearch = p.sPhotoSearch;',
+    'var onAddLead = p.onAddLead;',
+]:
+    key = decl.split(' ')[1]
+    if key not in c[sl:sl_ret]:
+        c = c[:sl_ret] + '\n  ' + decl + c[sl_ret:]
+        sl_ret = c.find('\n  return ', c.find('function SingleLookup(p) {'))
+
+# 5. LookupTab state (custName + photoSearch)
+lt = c.find('function LookupTab(p) {')
+lt_ret = c.find('\n  return ', lt)
+if 'var _cn = useState("")' not in c[lt:lt_ret]:
+    old = '  var _ps = useState(false);\n  var photoSearch = _ps[0];\n  var sPhotoSearch = _ps[1];'
+    c = c.replace(old, old + '\n  var _cn = useState("");\n  var custName = _cn[0];\n  var sCustName = _cn[1];', 1)
+
+# 6. Pass props through call chains
+def ensure_prop(search, close, prop, code):
+    pos = code.find(search)
+    end = code.find(close, pos)
+    if pos > 0 and prop not in code[pos:end]:
+        return code[:end] + f',\n    {prop}' + code[end:]
+    return code
+
+for search, close, prop in [
+    ('React.createElement(SingleLookup,', '})', 'custName: custName'),
+    ('React.createElement(SingleLookup,', '})', 'sCustName: sCustName'),
+    ('React.createElement(SingleLookup,', '})', 'onAddLead: onAddLead'),
+    ('React.createElement(MultiLookup,',  '})', 'onAddLead: onAddLead'),
+]:
+    c = ensure_prop(search, close, prop, c)
+
+# 7. onAddLead received in child components
+for fn_name in ['LookupTab', 'SalesTab', 'MultiLookup']:
+    fn_pos = c.find(f'function {fn_name}(p) {{')
+    fn_ret = c.find('\n  return ', fn_pos)
+    if 'var onAddLead = p.onAddLead' not in c[fn_pos:fn_ret]:
+        ms = list(re.finditer(r'\n  var \w+ = p\.\w+;', c[fn_pos:fn_pos+5000]))
+        if ms:
+            last = fn_pos + ms[-1].end()
+            c = c[:last] + '\n  var onAddLead = p.onAddLead;' + c[last:]
+
+# 8. onAddLead passed from EventERP to LookupTab and SalesTab
+for call_fn in ['LookupTab', 'SalesTab']:
+    call = c.rfind(f'React.createElement({call_fn},')
+    end  = c.find('})', call)
+    if 'onAddLead' not in c[call:end]:
+        c = c[:end] + ',\n    onAddLead: onAddLead' + c[end:]
+
+# 9. CRITICAL: Remove stray p.photoSearch from EventERP
+# EventERP uses _refN destructuring, NOT p
+erp = c.find('function EventERP(')
+erp_end = c.find('\nfunction LookupTab(', erp)
+erp_body = c[erp:erp_end]
+if 'var photoSearch = p.photoSearch' in erp_body:
+    erp_body = erp_body.replace('\n  var photoSearch = p.photoSearch;\n  var sPhotoSearch = p.sPhotoSearch;', '', 1)
+    c = c[:erp] + erp_body + c[erp_end:]
+
+with open('compiled.js', 'w') as f:
+    f.write(c)
+print('Post-patch done:', len(c)//1024, 'KB')
+```
+
+---
+
+### Rule 5 — JSX Function Size Limit
+The artifact renderer fails on JSX functions > ~15KB. EventERP render is split into 9 tab components. Never put > 12KB of JSX in one `return()` block.
+
+---
+
+## 2. BUILD SYSTEM
+
+```bash
+node transform.js         # compile JSX → ES5 (outputs compiled.js)
+python3 post_patch.py     # apply Rule 4 fixes
+python3 build_html.py     # bundle into single HTML file
+```
+
+### transform.js
 ```javascript
 const babel = require('@babel/core');
 const fs = require('fs');
 const jsx = fs.readFileSync('./vianne-jewels-erp.jsx', 'utf8');
 const code = jsx
   .replace('import{useState,useRef,useEffect}from"react";',
-    'var _React=React;var useState=_React.useState;var useRef=_React.useRef;var useEffect=_React.useEffect;')
+    'var _R=React;var useState=_R.useState;var useRef=_R.useRef;var useEffect=_R.useEffect;')
   .replace('export default function App()', 'function App()')
   + '\nReactDOM.render(React.createElement(App,null),document.getElementById("root"));';
 const result = babel.transformSync(code, {
-  presets: [['@babel/preset-env', { targets: { ie: '11', ios: '9' }, useBuiltIns: false }], '@babel/preset-react'],
+  presets: [['@babel/preset-env',{targets:{ie:'11',ios:'9'},useBuiltIns:false}],'@babel/preset-react'],
   plugins: ['@babel/plugin-proposal-object-rest-spread'],
   sourceType: 'script'
 });
 fs.writeFileSync('./compiled.js', result.code);
-```
-
-### HTML bundle assembly
-```python
-# After compiling, assemble the HTML:
-with open('react.production.min.js') as f: react = f.read()
-with open('react-dom.production.min.js') as f: rd = f.read()
-with open('jsqr/dist/jsQR.js') as f: jsqr = f.read()
-with open('compiled.js') as f: app = f.read()
-
-html = f"""<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Vianne Jewels ERP</title>
-<style>/* ... CSS ... */</style>
-</head><body>
-<div id="root"></div>
-<script>{react}</script>
-<script>{rd}</script>
-<script>{jsqr}</script>
-<script>{app}</script>
-</body></html>"""
+console.log('SUCCESS:', Math.round(result.code.length/1024)+'KB');
 ```
 
 ---
 
-## 3. COMPONENT ARCHITECTURE
+## 3. COMPONENT TREE
 
 ```
 App
-├── Login                    (login form, Face ID / biometric button)
-└── EventHub                 (event selector screen)
-    ├── ManageEvent          (edit event details modal)
-    └── EventERP             (main app per event)
-        ├── LookupTab        (wrapper for single/multi sub-tabs)
-        │   ├── SingleLookup (search, QR scanner, item detail, sell flow)
-        │   │   └── ItemCard (item detail + sell form with customer name)
-        │   │       └── InvoiceSheet (invoice modal + print)
-        │   └── MultiLookup  (batch item lookup + bulk sell)
-        ├── SalesTab         (sales list with deliver/GATI/delete actions)
-        ├── HistoryTab       (all sales, filterable by staff)
-        ├── InventoryTab     (stock list + audit scanner)
-        ├── AnalyticsTab     (revenue, products, sales, staff charts)
-        ├── CustomersTab     (customer list, add form, detail + purchase history)
-        └── AdminTab         (settings: profile, currency, event info, users, permissions)
-            ├── CurrencyManager  (editable exchange rates, Admin only)
-            └── UserManager      (add/edit/delete team members, Admin only)
-```
+├── Login
+└── EventHub
+    ├── ManageEvent (edit name/loc/dates/colour/status + delete)
+    └── EventERP
+        ├── LookupTab              ← owns: custName, photoSearch state
+        │   ├── PhotoSearch        ← visual photo search
+        │   ├── SingleLookup       ← receives custName+photoSearch+onAddLead as props
+        │   │   ├── QRScanner
+        │   │   ├── ItemCard       ← full customer form (name*,phone*,email*,company,source)
+        │   │   │   ├── SaleSuccess ← animated sale confirmation screen
+        │   │   │   └── InvoiceSheet
+        │   └── MultiLookup        ← full customer form before Convert to Sale
+        ├── SalesTab               ← Direct Sale Entry (price edit + disc + markup + CC)
+        ├── HistoryTab             ← List + Analytics views + customer drill-down
+        ├── InventoryTab
+        ├── AnalyticsTab           ← 7 sub-tabs: Overview/Timing/StockIQ/Customers/Staff/Revenue/Pipeline
+        ├── CustomersTab
+        └── AdminTab
+            ├── CurrencyManager
+            └── UserManager
 
-### Supporting components
-- `Bdg` — status badge (available/sold/reserved/hot/warm/cold)
-- `Lotus` — Vianne Jewels SVG lotus logo
-- `Sheet` — bottom sheet modal wrapper
-- `QRScanner` — camera QR scanner using jsQR
-- `parseXL` — Excel file parser using SheetJS (loaded on demand)
+Global helpers (declared above App):
+  ToastContainer, useDark(), toggleDark(), getDark()
+  PA (press animation helper — removed from compiled, applied inline)
+```
 
 ---
 
-## 4. STATE ARCHITECTURE
+## 4. STATE MAP
 
-All state lives in `EventERP` via React `useState`. No Redux, no Context API.
-
-### Core state (EventERP useState hooks)
+### EventERP useState hooks
 ```javascript
-const [tab, st]           = useState("lookup")      // active tab
-const [inv, si]           = useState(ev.inv)        // inventory items
-const [sales, ssl]        = useState(ev.sales)      // sales records
-const [leads, sld]        = useState(ev.leads||[])  // customers/leads
-const [cur, scur]         = useState("USD")         // display currency
-const [jc, sjc]           = useState("")            // lookup search query
-const [det, sdet]         = useState(null)          // selected item detail
-const [mlTab, smlTab]     = useState("single")      // single/multi sub-tab
-const [scan, sscan]       = useState(false)         // QR scanner open
-const [showFilter, sShowFilter] = useState(false)   // filter panel open
-const [fCat, sfCat]       = useState("All")         // filter: category
-const [fCol, sfCol]       = useState("All")         // filter: collection
-const [fMetal, sfMetal]   = useState("All")         // filter: metal
-const [fSt, sfSt]         = useState("All")         // filter: status
-const [fShape, sfShape]   = useState("All")         // filter: stone shape
-const [fMinTc..fMaxFp]    = useState("")            // numeric filters
-const [invTab, sivTab]    = useState("stock")       // stock/audit sub-tab
-const [auditLoc, saLoc]   = useState("Exhibition")  // audit location
-const [auditScanned, saScanned] = useState([])      // scanned items in audit
-const [audits, sAudits]   = useState(ev.audits||[]) // saved audit records
-const [hstaff, shs]       = useState("All")         // history staff filter
-const [atab, sat]         = useState("overview")    // analytics sub-tab
+const [tab,    st]       = useState("lookup")
+const [inv,    si]       = useState(ev.inv||[])
+const [sales,  ssl]      = useState(ev.sales||[])
+const [leads,  sld]      = useState(ev.leads||[])
+const [cur,    scur]     = useState("USD")
+const [jc,     sjc]      = useState("")
+const [det,    sdet]     = useState(null)
+const [mlTab,  smlTab]   = useState("single")
+const [mlInput,smlInput] = useState("")
+const [mlItems,smlItems] = useState([])
+const [mlDisc, smlDisc]  = useState("")
+const [mlMarkup,smlMarkup]=useState("")
+const [mlNF,   smlNF]    = useState([])
+const [mlScan, smlScan]  = useState(false)
+const [showFilter,sShowFilter]=useState(false)
+const [fCat..fMaxFp]     // 14 smart filter states
+const [scan,   sscan]    = useState(false)
+const [invTab, sivTab]   = useState("stock")
+const [isq..icat]        // inventory search/filter states
+const [auditLoc,saLoc]   = useState("Exhibition")
+const [auditScanned,saScanned]=useState([])
+const [audits, sAudits]  = useState(ev.audits||[])
+const [hstaff, shs]      = useState("All")
+const [atab,   sat]      = useState("overview")
+const [showSwitch,ssw]   = useState(false)
+const [showUser,ssu]     = useState(false)
 ```
 
-### Computed variables (EventERP, before return)
+### LookupTab useState (MUST live here, not in children)
 ```javascript
-const totalRev   = sales.reduce((s,x) => s + x.total, 0)
-const fh         = sales.filter(s => hstaff==="All" || s.staff===hstaff)
-const stf        = [...new Set(sales.map(s => s.staff))]
-const lkQ        = jc.trim()
-const lkResults  = applyFilters(inv, lkQ || null)
-const lkShowResults = lkQ.length > 0 || activeFilters > 0
-const locItems   = inv.filter(i => i.loc===auditLoc && i.st!=="sold")
-const missing    = locItems.filter(i => !auditScanned.find(s => s.id===i.id))
-const saveAudit  = () => { /* saves audit record */ }
-const cats       = ["All", ...new Set(inv.map(i => i.cat))]
-const deadStock  = inv.filter(i => i.st==="available" && i.views===0)
-const fi         = inv.filter(i => !isq || i.id.toLowerCase().includes(isq.toLowerCase()) || ...)
-const addLead    = () => { /* adds new customer */ }
+var _ps = useState(false);
+var photoSearch  = _ps[0];   // photo search panel open
+var sPhotoSearch = _ps[1];
+
+var _cn = useState("");
+var custName  = _cn[0];      // customer name typed before scan
+var sCustName = _cn[1];
 ```
 
-### syncUp — persistence function
+### SalesTab Direct Sale Entry state
 ```javascript
-const syncUp = (ni, ns, nl, na) => onUpdateEvent({...ev, inv: ni||inv, sales: ns||sales, leads: nl||leads, audits: na||audits})
-```
-Called after every mutation to persist data back to the parent event object.
+const [showNewSale, sShowNewSale] = useState(false)
+const [nsCust, snsCust]  = useState({name:"",phone:"",email:"",company:"",source:"Walk-in"})
+const [nsItems, snsItems]= useState([])  // [{...item, overridePrice: null}]
+const [nsPayment, snsPayment] = useState("NEFT")
+const [nsDisc,   snsDisc]    = useState("")   // discount %
+const [nsMarkup, snsMarkup]  = useState("")   // markup %
+const [nsCCType, snsCCType]  = useState("pct")
+const [nsCCVal,  snsCCVal]   = useState("")
+const [nsSearch, snsSearch]  = useState("")
+const [nsMatchedCust, snsMatchedCust] = useState(null)
 
-### Props passed to tab components
-Each tab component receives ALL needed state via `{...{ev, inv, si, sales, ssl, leads, sld, cur, scur, user, pr, fc, totalRev, fh, stf, ...}}` spread. Each component unpacks what it needs via `var x = p.x;` declarations at the top.
+// Computed pricing
+nsSubtotal = sum of (overridePrice ?? item.fp) for each item
+nsDiscAmt  = nsSubtotal * (nsDisc/100)
+nsMarkupAmt= nsSubtotal * (nsMarkup/100)
+nsAfterAdj = nsSubtotal - nsDiscAmt + nsMarkupAmt
+nsCCAmt    = (nsPayment==="Credit Card") ? CC calculation : 0
+nsTotal    = nsAfterAdj + nsCCAmt
+```
+
+### EventERP computed vars (simple FIRST, block functions LAST)
+```javascript
+const totalRev = sales.reduce((s,x) => s+x.total, 0)
+const fh       = sales.filter(...)
+const stf      = [...new Set(sales.map(s=>s.staff))]
+const lkQ      = jc.trim()
+const lkResults     = applyFilters(inv, lkQ||null)
+const lkShowResults = lkQ.length>0 || activeFilters>0
+const locItems = inv.filter(i => i.loc===auditLoc && i.st!=="sold")
+const missing  = locItems.filter(i => !auditScanned.find(s=>s.id===i.id))
+const cats     = ["All",...new Set(inv.map(i=>i.cat))]
+const deadStock= inv.filter(...)
+const fi       = inv.filter(...)
+const allCats/allCols/allMetals/allShapes/allSt = [...]
+const activeFilters = [fCat!=="All",...].filter(Boolean).length
+// BLOCK FUNCTIONS LAST:
+const addLead    = () => toast.info("...")   // simplified — no prompt
+const saveAudit  = () => { ... }
+```
+
+### onAddLead — customer create/update
+```javascript
+// Defined in EventERP, passed down to LookupTab → SingleLookup → ItemCard
+//                                               → MultiLookup
+//                              and to SalesTab (for Direct Sale Entry)
+const onAddLead = (cust, action) => {
+  if (action === "update") {
+    const nl = leads.map(l => l.id===cust.id ? cust : l);
+    sld(nl);
+    const ns = sales.map(s => s.custId===cust.id ? {...s, custName:cust.name, phone:cust.phone} : s);
+    ssl(ns);
+    syncUp(null, ns, nl, null);
+  } else {
+    const nl = [cust, ...leads];
+    sld(nl);
+    syncUp(null, null, nl, null);
+  }
+};
+```
+
+### syncUp — data persistence
+```javascript
+const syncUp = (ni, ns, nl, na) => onUpdateEvent({
+  ...ev,
+  inv:    ni || inv,
+  sales:  ns || sales,
+  leads:  nl || leads,
+  audits: na || audits,
+})
+// Pass null for unchanged arrays
+```
 
 ---
 
@@ -182,448 +339,338 @@ Each tab component receives ALL needed state via `{...{ev, inv, si, sales, ssl, 
 ### Inventory Item
 ```javascript
 {
-  id: "VJBR0094",           // Item code (VJ prefix)
-  style: "BR0065",          // Style code
-  cat: "Bracelets",         // Category: Bracelets|Earrings|Necklaces|Rings|Pendants|...
-  col: "CLASSICS",          // Collection name
-  metal: "G14KWG",          // Metal: G14KWG|G18KWG|G14KYG|G18KYG|G18KRG|...
-  sz: "L 6.75",             // Size
-  gw: 9.66,                 // Gross weight (grams)
-  nw: 8.28,                 // Net weight (grams)
-  tc: 6.89,                 // Total carats
-  fp: 2015,                 // Final price (USD)
-  em: "💎",                 // Emoji icon
-  st: "available",          // Status: available|sold|reserved
-  loc: "Exhibition",        // Physical location
-  img: "",                  // Base64 or URL photo
-  views: 0,                 // Scan count
-  searches: 0,              // Search count
-  stones: [{sh:"RD",ct:0.97,tct:1.55}]  // Stone details
+  id:"VJBR0094", style:"BR0065",
+  cat:"Bracelets",    // Bracelets|Earrings|Necklaces|Rings|Pendants|Bangles
+  col:"CLASSICS",
+  metal:"G14KWG",     // G14KWG|G18KWG|G14KYG|G18KYG|G18KRG|G14KRG|PT950
+  sz:"L 6.75", qty:1,
+  gw:9.66, nw:8.28, tc:6.89, sp:27,
+  iv:1427, tod:1556, cpt:1712, ipt:1570, fp:2015,
+  em:"💎",
+  st:"available",     // available|sold|reserved
+  loc:"Exhibition",
+  img:"",             // base64 or URL
+  views:0, searches:0,
+  stones:[{sh:"RD",ct:0.97,tct:1.55}]
 }
 ```
 
 ### Sale Record
 ```javascript
 {
-  id: "INV-ABC1",           // Invoice ID
-  custName: "John Doe",     // Customer name (optional)
-  phone: "+1 555 1234",     // Phone
-  itemId: "VJBR0094",       // Item code
-  itemName: "Bracelets · CLASSICS · G14KWG",
-  metal: "G14KWG",
-  col: "CLASSICS",
-  sz: "L 6.75",
-  gw: 9.66, nw: 8.28, tc: 6.89,
-  price: 2015,              // Subtotal after discount
-  disc: 0,                  // Discount %
-  cgst: 0,                  // Always 0 (no GST on invoices)
-  sgst: 0,                  // Always 0
-  ccType: "pct",            // CC surcharge type: "pct"|"amt"
-  ccVal: "2.5",             // CC surcharge value
-  ccAmt: 50.38,             // CC surcharge amount
-  total: 2065.38,           // Grand total
-  payment: "Credit Card",   // Payment method
-  staff: "Naman",           // Staff who made sale
-  date: "6/7/2026",
-  time: "9:30:00 AM",
-  st: "completed",          // completed|pending|delivered
-  gt: "",                   // GATI consignment number
-  source: "in-store",       // in-store|shopify|whatsapp
+  id:"INV-ABC1",
+  custId:"LD-ABC1",        // primary link to customer
+  custName:"John Doe",     // display — updated if customer renamed
+  phone:"+1 555 1234",
+  email:"john@example.com",
+  company:"Doe Jewelers",
+  itemId:"VJBR0094",
+  itemName:"Bracelets · CLASSICS · G14KWG",
+  metal:"G14KWG", col:"CLASSICS", sz:"L 6.75",
+  gw:9.66, nw:8.28, tc:6.89,
+  price:2015,        // adjusted price (after disc/markup, before CC)
+  disc:0,            // discount %
+  cgst:0, sgst:0,    // always 0
+  ccType:"pct",      // "pct"|"amt"
+  ccVal:"2.5",
+  ccAmt:50.38,
+  total:2065.38,     // price + ccAmt
+  payment:"Credit Card",
+  staff:"Naman",
+  date:"6/7/2026", time:"9:30:00 AM",
+  st:"completed",    // completed|pending|delivered
+  gt:"",             // GATI removed — always ""
+  remark:"",
+  currency:"USD",
+  margin:0,
 }
 ```
 
 ### Customer / Lead
 ```javascript
 {
-  id: "LD-ABC1",
-  name: "John Doe",
-  phone: "+1 555 1234",
-  email: "john@example.com",
-  company: "Doe Jewelers",
-  contact: "",              // Legacy field (same as email)
-  notes: "Prefers platinum, budget $5k",
-  status: "Warm",           // Hot|Warm|Cold
-  source: "Walk-in",        // Walk-in|Shopify|WhatsApp|Referral|Trade Show|Other
-  created: "6/7/2026",
-}
-```
-
-### Event
-```javascript
-{
-  id: "EVT001",
-  name: "JCK Las Vegas 2026",
-  loc: "Las Vegas, USA",
-  start: "2026-06-06",
-  end: "2026-06-09",
-  status: "active",         // active|completed|upcoming
-  inv: [...],               // Inventory array
-  sales: [...],             // Sales array
-  leads: [...],             // Customers array
-  audits: [...],            // Audit records array
-}
-```
-
-### Audit Record
-```javascript
-{
-  id: "AUD-ABC1",
-  loc: "Exhibition",
-  date: "6/7/2026",
-  time: "9:30:00 AM",
-  expected: 45,
-  scanned: 43,
-  missing: ["VJBR0094", "VJER0784"],
-  items: ["VJNC3234", ...]  // All scanned item IDs
+  id:"LD-ABC1",
+  name:"John Doe",
+  phone:"+1 555 1234",
+  email:"john@example.com",
+  company:"Doe Jewelers",
+  contact:"",         // legacy alias for email
+  notes:"",
+  status:"Warm",      // Hot|Warm|Cold
+  source:"Walk-in",   // Walk-in|Shopify|WhatsApp|Referral|Trade Show|Other
+  created:"6/7/2026",
 }
 ```
 
 ---
 
-## 6. PERMISSIONS SYSTEM
-
-Defined in `gp(role, customPerms)` function. Returns a permissions object.
+## 6. PERMISSIONS
 
 ```javascript
 const PERMS = {
-  Admin:   { vP:1, vH:1, vA:1, oP:1, eC:1, mU:1, sF:1, sB:1, delSale:1 },
-  Manager: { vP:1, vH:1, vA:0, oP:1, eC:1, mU:0, sF:1, sB:0, delSale:0 },
-  Staff:   { vP:0, vH:0, vA:0, oP:0, eC:0, mU:0, sF:0, sB:0, delSale:0 },
+  Admin:   {vP:1,vH:1,vA:1,oP:1,eC:1,mU:1,sF:1,sB:1,delSale:1},
+  Manager: {vP:1,vH:1,vA:0,oP:1,eC:1,mU:0,sF:1,sB:0,delSale:0},
+  Staff:   {vP:0,vH:0,vA:0,oP:0,eC:0,mU:0,sF:0,sB:0,delSale:0},
 }
+// vP=view prices, vH=history, vA=analytics/revenue, oP=discount
+// eC=export, mU=manage users+rates, sF=formula, sB=breakdown, delSale=delete sales
 ```
-
-| Key | Meaning |
-|-----|---------|
-| `vP` | View Prices |
-| `vH` | View History / Sales tab |
-| `vA` | View Analytics + Revenue |
-| `oP` | Override Price (discount) |
-| `eC` | Export CSV |
-| `mU` | Manage Users + Edit currency rates |
-| `sF` | Show Formula (cost/margin) |
-| `sB` | Show Breakdown |
-| `delSale` | Delete Sales |
-
-Custom permissions per user override the role defaults.
 
 ---
 
-## 7. TEAM CREDENTIALS
+## 7. SELL FLOWS
+
+### Single Lookup (ItemCard)
+```
+1. Type customer name (optional) in gold input at top of Lookup
+2. Scan QR / search item → tap item → ItemCard
+3. Customer card at top:
+   - Name* (gold border when empty, auto-fills from Customers on match)
+   - Phone*, Email* (required — red border when empty)
+   - Company, Source
+4. Discount slider (pr.oP), Payment method
+5. CC Surcharge (only if Credit Card): % Rate or Fixed $
+6. Price breakdown → GRAND TOTAL
+7. Confirm Sale → SaleSuccess screen (animated ✓, 4s auto-close)
+8. Auto creates/updates customer in Customers tab via onAddLead
+9. Sale record has custId + custName + email + company
+```
+
+### Multi Lookup (MultiLookup)
+```
+1. Paste codes or scan batch
+2. Set discount % or markup %
+3. Tap "💰 Convert to Sale" → customer form slides open
+4. Same required fields: Name*, Phone*, Email*, Company, Source
+5. Confirm → calls sellMulti(custName, phone, custId)
+6. All items sold, batch ID assigned, customer created/updated
+```
+
+### Direct Sale Entry (SalesTab)
+```
+1. Tap "+ Direct Sale Entry" in Sales tab
+2. Customer: Name*, Phone*, Email*, Company, Payment method
+3. Add items by tapping from available inventory list
+4. Per-item price: editable $ input (blank = list price)
+5. Overall DISCOUNT %: deducted from subtotal (shown in red)
+6. Overall MARKUP %: added to subtotal (shown in green)
+7. CC Surcharge: appears only if Credit Card selected (% or fixed)
+8. Live breakdown: Subtotal → Disc → Markup → CC → GRAND TOTAL
+9. Confirm → all items marked sold, customer created/updated, toast
+```
+
+### Delete Sale
+```
+- 🗑 Delete button (Admin only, pr.delSale)
+- One tap → sale deleted, item restored to "available"
+- Toast: "Sale deleted — {itemId} restored to available"
+- No window.confirm popup
+```
+
+---
+
+## 8. TOAST SYSTEM
+
+```javascript
+// Global, works from any component
+toast.success("msg", "sub")
+toast.error("msg", "sub")
+toast.warn("msg", "sub")
+toast.info("msg", "sub")
+
+// All alert() calls have been replaced with toast calls
+// ToastContainer renders in App's return
+```
+
+---
+
+## 9. DARK MODE
+
+```javascript
+// Global toggle, persists to localStorage "vj_dark"
+toggleDark()         // call from anywhere
+const dark = useDark() // hook to read current value
+getDark(dark)        // returns colour token object for dark/light
+
+// Toggle UI in AdminTab → Settings → bottom of My Profile section
+// 🌙 Dark Mode toggle switch
+```
+
+---
+
+## 10. SALE SUCCESS SCREEN (SaleSuccess component)
+
+```javascript
+// Rendered by ItemCard after doSell() confirms
+// Full-screen overlay with animated ✓ circle, auto-closes in 4s
+// Props: sale, item, fc, cur, onDone (→ back to Lookup), onPrint (→ InvoiceSheet)
+```
+
+---
+
+## 11. PHOTO SEARCH
+
+```
+PhotoSearch component → before SingleLookup in source
+State: owned by LookupTab (photoSearch/sPhotoSearch via _ps = useState(false))
+Passed to SingleLookup as props
+
+Pipeline:
+  Image → Canvas 120×120 → pixel array
+  detectMetal(px) → {metal:"YG"|"WG"|"RG", conf:0-100}
+    YG: hue 28-65°, sat>12, lig 30-92%
+    RG: hue 340-25°, sat>12, r>b
+    WG: sat<22, lig>42%
+  detectStones(px) → boolean (sparkle ratio >3%)
+  detectCategory(px) → {cat, conf:0-100}
+    ar>2.8 → Bracelets, ar>1.8 → Necklaces, ar<0.55 → Pendants
+    centre-light squarish → Rings, top/bottom mass → Earrings
+  Scoring: category(0-40) + metal(0-35) + stones(15) + status(±5-15)
+  Top 6 results with score bar + BEST MATCH badge
+```
+
+---
+
+## 12. ANALYTICS TABS (7)
+
+| Tab | Key metrics |
+|-----|-------------|
+| 📊 Overview | Revenue, units, avg deal, sell-through %, discounts, CC recovered, Pareto insight |
+| ⏱ Timing | Sales by hour (bar chart), day-by-day, peak hour insight |
+| 💎 Stock IQ | High-interest unsold, dead stock, price sweet spot, carat sweet spot, collection/metal performance |
+| 👥 Customers | Top buyers leaderboard 🥇🥈🥉, multi-buy count, lead sources, basket size |
+| 🧑‍💼 Staff | Revenue card per staff, avg deal, discount usage warning, category strength |
+| 💰 Revenue | Total + 4-day projection, cumulative curve, revenue by category, discount impact |
+| 🔁 Pipeline | Lead funnel, conversion rate, hot leads priority list, pipeline value estimate, warm leads |
+
+---
+
+## 13. CURRENCIES
+
+```javascript
+const DEFAULT_CURR = {
+  USD:{s:"$",r:1},    INR:{s:"₹",r:83.5},   AED:{s:"AED ",r:3.67},
+  GBP:{s:"£",r:0.79}, EUR:{s:"€",r:0.92},   SGD:{s:"S$",r:1.35},
+  HKD:{s:"HK$",r:7.82},JPY:{s:"¥",r:149.5}, CAD:{s:"CA$",r:1.36},
+  AUD:{s:"A$",r:1.52}
+}
+// Admin-editable via CurrencyManager in Settings
+// Saved to localStorage "vj_curr_rates"
+```
+
+---
+
+## 14. TEAM CREDENTIALS
 
 ```javascript
 const USERS = [
-  { name:"Nilay",   un:"nilay",   pw:"nilay123",   role:"Admin"   },
-  { name:"Jimit",   un:"jimit",   pw:"jimit123",   role:"Manager" },
-  { name:"Ruchit",  un:"ruchit",  pw:"ruchit123",  role:"Admin"   },
-  { name:"Naresh",  un:"naresh",  pw:"naresh123",  role:"Staff"   },
-  { name:"Naman",   un:"naman",   pw:"naman123",   role:"Admin"   },
-  { name:"Nihar",   un:"nihar",   pw:"nihar123",   role:"Staff"   },
-  { name:"Dhruvit", un:"dhruvit", pw:"dhruvit123", role:"Staff"   },
+  {name:"Nilay",   un:"nilay",   pw:"nilay123",   role:"Admin"},
+  {name:"Jimit",   un:"jimit",   pw:"jimit123",   role:"Manager"},
+  {name:"Ruchit",  un:"ruchit",  pw:"ruchit123",  role:"Admin"},
+  {name:"Naresh",  un:"naresh",  pw:"naresh123",  role:"Staff"},
+  {name:"Naman",   un:"naman",   pw:"naman123",   role:"Admin"},
+  {name:"Nihar",   un:"nihar",   pw:"nihar123",   role:"Staff"},
+  {name:"Dhruvit", un:"dhruvit", pw:"dhruvit123", role:"Staff"},
 ]
 ```
 
 ---
 
-## 8. CURRENCIES
+## 15. WHAT'S REMOVED
+
+| Feature | Status |
+|---------|--------|
+| GATI booking/button | Removed entirely — `gt:""` always |
+| `window.alert()` | Replaced with `toast.*` everywhere |
+| `window.confirm()` | Replaced with inline confirm UI |
+| `window.prompt()` | Removed — customers added via proper forms |
+| CGST/SGST | Always 0 — international B2B |
+
+---
+
+## 16. CUSTOMER LINKING
+
+Sales are linked to customers via **both** `custId` (permanent) and `custName` (display):
 
 ```javascript
-const DEFAULT_CURR = {
-  USD: { s:"$",    r:1,     name:"US Dollar"         },
-  INR: { s:"₹",   r:83.5,  name:"Indian Rupee"      },
-  AED: { s:"AED ", r:3.67,  name:"UAE Dirham"        },
-  GBP: { s:"£",   r:0.79,  name:"British Pound"     },
-  EUR: { s:"€",   r:0.92,  name:"Euro"              },
-  SGD: { s:"S$",  r:1.35,  name:"Singapore Dollar"  },
-  HKD: { s:"HK$", r:7.82,  name:"Hong Kong Dollar"  },
-  JPY: { s:"¥",   r:149.5, name:"Japanese Yen"      },
-  CAD: { s:"CA$", r:1.36,  name:"Canadian Dollar"   },
-  AUD: { s:"A$",  r:1.52,  name:"Australian Dollar" },
-}
-// User-edited rates saved to localStorage key "vj_curr_rates"
-// Only Admin (pr.mU) can edit rates via CurrencyManager in Settings
+// When sale confirmed from ANY flow:
+// 1. Check if customer exists by name match
+// 2. If yes → update their details, use existing custId
+// 3. If no  → create new customer in leads, use new custId
+// 4. Sale record gets: custId, custName, phone, email, company
+
+// When customer edited in CustomersTab:
+// → All their sales updated via custId match
+// (custName, phone in sales records stay in sync)
+
+// When sale deleted:
+// → item.st restored to "available"
+// → sale removed from sales array
+// → syncUp called with updated inv + sales
 ```
 
 ---
 
-## 9. STYLE SYSTEM
+## 17. FIREBASE DEPLOYMENT
 
-All styles are inline React styles using the `S` object:
-
-```javascript
-const S = {
-  btn:  o => ({ background:G, color:CR, border:"none", borderRadius:10, ... }),
-  bOut: o => ({ background:"transparent", color:G, border:"1.5px solid "+G, ... }),
-  bRed: o => ({ background:RE, color:WH, ... }),
-  inp:  o => ({ background:INP, border:"1.5px solid "+CRD2, borderRadius:9, ... }),
-  lbl:  { fontSize:9, fontWeight:700, color:T3, textTransform:"uppercase", ... },
-  card: o => ({ background:WH, borderRadius:14, padding:"13px 14px", ... }),
-  sh:   { fontWeight:700, fontSize:11, color:T2, textTransform:"uppercase", ... },
-  cc:   o => ({ background:WH, borderRadius:12, padding:"11px 13px", ... }),
-  pill: active => ({ ... }),
-}
-```
-
-### Color palette
-```javascript
-const G    = "#1E5C45"   // Primary green
-const GD   = "#163D2E"   // Dark green (background)
-const GO   = "#C9A84C"   // Gold
-const CR   = "#F5EDE0"   // Cream
-const WH   = "#FFFFFF"   // White
-const CRD  = "#F5EDE0"   // Cream (card bg)
-const CRD2 = "#E8DCCB"   // Cream darker (borders)
-const INP  = "#FBF5E8"   // Input background
-const T1   = "#1E5C45"   // Text primary
-const T2   = "#3D5C4A"   // Text secondary
-const T3   = "#7A8C7E"   // Text tertiary
-const T4   = "#B0A88A"   // Text quaternary
-const RE   = "#A03030"   // Red (errors, hot leads)
-const REBG = "#F9ECEC"   // Red background
-const AM   = "#C8963A"   // Amber (warnings, warm leads)
-const AMBG = "#FDF5E6"   // Amber background
-```
-
----
-
-## 10. SELL FLOW (Single Lookup)
-
-1. Staff searches for item code or name → `lkResults` filters `inv`
-2. Taps item → `sdet(item)` sets detail view → `ItemCard` renders
-3. `ItemCard` shows item photo, specs, price (gated by `pr.vP`)
-4. Staff taps **SOLD DELIVERED** or **INVOICE** → `sm("d")` or `sm("n")` sets mode
-5. Sell form opens with:
-   - **Customer name** (optional, at top) + Phone
-   - **Discount** slider (visible only if `pr.oP`)
-   - **Payment method** selector (NEFT/RTGS/Cheque/Cash/UPI/Credit Card/Wire Transfer)
-   - **CC Surcharge** section (visible only when payment = Credit Card): % or fixed amount
-   - **Remarks** textarea
-   - Live price breakdown: Item Price → Discount → CC Surcharge → **GRAND TOTAL**
-6. Staff taps **Confirm Sale & Invoice** → `doSell()`:
-   - Creates sale record with all fields + `ccType`, `ccVal`, `ccAmt`, `total`
-   - Updates item status to "sold" in inventory
-   - Calls `syncUp()` to persist
-   - Opens `InvoiceSheet` modal
-7. Invoice modal shows printable view → **Print Invoice** opens `window.open()` with formatted HTML
-
-### Invoice format
-- No CGST / SGST (zero on all invoices)
-- Shows: Item Price → Discount (if any) → CC Surcharge (if any) → **GRAND TOTAL**
-- Business header: Vianne Jewels, GSTIN, HSN, address, email, website
-
----
-
-## 11. QR SCANNER
-
-The `QRScanner` component uses the `jsQR` library (bundled inline, no CDN):
-
-```javascript
-function QRScanner({ onScanned, inv }) {
-  // useRef for video + canvas
-  // useEffect: getUserMedia → start camera → requestAnimationFrame loop
-  // Each frame: draw to canvas → imageData → jsQR() → if found: onScanned(code, item)
-  // Manual entry fallback for sandboxed environments
-}
-```
-
-**Important:** Camera (`getUserMedia`) is blocked in sandboxed iframes (Claude artifact renderer). The scanner UI renders correctly but shows "Starting camera..." in the sandbox. Manual entry (type VJ code) works fully.
-
----
-
-## 12. EXCEL IMPORT (parseXL)
-
-SheetJS is loaded on demand via CDN when user taps "Upload Excel":
-
-```javascript
-function parseXL(wb, evId) {
-  // Reads JCK price list Excel format
-  // Extracts: id, style, cat, col, metal, sz, qty, gw, nw, tc, sp, iv, tod, cpt, ipt, fp, em
-  // Embeds product photos from Excel anchor images
-  // Returns array of inventory items
-}
-```
-
-**Excel format expected:** JCK price list with columns matching the inventory item fields. Photos embedded as images anchored to rows.
-
----
-
-## 13. FEATURES IMPLEMENTED
-
-### Lookup Tab
-- [x] Live search by item code, collection, category, metal
-- [x] ⚡ Smart Filters: Category, Collection, Metal, Stone Shape, Status, Carat range, Weight range, Price range
-- [x] Active filter count badge
-- [x] Reset filters button
-- [x] QR scanner (inline, no popup, stop button)
-- [x] Item detail view with photo, specs, price breakdown
-- [x] Single sell flow with customer name (optional), CC surcharge, no GST
-- [x] Invoice print
-
-### Multi-Lookup Tab
-- [x] Paste multiple codes or scan multiple QR codes
-- [x] Bulk pricing with discount % or markup %
-- [x] Batch sell with customer name prompt
-- [x] Not-found items list
-
-### Sales Tab
-- [x] Sales list with item photo, customer, amount, payment method
-- [x] Mark as **Invoice** / **Delivered** / **GATI** (generates consignment number)
-- [x] Delete sale (gated by `pr.delSale`)
-- [x] Filter by staff (History sub-tab)
-- [x] Revenue visible only to `pr.vA`
-
-### History Tab
-- [x] Full sales history reverse chronological
-- [x] Staff filter
-- [x] Invoice view for each sale
-
-### Stock Tab
-- [x] Inventory list with search, category filter, status filter
-- [x] Status badges (available/sold/reserved)
-- [x] Dead stock indicator (0 views, 0 searches)
-
-### Audit Tab
-- [x] Location selector (Exhibition/Vault/Office/All)
-- [x] QR scanner with stop button
-- [x] Expected / Scanned / Missing counts
-- [x] Missing items list
-- [x] Save audit record with timestamp
-
-### Customers Tab
-- [x] Customer list with avatar, status badge, total spent, purchase count
-- [x] Search by name, phone, company
-- [x] Filter pills: All / Hot / Warm / Cold
-- [x] Add Customer form (inline, no popup): Name, Phone, Email, Company, Status, Source, Notes
-- [x] Customer detail: profile card, Hot/Warm/Cold toggle, purchase history with photos
-- [x] Sources: Walk-in / Shopify / WhatsApp / Referral / Trade Show / Other
-
-### Analytics Tab
-- [x] Overview: revenue, units, avg deal, conversion rate (gated by `pr.vA`)
-- [x] Products: top items by revenue, category breakdown
-- [x] Sales: timeline, payment method breakdown
-- [x] Staff: per-staff performance (gated by `pr.vA`)
-
-### Settings Tab (Admin only)
-- [x] My Profile: name, username, role, permissions
-- [x] Currency & Exchange Rates: 10 currencies, Admin-editable rates, saves to localStorage
-- [x] Event Info: name, dates, status, item/sale/revenue summary
-- [x] User Management: add/edit/delete team members, custom permissions per user
-- [x] Your Permissions: visual permission toggles (read-only)
-- [x] Sign Out
-
-### Event Hub
-- [x] Multi-event support (JCK, IIJS, etc.)
-- [x] Create new event
-- [x] Edit event details
-- [x] Switch between events
-
----
-
-## 14. KNOWN LIMITATIONS
-
-| Issue | Status | Notes |
-|-------|--------|-------|
-| Camera blocked in sandbox | By design | Use manual QR entry. Works on real devices. |
-| SheetJS from CDN | Works on real devices | CDN blocked in sandbox. Use demo items in sandbox. |
-| 50 demo items | Temporary | Load full 451-item catalog via Excel upload in app |
-| No backend | By design for now | See integration spec for Shopify/QB/GATI backend |
-| localStorage only | By design | Data persists per browser session. No cloud sync yet. |
-
----
-
-## 15. PLANNED INTEGRATIONS (See vianne-erp-integration-spec.md)
-
-Three integrations planned, each requires a Node.js backend server:
-
-### 15.1 Shopify
-- Pull orders from Shopify → import as ERP sales
-- Push inventory items to Shopify as products
-- Update Shopify stock when item sold in ERP
-- Abandoned cart customers → auto-add as leads
-
-### 15.2 QuickBooks Online
-- Auto-create QB invoice on each sale
-- Sync customers and items
-- OAuth flow (requires backend)
-
-### 15.3 GATI Softech
-- Auto-book consignment on GATI button tap
-- Get real consignment number + tracking URL
-- Replace manual GT number generation
-
----
-
-## 16. HOW TO ADD A NEW FEATURE (for Cursor)
-
-### Step 1: Edit the JSX source
-Open `vianne-jewels-erp.jsx`. All React components are here.
-
-### Step 2: Babel scoping rule
-If you add new variables in `EventERP` body before `return(`, put them AFTER all arrow functions that use block bodies `{ }`. Put simple one-liner consts first, block functions last. This prevents Babel from scoping them inside the previous function.
-
-```javascript
-// CORRECT ORDER:
-const totalRev = sales.reduce(...);   // simple — put first
-const fi = inv.filter(i => !isq || ...); // expression body — fine anywhere
-const addCustomer = () => {           // block body — put LAST
-  // ... multi-line ...
-};
-```
-
-### Step 3: Compile
 ```bash
-node transform.js
-# Should output: SUCCESS: XXX KB
+npm install -g firebase-tools
+firebase login
+firebase init hosting   # public dir: .  single-page: No
+cp vianne-jewels-erp.html index.html
+firebase deploy
 ```
 
-### Step 4: If compile fails
-Check the error line number in the JSX source. Common issues:
-- Template literals (backticks) — not allowed, use `"a" + var + "b"` concatenation
-- `async/await` — not allowed, use `.then()` chains
-- Optional chaining `?.` — not allowed, use `x && x.y`
-- Nullish coalescing `??` — not allowed, use `x !== null && x !== undefined ? x : y`
-
-### Step 5: Apply post-compile fixes
-After compile, run these fixes in the compiled.js if needed:
-```python
-# Add missing var declarations to AdminTab
-# Add sauditLoc/sauditScanned aliases to InventoryTab
-# Fix sellMulti cgst to 0
-```
-
-### Step 6: Bundle HTML
-```python
-# Concatenate: react.min.js + react-dom.min.js + jsQR.js + compiled.js
-# Wrap in HTML boilerplate with mobile meta tags
-# Output: vianne-jewels-erp.html
+**firebase.json:**
+```json
+{
+  "hosting": {
+    "public": ".",
+    "ignore": ["firebase.json","node_modules","*.jsx","compiled.js","*.py","*.md"],
+    "headers": [{"source":"**/*.html","headers":[{"key":"Cache-Control","value":"no-cache"}]}]
+  }
+}
 ```
 
 ---
 
-## 17. BUSINESS CONTEXT
+## 18. QUICK EDIT REFERENCE
 
-**Company:** Vianne Jewels  
-**Business:** B2B diamond jewelry, trade shows + wholesale  
-**Key venue:** JCK Las Vegas (June each year), IIJS Mumbai  
-**Team:** Nilay (Admin/Owner), Jimit (Manager), Ruchit (Admin), Naresh/Nihar/Dhruvit (Staff), Naman (Admin/Builder)  
-**Typical JCK stats:** ~$139K revenue, 123 units, 37.4% conversion, 41 customers, ~$323K unsold pipeline  
-**Invoice format:** No CGST/SGST (international B2B), CC surcharge as needed  
-**Primary use:** iPad/iPhone at trade show booth for real-time inventory lookup and sales recording
-
----
-
-## 18. QUICK REFERENCE: FILE EDIT LOCATIONS
-
-| What to change | Where in vianne-jewels-erp.jsx |
-|----------------|-------------------------------|
-| Login credentials | `const USERS = [...]` near top |
-| Default currency rates | `const DEFAULT_CURR = {...}` near top |
-| Color palette | `const G=..., GD=..., GO=...` constants |
-| Add a new tab | Add to `TABS` array in EventERP, add `{tab==="newtab"&&<NewTab .../>}` in JSX, create `function NewTab(p){...}` |
-| Change payment methods | `["NEFT","RTGS","Cheque","Cash","UPI","Credit Card","Wire Transfer"]` in ItemCard |
-| Invoice header/footer | `doPrint()` function in InvoiceSheet |
-| Add a new permission | Add key to `PERMS` object in `gp()` function |
-| Change sell form fields | `ItemCard` function, the `mode` render section |
-| Analytics metrics | `AnalyticsTab` function |
+| What | Where in vianne-jewels-erp.jsx |
+|------|-------------------------------|
+| Login passwords | `const USERS = [...]` top of file |
+| Currency rates | `const DEFAULT_CURR = {...}` top of file |
+| App colours | `const G=..., GD=..., GO=...` constants |
+| Payment methods | `["NEFT","RTGS",...]` in ItemCard, MultiLookup, SalesTab |
 | Audit locations | `["Exhibition","Vault","Office","All"]` in InventoryTab |
-| Multi-lookup pricing | `MultiLookup` function, `mlSubtotal/mlAdj/mlFinal` calculations |
+| Invoice print HTML | `doPrint()` inside InvoiceSheet |
+| Photo search thresholds | `detectMetal()`, `detectCategory()` in PhotoSearch |
+| Smart filter logic | `applyFilters()` in EventERP body |
+| History analytics | `function HistoryTab(p)` |
+| Analytics sub-tabs | `function AnalyticsTab(p)` |
+| Customer add form | `function CustomersTab(p)` |
+| Currency rate editor | `function CurrencyManager({...})` |
+| User management | `function UserManager({...})` |
+| Event edit/delete | `function ManageEvent({...})` |
+| Event colour options | `COLORS` array in ManageEvent |
+| Permission defaults | `PERMS` in `gp()` function |
+| Dark mode toggle UI | `function AdminTab(p)` → Sign Out section |
+| Direct sale pricing | `SalesTab` → `confirmNewSale` function |
+
+---
+
+## 19. BUSINESS CONTEXT
+
+| | |
+|---|---|
+| Company | Vianne Jewels ("The Signature of Affordable Sophistication") |
+| Business | B2B diamond jewelry — trade shows + wholesale |
+| Events | JCK Las Vegas (June), IIJS Mumbai (August) |
+| Platform | iPad / iPhone at booth |
+| JCK 2026 | $139K revenue, 123 units, 37.4% conversion, 41 customers |
+| Invoice | No CGST/SGST (international B2B), CC surcharge optional |
+| Currency | USD default, 10 currencies, Admin-editable |
+| Hosting | Firebase Hosting (planned) |
+| Builder | Naman (Admin) |
+| Key staff | Nilay (top closer), Jimit (Manager), Ruchit/Naresh/Nihar/Dhruvit |
 

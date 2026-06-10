@@ -11,9 +11,11 @@ function isBlobConfigured() {
 }
 
 function blobAuthOpts() {
-  const opts = { access: "private" };
+  // Public master JSON: server reads without OIDC CDN issues; /api/data is the access gate.
+  const opts = { access: "public" };
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     opts.token = process.env.BLOB_READ_WRITE_TOKEN;
+    opts.access = "private";
   }
   const storeId = process.env.BLOB_STORE_ID;
   if (storeId) {
@@ -33,7 +35,7 @@ function parseBlobMaster(text) {
 
 async function readBlobMaster() {
   const authOpts = blobAuthOpts();
-  const opts = { ...authOpts, access: "private", useCache: false };
+  const opts = { ...authOpts, useCache: false };
   try {
     let meta = null;
     try {
@@ -92,14 +94,13 @@ async function saveToBlob(payload) {
   };
   const putResult = await put(MASTER_PATH, JSON.stringify(master), {
     ...blobAuthOpts(),
-    access: "private",
     contentType: "application/json",
     addRandomSuffix: false,
     allowOverwrite: true,
   });
   let saved = master.events;
   try {
-    const hit = await get(putResult.url, { ...blobAuthOpts(), access: "private", useCache: false });
+    const hit = await get(putResult.url, { ...blobAuthOpts(), useCache: false });
     if (hit && hit.blob) saved = parseBlobMaster(await hit.blob.text()).events || saved;
   } catch (_) {}
   return {

@@ -12394,6 +12394,28 @@ function mergeEvents(local, cloud) {
   return _toConsumableArray(byId.values());
 }
 var USERS_KEY = "vj_users";
+var SESSION_KEY = "vj_session";
+function persistSession(u) {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+      id: u.id,
+      un: u.un
+    }));
+  } catch (e) {}
+}
+function clearSession() {
+  try {
+    sessionStorage.removeItem(SESSION_KEY);
+  } catch (e) {}
+}
+function readSession() {
+  try {
+    var raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
 function loadUsers() {
   try {
     var raw = localStorage.getItem(USERS_KEY);
@@ -22257,7 +22279,10 @@ function AnalyticsTab(p) {
   })))));
 }
 function CloudStoragePanel(_ref44) {
-  var pr = _ref44.pr;
+  var pr = _ref44.pr,
+    allEvents = _ref44.allEvents,
+    appUsers = _ref44.appUsers,
+    onSynced = _ref44.onSynced;
   var _useState73 = useState(false),
     _useState74 = _slicedToArray(_useState73, 2),
     busy = _useState74[0],
@@ -22283,7 +22308,7 @@ function CloudStoragePanel(_ref44) {
   var blobOk = ping && ping.blob;
   var syncNow = /*#__PURE__*/function () {
     var _ref45 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
-      var d, local, merged, r, _t3;
+      var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
       return _regenerator().w(function (_context6) {
         while (1) switch (_context6.p = _context6.n) {
           case 0:
@@ -22305,14 +22330,18 @@ function CloudStoragePanel(_ref44) {
             _context6.n = 4;
             return loadEventsAsync();
           case 4:
-            local = _context6.v;
+            localFromStore = _context6.v;
+            local = allEvents && allEvents.length ? allEvents : localFromStore;
             merged = mergeEvents(local, d.events || []);
             saveEvents(merged);
-            if (Array.isArray(d.users) && d.users.length) saveUsers(mergeUserDefaults(d.users));
+            users = appUsers && appUsers.length ? appUsers : loadUsers();
+            if (Array.isArray(d.users) && d.users.length) {
+              cloudUsers = mergeUserDefaults(d.users);
+              saveUsers(cloudUsers);
+            }
             _context6.n = 5;
-            return flushCloudSync(merged, loadUsers(), [], {
-              silent: false,
-              successMsg: "Synced with company cloud"
+            return flushCloudSync(merged, users, [], {
+              silent: true
             });
           case 5:
             r = _context6.v;
@@ -22321,13 +22350,12 @@ function CloudStoragePanel(_ref44) {
               break;
             }
             setLastErr(r.error || getLastCloudError());
+            toast.error("Cloud sync failed", r.error || getLastCloudError() || "Could not save to company cloud.");
             return _context6.a(2);
           case 6:
             setMeta(getCloudMeta());
-            toast.success("All devices updated", "Reloading latest events…");
-            setTimeout(function () {
-              return window.location.reload();
-            }, 800);
+            if (onSynced) onSynced(merged, users);
+            toast.success("All devices updated", "Other users will see changes within ~15 seconds. You stay signed in.");
             _context6.n = 8;
             break;
           case 7:
@@ -22672,6 +22700,7 @@ function AdminTab(p) {
   var st = p.st;
   var onLogout = p.onLogout;
   var onUpdateEvent = p.onUpdateEvent;
+  var onCloudSync = p.onCloudSync;
   var allEvents = p.allEvents;
   var onSwitch = p.onSwitch;
   var showSwitch = p.showSwitch;
@@ -22782,7 +22811,10 @@ function AdminTab(p) {
     scur: scur,
     pr: pr
   }), /*#__PURE__*/React.createElement(CloudStoragePanel, {
-    pr: pr
+    pr: pr,
+    allEvents: allEvents,
+    appUsers: users,
+    onSynced: p.onCloudSync
   }), /*#__PURE__*/React.createElement("div", {
     style: _objectSpread({}, S.card({
       margin: 0,
@@ -25367,7 +25399,8 @@ function EventERP(_ref67) {
     onSwitch = _ref67.onSwitch,
     onUpdateEvent = _ref67.onUpdateEvent,
     onBack = _ref67.onBack,
-    onLogout = _ref67.onLogout;
+    onLogout = _ref67.onLogout,
+    onCloudSync = _ref67.onCloudSync;
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents);
@@ -26442,6 +26475,7 @@ function EventERP(_ref67) {
     st: st,
     onLogout: onLogout,
     onUpdateEvent: onUpdateEvent,
+    onCloudSync: onCloudSync,
     allEvents: allEvents,
     onSwitch: onSwitch,
     jc: jc,
@@ -26751,6 +26785,15 @@ function App() {
     }))();
   }, [dataReady]);
   useEffect(function () {
+    if (!dataReady || user) return;
+    var s = readSession();
+    if (!s) return;
+    var u = appUsers.find(function (x) {
+      return x.id === s.id && x.un === s.un;
+    });
+    if (u) su(u);
+  }, [dataReady, appUsers, user]);
+  useEffect(function () {
     if (!dataReady || !cloudReady || !isCloudOnline()) return;
     runCloudSave(eventsRef.current, appUsersRef.current, [], {
       silent: true
@@ -26925,6 +26968,7 @@ function App() {
     }, 100);
   };
   var logout = function logout() {
+    clearSession();
     su(null);
     sae(null);
   };
@@ -27004,6 +27048,7 @@ function App() {
                 appUsersRef: appUsersRef
               });
             }
+            persistSession(u);
             su(u);
           case 2:
             return _context10.a(2);
@@ -27014,6 +27059,16 @@ function App() {
       return _ref75.apply(this, arguments);
     };
   }();
+  var handleCloudSync = function handleCloudSync(mergedEvents, mergedUsers) {
+    sevents(mergedEvents);
+    eventsRef.current = mergedEvents;
+    saveEvents(mergedEvents);
+    if (mergedUsers && mergedUsers.length) {
+      sappUsers(mergedUsers);
+      appUsersRef.current = mergedUsers;
+      saveUsers(mergedUsers);
+    }
+  };
   if (!user) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(Login, {
     onLogin: handleLogin,
     users: appUsers
@@ -27049,7 +27104,8 @@ function App() {
         onBack: function onBack() {
           return sae(null);
         },
-        onLogout: logout
+        onLogout: logout,
+        onCloudSync: handleCloudSync
       }));
     }
   }

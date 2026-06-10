@@ -273,6 +273,16 @@ function mergeEvents(local,cloud){
   return[...byId.values()];
 }
 const USERS_KEY="vj_users";
+const SESSION_KEY="vj_session";
+function persistSession(u){
+  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify({id:u.id,un:u.un}));}catch(e){}
+}
+function clearSession(){
+  try{sessionStorage.removeItem(SESSION_KEY);}catch(e){}
+}
+function readSession(){
+  try{const raw=sessionStorage.getItem(SESSION_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}
+}
 function loadUsers(){
   try{
     const raw=localStorage.getItem(USERS_KEY);
@@ -3000,7 +3010,7 @@ function AnalyticsTab(p){
   );
 }
 
-function CloudStoragePanel({pr}){
+function CloudStoragePanel({pr,allEvents,appUsers,onSynced}){
   const [busy,setBusy]=useState(false);
   const [meta,setMeta]=useState(getCloudMeta());
   const [lastErr,setLastErr]=useState("");
@@ -3015,15 +3025,20 @@ function CloudStoragePanel({pr}){
       const d=await cloudFetchData();
       if(!d||!d.configured){toast.warn("Cloud not ready","Set up Vercel Blob storage (see instructions below).");return;}
       setPing(d);
-      const local=await loadEventsAsync();
+      const localFromStore=await loadEventsAsync();
+      const local=(allEvents&&allEvents.length)?allEvents:localFromStore;
       const merged=mergeEvents(local,d.events||[]);
       saveEvents(merged);
-      if(Array.isArray(d.users)&&d.users.length)saveUsers(mergeUserDefaults(d.users));
-      const r=await flushCloudSync(merged,loadUsers(),[],{silent:false,successMsg:"Synced with company cloud"});
-      if(!r.ok){setLastErr(r.error||getLastCloudError());return;}
+      const users=(appUsers&&appUsers.length)?appUsers:loadUsers();
+      if(Array.isArray(d.users)&&d.users.length){
+        const cloudUsers=mergeUserDefaults(d.users);
+        saveUsers(cloudUsers);
+      }
+      const r=await flushCloudSync(merged,users,[],{silent:true});
+      if(!r.ok){setLastErr(r.error||getLastCloudError());toast.error("Cloud sync failed",r.error||getLastCloudError()||"Could not save to company cloud.");return;}
       setMeta(getCloudMeta());
-      toast.success("All devices updated","Reloading latest events…");
-      setTimeout(()=>window.location.reload(),800);
+      if(onSynced)onSynced(merged,users);
+      toast.success("All devices updated","Other users will see changes within ~15 seconds. You stay signed in.");
     }catch(e){setLastErr(e.message||"");toast.warn("Sync failed",e.message||"");}
     finally{setBusy(false);}
   };
@@ -3122,6 +3137,7 @@ function AdminTab(p){
   var st=p.st;
   var onLogout=p.onLogout;
   var onUpdateEvent=p.onUpdateEvent;
+  var onCloudSync=p.onCloudSync;
   var allEvents=p.allEvents;
   var onSwitch=p.onSwitch;
   var showSwitch=p.showSwitch;
@@ -3152,7 +3168,7 @@ function AdminTab(p){
           {/* Currency & Display */}
           <CurrencyManager cur={cur} scur={scur} pr={pr}/>
 
-          <CloudStoragePanel pr={pr}/>
+          <CloudStoragePanel pr={pr} allEvents={allEvents} appUsers={users} onSynced={p.onCloudSync}/>
 
           {/* Event Info */}
           <div style={{...S.card({margin:0,marginBottom:12})}}>
@@ -3897,7 +3913,7 @@ function CustomersTab(p){
   );
 }
 
-function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEvent,onBack,onLogout}){
+function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEvent,onBack,onLogout,onCloudSync}){
   const pr=gp(user.role, user.perms);
   const users=allUsers;
   const accessibleEvents=filterEventsForUser(user,allEvents);
@@ -4030,7 +4046,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
         {tab==="analytics"&&<AnalyticsTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
 
-        {tab==="admin"&&<AdminTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
+        {tab==="admin"&&<AdminTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,onCloudSync:onCloudSync,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
 
         {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item)sdet(item);else toast.warn("Item not found","Code: "+code);}}/>}
         {invm&&<InvoiceSheet sale={invm} onClose={()=>sinvm(null)}/>}
@@ -4105,6 +4121,13 @@ export default function App(){
       setCloudReady(true);
     })();
   },[dataReady]);
+  useEffect(()=>{
+    if(!dataReady||user)return;
+    const s=readSession();
+    if(!s)return;
+    const u=appUsers.find(x=>x.id===s.id&&x.un===s.un);
+    if(u)su(u);
+  },[dataReady,appUsers,user]);
   useEffect(()=>{
     if(!dataReady||!cloudReady||!isCloudOnline())return;
     runCloudSave(eventsRef.current,appUsersRef.current,[],{silent:true});
@@ -4184,7 +4207,7 @@ export default function App(){
     }
     setTimeout(()=>scheduleCloudSave(400,eventsRef.current,{silent:false,notify:true}),100);
   };
-  const logout=()=>{su(null);sae(null);};
+  const logout=()=>{clearSession();su(null);sae(null);};
   useEffect(()=>{ensureXLSX(()=>{});},[]);
 
   // Patch images into events once VJ_IMG is available
@@ -4229,7 +4252,18 @@ export default function App(){
     if(d&&d.configured){
       applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
     }
+    persistSession(u);
     su(u);
+  };
+  const handleCloudSync=(mergedEvents,mergedUsers)=>{
+    sevents(mergedEvents);
+    eventsRef.current=mergedEvents;
+    saveEvents(mergedEvents);
+    if(mergedUsers&&mergedUsers.length){
+      sappUsers(mergedUsers);
+      appUsersRef.current=mergedUsers;
+      saveUsers(mergedUsers);
+    }
   };
   if(!user) return (<><ToastContainer/><Login onLogin={handleLogin} users={appUsers}/></>);
   if(activeEv){
@@ -4245,6 +4279,7 @@ export default function App(){
       onUpdateEvent={ev=>{upEv(ev);sae(ev);}}
       onBack={()=>sae(null)}
       onLogout={logout}
+      onCloudSync={handleCloudSync}
     /></div>);
     }
   }

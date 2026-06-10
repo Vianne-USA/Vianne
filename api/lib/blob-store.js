@@ -181,8 +181,41 @@ async function saveToBlob(payload) {
   };
 }
 
+async function debugBlobRead() {
+  const out = {
+    configured: isBlobConfigured(),
+    hasStoreId: !!process.env.BLOB_STORE_ID,
+    hasRwToken: !!process.env.BLOB_READ_WRITE_TOKEN,
+    tries: [],
+  };
+  const ptr = await readPublicPath(POINTER_PATH);
+  out.tries.push({
+    step: "pointer",
+    ok: !!ptr,
+    preview: ptr ? String(ptr).slice(0, 80) : null,
+  });
+  if (ptr && ptr.startsWith("http")) {
+    try {
+      const res = await fetch(ptr.trim(), { cache: "no-store" });
+      out.tries.push({ step: "pointerFetch", status: res.status, ok: res.ok });
+    } catch (e) {
+      out.tries.push({ step: "pointerFetch", error: e.message });
+    }
+  }
+  const master = await readPublicPath(MASTER_PATH);
+  out.tries.push({ step: "publicMaster", ok: !!master, bytes: master ? master.length : 0 });
+  try {
+    const sdk = await readBlobMasterSdk();
+    out.tries.push({ step: "sdk", ok: !!sdk, events: sdk ? (sdk.events || []).length : 0 });
+  } catch (e) {
+    out.tries.push({ step: "sdk", error: e.message });
+  }
+  return out;
+}
+
 module.exports = {
   isBlobConfigured,
   loadFromBlob,
   saveToBlob,
+  debugBlobRead,
 };

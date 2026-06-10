@@ -4,7 +4,7 @@ const {
   saveMasterData,
   driveErrorMessage,
 } = require("./drive");
-const { isBlobConfigured, loadFromBlob, saveToBlob } = require("./blob-store");
+const { isBlobConfigured, loadFromBlob, saveToBlob, debugBlobRead } = require("./blob-store");
 
 function isSyncConfigured() {
   return isBlobConfigured() || isDriveConfigured();

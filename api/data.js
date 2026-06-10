@@ -36,9 +36,10 @@ module.exports = async function handler(req, res) {
     if (req.method === "GET") {
       res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
       const data = await loadSyncData();
-      return res.status(200).json({
+      const payload = {
         ok: true,
         configured: true,
+        syncApiVersion: 5,
         blob: isBlobConfigured(),
         drive: isDriveConfigured(),
         blobEnv: {
@@ -53,7 +54,11 @@ module.exports = async function handler(req, res) {
         events: data.events || [],
         users: data.users || null,
         currency: data.currency || null,
-      });
+      };
+      if (req.query && req.query.debug === "1") {
+        payload.debug = await debugBlobRead();
+      }
+      return res.status(200).json(payload);
     }
 
     if (req.method === "POST") {

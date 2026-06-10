@@ -146,6 +146,20 @@ const DEMO_EVENTS=[
   {id:"EVT001",name:"JCK Las Vegas 2026",loc:"Las Vegas, USA",start:"2026-06-06",end:"2026-06-09",status:"active",color:G,inv:[...JCK_INV],sales:[{id:"INV-001",custName:"Abby Pollak",phone:"+1-212-555-0101",itemId:"VJER3259",itemName:"Earrings · LINQ · G14KYG",metal:"G14KYG",col:"LINQ",sz:"Standard",gw:1.8,nw:1.4,tc:0.30,sp:2,style:"ER0530",price:125,disc:0,cgst:1.88,sgst:1.88,total:128.75,currency:"USD",margin:28,date:"Jun 6, 2026",time:"03:40 PM",payment:"NEFT",staff:"Jimit",st:"delivered",gt:"GT294821",remark:"Gift wrap"}],leads:[{id:"L1",name:"Sunrise Jewelers",contact:"Mike Chen",phone:"+1-617-555-7890",email:"mike@sunrise.com",source:"Badge",status:"Hot",notes:"Interested in LINQ.",created:"Jun 6, 2026",assigned:"Nilay"}],memos:[],audits:[]},
   {id:"EVT002",name:"IIJS Mumbai 2025",loc:"Mumbai, India",start:"2025-08-07",end:"2025-08-11",status:"completed",color:"#8B4513",inv:DI.slice(0,5),sales:[],leads:[],memos:[],audits:[]},
 ];
+const EVENTS_KEY="vj_events";
+function loadEvents(){
+  try{
+    const raw=localStorage.getItem(EVENTS_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      if(Array.isArray(parsed)&&parsed.length)return parsed;
+    }
+  }catch(e){}
+  return DEMO_EVENTS;
+}
+function saveEvents(evts){
+  try{localStorage.setItem(EVENTS_KEY,JSON.stringify(evts));}catch(e){}
+}
 const S={
   btn:o=>({background:G,color:CR,border:"none",borderRadius:10,padding:"13px 18px",fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:600,cursor:"pointer",width:"100%",...o}),
   bOut:o=>({background:"transparent",color:G,border:"1.5px solid "+G,borderRadius:9,padding:"9px 14px",fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:600,cursor:"pointer",...o}),
@@ -158,28 +172,8 @@ const S={
   pill:(on,o)=>({flexShrink:0,background:on?G:"transparent",border:"1.5px solid "+(on?G:CRD2),color:on?CR:T3,borderRadius:20,padding:"5px 11px",fontFamily:"Lato,sans-serif",fontSize:10.5,fontWeight:on?600:400,cursor:"pointer",whiteSpace:"nowrap",...o}),
 };
 function Bdg({t,ch,sm}){const m={g:{bg:"rgba(30,92,69,0.1)",c:G,b:"1px solid rgba(30,92,69,0.2)"},a:{bg:AMBG,c:AM,b:"1px solid rgba(200,150,58,0.3)"},r:{bg:REBG,c:RE,b:"1px solid rgba(160,48,48,0.2)"},m:{bg:"#f0f0ec",c:"#666",b:"1px solid #ddd"},bl:{bg:"#EBF3FB",c:"#2C5F8A",b:"1px solid rgba(44,95,138,0.3)"},gr:{bg:"#edf7f0",c:"#27ae60",b:"1px solid rgba(39,174,96,0.3)"}};const s=m[t]||m.m;return <span style={{display:"inline-block",padding:sm?"2px 7px":"3px 9px",borderRadius:20,fontSize:sm?8:9.5,fontWeight:700,textTransform:"uppercase",background:s.bg,color:s.c,border:s.b}}>{ch}</span>;}
-function Lotus({sz=36}){
-  const s=GO;
-  return(
-    <svg width={sz} height={sz} viewBox="0 0 200 220" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="6">
-      {/* Center petal - narrow tall sharp */}
-      <path d="M100 12 C96 30 92 52 92 72 C92 86 95 96 100 100 C105 96 108 86 108 72 C108 52 104 30 100 12Z" stroke={s} fill="none"/>
-      {/* Left upper petal - broad sweep */}
-      <path d="M95 76 C86 66 68 55 46 52 C26 50 10 58 9 70 C8 83 22 92 44 91 C62 90 80 84 95 76Z" stroke={s} fill="none"/>
-      {/* Right upper petal - mirror */}
-      <path d="M105 76 C114 66 132 55 154 52 C174 50 190 58 191 70 C192 83 178 92 156 91 C138 90 120 84 105 76Z" stroke={s} fill="none"/>
-      {/* Left lower leaf - horizontal eye, tip points LEFT */}
-      <path d="M100 100 C88 92 65 89 40 98 C65 110 88 110 100 103" stroke={s} fill="none"/>
-      <path d="M100 100 C88 108 65 113 40 98 C55 84 82 82 100 100Z" stroke={s} strokeWidth="5" fill="none"/>
-      {/* Right lower leaf - horizontal eye, tip points RIGHT */}
-      <path d="M100 100 C112 92 135 89 160 98 C135 110 112 110 100 103" stroke={s} fill="none"/>
-      <path d="M100 100 C112 108 135 113 160 98 C145 84 118 82 100 100Z" stroke={s} strokeWidth="5" fill="none"/>
-      {/* 3 descending dots */}
-      <circle cx="100" cy="136" r="7" fill={s}/>
-      <circle cx="100" cy="157" r="5.5" fill={s}/>
-      <circle cx="100" cy="175" r="4" fill={s}/>
-    </svg>
-  );
+function Logo({h=36}){
+  return <img src="assets/vianne-logo.png" alt="Vianne" style={{height:h,width:"auto",display:"block",flexShrink:0,objectFit:"contain"}}/>;
 }
 function Sheet({onClose,title,children}){return(<div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:400,display:"flex",alignItems:"flex-end",justifyContent:"center",padding:"0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)"}}><div onClick={e=>e.stopPropagation()} style={{background:CRD,borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,maxHeight:"93dvh",overflowY:"auto"}}><div style={{padding:"14px 16px 12px",borderBottom:"1px solid "+CRD2,position:"sticky",top:0,background:CRD,zIndex:1}}><div style={{width:36,height:3.5,background:CRD2,borderRadius:2,margin:"0 auto 12px"}}/><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>{title}</div><button onClick={onClose} style={{background:"none",border:"none",fontSize:22,color:T3,cursor:"pointer"}}>✕</button></div></div><div style={{padding:"14px 16px calc(36px + env(safe-area-inset-bottom,0px))"}}>{children}</div></div></div>);}
 function QRScanner({onScanned,inv}){
@@ -311,7 +305,7 @@ function Login({onLogin}){
   const hasBio=!!localStorage.getItem(BIO_KEY);
   return(<div ref={scrollRef} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:GD,overflowY:"auto",WebkitOverflowScrolling:"touch",overscrollBehavior:"contain",padding:"calc(12px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{width:"100%",maxWidth:380,margin:"0 auto",background:CRD,borderRadius:22,padding:"32px 24px 28px",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
-      <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:24}}><Lotus sz={48}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:G,letterSpacing:"0.14em",textTransform:"uppercase",lineHeight:1.1}}>VIANNE JEWELS</div><div style={{fontSize:9,color:T4,letterSpacing:"0.12em",textTransform:"uppercase",marginTop:4,lineHeight:1.5}}>THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div>
+      <div style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:24}}><Logo h={52}/><div style={{paddingTop:2}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:G,letterSpacing:"0.14em",textTransform:"uppercase",lineHeight:1.1}}>VIANNE JEWELS</div><div style={{fontSize:9,color:T4,letterSpacing:"0.12em",textTransform:"uppercase",marginTop:4,lineHeight:1.5}}>THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div>
       <div style={{fontSize:12,fontWeight:700,color:T1,letterSpacing:"0.18em",textAlign:"center",marginBottom:18,textTransform:"uppercase"}}>SIGN IN TO CONTINUE</div>
       {bio&&<><button type="button" onClick={doBio} style={{width:"100%",background:G,color:CR,border:"none",borderRadius:11,padding:"13px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:9,marginBottom:12}}><span style={{fontSize:18}}>{isIOS?"🔒":"🫆"}</span>{isIOS?(hasBio?"Sign in with Face ID":"Face ID / Touch ID"):"Fingerprint / Face Unlock"}</button>{!hasBio&&<div style={{fontSize:10,color:T4,textAlign:"center",marginBottom:10}}>Sign in with password once to enable Face ID</div>}<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{flex:1,height:1,background:CRD2}}/><span style={{fontSize:11,color:T4,fontWeight:600}}>OR</span><div style={{flex:1,height:1,background:CRD2}}/></div></>}
       <div style={{marginBottom:12}}><span style={S.lbl}>USERNAME</span><input style={S.inp()} placeholder="Enter username" value={u} onChange={ev=>{su(ev.target.value);se("");}} onFocus={focusIn} onKeyDown={ev=>ev.key==="Enter"&&go()}/></div>
@@ -328,7 +322,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const create=()=>{if(!form.name.trim())return;const fin=(inv)=>{onCreate({id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[]});ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,inv=>{sl(false);fin(inv);},err=>{sl(false);smsg(err);});}else fin([...DI.slice(0,5)]);};
   return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
-      <div style={{display:"flex",alignItems:"center",gap:10}}><Lotus sz={28}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
+      <div style={{display:"flex",alignItems:"flex-start",gap:10}}><Logo h={34}/><div style={{paddingTop:1}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
       <div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:26,height:26,background:GO,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:G}}>{user.name[0]}</div><span style={{color:CR,fontSize:11,fontWeight:600}}>{user.name}</span><button onClick={onLogout} style={{background:"rgba(255,255,255,0.12)",border:"none",borderRadius:7,color:CR,padding:"5px 9px",cursor:"pointer",fontSize:11,fontWeight:600}}>🚪 Sign Out</button></div>
     </div>
     <div style={{padding:"16px 14px",paddingLeft:"calc(14px + env(safe-area-inset-left,0px))",paddingRight:"calc(14px + env(safe-area-inset-right,0px))",maxWidth:430,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
@@ -3337,7 +3331,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
     <div style={{width:"100%",minHeight:"100dvh",background:GD,display:"flex",flexDirection:"column",boxSizing:"border-box"}}>
     <div style={{width:"100%",maxWidth:430,margin:"0 auto",flex:1,minHeight:"100dvh",display:"flex",flexDirection:"column",background:GD,fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
       <div style={{background:G,padding:"calc(9px + env(safe-area-inset-top,0px)) calc(13px + env(safe-area-inset-right,0px)) 9px calc(13px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,gap:6}}>
-        <div style={{display:"flex",alignItems:"center",gap:7}}><button onClick={onBack} style={{background:"none",border:"none",color:GO,cursor:"pointer",fontSize:16,padding:"0 3px 0 0"}}>‹</button><Lotus sz={24}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:7,color:GO,textTransform:"uppercase",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ev.name}</div></div></div>
+        <div style={{display:"flex",alignItems:"flex-start",gap:7}}><button onClick={onBack} style={{background:"none",border:"none",color:GO,cursor:"pointer",fontSize:16,padding:"4px 3px 0 0",flexShrink:0}}>‹</button><Logo h={30}/><div style={{paddingTop:1,minWidth:0}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:7,color:GO,textTransform:"uppercase",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ev.name}</div></div></div>
         <div style={{display:"flex",alignItems:"center",gap:5}}>
           <select value={cur} onChange={ev=>scur(ev.target.value)} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",color:CR,borderRadius:5,padding:"2px 5px",fontSize:9,fontWeight:600,cursor:"pointer"}}>{Object.keys(CURR).map(k=><option key={k} style={{color:T1}}>{k}</option>)}</select>
           <button onClick={()=>ssw(true)} style={{background:GO,border:"none",borderRadius:5,color:G,padding:"4px 7px",cursor:"pointer",fontSize:9,fontWeight:700}}>⇄</button>
@@ -3391,8 +3385,9 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
 export default function App(){
   const [user,su]=useState(null);
-  const [events,sevents]=useState(DEMO_EVENTS);
+  const [events,sevents]=useState(loadEvents);
   const dark=useDark();
+  useEffect(()=>{saveEvents(events);},[events]);
   useEffect(()=>{
     const style=document.createElement("style");
     style.innerHTML="@keyframes toastIn{from{transform:translateY(-80px);opacity:0}to{transform:translateY(0);opacity:1}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}";

@@ -12110,6 +12110,22 @@ var DEMO_EVENTS = [{
   memos: [],
   audits: []
 }];
+var EVENTS_KEY = "vj_events";
+function loadEvents() {
+  try {
+    var raw = localStorage.getItem(EVENTS_KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch (e) {}
+  return DEMO_EVENTS;
+}
+function saveEvents(evts) {
+  try {
+    localStorage.setItem(EVENTS_KEY, JSON.stringify(evts));
+  } catch (e) {}
+}
 var S = {
   btn: function btn(o) {
     return _objectSpread({
@@ -12265,64 +12281,20 @@ function Bdg(_ref) {
     }
   }, ch);
 }
-function Lotus(_ref2) {
-  var _ref2$sz = _ref2.sz,
-    sz = _ref2$sz === void 0 ? 36 : _ref2$sz;
-  var s = GO;
-  return /*#__PURE__*/React.createElement("svg", {
-    width: sz,
-    height: sz,
-    viewBox: "0 0 200 220",
-    fill: "none",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "6"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M100 12 C96 30 92 52 92 72 C92 86 95 96 100 100 C105 96 108 86 108 72 C108 52 104 30 100 12Z",
-    stroke: s,
-    fill: "none"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M95 76 C86 66 68 55 46 52 C26 50 10 58 9 70 C8 83 22 92 44 91 C62 90 80 84 95 76Z",
-    stroke: s,
-    fill: "none"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M105 76 C114 66 132 55 154 52 C174 50 190 58 191 70 C192 83 178 92 156 91 C138 90 120 84 105 76Z",
-    stroke: s,
-    fill: "none"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M100 100 C88 92 65 89 40 98 C65 110 88 110 100 103",
-    stroke: s,
-    fill: "none"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M100 100 C88 108 65 113 40 98 C55 84 82 82 100 100Z",
-    stroke: s,
-    strokeWidth: "5",
-    fill: "none"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M100 100 C112 92 135 89 160 98 C135 110 112 110 100 103",
-    stroke: s,
-    fill: "none"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M100 100 C112 108 135 113 160 98 C145 84 118 82 100 100Z",
-    stroke: s,
-    strokeWidth: "5",
-    fill: "none"
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "100",
-    cy: "136",
-    r: "7",
-    fill: s
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "100",
-    cy: "157",
-    r: "5.5",
-    fill: s
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "100",
-    cy: "175",
-    r: "4",
-    fill: s
-  }));
+function Logo(_ref2) {
+  var _ref2$h = _ref2.h,
+    h = _ref2$h === void 0 ? 36 : _ref2$h;
+  return /*#__PURE__*/React.createElement("img", {
+    src: "assets/vianne-logo.png",
+    alt: "Vianne",
+    style: {
+      height: h,
+      width: "auto",
+      display: "block",
+      flexShrink: 0,
+      objectFit: "contain"
+    }
+  });
 }
 function Sheet(_ref3) {
   var onClose = _ref3.onClose,
@@ -12905,13 +12877,17 @@ function Login(_ref7) {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      alignItems: "center",
+      alignItems: "flex-start",
       gap: 14,
       marginBottom: 24
     }
-  }, /*#__PURE__*/React.createElement(Lotus, {
-    sz: 48
-  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Logo, {
+    h: 52
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingTop: 2
+    }
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "Cormorant Garamond,serif",
       fontSize: 20,
@@ -13177,12 +13153,16 @@ function EventHub(_ref9) {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      alignItems: "center",
+      alignItems: "flex-start",
       gap: 10
     }
-  }, /*#__PURE__*/React.createElement(Lotus, {
-    sz: 28
-  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Logo, {
+    h: 34
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingTop: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "Cormorant Garamond,serif",
       fontSize: 15,
@@ -23968,7 +23948,7 @@ function EventERP(_ref48) {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      alignItems: "center",
+      alignItems: "flex-start",
       gap: 7
     }
   }, /*#__PURE__*/React.createElement("button", {
@@ -23979,11 +23959,17 @@ function EventERP(_ref48) {
       color: GO,
       cursor: "pointer",
       fontSize: 16,
-      padding: "0 3px 0 0"
+      padding: "4px 3px 0 0",
+      flexShrink: 0
     }
-  }, "\u2039"), /*#__PURE__*/React.createElement(Lotus, {
-    sz: 24
-  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, "\u2039"), /*#__PURE__*/React.createElement(Logo, {
+    h: 30
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingTop: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "Cormorant Garamond,serif",
       fontSize: 12,
@@ -24761,11 +24747,14 @@ function App() {
     _useState200 = _slicedToArray(_useState199, 2),
     user = _useState200[0],
     su = _useState200[1];
-  var _useState201 = useState(DEMO_EVENTS),
+  var _useState201 = useState(loadEvents),
     _useState202 = _slicedToArray(_useState201, 2),
     events = _useState202[0],
     sevents = _useState202[1];
   var dark = useDark();
+  useEffect(function () {
+    saveEvents(events);
+  }, [events]);
   useEffect(function () {
     var style = document.createElement("style");
     style.innerHTML = "@keyframes toastIn{from{transform:translateY(-80px);opacity:0}to{transform:translateY(0);opacity:1}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}";

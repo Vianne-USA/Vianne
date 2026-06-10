@@ -10410,6 +10410,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 /******/ ])["default"];
 });</script>
 <script>function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
 function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
 function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
@@ -10682,19 +10683,19 @@ function registerBio(_x) {
   return _registerBio.apply(this, arguments);
 }
 function _registerBio() {
-  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(username) {
-    var cred, _t;
-    return _regenerator().w(function (_context2) {
-      while (1) switch (_context2.p = _context2.n) {
+  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(username) {
+    var cred, _t5;
+    return _regenerator().w(function (_context6) {
+      while (1) switch (_context6.p = _context6.n) {
         case 0:
           if (window.PublicKeyCredential) {
-            _context2.n = 1;
+            _context6.n = 1;
             break;
           }
-          return _context2.a(2, false);
+          return _context6.a(2, false);
         case 1:
-          _context2.p = 1;
-          _context2.n = 2;
+          _context6.p = 1;
+          _context6.n = 2;
           return navigator.credentials.create({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -10723,22 +10724,22 @@ function _registerBio() {
             }
           });
         case 2:
-          cred = _context2.v;
+          cred = _context6.v;
           if (cred) {
-            _context2.n = 3;
+            _context6.n = 3;
             break;
           }
-          return _context2.a(2, false);
+          return _context6.a(2, false);
         case 3:
           localStorage.setItem(BIO_KEY, b64u(cred.rawId));
           localStorage.setItem(BIO_USER, username.toLowerCase());
-          return _context2.a(2, true);
+          return _context6.a(2, true);
         case 4:
-          _context2.p = 4;
-          _t = _context2.v;
-          return _context2.a(2, false);
+          _context6.p = 4;
+          _t5 = _context6.v;
+          return _context6.a(2, false);
       }
-    }, _callee2, null, [[1, 4]]);
+    }, _callee6, null, [[1, 4]]);
   }));
   return _registerBio.apply(this, arguments);
 }
@@ -10746,22 +10747,22 @@ function loginBio(_x2, _x3, _x4) {
   return _loginBio.apply(this, arguments);
 } // ── Dark Mode system ──────────────────────────────────────────────────────
 function _loginBio() {
-  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(onLogin, onFail, users) {
-    var id, un, cred, usr, _t2;
-    return _regenerator().w(function (_context3) {
-      while (1) switch (_context3.p = _context3.n) {
+  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(onLogin, onFail, users) {
+    var id, un, cred, usr, _t6;
+    return _regenerator().w(function (_context7) {
+      while (1) switch (_context7.p = _context7.n) {
         case 0:
           id = localStorage.getItem(BIO_KEY);
           un = localStorage.getItem(BIO_USER);
           if (!(!id || !un)) {
-            _context3.n = 1;
+            _context7.n = 1;
             break;
           }
           onFail("Sign in with password once to enable Face ID.");
-          return _context3.a(2);
+          return _context7.a(2);
         case 1:
-          _context3.p = 1;
-          _context3.n = 2;
+          _context7.p = 1;
+          _context7.n = 2;
           return navigator.credentials.get({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -10776,27 +10777,27 @@ function _loginBio() {
             }
           });
         case 2:
-          cred = _context3.v;
+          cred = _context7.v;
           if (cred) {
-            _context3.n = 3;
+            _context7.n = 3;
             break;
           }
-          return _context3.a(2);
+          return _context7.a(2);
         case 3:
           usr = users.find(function (x) {
             return x.un === un;
           });
           if (usr) onLogin(usr);else onFail("Saved sign-in expired. Use password once.");
-          _context3.n = 5;
+          _context7.n = 5;
           break;
         case 4:
-          _context3.p = 4;
-          _t2 = _context3.v;
-          if (_t2.name !== "NotAllowedError") onFail(_t2.message || "Face ID failed");
+          _context7.p = 4;
+          _t6 = _context7.v;
+          if (_t6.name !== "NotAllowedError") onFail(_t6.message || "Face ID failed");
         case 5:
-          return _context3.a(2);
+          return _context7.a(2);
       }
-    }, _callee3, null, [[1, 4]]);
+    }, _callee7, null, [[1, 4]]);
   }));
   return _loginBio.apply(this, arguments);
 }
@@ -12142,6 +12143,430 @@ function saveUsers(users) {
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
   } catch (e) {}
 }
+
+// ── Google Drive backup (optional — connect in Settings) ─────────────────
+var DRIVE_TOKEN_KEY = "vj_drive_tok";
+var DRIVE_ROOT_KEY = "vj_drive_root";
+var GCLIENT_KEY = "vj_gclient_id";
+var DRIVE_ROOT_NAME = "Vianne Events";
+function getGClientId() {
+  try {
+    return localStorage.getItem(GCLIENT_KEY) || "";
+  } catch (e) {
+    return "";
+  }
+}
+function setGClientId(id) {
+  try {
+    localStorage.setItem(GCLIENT_KEY, id || "");
+  } catch (e) {}
+}
+function getDriveAuth() {
+  try {
+    return JSON.parse(localStorage.getItem(DRIVE_TOKEN_KEY) || "null");
+  } catch (e) {
+    return null;
+  }
+}
+function saveDriveAuth(tok, expSec) {
+  try {
+    localStorage.setItem(DRIVE_TOKEN_KEY, JSON.stringify({
+      token: tok,
+      exp: Date.now() + (expSec || 3600) * 1000
+    }));
+  } catch (e) {}
+}
+function clearDriveAuth() {
+  try {
+    localStorage.removeItem(DRIVE_TOKEN_KEY);
+    localStorage.removeItem(DRIVE_ROOT_KEY);
+  } catch (e) {}
+}
+function isDriveConnected() {
+  var a = getDriveAuth();
+  return !!(a && a.token && a.exp > Date.now() + 30000);
+}
+function loadGis() {
+  return new Promise(function (res, rej) {
+    if (window.google && window.google.accounts && window.google.accounts.oauth2) return res();
+    var s = document.createElement("script");
+    s.src = "https://accounts.google.com/gsi/client";
+    s.onload = function () {
+      return res();
+    };
+    s.onerror = function () {
+      return rej(new Error("Could not load Google sign-in"));
+    };
+    document.head.appendChild(s);
+  });
+}
+function driveConnect(clientId, prompt) {
+  return loadGis().then(function () {
+    return new Promise(function (res, rej) {
+      if (!clientId) return rej(new Error("Add your Google OAuth Client ID in Settings first."));
+      var c = google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: "https://www.googleapis.com/auth/drive.file",
+        callback: function callback(r) {
+          if (r.error) return rej(r);
+          saveDriveAuth(r.access_token, r.expires_in || 3600);
+          res(r.access_token);
+        }
+      });
+      c.requestAccessToken({
+        prompt: prompt || ""
+      });
+    });
+  });
+}
+function driveToken(_x5) {
+  return _driveToken.apply(this, arguments);
+}
+function _driveToken() {
+  _driveToken = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8(forcePrompt) {
+    var a, id, _t7;
+    return _regenerator().w(function (_context8) {
+      while (1) switch (_context8.p = _context8.n) {
+        case 0:
+          a = getDriveAuth();
+          if (!(!forcePrompt && a && a.exp > Date.now() + 60000)) {
+            _context8.n = 1;
+            break;
+          }
+          return _context8.a(2, a.token);
+        case 1:
+          id = getGClientId();
+          if (id) {
+            _context8.n = 2;
+            break;
+          }
+          return _context8.a(2, null);
+        case 2:
+          _context8.p = 2;
+          _context8.n = 3;
+          return driveConnect(id, forcePrompt ? "consent" : "");
+        case 3:
+          return _context8.a(2, _context8.v);
+        case 4:
+          _context8.p = 4;
+          _t7 = _context8.v;
+          return _context8.a(2, null);
+      }
+    }, _callee8, null, [[2, 4]]);
+  }));
+  return _driveToken.apply(this, arguments);
+}
+function driveApi(_x6, _x7, _x8) {
+  return _driveApi.apply(this, arguments);
+}
+function _driveApi() {
+  _driveApi = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9(path, opts, tok) {
+    var t, r, ct, _t8, _t9, _t0;
+    return _regenerator().w(function (_context9) {
+      while (1) switch (_context9.n) {
+        case 0:
+          _t8 = tok;
+          if (_t8) {
+            _context9.n = 2;
+            break;
+          }
+          _context9.n = 1;
+          return driveToken();
+        case 1:
+          _t8 = _context9.v;
+        case 2:
+          t = _t8;
+          if (t) {
+            _context9.n = 3;
+            break;
+          }
+          throw new Error("Google Drive not connected");
+        case 3:
+          _context9.n = 4;
+          return fetch("https://www.googleapis.com/drive/v3" + path, _objectSpread(_objectSpread({}, opts), {}, {
+            headers: _objectSpread(_objectSpread({}, opts.headers || {}), {}, {
+              Authorization: "Bearer " + t
+            }, opts.body && typeof opts.body === "string" ? {
+              "Content-Type": "application/json"
+            } : {})
+          }));
+        case 4:
+          r = _context9.v;
+          if (r.ok) {
+            _context9.n = 6;
+            break;
+          }
+          _t9 = Error;
+          _context9.n = 5;
+          return r.text();
+        case 5:
+          _t0 = _context9.v.slice(0, 200);
+          throw new _t9(_t0);
+        case 6:
+          ct = r.headers.get("content-type") || "";
+          return _context9.a(2, ct.includes("json") ? r.json() : null);
+      }
+    }, _callee9);
+  }));
+  return _driveApi.apply(this, arguments);
+}
+function driveFindFolder(_x9, _x0, _x1) {
+  return _driveFindFolder.apply(this, arguments);
+}
+function _driveFindFolder() {
+  _driveFindFolder = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0(name, parentId, tok) {
+    var q, r;
+    return _regenerator().w(function (_context0) {
+      while (1) switch (_context0.n) {
+        case 0:
+          q = "mimeType='application/vnd.google-apps.folder' and name='" + String(name).replace(/'/g, "\\'") + "' and trashed=false";
+          if (parentId) q += " and '" + parentId + "' in parents";
+          _context0.n = 1;
+          return driveApi("/files?q=" + encodeURIComponent(q) + "&fields=files(id,name)", {}, tok);
+        case 1:
+          r = _context0.v;
+          return _context0.a(2, r.files && r.files[0] || null);
+      }
+    }, _callee0);
+  }));
+  return _driveFindFolder.apply(this, arguments);
+}
+function driveCreateFolder(_x10, _x11, _x12) {
+  return _driveCreateFolder.apply(this, arguments);
+}
+function _driveCreateFolder() {
+  _driveCreateFolder = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee1(name, parentId, tok) {
+    var hit;
+    return _regenerator().w(function (_context1) {
+      while (1) switch (_context1.n) {
+        case 0:
+          _context1.n = 1;
+          return driveFindFolder(name, parentId, tok);
+        case 1:
+          hit = _context1.v;
+          if (!hit) {
+            _context1.n = 2;
+            break;
+          }
+          return _context1.a(2, hit);
+        case 2:
+          return _context1.a(2, driveApi("/files", {
+            method: "POST",
+            body: JSON.stringify(_objectSpread({
+              name: name,
+              mimeType: "application/vnd.google-apps.folder"
+            }, parentId ? {
+              parents: [parentId]
+            } : {}))
+          }, tok));
+      }
+    }, _callee1);
+  }));
+  return _driveCreateFolder.apply(this, arguments);
+}
+function ensureDriveRoot(_x13) {
+  return _ensureDriveRoot.apply(this, arguments);
+}
+function _ensureDriveRoot() {
+  _ensureDriveRoot = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(tok) {
+    var cached, info, f, _t1, _t10;
+    return _regenerator().w(function (_context10) {
+      while (1) switch (_context10.p = _context10.n) {
+        case 0:
+          cached = localStorage.getItem(DRIVE_ROOT_KEY);
+          if (!cached) {
+            _context10.n = 5;
+            break;
+          }
+          _context10.p = 1;
+          _context10.n = 2;
+          return driveApi("/files/" + cached + "?fields=id,trashed", {}, tok);
+        case 2:
+          info = _context10.v;
+          if (!(info && !info.trashed)) {
+            _context10.n = 3;
+            break;
+          }
+          return _context10.a(2, cached);
+        case 3:
+          _context10.n = 5;
+          break;
+        case 4:
+          _context10.p = 4;
+          _t1 = _context10.v;
+        case 5:
+          _context10.n = 6;
+          return driveFindFolder(DRIVE_ROOT_NAME, null, tok);
+        case 6:
+          _t10 = _context10.v;
+          if (_t10) {
+            _context10.n = 8;
+            break;
+          }
+          _context10.n = 7;
+          return driveCreateFolder(DRIVE_ROOT_NAME, null, tok);
+        case 7:
+          _t10 = _context10.v;
+        case 8:
+          f = _t10;
+          localStorage.setItem(DRIVE_ROOT_KEY, f.id);
+          return _context10.a(2, f.id);
+      }
+    }, _callee10, null, [[1, 4]]);
+  }));
+  return _ensureDriveRoot.apply(this, arguments);
+}
+function driveUploadEventJson(_x14, _x15) {
+  return _driveUploadEventJson.apply(this, arguments);
+}
+function _driveUploadEventJson() {
+  _driveUploadEventJson = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee11(ev, tok) {
+    var t, root, folderId, folder, payload, fileName, q, existing, fileId, meta, boundary, body, url, r, file, _t11, _t12, _t13;
+    return _regenerator().w(function (_context11) {
+      while (1) switch (_context11.n) {
+        case 0:
+          _t11 = tok;
+          if (_t11) {
+            _context11.n = 2;
+            break;
+          }
+          _context11.n = 1;
+          return driveToken();
+        case 1:
+          _t11 = _context11.v;
+        case 2:
+          t = _t11;
+          if (t) {
+            _context11.n = 3;
+            break;
+          }
+          return _context11.a(2, ev);
+        case 3:
+          _context11.n = 4;
+          return ensureDriveRoot(t);
+        case 4:
+          root = _context11.v;
+          folderId = ev.driveFolderId;
+          if (folderId) {
+            _context11.n = 6;
+            break;
+          }
+          _context11.n = 5;
+          return driveCreateFolder(ev.name, root, t);
+        case 5:
+          folder = _context11.v;
+          folderId = folder.id;
+        case 6:
+          payload = _objectSpread(_objectSpread({}, ev), {}, {
+            driveFolderId: folderId,
+            syncedAt: new Date().toISOString()
+          });
+          fileName = "event-data.json";
+          q = "'" + folderId + "' in parents and name='" + fileName + "' and trashed=false";
+          _context11.n = 7;
+          return driveApi("/files?q=" + encodeURIComponent(q) + "&fields=files(id)", {}, t);
+        case 7:
+          existing = _context11.v;
+          fileId = existing.files && existing.files[0] && existing.files[0].id;
+          meta = fileId ? {
+            name: fileName,
+            mimeType: "application/json"
+          } : {
+            name: fileName,
+            mimeType: "application/json",
+            parents: [folderId]
+          };
+          boundary = "vjb" + Date.now();
+          body = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(meta) + "\r\n--" + boundary + "\r\nContent-Type: application/json\r\n\r\n" + JSON.stringify(payload, null, 2) + "\r\n--" + boundary + "--";
+          url = fileId ? "https://www.googleapis.com/upload/drive/v3/files/" + fileId + "?uploadType=multipart" : "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart";
+          _context11.n = 8;
+          return fetch(url, {
+            method: fileId ? "PATCH" : "POST",
+            headers: {
+              Authorization: "Bearer " + t,
+              "Content-Type": "multipart/related; boundary=" + boundary
+            },
+            body: body
+          });
+        case 8:
+          r = _context11.v;
+          if (r.ok) {
+            _context11.n = 10;
+            break;
+          }
+          _t12 = Error;
+          _context11.n = 9;
+          return r.text();
+        case 9:
+          _t13 = _context11.v.slice(0, 200);
+          throw new _t12(_t13);
+        case 10:
+          _context11.n = 11;
+          return r.json();
+        case 11:
+          file = _context11.v;
+          return _context11.a(2, _objectSpread(_objectSpread({}, ev), {}, {
+            driveFolderId: folderId,
+            driveFileId: file.id
+          }));
+      }
+    }, _callee11);
+  }));
+  return _driveUploadEventJson.apply(this, arguments);
+}
+function driveMarkEventDeleted(_x16) {
+  return _driveMarkEventDeleted.apply(this, arguments);
+}
+function _driveMarkEventDeleted() {
+  _driveMarkEventDeleted = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee12(ev) {
+    var t, _t14;
+    return _regenerator().w(function (_context12) {
+      while (1) switch (_context12.p = _context12.n) {
+        case 0:
+          if (!(!ev.driveFolderId || !isDriveConnected())) {
+            _context12.n = 1;
+            break;
+          }
+          return _context12.a(2);
+        case 1:
+          _context12.p = 1;
+          _context12.n = 2;
+          return driveToken();
+        case 2:
+          t = _context12.v;
+          if (t) {
+            _context12.n = 3;
+            break;
+          }
+          return _context12.a(2);
+        case 3:
+          _context12.n = 4;
+          return driveUploadEventJson(_objectSpread(_objectSpread({}, ev), {}, {
+            deletedAt: new Date().toISOString(),
+            status: "deleted"
+          }), t);
+        case 4:
+          _context12.n = 5;
+          return driveApi("/files/" + ev.driveFolderId, {
+            method: "PATCH",
+            body: JSON.stringify({
+              name: ev.name.trim() + " deleted"
+            })
+          }, t);
+        case 5:
+          _context12.n = 7;
+          break;
+        case 6:
+          _context12.p = 6;
+          _t14 = _context12.v;
+          console.warn("Drive rename on delete", _t14);
+        case 7:
+          return _context12.a(2);
+      }
+    }, _callee12, null, [[1, 6]]);
+  }));
+  return _driveMarkEventDeleted.apply(this, arguments);
+}
 var S = {
   btn: function btn(o) {
     return _objectSpread({
@@ -13375,13 +13800,13 @@ function EventHub(_ref9) {
       }
     }, [{
       l: "Items",
-      v: ev.inv.length
+      v: (ev.inv || []).length
     }].concat(_toConsumableArray(gp(user.role).vA ? [{
       l: "Sales",
-      v: ev.sales.length
+      v: (ev.sales || []).length
     }, {
       l: "Revenue",
-      v: "$" + Math.round(ev.sales.reduce(function (s, x) {
+      v: "$" + Math.round((ev.sales || []).reduce(function (s, x) {
         return s + x.total;
       }, 0) / 1000) + "k"
     }] : [])).map(function (x) {
@@ -13411,7 +13836,9 @@ function EventHub(_ref9) {
       }
     }, /*#__PURE__*/React.createElement("button", {
       onClick: function onClick() {
-        return onEnter(ev);
+        return onEnter(events.find(function (e) {
+          return e.id === ev.id;
+        }) || ev);
       },
       style: {
         flex: 2,
@@ -13875,7 +14302,7 @@ function ManageEvent(_ref0) {
       color: T2,
       marginBottom: 9
     }
-  }, ev.inv.length, " items in this event"), /*#__PURE__*/React.createElement("div", {
+  }, (ev.inv || []).length, " items in this event"), /*#__PURE__*/React.createElement("div", {
     style: {
       maxHeight: 300,
       overflowY: "auto",
@@ -13883,7 +14310,7 @@ function ManageEvent(_ref0) {
       border: "1px solid " + CRD2,
       overflow: "hidden"
     }
-  }, ev.inv.slice(0, 30).map(function (item, i, arr) {
+  }, (ev.inv || []).slice(0, 30).map(function (item, i, arr) {
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -13921,14 +14348,14 @@ function ManageEvent(_ref0) {
         color: G
       }
     }, f$(item.fp)));
-  }), ev.inv.length > 30 && /*#__PURE__*/React.createElement("div", {
+  }), (ev.inv || []).length > 30 && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "10px",
       textAlign: "center",
       fontSize: 11,
       color: T3
     }
-  }, "+ ", ev.inv.length - 30, " more items"))), tab === "upload" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, "+ ", (ev.inv || []).length - 30, " more items"))), tab === "upload" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: S.sh
   }, "Update Inventory from Excel"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -13952,22 +14379,20 @@ function ManageEvent(_ref0) {
     }, m.l);
   })), /*#__PURE__*/React.createElement("input", {
     type: "file",
-    accept: ".xlsx,.xls",
+    accept: ".xlsx,.xls,.csv",
     onChange: function onChange(e) {
       var f = e.target.files[0];
-      if (f) {
-        var r = new FileReader();
-        r.onload = function (ev) {
-          parseXL(ev.target.result, function (ev2) {
-            return onUpdate(_objectSpread(_objectSpread({}, ev), mode === "add" ? {
-              inv: [].concat(_toConsumableArray(ev.inv), _toConsumableArray(ev2.inv))
-            } : {
-              inv: ev2.inv
-            }));
-          });
-        };
-        r.readAsArrayBuffer(f);
-      }
+      if (!f) return;
+      parseXL(f, function (items) {
+        var inv = mode === "add" ? [].concat(_toConsumableArray(ev.inv || []), _toConsumableArray(items)) : items;
+        onUpdate(_objectSpread(_objectSpread({}, ev), {}, {
+          inv: inv
+        }));
+        toast.success("Inventory updated", "" + items.length + " items " + (mode === "add" ? "added" : "imported"));
+      }, function (err) {
+        return toast.warn("Import failed", err);
+      });
+      e.target.value = "";
     },
     style: _objectSpread(_objectSpread({}, S.inp()), {}, {
       cursor: "pointer",
@@ -16763,13 +17188,13 @@ function SingleLookup(p) {
     style: {
       fontSize: 12
     }
-  }, "\u2601"), /*#__PURE__*/React.createElement("span", {
+  }, isDriveConnected() ? "☁" : "💾"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 11,
       color: G,
       fontWeight: 600
     }
-  }, "Cloud sync active"))), showFilter && /*#__PURE__*/React.createElement("div", {
+  }, isDriveConnected() ? "Google Drive sync active" : "Saved on this device"))), showFilter && /*#__PURE__*/React.createElement("div", {
     style: _objectSpread({}, S.card({
       margin: 0,
       marginBottom: 10,
@@ -20578,18 +21003,236 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CurrencyManager(_ref31) {
-  var cur = _ref31.cur,
-    scur = _ref31.scur,
-    pr = _ref31.pr;
-  var _useState73 = useState(false),
+function DriveManager(_ref31) {
+  var pr = _ref31.pr;
+  var _useState73 = useState(getGClientId()),
     _useState74 = _slicedToArray(_useState73, 2),
-    editMode = _useState74[0],
-    setEditMode = _useState74[1];
-  var _useState75 = useState({}),
+    clientId = _useState74[0],
+    setClientId = _useState74[1];
+  var _useState75 = useState(isDriveConnected()),
     _useState76 = _slicedToArray(_useState75, 2),
-    editRates = _useState76[0],
-    setEditRates = _useState76[1];
+    connected = _useState76[0],
+    setConnected = _useState76[1];
+  var _useState77 = useState(false),
+    _useState78 = _slicedToArray(_useState77, 2),
+    busy = _useState78[0],
+    setBusy = _useState78[1];
+  var _useState79 = useState(""),
+    _useState80 = _slicedToArray(_useState79, 2),
+    msg = _useState80[0],
+    setMsg = _useState80[1];
+  var refresh = function refresh() {
+    return setConnected(isDriveConnected());
+  };
+  var connect = /*#__PURE__*/function () {
+    var _ref32 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+      var _t;
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.p = _context2.n) {
+          case 0:
+            setBusy(true);
+            setMsg("");
+            _context2.p = 1;
+            setGClientId(clientId.trim());
+            _context2.n = 2;
+            return driveConnect(clientId.trim(), "consent");
+          case 2:
+            refresh();
+            toast.success("Google Drive connected", "Event folders will sync to " + DRIVE_ROOT_NAME);
+            _context2.n = 4;
+            break;
+          case 3:
+            _context2.p = 3;
+            _t = _context2.v;
+            setMsg(_t.message || "Connection failed");
+          case 4:
+            _context2.p = 4;
+            setBusy(false);
+            return _context2.f(4);
+          case 5:
+            return _context2.a(2);
+        }
+      }, _callee2, null, [[1, 3, 4, 5]]);
+    }));
+    return function connect() {
+      return _ref32.apply(this, arguments);
+    };
+  }();
+  var disconnect = function disconnect() {
+    clearDriveAuth();
+    refresh();
+    toast.info("Drive disconnected", "Local data is still saved on this device.");
+  };
+  var syncAll = /*#__PURE__*/function () {
+    var _ref33 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+      var t, evts, _iterator, _step, ev, _t2, _t3;
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.p = _context3.n) {
+          case 0:
+            setBusy(true);
+            setMsg("");
+            _context3.p = 1;
+            _context3.n = 2;
+            return driveToken("consent");
+          case 2:
+            t = _context3.v;
+            if (t) {
+              _context3.n = 3;
+              break;
+            }
+            throw new Error("Connect Google Drive first");
+          case 3:
+            evts = loadEvents();
+            _iterator = _createForOfIteratorHelper(evts);
+            _context3.p = 4;
+            _iterator.s();
+          case 5:
+            if ((_step = _iterator.n()).done) {
+              _context3.n = 7;
+              break;
+            }
+            ev = _step.value;
+            _context3.n = 6;
+            return driveUploadEventJson(ev, t);
+          case 6:
+            _context3.n = 5;
+            break;
+          case 7:
+            _context3.n = 9;
+            break;
+          case 8:
+            _context3.p = 8;
+            _t2 = _context3.v;
+            _iterator.e(_t2);
+          case 9:
+            _context3.p = 9;
+            _iterator.f();
+            return _context3.f(9);
+          case 10:
+            toast.success("Backup complete", "" + evts.length + " event(s) uploaded to Drive");
+            _context3.n = 12;
+            break;
+          case 11:
+            _context3.p = 11;
+            _t3 = _context3.v;
+            setMsg(_t3.message || "Sync failed");
+          case 12:
+            _context3.p = 12;
+            setBusy(false);
+            return _context3.f(12);
+          case 13:
+            return _context3.a(2);
+        }
+      }, _callee3, null, [[4, 8, 9, 10], [1, 11, 12, 13]]);
+    }));
+    return function syncAll() {
+      return _ref33.apply(this, arguments);
+    };
+  }();
+  if (!pr.mU) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread({}, S.card({
+      margin: 0,
+      marginBottom: 12
+    }))
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 10,
+      color: T2,
+      textTransform: "uppercase",
+      letterSpacing: "0.1em",
+      marginBottom: 12
+    }
+  }, "\u2601 GOOGLE DRIVE BACKUP"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: T2,
+      lineHeight: 1.55,
+      marginBottom: 10
+    }
+  }, "Each event gets its own folder inside ", /*#__PURE__*/React.createElement("strong", null, DRIVE_ROOT_NAME), " on your Google Drive. All sales, inventory, and customers are saved as ", /*#__PURE__*/React.createElement("strong", null, "event-data.json"), ". Deleting an event in the app renames the folder to add ", /*#__PURE__*/React.createElement("strong", null, "deleted"), " \u2014 nothing is erased from Drive."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: T3,
+      marginBottom: 10,
+      padding: "8px 10px",
+      background: CRD,
+      borderRadius: 8,
+      lineHeight: 1.5
+    }
+  }, /*#__PURE__*/React.createElement("strong", null, "Current storage:"), " this phone/browser (localStorage) + optional Google Drive backup. Data is ", /*#__PURE__*/React.createElement("em", null, "not"), " on iCloud unless you use Safari and iCloud backs up this device."), /*#__PURE__*/React.createElement("span", {
+    style: S.lbl
+  }, "GOOGLE OAUTH CLIENT ID"), /*#__PURE__*/React.createElement("input", {
+    style: _objectSpread(_objectSpread({}, S.inp()), {}, {
+      marginBottom: 8,
+      fontSize: 11
+    }),
+    placeholder: "xxxx.apps.googleusercontent.com",
+    value: clientId,
+    onChange: function onChange(e) {
+      return setClientId(e.target.value);
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 7,
+      marginBottom: 8,
+      flexWrap: "wrap"
+    }
+  }, !connected ? /*#__PURE__*/React.createElement("button", {
+    style: S.btn({
+      flex: 1,
+      padding: "10px",
+      fontSize: 12,
+      minWidth: 120
+    }),
+    disabled: !clientId.trim() || busy,
+    onClick: connect
+  }, busy ? "Connecting…" : "Connect Google Drive") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+    style: S.btn({
+      flex: 1,
+      padding: "10px",
+      fontSize: 12,
+      minWidth: 100
+    }),
+    disabled: busy,
+    onClick: syncAll
+  }, busy ? "Syncing…" : "Sync all now"), /*#__PURE__*/React.createElement("button", {
+    style: S.bOut({
+      padding: "10px 12px",
+      fontSize: 12
+    }),
+    onClick: disconnect
+  }, "Disconnect"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: connected ? "#27ae60" : T3,
+      fontWeight: 600
+    }
+  }, connected ? "✓ Connected — new events auto-sync to Drive" : "Not connected — data stays on this device only"), msg && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: 10,
+      color: RE,
+      background: REBG,
+      padding: "7px 10px",
+      borderRadius: 7
+    }
+  }, msg));
+}
+function CurrencyManager(_ref34) {
+  var cur = _ref34.cur,
+    scur = _ref34.scur,
+    pr = _ref34.pr;
+  var _useState81 = useState(false),
+    _useState82 = _slicedToArray(_useState81, 2),
+    editMode = _useState82[0],
+    setEditMode = _useState82[1];
+  var _useState83 = useState({}),
+    _useState84 = _slicedToArray(_useState83, 2),
+    editRates = _useState84[0],
+    setEditRates = _useState84[1];
   var getCurr = function getCurr() {
     try {
       return JSON.parse(localStorage.getItem("vj_curr_rates") || "null") || DEFAULT_CURR;
@@ -20599,10 +21242,10 @@ function CurrencyManager(_ref31) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref32) {
-      var _ref33 = _slicedToArray(_ref32, 2),
-        k = _ref33[0],
-        v = _ref33[1];
+    Object.entries(getCurr()).forEach(function (_ref35) {
+      var _ref36 = _slicedToArray(_ref35, 2),
+        k = _ref36[0],
+        v = _ref36[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -20610,10 +21253,10 @@ function CurrencyManager(_ref31) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref34) {
-      var _ref35 = _slicedToArray(_ref34, 2),
-        k = _ref35[0],
-        v = _ref35[1];
+    Object.entries(getCurr()).forEach(function (_ref37) {
+      var _ref38 = _slicedToArray(_ref37, 2),
+        k = _ref38[0],
+        v = _ref38[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -20673,10 +21316,10 @@ function CurrencyManager(_ref31) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref36) {
-    var _ref37 = _slicedToArray(_ref36, 2),
-      k = _ref37[0],
-      v = _ref37[1];
+  }, Object.entries(rates).map(function (_ref39) {
+    var _ref40 = _slicedToArray(_ref39, 2),
+      k = _ref40[0],
+      v = _ref40[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -20704,10 +21347,10 @@ function CurrencyManager(_ref31) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref38, i, arr) {
-    var _ref39 = _slicedToArray(_ref38, 2),
-      k = _ref39[0],
-      v = _ref39[1];
+  })), Object.entries(rates).map(function (_ref41, i, arr) {
+    var _ref42 = _slicedToArray(_ref41, 2),
+      k = _ref42[0],
+      v = _ref42[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -20911,10 +21554,10 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", user.role === "Admin" ? "Full Access" : user.role === "Manager" ? "View + Edit" : "View Only"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref40) {
-    var _ref41 = _slicedToArray(_ref40, 2),
-      l = _ref41[0],
-      v = _ref41[1];
+  }, [["Role", user.role], ["Permissions", user.role === "Admin" ? "Full Access" : user.role === "Manager" ? "View + Edit" : "View Only"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref43) {
+    var _ref44 = _slicedToArray(_ref43, 2),
+      l = _ref44[0],
+      v = _ref44[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -20939,6 +21582,8 @@ function AdminTab(p) {
     cur: cur,
     scur: scur,
     pr: pr
+  }), /*#__PURE__*/React.createElement(DriveManager, {
+    pr: pr
   }), /*#__PURE__*/React.createElement("div", {
     style: _objectSpread({}, S.card({
       margin: 0,
@@ -20953,10 +21598,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref42) {
-    var _ref43 = _slicedToArray(_ref42, 2),
-      l = _ref43[0],
-      v = _ref43[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref45) {
+    var _ref46 = _slicedToArray(_ref45, 2),
+      l = _ref46[0],
+      v = _ref46[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -21023,10 +21668,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref44) {
-    var _ref45 = _slicedToArray(_ref44, 2),
-      l = _ref45[0],
-      v = _ref45[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref47) {
+    var _ref48 = _slicedToArray(_ref47, 2),
+      l = _ref48[0],
+      v = _ref48[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -21092,52 +21737,52 @@ function SalesTab(p) {
   var sinvm = p.sinvm;
   var fc = p.fc;
   var onAddLead = p.onAddLead;
-  var _useState77 = useState(false),
-    _useState78 = _slicedToArray(_useState77, 2),
-    showNewSale = _useState78[0],
-    sShowNewSale = _useState78[1];
-  var _useState79 = useState({
+  var _useState85 = useState(false),
+    _useState86 = _slicedToArray(_useState85, 2),
+    showNewSale = _useState86[0],
+    sShowNewSale = _useState86[1];
+  var _useState87 = useState({
       name: "",
       phone: "",
       email: "",
       company: "",
       source: "Walk-in"
     }),
-    _useState80 = _slicedToArray(_useState79, 2),
-    nsCust = _useState80[0],
-    snsCust = _useState80[1];
-  var _useState81 = useState([]),
-    _useState82 = _slicedToArray(_useState81, 2),
-    nsItems = _useState82[0],
-    snsItems = _useState82[1]; // [{...item, overridePrice: null}]
-  var _useState83 = useState("NEFT"),
-    _useState84 = _slicedToArray(_useState83, 2),
-    nsPayment = _useState84[0],
-    snsPayment = _useState84[1];
-  var _useState85 = useState(""),
-    _useState86 = _slicedToArray(_useState85, 2),
-    nsDisc = _useState86[0],
-    snsDisc = _useState86[1]; // overall discount %
-  var _useState87 = useState(""),
     _useState88 = _slicedToArray(_useState87, 2),
-    nsMarkup = _useState88[0],
-    snsMarkup = _useState88[1]; // overall markup %
-  var _useState89 = useState("pct"),
+    nsCust = _useState88[0],
+    snsCust = _useState88[1];
+  var _useState89 = useState([]),
     _useState90 = _slicedToArray(_useState89, 2),
-    nsCCType = _useState90[0],
-    snsCCType = _useState90[1]; // cc surcharge type
-  var _useState91 = useState(""),
+    nsItems = _useState90[0],
+    snsItems = _useState90[1]; // [{...item, overridePrice: null}]
+  var _useState91 = useState("NEFT"),
     _useState92 = _slicedToArray(_useState91, 2),
-    nsCCVal = _useState92[0],
-    snsCCVal = _useState92[1]; // cc surcharge value
+    nsPayment = _useState92[0],
+    snsPayment = _useState92[1];
   var _useState93 = useState(""),
     _useState94 = _slicedToArray(_useState93, 2),
-    nsSearch = _useState94[0],
-    snsSearch = _useState94[1];
-  var _useState95 = useState(null),
+    nsDisc = _useState94[0],
+    snsDisc = _useState94[1]; // overall discount %
+  var _useState95 = useState(""),
     _useState96 = _slicedToArray(_useState95, 2),
-    nsMatchedCust = _useState96[0],
-    snsMatchedCust = _useState96[1];
+    nsMarkup = _useState96[0],
+    snsMarkup = _useState96[1]; // overall markup %
+  var _useState97 = useState("pct"),
+    _useState98 = _slicedToArray(_useState97, 2),
+    nsCCType = _useState98[0],
+    snsCCType = _useState98[1]; // cc surcharge type
+  var _useState99 = useState(""),
+    _useState100 = _slicedToArray(_useState99, 2),
+    nsCCVal = _useState100[0],
+    snsCCVal = _useState100[1]; // cc surcharge value
+  var _useState101 = useState(""),
+    _useState102 = _slicedToArray(_useState101, 2),
+    nsSearch = _useState102[0],
+    snsSearch = _useState102[1];
+  var _useState103 = useState(null),
+    _useState104 = _slicedToArray(_useState103, 2),
+    nsMatchedCust = _useState104[0],
+    snsMatchedCust = _useState104[1];
   var setNC = function setNC(k, v) {
     return snsCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
@@ -22071,26 +22716,26 @@ function HistoryTab(p) {
     pr = p.pr,
     user = p.user,
     sinvm = p.sinvm;
-  var _useState97 = useState(""),
-    _useState98 = _slicedToArray(_useState97, 2),
-    search = _useState98[0],
-    setSearch = _useState98[1];
-  var _useState99 = useState("All"),
-    _useState100 = _slicedToArray(_useState99, 2),
-    staffF = _useState100[0],
-    setStaffF = _useState100[1];
-  var _useState101 = useState("All"),
-    _useState102 = _slicedToArray(_useState101, 2),
-    pmF = _useState102[0],
-    setPmF = _useState102[1];
-  var _useState103 = useState("list"),
-    _useState104 = _slicedToArray(_useState103, 2),
-    view = _useState104[0],
-    setView = _useState104[1]; // list | analytics
-  var _useState105 = useState(null),
+  var _useState105 = useState(""),
     _useState106 = _slicedToArray(_useState105, 2),
-    selCust = _useState106[0],
-    setSelCust = _useState106[1];
+    search = _useState106[0],
+    setSearch = _useState106[1];
+  var _useState107 = useState("All"),
+    _useState108 = _slicedToArray(_useState107, 2),
+    staffF = _useState108[0],
+    setStaffF = _useState108[1];
+  var _useState109 = useState("All"),
+    _useState110 = _slicedToArray(_useState109, 2),
+    pmF = _useState110[0],
+    setPmF = _useState110[1];
+  var _useState111 = useState("list"),
+    _useState112 = _slicedToArray(_useState111, 2),
+    view = _useState112[0],
+    setView = _useState112[1]; // list | analytics
+  var _useState113 = useState(null),
+    _useState114 = _slicedToArray(_useState113, 2),
+    selCust = _useState114[0],
+    setSelCust = _useState114[1];
   var stf = ["All"].concat(_toConsumableArray(_toConsumableArray(new Set(sales.map(function (s) {
     return s.staff;
   }))).sort()));
@@ -22876,19 +23521,19 @@ function CustomersTab(p) {
     cur = p.cur,
     pr = p.pr,
     syncUp = p.syncUp;
-  var _useState107 = useState(false),
-    _useState108 = _slicedToArray(_useState107, 2),
-    showForm = _useState108[0],
-    sShowForm = _useState108[1];
-  var _useState109 = useState(""),
-    _useState110 = _slicedToArray(_useState109, 2),
-    search = _useState110[0],
-    setSearch = _useState110[1];
-  var _useState111 = useState(null),
-    _useState112 = _slicedToArray(_useState111, 2),
-    selected = _useState112[0],
-    setSelected = _useState112[1];
-  var _useState113 = useState({
+  var _useState115 = useState(false),
+    _useState116 = _slicedToArray(_useState115, 2),
+    showForm = _useState116[0],
+    sShowForm = _useState116[1];
+  var _useState117 = useState(""),
+    _useState118 = _slicedToArray(_useState117, 2),
+    search = _useState118[0],
+    setSearch = _useState118[1];
+  var _useState119 = useState(null),
+    _useState120 = _slicedToArray(_useState119, 2),
+    selected = _useState120[0],
+    setSelected = _useState120[1];
+  var _useState121 = useState({
       name: "",
       phone: "",
       email: "",
@@ -22897,9 +23542,9 @@ function CustomersTab(p) {
       status: "Warm",
       source: "Walk-in"
     }),
-    _useState114 = _slicedToArray(_useState113, 2),
-    form = _useState114[0],
-    setForm = _useState114[1];
+    _useState122 = _slicedToArray(_useState121, 2),
+    form = _useState122[0],
+    setForm = _useState122[1];
   var filtered = leads.filter(function (l) {
     if (!search) return true;
     var q = search.toLowerCase();
@@ -23047,10 +23692,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref46) {
-      var _ref47 = _slicedToArray(_ref46, 2),
-        ic = _ref47[0],
-        v = _ref47[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref49) {
+      var _ref50 = _slicedToArray(_ref49, 2),
+        ic = _ref50[0],
+        v = _ref50[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -23513,186 +24158,186 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref48) {
-  var ev = _ref48.ev,
-    user = _ref48.user,
-    allUsers = _ref48.allUsers,
-    onUsersChange = _ref48.onUsersChange,
-    allEvents = _ref48.allEvents,
-    onSwitch = _ref48.onSwitch,
-    onUpdateEvent = _ref48.onUpdateEvent,
-    onBack = _ref48.onBack,
-    onLogout = _ref48.onLogout;
+function EventERP(_ref51) {
+  var ev = _ref51.ev,
+    user = _ref51.user,
+    allUsers = _ref51.allUsers,
+    onUsersChange = _ref51.onUsersChange,
+    allEvents = _ref51.allEvents,
+    onSwitch = _ref51.onSwitch,
+    onUpdateEvent = _ref51.onUpdateEvent,
+    onBack = _ref51.onBack,
+    onLogout = _ref51.onLogout;
   var pr = gp(user.role, user.perms);
   var users = allUsers;
-  var _useState115 = useState("lookup"),
-    _useState116 = _slicedToArray(_useState115, 2),
-    tab = _useState116[0],
-    st = _useState116[1];
-  var _useState117 = useState(ev.inv),
-    _useState118 = _slicedToArray(_useState117, 2),
-    inv = _useState118[0],
-    si = _useState118[1];
-  var _useState119 = useState(ev.sales),
-    _useState120 = _slicedToArray(_useState119, 2),
-    sales = _useState120[0],
-    ssl = _useState120[1];
-  var _useState121 = useState(ev.leads || []),
-    _useState122 = _slicedToArray(_useState121, 2),
-    leads = _useState122[0],
-    sld = _useState122[1];
-  var _useState123 = useState("USD"),
+  var _useState123 = useState("lookup"),
     _useState124 = _slicedToArray(_useState123, 2),
-    cur = _useState124[0],
-    scur = _useState124[1];
-  var _useState125 = useState(""),
+    tab = _useState124[0],
+    st = _useState124[1];
+  var _useState125 = useState(ev.inv),
     _useState126 = _slicedToArray(_useState125, 2),
-    jc = _useState126[0],
-    sjc = _useState126[1];
-  var _useState127 = useState(null),
+    inv = _useState126[0],
+    si = _useState126[1];
+  var _useState127 = useState(ev.sales),
     _useState128 = _slicedToArray(_useState127, 2),
-    det = _useState128[0],
-    sdet = _useState128[1];
-  var _useState129 = useState("single"),
+    sales = _useState128[0],
+    ssl = _useState128[1];
+  var _useState129 = useState(ev.leads || []),
     _useState130 = _slicedToArray(_useState129, 2),
-    mlTab = _useState130[0],
-    smlTab = _useState130[1];
-  var _useState131 = useState(""),
+    leads = _useState130[0],
+    sld = _useState130[1];
+  var _useState131 = useState("USD"),
     _useState132 = _slicedToArray(_useState131, 2),
-    mlInput = _useState132[0],
-    smlInput = _useState132[1];
-  var _useState133 = useState([]),
+    cur = _useState132[0],
+    scur = _useState132[1];
+  var _useState133 = useState(""),
     _useState134 = _slicedToArray(_useState133, 2),
-    mlItems = _useState134[0],
-    smlItems = _useState134[1];
-  var _useState135 = useState(""),
+    jc = _useState134[0],
+    sjc = _useState134[1];
+  var _useState135 = useState(null),
     _useState136 = _slicedToArray(_useState135, 2),
-    mlDisc = _useState136[0],
-    smlDisc = _useState136[1];
-  var _useState137 = useState(""),
+    det = _useState136[0],
+    sdet = _useState136[1];
+  var _useState137 = useState("single"),
     _useState138 = _slicedToArray(_useState137, 2),
-    mlDiscAmt = _useState138[0],
-    smlDiscAmt = _useState138[1];
+    mlTab = _useState138[0],
+    smlTab = _useState138[1];
   var _useState139 = useState(""),
     _useState140 = _slicedToArray(_useState139, 2),
-    mlMarkup = _useState140[0],
-    smlMarkup = _useState140[1];
+    mlInput = _useState140[0],
+    smlInput = _useState140[1];
   var _useState141 = useState([]),
     _useState142 = _slicedToArray(_useState141, 2),
-    mlNF = _useState142[0],
-    smlNF = _useState142[1];
-  var _useState143 = useState(false),
+    mlItems = _useState142[0],
+    smlItems = _useState142[1];
+  var _useState143 = useState(""),
     _useState144 = _slicedToArray(_useState143, 2),
-    mlScan = _useState144[0],
-    smlScan = _useState144[1];
-  var _useState145 = useState(false),
+    mlDisc = _useState144[0],
+    smlDisc = _useState144[1];
+  var _useState145 = useState(""),
     _useState146 = _slicedToArray(_useState145, 2),
-    showFilter = _useState146[0],
-    sShowFilter = _useState146[1];
-  var _useState147 = useState("All"),
+    mlDiscAmt = _useState146[0],
+    smlDiscAmt = _useState146[1];
+  var _useState147 = useState(""),
     _useState148 = _slicedToArray(_useState147, 2),
-    fCat = _useState148[0],
-    sfCat = _useState148[1];
-  var _useState149 = useState("All"),
+    mlMarkup = _useState148[0],
+    smlMarkup = _useState148[1];
+  var _useState149 = useState([]),
     _useState150 = _slicedToArray(_useState149, 2),
-    fCol = _useState150[0],
-    sfCol = _useState150[1];
-  var _useState151 = useState("All"),
+    mlNF = _useState150[0],
+    smlNF = _useState150[1];
+  var _useState151 = useState(false),
     _useState152 = _slicedToArray(_useState151, 2),
-    fMetal = _useState152[0],
-    sfMetal = _useState152[1];
-  var _useState153 = useState("All"),
+    mlScan = _useState152[0],
+    smlScan = _useState152[1];
+  var _useState153 = useState(false),
     _useState154 = _slicedToArray(_useState153, 2),
-    fSt = _useState154[0],
-    sfSt = _useState154[1];
+    showFilter = _useState154[0],
+    sShowFilter = _useState154[1];
   var _useState155 = useState("All"),
     _useState156 = _slicedToArray(_useState155, 2),
-    fShape = _useState156[0],
-    sfShape = _useState156[1];
-  var _useState157 = useState(""),
+    fCat = _useState156[0],
+    sfCat = _useState156[1];
+  var _useState157 = useState("All"),
     _useState158 = _slicedToArray(_useState157, 2),
-    fMinTc = _useState158[0],
-    sfMinTc = _useState158[1];
-  var _useState159 = useState(""),
+    fCol = _useState158[0],
+    sfCol = _useState158[1];
+  var _useState159 = useState("All"),
     _useState160 = _slicedToArray(_useState159, 2),
-    fMaxTc = _useState160[0],
-    sfMaxTc = _useState160[1];
-  var _useState161 = useState(""),
+    fMetal = _useState160[0],
+    sfMetal = _useState160[1];
+  var _useState161 = useState("All"),
     _useState162 = _slicedToArray(_useState161, 2),
-    fMinGw = _useState162[0],
-    sfMinGw = _useState162[1];
-  var _useState163 = useState(""),
+    fSt = _useState162[0],
+    sfSt = _useState162[1];
+  var _useState163 = useState("All"),
     _useState164 = _slicedToArray(_useState163, 2),
-    fMaxGw = _useState164[0],
-    sfMaxGw = _useState164[1];
+    fShape = _useState164[0],
+    sfShape = _useState164[1];
   var _useState165 = useState(""),
     _useState166 = _slicedToArray(_useState165, 2),
-    fMinNw = _useState166[0],
-    sfMinNw = _useState166[1];
+    fMinTc = _useState166[0],
+    sfMinTc = _useState166[1];
   var _useState167 = useState(""),
     _useState168 = _slicedToArray(_useState167, 2),
-    fMaxNw = _useState168[0],
-    sfMaxNw = _useState168[1];
+    fMaxTc = _useState168[0],
+    sfMaxTc = _useState168[1];
   var _useState169 = useState(""),
     _useState170 = _slicedToArray(_useState169, 2),
-    fMinFp = _useState170[0],
-    sfMinFp = _useState170[1];
+    fMinGw = _useState170[0],
+    sfMinGw = _useState170[1];
   var _useState171 = useState(""),
     _useState172 = _slicedToArray(_useState171, 2),
-    fMaxFp = _useState172[0],
-    sfMaxFp = _useState172[1];
-  var _useState173 = useState(false),
+    fMaxGw = _useState172[0],
+    sfMaxGw = _useState172[1];
+  var _useState173 = useState(""),
     _useState174 = _slicedToArray(_useState173, 2),
-    scan = _useState174[0],
-    sscan = _useState174[1];
-  var _useState175 = useState(null),
+    fMinNw = _useState174[0],
+    sfMinNw = _useState174[1];
+  var _useState175 = useState(""),
     _useState176 = _slicedToArray(_useState175, 2),
-    invm = _useState176[0],
-    sinvm = _useState176[1];
-  var _useState177 = useState(false),
+    fMaxNw = _useState176[0],
+    sfMaxNw = _useState176[1];
+  var _useState177 = useState(""),
     _useState178 = _slicedToArray(_useState177, 2),
-    showSwitch = _useState178[0],
-    ssw = _useState178[1];
-  var _useState179 = useState(false),
+    fMinFp = _useState178[0],
+    sfMinFp = _useState178[1];
+  var _useState179 = useState(""),
     _useState180 = _slicedToArray(_useState179, 2),
-    showUser = _useState180[0],
-    ssu = _useState180[1];
-  var _useState181 = useState("stock"),
+    fMaxFp = _useState180[0],
+    sfMaxFp = _useState180[1];
+  var _useState181 = useState(false),
     _useState182 = _slicedToArray(_useState181, 2),
-    invTab = _useState182[0],
-    sivTab = _useState182[1];
-  var _useState183 = useState(""),
+    scan = _useState182[0],
+    sscan = _useState182[1];
+  var _useState183 = useState(null),
     _useState184 = _slicedToArray(_useState183, 2),
-    isq = _useState184[0],
-    sisq = _useState184[1];
-  var _useState185 = useState("All"),
+    invm = _useState184[0],
+    sinvm = _useState184[1];
+  var _useState185 = useState(false),
     _useState186 = _slicedToArray(_useState185, 2),
-    ist = _useState186[0],
-    sist = _useState186[1];
-  var _useState187 = useState("All"),
+    showSwitch = _useState186[0],
+    ssw = _useState186[1];
+  var _useState187 = useState(false),
     _useState188 = _slicedToArray(_useState187, 2),
-    icat = _useState188[0],
-    sicat = _useState188[1];
-  var _useState189 = useState("Exhibition"),
+    showUser = _useState188[0],
+    ssu = _useState188[1];
+  var _useState189 = useState("stock"),
     _useState190 = _slicedToArray(_useState189, 2),
-    auditLoc = _useState190[0],
-    saLoc = _useState190[1];
-  var _useState191 = useState([]),
+    invTab = _useState190[0],
+    sivTab = _useState190[1];
+  var _useState191 = useState(""),
     _useState192 = _slicedToArray(_useState191, 2),
-    auditScanned = _useState192[0],
-    saScanned = _useState192[1];
-  var _useState193 = useState(ev.audits || []),
+    isq = _useState192[0],
+    sisq = _useState192[1];
+  var _useState193 = useState("All"),
     _useState194 = _slicedToArray(_useState193, 2),
-    audits = _useState194[0],
-    sAudits = _useState194[1];
+    ist = _useState194[0],
+    sist = _useState194[1];
   var _useState195 = useState("All"),
     _useState196 = _slicedToArray(_useState195, 2),
-    hstaff = _useState196[0],
-    shs = _useState196[1];
-  var _useState197 = useState("overview"),
+    icat = _useState196[0],
+    sicat = _useState196[1];
+  var _useState197 = useState("Exhibition"),
     _useState198 = _slicedToArray(_useState197, 2),
-    atab = _useState198[0],
-    sat = _useState198[1];
+    auditLoc = _useState198[0],
+    saLoc = _useState198[1];
+  var _useState199 = useState([]),
+    _useState200 = _slicedToArray(_useState199, 2),
+    auditScanned = _useState200[0],
+    saScanned = _useState200[1];
+  var _useState201 = useState(ev.audits || []),
+    _useState202 = _slicedToArray(_useState201, 2),
+    audits = _useState202[0],
+    sAudits = _useState202[1];
+  var _useState203 = useState("All"),
+    _useState204 = _slicedToArray(_useState203, 2),
+    hstaff = _useState204[0],
+    shs = _useState204[1];
+  var _useState205 = useState("overview"),
+    _useState206 = _slicedToArray(_useState205, 2),
+    atab = _useState206[0],
+    sat = _useState206[1];
   var syncUp = function syncUp(ni, ns, nl, na) {
     return onUpdateEvent(_objectSpread(_objectSpread({}, ev), {}, {
       inv: ni || inv,
@@ -24762,17 +25407,88 @@ function EventERP(_ref48) {
   })))));
 }
 function App() {
-  var _useState199 = useState(null),
-    _useState200 = _slicedToArray(_useState199, 2),
-    user = _useState200[0],
-    su = _useState200[1];
-  var _useState201 = useState(loadEvents),
-    _useState202 = _slicedToArray(_useState201, 2),
-    events = _useState202[0],
-    sevents = _useState202[1];
+  var _useState207 = useState(null),
+    _useState208 = _slicedToArray(_useState207, 2),
+    user = _useState208[0],
+    su = _useState208[1];
+  var _useState209 = useState(loadEvents),
+    _useState210 = _slicedToArray(_useState209, 2),
+    events = _useState210[0],
+    sevents = _useState210[1];
   var dark = useDark();
+  var driveSyncRef = useRef(null);
+  var driveBusyRef = useRef(false);
   useEffect(function () {
     saveEvents(events);
+    if (!isDriveConnected() || driveBusyRef.current) return;
+    if (driveSyncRef.current) clearTimeout(driveSyncRef.current);
+    driveSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
+      var t, changed, next;
+      return _regenerator().w(function (_context5) {
+        while (1) switch (_context5.p = _context5.n) {
+          case 0:
+            driveBusyRef.current = true;
+            _context5.p = 1;
+            _context5.n = 2;
+            return driveToken();
+          case 2:
+            t = _context5.v;
+            if (t) {
+              _context5.n = 3;
+              break;
+            }
+            return _context5.a(2);
+          case 3:
+            changed = false;
+            _context5.n = 4;
+            return Promise.all(events.map(/*#__PURE__*/function () {
+              var _ref53 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(ev) {
+                var synced, _t4;
+                return _regenerator().w(function (_context4) {
+                  while (1) switch (_context4.p = _context4.n) {
+                    case 0:
+                      _context4.p = 0;
+                      _context4.n = 1;
+                      return driveUploadEventJson(ev, t);
+                    case 1:
+                      synced = _context4.v;
+                      if (!((synced.driveFolderId || "") !== (ev.driveFolderId || "") || (synced.driveFileId || "") !== (ev.driveFileId || ""))) {
+                        _context4.n = 2;
+                        break;
+                      }
+                      changed = true;
+                      return _context4.a(2, synced);
+                    case 2:
+                      _context4.n = 4;
+                      break;
+                    case 3:
+                      _context4.p = 3;
+                      _t4 = _context4.v;
+                      console.warn("Drive sync", ev.name, _t4);
+                    case 4:
+                      return _context4.a(2, ev);
+                  }
+                }, _callee4, null, [[0, 3]]);
+              }));
+              return function (_x17) {
+                return _ref53.apply(this, arguments);
+              };
+            }()));
+          case 4:
+            next = _context5.v;
+            if (changed) sevents(next);
+          case 5:
+            _context5.p = 5;
+            driveBusyRef.current = false;
+            return _context5.f(5);
+          case 6:
+            return _context5.a(2);
+        }
+      }, _callee5, null, [[1,, 5, 6]]);
+    })), 3000);
+    return function () {
+      if (driveSyncRef.current) clearTimeout(driveSyncRef.current);
+    };
   }, [events]);
   useEffect(function () {
     var style = document.createElement("style");
@@ -24782,18 +25498,18 @@ function App() {
       if (style.parentNode) style.parentNode.removeChild(style);
     };
   }, []);
-  var _useState203 = useState(loadUsers),
-    _useState204 = _slicedToArray(_useState203, 2),
-    appUsers = _useState204[0],
-    sappUsers = _useState204[1];
-  var _useState205 = useState(null),
-    _useState206 = _slicedToArray(_useState205, 2),
-    activeEv = _useState206[0],
-    sae = _useState206[1];
-  var _useState207 = useState(null),
-    _useState208 = _slicedToArray(_useState207, 2),
-    manageEv = _useState208[0],
-    smev = _useState208[1];
+  var _useState211 = useState(loadUsers),
+    _useState212 = _slicedToArray(_useState211, 2),
+    appUsers = _useState212[0],
+    sappUsers = _useState212[1];
+  var _useState213 = useState(null),
+    _useState214 = _slicedToArray(_useState213, 2),
+    activeEv = _useState214[0],
+    sae = _useState214[1];
+  var _useState215 = useState(null),
+    _useState216 = _slicedToArray(_useState215, 2),
+    manageEv = _useState216[0],
+    smev = _useState216[1];
   useEffect(function () {
     saveUsers(appUsers);
   }, [appUsers]);
@@ -24805,11 +25521,33 @@ function App() {
     });
   };
   var delEv = function delEv(id) {
-    return sevents(function (p) {
+    var ev = events.find(function (e) {
+      return e.id === id;
+    });
+    if (ev) driveMarkEventDeleted(ev);
+    sevents(function (p) {
       return p.filter(function (e) {
         return e.id !== id;
       });
     });
+  };
+  var createEv = function createEv(ev) {
+    sevents(function (p) {
+      return [ev].concat(_toConsumableArray(p));
+    });
+    if (isDriveConnected()) {
+      driveToken().then(function (t) {
+        return t && driveUploadEventJson(ev, t).then(function (synced) {
+          if (synced.driveFolderId) sevents(function (p) {
+            return p.map(function (e) {
+              return e.id === ev.id ? _objectSpread(_objectSpread({}, e), synced) : e;
+            });
+          });
+        });
+      }).catch(function (e) {
+        return console.warn("Drive folder create", e);
+      });
+    }
   };
   var logout = function logout() {
     su(null);
@@ -24899,11 +25637,7 @@ function App() {
     onEnter: function onEnter(ev) {
       return sae(ev);
     },
-    onCreate: function onCreate(ev) {
-      return sevents(function (p) {
-        return [ev].concat(_toConsumableArray(p));
-      });
-    },
+    onCreate: createEv,
     onManage: function onManage(ev) {
       return smev(ev);
     },

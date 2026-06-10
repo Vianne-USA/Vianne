@@ -174,6 +174,27 @@ function loadUsers(){
 function saveUsers(users){
   try{localStorage.setItem(USERS_KEY,JSON.stringify(users));}catch(e){}
 }
+
+// ── Google Drive backup (optional — connect in Settings) ─────────────────
+const DRIVE_TOKEN_KEY="vj_drive_tok";
+const DRIVE_ROOT_KEY="vj_drive_root";
+const GCLIENT_KEY="vj_gclient_id";
+const DRIVE_ROOT_NAME="Vianne Events";
+function getGClientId(){try{return localStorage.getItem(GCLIENT_KEY)||"";}catch(e){return "";}}
+function setGClientId(id){try{localStorage.setItem(GCLIENT_KEY,id||"");}catch(e){}}
+function getDriveAuth(){try{return JSON.parse(localStorage.getItem(DRIVE_TOKEN_KEY)||"null");}catch(e){return null;}}
+function saveDriveAuth(tok,expSec){try{localStorage.setItem(DRIVE_TOKEN_KEY,JSON.stringify({token:tok,exp:Date.now()+(expSec||3600)*1000}));}catch(e){}}
+function clearDriveAuth(){try{localStorage.removeItem(DRIVE_TOKEN_KEY);localStorage.removeItem(DRIVE_ROOT_KEY);}catch(e){}}
+function isDriveConnected(){const a=getDriveAuth();return !!(a&&a.token&&a.exp>Date.now()+30000);}
+function loadGis(){return new Promise((res,rej)=>{if(window.google&&window.google.accounts&&window.google.accounts.oauth2)return res();const s=document.createElement("script");s.src="https://accounts.google.com/gsi/client";s.onload=()=>res();s.onerror=()=>rej(new Error("Could not load Google sign-in"));document.head.appendChild(s);});}
+function driveConnect(clientId,prompt){return loadGis().then(()=>new Promise((res,rej)=>{if(!clientId)return rej(new Error("Add your Google OAuth Client ID in Settings first."));const c=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:"https://www.googleapis.com/auth/drive.file",callback:r=>{if(r.error)return rej(r);saveDriveAuth(r.access_token,r.expires_in||3600);res(r.access_token);}});c.requestAccessToken({prompt:prompt||""});}));}
+async function driveToken(forcePrompt){const a=getDriveAuth();if(!forcePrompt&&a&&a.exp>Date.now()+60000)return a.token;const id=getGClientId();if(!id)return null;try{return await driveConnect(id,forcePrompt?"consent":"");}catch(e){return null;}}
+async function driveApi(path,opts,tok){const t=tok||await driveToken();if(!t)throw new Error("Google Drive not connected");const r=await fetch("https://www.googleapis.com/drive/v3"+path,{...opts,headers:{...(opts.headers||{}),Authorization:"Bearer "+t,...(opts.body&&typeof opts.body==="string"?{"Content-Type":"application/json"}:{})}});if(!r.ok)throw new Error((await r.text()).slice(0,200));const ct=r.headers.get("content-type")||"";return ct.includes("json")?r.json():null;}
+async function driveFindFolder(name,parentId,tok){let q="mimeType='application/vnd.google-apps.folder' and name='"+String(name).replace(/'/g,"\\'")+"' and trashed=false";if(parentId)q+=" and '"+parentId+"' in parents";const r=await driveApi("/files?q="+encodeURIComponent(q)+"&fields=files(id,name)",{},tok);return(r.files&&r.files[0])||null;}
+async function driveCreateFolder(name,parentId,tok){const hit=await driveFindFolder(name,parentId,tok);if(hit)return hit;return driveApi("/files",{method:"POST",body:JSON.stringify({name,mimeType:"application/vnd.google-apps.folder",...(parentId?{parents:[parentId]}:{})})},tok);}
+async function ensureDriveRoot(tok){const cached=localStorage.getItem(DRIVE_ROOT_KEY);if(cached){try{const info=await driveApi("/files/"+cached+"?fields=id,trashed",{},tok);if(info&&!info.trashed)return cached;}catch(e){}}const f=await driveFindFolder(DRIVE_ROOT_NAME,null,tok)||await driveCreateFolder(DRIVE_ROOT_NAME,null,tok);localStorage.setItem(DRIVE_ROOT_KEY,f.id);return f.id;}
+async function driveUploadEventJson(ev,tok){const t=tok||await driveToken();if(!t)return ev;const root=await ensureDriveRoot(t);let folderId=ev.driveFolderId;if(!folderId){const folder=await driveCreateFolder(ev.name,root,t);folderId=folder.id;}const payload={...ev,driveFolderId:folderId,syncedAt:new Date().toISOString()};const fileName="event-data.json";const q="'"+folderId+"' in parents and name='"+fileName+"' and trashed=false";const existing=await driveApi("/files?q="+encodeURIComponent(q)+"&fields=files(id)",{},t);const fileId=existing.files&&existing.files[0]&&existing.files[0].id;const meta=fileId?{name:fileName,mimeType:"application/json"}:{name:fileName,mimeType:"application/json",parents:[folderId]};const boundary="vjb"+Date.now();const body="--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+JSON.stringify(meta)+"\r\n--"+boundary+"\r\nContent-Type: application/json\r\n\r\n"+JSON.stringify(payload,null,2)+"\r\n--"+boundary+"--";const url=fileId?"https://www.googleapis.com/upload/drive/v3/files/"+fileId+"?uploadType=multipart":"https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart";const r=await fetch(url,{method:fileId?"PATCH":"POST",headers:{Authorization:"Bearer "+t,"Content-Type":"multipart/related; boundary="+boundary},body});if(!r.ok)throw new Error((await r.text()).slice(0,200));const file=await r.json();return {...ev,driveFolderId:folderId,driveFileId:file.id};}
+async function driveMarkEventDeleted(ev){if(!ev.driveFolderId||!isDriveConnected())return;try{const t=await driveToken();if(!t)return;await driveUploadEventJson({...ev,deletedAt:new Date().toISOString(),status:"deleted"},t);await driveApi("/files/"+ev.driveFolderId,{method:"PATCH",body:JSON.stringify({name:ev.name.trim()+" deleted"})},t);}catch(e){console.warn("Drive rename on delete",e);}}
 const S={
   btn:o=>({background:G,color:CR,border:"none",borderRadius:10,padding:"13px 18px",fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:600,cursor:"pointer",width:"100%",...o}),
   bOut:o=>({background:"transparent",color:G,border:"1.5px solid "+G,borderRadius:9,padding:"9px 14px",fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:600,cursor:"pointer",...o}),
@@ -359,12 +380,12 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
           </div>
           <div style={{padding:"11px 14px"}}>
             <div style={{display:"flex",gap:14,marginBottom:11}}>
-              {[{l:"Items",v:ev.inv.length},...(gp(user.role).vA?[{l:"Sales",v:ev.sales.length},{l:"Revenue",v:"$"+Math.round(ev.sales.reduce((s,x)=>s+x.total,0)/1000)+"k"}]:[])].map(x=>(
+              {[{l:"Items",v:(ev.inv||[]).length},...(gp(user.role).vA?[{l:"Sales",v:(ev.sales||[]).length},{l:"Revenue",v:"$"+Math.round((ev.sales||[]).reduce((s,x)=>s+x.total,0)/1000)+"k"}]:[])].map(x=>(
                 <div key={x.l} style={{textAlign:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:G}}>{x.v}</div><div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{x.l}</div></div>
               ))}
             </div>
             <div style={{display:"flex",gap:8}}>
-              <button onClick={()=>onEnter(ev)} style={{flex:2,background:G,color:CR,border:"none",borderRadius:9,padding:"11px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer"}}>Open Event →</button>
+              <button onClick={()=>onEnter(events.find(e=>e.id===ev.id)||ev)} style={{flex:2,background:G,color:CR,border:"none",borderRadius:9,padding:"11px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer"}}>Open Event →</button>
               {pr.mU&&<button onClick={()=>onManage(ev)} style={{flex:1,background:"transparent",color:G,border:"1.5px solid "+G,borderRadius:9,padding:"11px",fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:600,cursor:"pointer"}}>Manage</button>}
             </div>
           </div>
@@ -502,9 +523,9 @@ function ManageEvent({ev, onClose, onUpdate, onDelete}){
 
       {tab==="inventory"&&(
         <div>
-          <div style={{fontSize:12,color:T2,marginBottom:9}}>{ev.inv.length} items in this event</div>
+          <div style={{fontSize:12,color:T2,marginBottom:9}}>{(ev.inv||[]).length} items in this event</div>
           <div style={{maxHeight:300,overflowY:"auto",borderRadius:10,border:"1px solid "+CRD2,overflow:"hidden"}}>
-            {ev.inv.slice(0,30).map((item,i,arr)=>(
+            {(ev.inv||[]).slice(0,30).map((item,i,arr)=>(
               <div key={item.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",background:WH}}>
                 <span style={{fontSize:18}}>{item.em}</span>
                 <div style={{flex:1}}>
@@ -514,7 +535,7 @@ function ManageEvent({ev, onClose, onUpdate, onDelete}){
                 <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G}}>{f$(item.fp)}</div>
               </div>
             ))}
-            {ev.inv.length>30&&<div style={{padding:"10px",textAlign:"center",fontSize:11,color:T3}}>+ {ev.inv.length-30} more items</div>}
+            {(ev.inv||[]).length>30&&<div style={{padding:"10px",textAlign:"center",fontSize:11,color:T3}}>+ {(ev.inv||[]).length-30} more items</div>}
           </div>
         </div>
       )}
@@ -525,7 +546,7 @@ function ManageEvent({ev, onClose, onUpdate, onDelete}){
           <div style={{display:"flex",gap:8,marginBottom:11}}>{[{id:"add",l:"Add new"},{id:"replace",l:"Replace all"}].map(m=>(
             <button key={m.id} onClick={()=>smode(m.id)} style={S.pill(mode===m.id)}>{m.l}</button>
           ))}</div>
-          <input type="file" accept=".xlsx,.xls" onChange={e=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=ev=>{parseXL(ev.target.result,ev2=>onUpdate({...ev,...(mode==="add"?{inv:[...ev.inv,...ev2.inv]}:{inv:ev2.inv})}));};r.readAsArrayBuffer(f);}}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
+          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,items=>{const inv=mode==="add"?[...(ev.inv||[]),...items]:items;onUpdate({...ev,inv});toast.success("Inventory updated",""+items.length+" items "+(mode==="add"?"added":"imported"));},err=>toast.warn("Import failed",err));e.target.value="";}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
           <div style={{fontSize:11,color:T3,lineHeight:1.5}}>Upload the JCK price list Excel file to import inventory items.</div>
         </div>
       )}
@@ -1320,7 +1341,7 @@ function SingleLookup(p){
                   <input style={{...S.inp({marginBottom:4}),borderColor:G}} placeholder="Search code, collection, metal, category..." value={jc} onChange={ev=>sjc(ev.target.value)}/>
                   <div style={{fontSize:10,color:T4,marginBottom:7}}>Type to search all {inv.length} items</div>
                   <div style={{background:"#edf7f0",border:"1px solid rgba(30,92,69,0.2)",borderRadius:8,padding:"7px 11px",display:"flex",alignItems:"center",gap:7}}>
-                    <span style={{fontSize:12}}>☁</span><span style={{fontSize:11,color:G,fontWeight:600}}>Cloud sync active</span>
+                    <span style={{fontSize:12}}>{isDriveConnected()?"☁":"💾"}</span><span style={{fontSize:11,color:G,fontWeight:600}}>{isDriveConnected()?"Google Drive sync active":"Saved on this device"}</span>
                   </div>
                 </div>
 
@@ -2405,6 +2426,41 @@ function AnalyticsTab(p){
   );
 }
 
+function DriveManager({pr}){
+  const [clientId,setClientId]=useState(getGClientId());
+  const [connected,setConnected]=useState(isDriveConnected());
+  const [busy,setBusy]=useState(false);
+  const [msg,setMsg]=useState("");
+  const refresh=()=>setConnected(isDriveConnected());
+  const connect=async()=>{setBusy(true);setMsg("");try{setGClientId(clientId.trim());await driveConnect(clientId.trim(),"consent");refresh();toast.success("Google Drive connected","Event folders will sync to "+DRIVE_ROOT_NAME);}catch(e){setMsg(e.message||"Connection failed");}finally{setBusy(false);}};
+  const disconnect=()=>{clearDriveAuth();refresh();toast.info("Drive disconnected","Local data is still saved on this device.");};
+  const syncAll=async()=>{setBusy(true);setMsg("");try{const t=await driveToken("consent");if(!t)throw new Error("Connect Google Drive first");const evts=loadEvents();for(const ev of evts){await driveUploadEventJson(ev,t);}toast.success("Backup complete",""+evts.length+" event(s) uploaded to Drive");}catch(e){setMsg(e.message||"Sync failed");}finally{setBusy(false);}};
+  if(!pr.mU)return null;
+  return(
+    <div style={{...S.card({margin:0,marginBottom:12})}}>
+      <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:12}}>☁ GOOGLE DRIVE BACKUP</div>
+      <div style={{fontSize:11,color:T2,lineHeight:1.55,marginBottom:10}}>
+        Each event gets its own folder inside <strong>{DRIVE_ROOT_NAME}</strong> on your Google Drive.
+        All sales, inventory, and customers are saved as <strong>event-data.json</strong>.
+        Deleting an event in the app renames the folder to add <strong>deleted</strong> — nothing is erased from Drive.
+      </div>
+      <div style={{fontSize:10,color:T3,marginBottom:10,padding:"8px 10px",background:CRD,borderRadius:8,lineHeight:1.5}}>
+        <strong>Current storage:</strong> this phone/browser (localStorage) + optional Google Drive backup.
+        Data is <em>not</em> on iCloud unless you use Safari and iCloud backs up this device.
+      </div>
+      <span style={S.lbl}>GOOGLE OAUTH CLIENT ID</span>
+      <input style={{...S.inp(),marginBottom:8,fontSize:11}} placeholder="xxxx.apps.googleusercontent.com" value={clientId} onChange={e=>setClientId(e.target.value)}/>
+      <div style={{display:"flex",gap:7,marginBottom:8,flexWrap:"wrap"}}>
+        {!connected?<button style={S.btn({flex:1,padding:"10px",fontSize:12,minWidth:120})} disabled={!clientId.trim()||busy} onClick={connect}>{busy?"Connecting…":"Connect Google Drive"}</button>
+        :<><button style={S.btn({flex:1,padding:"10px",fontSize:12,minWidth:100})} disabled={busy} onClick={syncAll}>{busy?"Syncing…":"Sync all now"}</button>
+        <button style={S.bOut({padding:"10px 12px",fontSize:12})} onClick={disconnect}>Disconnect</button></>}
+      </div>
+      <div style={{fontSize:10,color:connected?"#27ae60":T3,fontWeight:600}}>{connected?"✓ Connected — new events auto-sync to Drive":"Not connected — data stays on this device only"}</div>
+      {msg&&<div style={{marginTop:8,fontSize:10,color:RE,background:REBG,padding:"7px 10px",borderRadius:7}}>{msg}</div>}
+    </div>
+  );
+}
+
 function CurrencyManager({cur,scur,pr}){
   const [editMode,setEditMode]=useState(false);
   const [editRates,setEditRates]=useState({});
@@ -2505,6 +2561,8 @@ function AdminTab(p){
 
           {/* Currency & Display */}
           <CurrencyManager cur={cur} scur={scur} pr={pr}/>
+
+          <DriveManager pr={pr}/>
 
           {/* Event Info */}
           <div style={{...S.card({margin:0,marginBottom:12})}}>
@@ -3405,7 +3463,30 @@ export default function App(){
   const [user,su]=useState(null);
   const [events,sevents]=useState(loadEvents);
   const dark=useDark();
-  useEffect(()=>{saveEvents(events);},[events]);
+  const driveSyncRef=useRef(null);
+  const driveBusyRef=useRef(false);
+  useEffect(()=>{
+    saveEvents(events);
+    if(!isDriveConnected()||driveBusyRef.current)return;
+    if(driveSyncRef.current)clearTimeout(driveSyncRef.current);
+    driveSyncRef.current=setTimeout(async()=>{
+      driveBusyRef.current=true;
+      try{
+        const t=await driveToken();
+        if(!t)return;
+        let changed=false;
+        const next=await Promise.all(events.map(async ev=>{
+          try{
+            const synced=await driveUploadEventJson(ev,t);
+            if((synced.driveFolderId||"")!==(ev.driveFolderId||"")||(synced.driveFileId||"")!==(ev.driveFileId||"")){changed=true;return synced;}
+          }catch(e){console.warn("Drive sync",ev.name,e);}
+          return ev;
+        }));
+        if(changed)sevents(next);
+      }finally{driveBusyRef.current=false;}
+    },3000);
+    return()=>{if(driveSyncRef.current)clearTimeout(driveSyncRef.current);};
+  },[events]);
   useEffect(()=>{
     const style=document.createElement("style");
     style.innerHTML="@keyframes toastIn{from{transform:translateY(-80px);opacity:0}to{transform:translateY(0);opacity:1}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}";
@@ -3417,7 +3498,15 @@ export default function App(){
   const [manageEv,smev]=useState(null);
   useEffect(()=>{saveUsers(appUsers);},[appUsers]);
   const upEv=ev=>sevents(p=>ev?p.map(e=>e.id===ev.id?ev:e):p);
-  const delEv=id=>sevents(p=>p.filter(e=>e.id!==id));
+  const delEv=id=>{const ev=events.find(e=>e.id===id);if(ev)driveMarkEventDeleted(ev);sevents(p=>p.filter(e=>e.id!==id));};
+  const createEv=ev=>{
+    sevents(p=>[ev,...p]);
+    if(isDriveConnected()){
+      driveToken().then(t=>t&&driveUploadEventJson(ev,t).then(synced=>{
+        if(synced.driveFolderId)sevents(p=>p.map(e=>e.id===ev.id?{...e,...synced}:e));
+      })).catch(e=>console.warn("Drive folder create",e));
+    }
+  };
   const logout=()=>{su(null);sae(null);};
   useEffect(()=>{
     if(!window.XLSX){
@@ -3458,7 +3547,7 @@ export default function App(){
   return(
     <div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:dark?"#0f0f0f":"#163D2E"}}>
       <ToastContainer/>
-      <EventHub user={user} events={events} onEnter={ev=>sae(ev)} onCreate={ev=>sevents(p=>[ev,...p])} onManage={ev=>smev(ev)} onDelete={delEv} onLogout={logout}/>
+      <EventHub user={user} events={events} onEnter={ev=>sae(ev)} onCreate={createEv} onManage={ev=>smev(ev)} onDelete={delEv} onLogout={logout}/>
       {manageEv&&<ManageEvent ev={events.find(e=>e.id===manageEv.id)||manageEv} onClose={()=>smev(null)} onUpdate={ev=>{upEv(ev);smev(ev);}} onDelete={id=>{delEv(id);smev(null);}}/>}
     </div>
   );

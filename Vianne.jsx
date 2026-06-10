@@ -147,10 +147,10 @@ const SUPER_ADMIN_UNS=new Set(["naman","dhruvit"]);
 const gp=(r,customPerms)=>{const base=RD[r]||SP;if(!customPerms||typeof customPerms!=="object")return{...base};return{...base,...customPerms};};
 function isSuperAdmin(u){return u&&SUPER_ADMIN_UNS.has(String(u.un).toLowerCase());}
 function isProtectedUser(u){return isSuperAdmin(u);}
-function normalizeEventAccess(v){if(v==="all"||v==null)return"all";if(Array.isArray(v))return v;return"all";}
-function userHasEventAccess(user,eventId){if(!user||!eventId)return false;if(isSuperAdmin(user))return true;const access=normalizeEventAccess(user.eventAccess);if(access==="all")return true;return access.includes(eventId);}
-function filterEventsForUser(user,events){if(!Array.isArray(events))return[];if(isSuperAdmin(user))return events;const access=normalizeEventAccess(user.eventAccess);if(access==="all")return events;return events.filter(ev=>access.includes(ev.id));}
-function mergeUserDefaults(saved){const out=[...saved];const known=new Set(out.map(u=>u.un));USERS.forEach(d=>{if(!known.has(d.un))out.push({...d,perms:null,eventAccess:"all"});});return out.map(u=>isSuperAdmin(u)?{...u,role:"Admin",eventAccess:"all"}:u);}
+function normalizeEventAccess(v){if(v==="all"||v==null||v===undefined)return"all";if(Array.isArray(v))return v;return"all";}
+function userHasEventAccess(user,eventId){if(!user||!eventId)return false;if(isSuperAdmin(user))return true;const access=normalizeEventAccess(user.eventAccess);if(access==="all")return true;if(!access.length)return false;return access.includes(eventId);}
+function filterEventsForUser(user,events){if(!Array.isArray(events))return[];if(isSuperAdmin(user))return events;const access=normalizeEventAccess(user.eventAccess);if(access==="all")return events;if(!access.length)return[];return events.filter(ev=>access.includes(ev.id));}
+function mergeUserDefaults(saved){const out=[...saved];const known=new Set(out.map(u=>u.un));USERS.forEach(d=>{if(!known.has(d.un))out.push({...d,perms:null,eventAccess:"all"});});return out.map(u=>{const base=isSuperAdmin(u)?{...u,role:"Admin",eventAccess:"all"}:u;return{...base,eventAccess:base.eventAccess==null?"all":base.eventAccess};});}
 const JCK_INV=[{id:"VJBR0094",cat:"Bracelets",col:"CLASSICS",metal:"G14KWG",style:"BR0065",sz:"L 6.75 INCH",gw:9.66,nw:8.282,tc:6.89,fp:2015,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER0784",cat:"Earrings",col:"ROSE",metal:"G18KWG",style:"ER0147",sz:"",gw:7.69,nw:4.434,tc:16.28,fp:3975,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3259",cat:"Earrings",col:"LINQ",metal:"G14KYG",style:"ER0530",sz:"NONE",gw:3.715,nw:3.063,tc:3.26,fp:1325,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3234",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0148",sz:"L 16 - 18 INCH",gw:2.421,nw:1.857,tc:2.82,fp:835,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3260",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0134",sz:"L 16 - 18 INCH",gw:2.687,nw:2.079,tc:3.04,fp:950,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3268",cat:"Pendants",col:"CLASSICS",metal:"G14KYG",style:"PN0412",sz:"L 16 - 18 INCH",gw:1.5,nw:0.9,tc:3.0,fp:600,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3156",cat:"Earrings",col:"CLASSICS",metal:"G14KYG",style:"ER0479",sz:"NONE",gw:2.05,nw:1.874,tc:0.88,fp:405,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3157",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0382",sz:"NONE",gw:1.01,nw:0.826,tc:0.92,fp:505,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3159",cat:"Earrings",col:"CLASSICS",metal:"G14KWG",style:"ER0527",sz:"NONE",gw:3.4,nw:2.7,tc:3.5,fp:950,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3160",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0504",sz:"3.5 US",gw:3.88,nw:3.674,tc:1.03,fp:785,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3174",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0384",sz:"NONE",gw:0.834,nw:0.71,tc:0.62,fp:375,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3166",cat:"Earrings",col:"CLASSICS",metal:"G14KYG",style:"ER0359",sz:"NONE",gw:2.34,nw:1.932,tc:2.04,fp:610,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3167",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0414",sz:"L 16 - 18 INCH",gw:3.77,nw:3.354,tc:2.08,fp:890,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3168",cat:"Necklaces",col:"BEZEL",metal:"G14KYG",style:"NC0159",sz:"L 16 - 18 INCH",gw:5.99,nw:4.958,tc:5.16,fp:1600,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3169",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0506",sz:"3.5 US",gw:3.14,nw:2.922,tc:1.09,fp:685,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3170",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0404",sz:"NONE",gw:1.53,nw:1.24,tc:1.45,fp:785,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3171",cat:"Rings",col:"OTHER",metal:"G14KWG",style:"RG0498",sz:"6.50 US",gw:2.82,nw:2.358,tc:2.31,fp:735,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3178",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0150",sz:"L 16 - 18 INCH",gw:2.263,nw:1.831,tc:2.16,fp:790,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3179",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0131",sz:"L 16 - 18 INCH",gw:2.196,nw:2.036,tc:0.8,fp:650,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3180",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0147",sz:"L 16 - 18 INCH",gw:2.056,nw:1.912,tc:0.72,fp:650,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3181",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0149",sz:"L 16 - 18 INCH",gw:2.651,nw:1.935,tc:3.58,fp:1100,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3182",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0139",sz:"L 16 - 18 INCH",gw:2.058,nw:1.786,tc:1.36,fp:650,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3183",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0135",sz:"L 16 - 18 INCH",gw:2.199,nw:1.699,tc:2.5,fp:750,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3184",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0039",sz:"L 16 - 18 INCH",gw:2.239,nw:1.451,tc:3.94,fp:950,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3191",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0390",sz:"NONE",gw:1.031,nw:0.855,tc:0.88,fp:495,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3192",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0395",sz:"NONE",gw:1.396,nw:1.17,tc:1.13,fp:650,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3194",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0505",sz:"3.5 US",gw:3.378,nw:3.174,tc:1.02,fp:695,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3195",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0507",sz:"3.5 US",gw:3.48,nw:3.268,tc:1.06,fp:710,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3196",cat:"Rings",col:"BEZEL",metal:"G14KWG",style:"RG0501",sz:"6.50 US",gw:4.055,nw:3.759,tc:1.48,fp:830,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3197",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0405",sz:"NONE",gw:1.299,nw:1.087,tc:1.06,fp:595,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3204",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0383",sz:"NONE",gw:1.01,nw:0.77,tc:1.2,fp:595,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3074",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0406",sz:"NONE",gw:1.092,nw:0.94,tc:0.76,fp:475,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3205",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0320",sz:"6.50 US",gw:2.373,nw:2.141,tc:1.16,fp:510,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3206",cat:"Rings",col:"CLASSICS",metal:"G14KYG",style:"RG0499",sz:"6.50 US",gw:4.457,nw:3.855,tc:3.01,fp:1175,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3207",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0497",sz:"6.50 US",gw:4.39,nw:3.88,tc:2.55,fp:975,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3208",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0326",sz:"6.00 US",gw:2.79,nw:2.586,tc:1.02,fp:595,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3209",cat:"Earrings",col:"OTHER",metal:"G14KYG",style:"ER0535",sz:"NONE",gw:4.881,nw:4.477,tc:2.02,fp:1075,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1548",cat:"Rings",col:"CLASSICS",metal:"SL925",style:"RG0309",sz:"10.50 US",gw:5.56,nw:5.49,tc:0.35,fp:150,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR1552",cat:"Bracelets",col:"OTHER",metal:"G14KYG",style:"BR0161",sz:"L 10.00 INCH",gw:1.76,nw:1.08,tc:0.15,fp:225,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR1609",cat:"Bracelets",col:"BEZEL",metal:"G14KYG",style:"BR0174",sz:"L 10.00 INCH",gw:1.09,nw:0.18,tc:0.2,fp:90,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR0054",cat:"Bracelets",col:"LINQ",metal:"G18KRG",style:"BR0048",sz:"L 7.25 INCH",gw:2.476,nw:1.476,tc:5.0,fp:1325,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR0877",cat:"Bracelets",col:"LINQ",metal:"G18KWG",style:"BR0082",sz:"L 7.00 INCH",gw:3.21,nw:0.38,tc:12.52,fp:1895,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER1413",cat:"Earrings",col:"LINQ",metal:"G18KYG",style:"ER0260",sz:"NONE",gw:0.68,nw:0.274,tc:2.03,fp:525,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1814",cat:"Rings",col:"CLASSICS",metal:"G14KWG",style:"RG0337",sz:"5.75 US",gw:2.77,nw:1.75,tc:5.1,fp:625,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER1841",cat:"Earrings",col:"CLASSICS",metal:"G14KYG",style:"ER0293",sz:"NONE",gw:2.77,nw:2.338,tc:2.16,fp:675,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1452",cat:"Rings",col:"LINQ",metal:"G18KWG",style:"RG0299",sz:"12 IN",gw:1.03,nw:0.906,tc:0.62,fp:450,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR1461",cat:"Bracelets",col:"CLASSICS",metal:"G14KWG",style:"BR0140",sz:"L 6.50 INCH",gw:6.97,nw:6.37,tc:3.0,fp:1125,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC1040",cat:"Necklaces",col:"LINQ",metal:"G18KWG",style:"NC0042",sz:"L 69.00 INCH",gw:10.6,nw:5.13,tc:27.35,fp:6250,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN0022",cat:"Pendants",col:"PALETTE",metal:"G18KWG",style:"PN0021",sz:"",gw:10.82,nw:10.684,tc:0.68,fp:2350,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1756",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0325",sz:"6.00 US",gw:2.86,nw:2.67,tc:0.95,fp:575,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]}];
 const DI=[
   {id:"VJBR0094",style:"BR0065",cat:"Bracelets",col:"CLASSICS",metal:"G14KWG",sz:"L 6.75",qty:1,gw:9.66,nw:8.28,tc:6.89,sp:27,iv:1427,tod:1556,cpt:1712,ipt:1570,fp:2015,em:"💎",st:"available",loc:"Exhibition",views:42,searches:18,stones:[]},
@@ -179,8 +179,98 @@ function loadEvents(){
   }catch(e){}
   return DEMO_EVENTS;
 }
+const IDB_NAME="vianne_v1";
+const IDB_STORE="events";
+function idbOpen(){
+  return new Promise((resolve,reject)=>{
+    if(typeof indexedDB==="undefined"){reject(new Error("no idb"));return;}
+    const req=indexedDB.open(IDB_NAME,1);
+    req.onupgradeneeded=e=>{e.target.result.createObjectStore(IDB_STORE,{keyPath:"id"});};
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function idbGetEvents(){
+  try{
+    const db=await idbOpen();
+    return await new Promise((res,rej)=>{
+      const r=db.transaction(IDB_STORE,"readonly").objectStore(IDB_STORE).getAll();
+      r.onsuccess=()=>res(r.result||[]);
+      r.onerror=()=>rej(r.error);
+    });
+  }catch(e){return null;}
+}
+async function idbSaveEvents(evts){
+  try{
+    const db=await idbOpen();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(IDB_STORE,"readwrite");
+      const st=tx.objectStore(IDB_STORE);
+      st.clear();
+      (evts||[]).forEach(ev=>{if(ev&&ev.id)st.put(ev);});
+      tx.oncomplete=()=>res();
+      tx.onerror=()=>rej(tx.error);
+    });
+  }catch(e){console.warn("IndexedDB save failed",e);}
+}
 function saveEvents(evts){
-  try{localStorage.setItem(EVENTS_KEY,JSON.stringify(evts));}catch(e){}
+  try{localStorage.setItem(EVENTS_KEY,JSON.stringify(evts));}catch(e){console.warn("Could not save events to browser storage",e);}
+  idbSaveEvents(evts);
+}
+async function loadEventsAsync(){
+  let local=loadEvents();
+  const idb=await idbGetEvents();
+  if(idb&&idb.length)local=mergeEvents(local,idb);
+  return local;
+}
+function eventTime(ev){
+  const t=(ev&& (ev.syncedAt||ev.updatedAt||ev.localUpdatedAt))||"";
+  return t?Date.parse(t)||0:0;
+}
+function mergeEventPair(local,cloud){
+  if(!local)return cloud;
+  if(!cloud)return local;
+  const localInv=(local.inv||[]).length;
+  const cloudInv=(cloud.inv||[]).length;
+  const localT=eventTime(local);
+  const cloudT=eventTime(cloud);
+  const pickLocal=localT>cloudT||(localT===cloudT&&localInv>=cloudInv);
+  const meta=pickLocal?{...cloud,...local}:{...local,...cloud};
+  const invHistKey=h=>(h&&h.id)||((h&&h.fileName)||"")+"|"+((h&&h.date)||"");
+  const invHistory=[...new Map([...(local.invHistory||[]),...(cloud.invHistory||[])].map(h=>[invHistKey(h),h])).values()];
+  return{
+    ...meta,
+    inv:localInv>=cloudInv?(local.inv||[]):(cloud.inv||[]),
+    invHistory,
+    sales:pickLocal?(local.sales||[]):(cloud.sales||[]),
+    leads:pickLocal?(local.leads||[]):(cloud.leads||[]),
+    audits:pickLocal?(local.audits||[]):(cloud.audits||[]),
+    memos:pickLocal?(local.memos||[]):(cloud.memos||[]),
+    driveFolderId:cloud.driveFolderId||local.driveFolderId,
+    driveFileId:cloud.driveFileId||local.driveFileId,
+    syncedAt:cloud.syncedAt||local.syncedAt,
+    localUpdatedAt:local.localUpdatedAt||cloud.localUpdatedAt,
+  };
+}
+function applyCloudDriveMeta(localEvents,synced){
+  if(!Array.isArray(synced)||!synced.length)return localEvents;
+  return localEvents.map(e=>{
+    const m=synced.find(x=>x.id===e.id);
+    if(!m)return e;
+    return{...e,driveFolderId:m.driveFolderId||e.driveFolderId,driveFileId:m.driveFileId||e.driveFileId,syncedAt:m.syncedAt||e.syncedAt};
+  });
+}
+function mergeEvents(local,cloud){
+  const localArr=Array.isArray(local)?local:[];
+  const cloudArr=Array.isArray(cloud)?cloud:[];
+  const byId=new Map();
+  localArr.forEach(e=>{if(e&&e.id)byId.set(e.id,e);});
+  cloudArr.forEach(e=>{
+    if(!e||!e.id)return;
+    const prev=byId.get(e.id);
+    byId.set(e.id,prev?mergeEventPair(prev,e):e);
+  });
+  return[...byId.values()];
 }
 const USERS_KEY="vj_users";
 function loadUsers(){
@@ -244,30 +334,73 @@ async function cloudFetchData(){
 async function cloudLoad(){
   const d=await cloudFetchData();
   if(!d)return null;
-  if(Array.isArray(d.events)&&d.events.length){saveEvents(d.events);}
+  if(Array.isArray(d.events)&&d.events.length){saveEvents(mergeEvents(loadEvents(),d.events));}
   if(Array.isArray(d.users)&&d.users.length){saveUsers(mergeUserDefaults(d.users));}
   if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
   if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
   return d;
 }
+let _lastCloudError="";
+function getLastCloudError(){return _lastCloudError;}
 async function cloudSave(events,users,deletedEvents){
   if(!_cloudOnline){const ping=await cloudFetchData();if(!ping)return null;}
   let currency=null;
   try{currency=JSON.parse(localStorage.getItem("vj_curr_rates")||"null");}catch(e){}
-  const inventoryFiles=takePendingInvFiles();
-  const body={events,users,currency,deletedEvents:deletedEvents||[],inventoryFiles};
-  try{
+  let inventoryFiles=takePendingInvFiles();
+  const trySave=async(files)=>{
+    const body={events,users,currency,deletedEvents:deletedEvents||[],inventoryFiles:files||[]};
     const r=await fetch("/api/data",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     const d=await r.json();
     if(!r.ok||!d.ok){
-      if(inventoryFiles.length)_pendingInvFiles.unshift(...inventoryFiles);
-      throw new Error(d.error||"Save failed");
+      const msg=d.error||"Save failed";
+      _lastCloudError=msg;
+      throw new Error(msg);
     }
+    _lastCloudError="";
+    return d;
+  };
+  try{
+    let d;
+    const bodyBytes=(files)=>{try{return JSON.stringify({events,users,currency,deletedEvents:deletedEvents||[],inventoryFiles:files||[]}).length;}catch(e){return 0;}};
+    if(inventoryFiles.length&&bodyBytes(inventoryFiles)>4200000){
+      _pendingInvFiles.unshift(...inventoryFiles);
+      inventoryFiles=[];
+    }
+    d=await trySave(inventoryFiles);
     _cloudOnline=true;
     if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
-    if(Array.isArray(d.events)&&d.events.length)return d.events;
+    return Array.isArray(d.events)?d.events:[];
+  }catch(e){
+    if(inventoryFiles.length)_pendingInvFiles.unshift(...inventoryFiles);
+    console.warn("Cloud save",e);
     return null;
-  }catch(e){console.warn("Cloud save",e);return null;}
+  }
+}
+function eventsForCloudPayload(events){
+  return(events||[]).map(ev=>({
+    ...ev,
+    inv:(ev.inv||[]).map(it=>{
+      if(!it||!it.img||!String(it.img).startsWith("data:"))return it;
+      const{img,...rest}=it;
+      return rest;
+    }),
+  }));
+}
+async function flushCloudSync(events,users,deletedEvents,{silent=false,successMsg="Shared with all users & devices"}={}){
+  const ping=await cloudFetchData();
+  if(!ping||!ping.configured){
+    if(!silent)toast.warn("Cloud not connected","Data saved on this device only until Google Drive is ready.");
+    return{ok:false};
+  }
+  const payload=eventsForCloudPayload(events);
+  const synced=await cloudSave(payload,users,deletedEvents||[]);
+  if(synced===null){
+    const errMsg=getLastCloudError()||"Could not save to company cloud.";
+    if(!silent&&(events||[]).length)toast.error("Cloud sync failed",errMsg);
+    return{ok:false,error:errMsg};
+  }
+  if(!silent&&successMsg)toast.success(successMsg,"Saved to company Google Drive — visible to all permitted users.");
+  return{ok:true,synced:synced||[]};
 }
 const S={
   btn:o=>({background:G,color:CR,border:"none",borderRadius:10,padding:"13px 18px",fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:600,cursor:"pointer",width:"100%",...o}),
@@ -393,12 +526,17 @@ function QRScanner({onScanned,inv}){
 
 function ensureXLSX(cb){
   if(window.XLSX){cb();return;}
-  if(document.getElementById("vj-xlsx")){setTimeout(()=>cb(),500);return;}
+  const wait=(n=0)=>{
+    if(window.XLSX){cb();return;}
+    if(n>40){toast.error("Excel library failed to load","Check your internet connection and refresh.");return;}
+    setTimeout(()=>wait(n+1),250);
+  };
+  if(document.getElementById("vj-xlsx")){wait();return;}
   const s=document.createElement("script");
   s.id="vj-xlsx";
   s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
   s.onload=()=>cb();
-  s.onerror=()=>cb();
+  s.onerror=()=>toast.error("Excel library blocked","Allow cdnjs.cloudflare.com or check network.");
   document.head.appendChild(s);
 }
 function normXLKey(k){return String(k||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"");}
@@ -414,17 +552,57 @@ function xlNum(v){
   return isNaN(n)?0:n;
 }
 function mergeInvItems(existing,incoming,mode){
-  if(mode==="replace")return incoming;
+  const incomingList=Array.isArray(incoming)?incoming:[];
+  if(mode==="replace"){
+    const byId=new Map();
+    let skipped=0;
+    incomingList.forEach(i=>{
+      const k=String(i.id).toUpperCase();
+      if(byId.has(k)){skipped++;return;}
+      byId.set(k,i);
+    });
+    const inv=[...byId.values()];
+    return{inv,added:inv.length,skipped};
+  }
   const byId=new Map((existing||[]).map(i=>[String(i.id).toUpperCase(),i]));
-  incoming.forEach(i=>{
+  let added=0,skipped=0;
+  const seenIncoming=new Set();
+  incomingList.forEach(i=>{
     const k=String(i.id).toUpperCase();
-    const prev=byId.get(k);
-    byId.set(k,prev?{...prev,...i,img:i.img||prev.img,st:prev.st||i.st}:i);
+    if(seenIncoming.has(k)){skipped++;return;}
+    seenIncoming.add(k);
+    if(byId.has(k)){skipped++;return;}
+    byId.set(k,i);
+    added++;
   });
-  return [...byId.values()];
+  return{inv:[...byId.values()],added,skipped};
+}
+function invMergeToast({added,skipped,mode,total}){
+  const dup=skipped>0?(skipped+" duplicate(s) skipped"):null;
+  if(mode==="replace"){
+    if(skipped>0&&added===0){
+      toast.warn("Duplicates skipped",skipped+" duplicate(s) in file — nothing imported");
+      return;
+    }
+    if(skipped>0){
+      toast.warn("Duplicates skipped",dup+" · "+added+" item(s) imported · "+total+" total");
+      return;
+    }
+    toast.success("Inventory replaced",added+" item(s) imported · "+total+" total");
+    return;
+  }
+  if(added===0&&skipped>0){
+    toast.warn("Duplicates skipped",dup+" · already in inventory — nothing new added");
+    return;
+  }
+  if(skipped>0){
+    toast.warn("Duplicates skipped",dup+" · "+added+" new item(s) added · "+total+" total");
+    return;
+  }
+  toast.success("Inventory updated",added+" item(s) added · "+total+" total");
 }
 function makeInvHistoryEntry(meta){
-  return{id:uid("UPL"),fileName:meta.fileName||"inventory.xlsx",date:dstr(),time:tstr(),mode:meta.mode||"add",added:meta.added||0,total:meta.total||0,by:meta.by||"Admin"};
+  return{id:uid("UPL"),fileName:meta.fileName||"inventory.xlsx",date:dstr(),time:tstr(),mode:meta.mode||"add",added:meta.added||0,skipped:meta.skipped||0,total:meta.total||0,by:meta.by||"Admin"};
 }
 function appendInvHistory(ev,meta){
   return[...(ev.invHistory||[]),makeInvHistoryEntry(meta)];
@@ -570,7 +748,7 @@ function parseXL(file,onDone,onError){
 function Login({onLogin,users}){
   const [u,su]=useState(""),[p,sp]=useState(""),[e,se]=useState(""),[show,ssh]=useState(false),[bio,sbio]=useState(false);
   const scrollRef=useRef(null);
-  useEffect(()=>{try{if(window.PublicKeyCredential)window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok=>sbio(!!ok));}catch(_){}if(!window.XLSX){const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onerror=function(){console.log("XLSX CDN blocked");};document.head.appendChild(s);}},[]);
+  useEffect(()=>{try{if(window.PublicKeyCredential)window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok=>sbio(!!ok));}catch(_){}},[]);
   useEffect(()=>{
     const html=document.documentElement,body=document.body;
     const sh=html.style.overflow,sb=body.style.overflow,sp=body.style.position,sw=body.style.width,sl=body.style.left;
@@ -600,7 +778,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const pr=gp(user.role,user.perms);
   const visibleEvents=filterEventsForUser(user,events);
   useEffect(()=>{if(sc)ensureXLSX(()=>{});},[sc]);
-  const create=()=>{if(!form.name.trim())return;const fin=async(inv,fileName,fileObj)=>{if(fileObj&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(inv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||fileObj?.name||"inventory.xlsx",mode:"initial",added:inv.length,total:inv.length,by:user.name});if(fileObj&&inv.length)await queueInventoryFileForDrive(base.id,fileObj);onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,async inv=>{sl(false);await fin(inv,xlf.name,xlf);},err=>{sl(false);smsg(err);});}else fin([],null,null);};
+  const create=()=>{if(!form.name.trim())return;const fin=async(inv,fileName,fileObj)=>{if(fileObj&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const merged=mergeInvItems([],inv,"add");const baseInv=merged.inv;if(merged.skipped>0)toast.warn("Duplicates skipped",merged.skipped+" duplicate(s) skipped in upload · "+baseInv.length+" item(s) in new event");const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv:baseInv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(baseInv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||fileObj?.name||"inventory.xlsx",mode:"initial",added:baseInv.length,skipped:merged.skipped,total:baseInv.length,by:user.name});if(fileObj&&baseInv.length)await queueInventoryFileForDrive(base.id,fileObj);onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,async inv=>{sl(false);await fin(inv,xlf.name,xlf);},err=>{sl(false);smsg(err);});}else fin([],null,null);};
   return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
       <div style={{display:"flex",alignItems:"flex-start",gap:10}}><Logo h={34}/><div style={{paddingTop:1}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
@@ -789,7 +967,7 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
               {[...(ev.invHistory||[])].reverse().map(h=>(
                 <div key={h.id} style={{...S.cc({marginBottom:8})}}>
                   <div style={{fontWeight:700,fontSize:12,color:T1}}>{h.fileName}</div>
-                  <div style={{fontSize:10,color:T3,marginTop:2}}>{h.date} {h.time} · {h.mode} · +{h.added} items · total {h.total}{h.driveFileId?" · ☁ Drive":""}</div>
+                  <div style={{fontSize:10,color:T3,marginTop:2}}>{h.date} {h.time} · {h.mode} · +{h.added} items{h.skipped?(" · "+h.skipped+" skipped"):""} · total {h.total}{h.driveFileId?" · ☁ Drive":""}</div>
                   {h.by&&<div style={{fontSize:9,color:T4,marginTop:1}}>By {h.by}</div>}
                 </div>
               ))}
@@ -804,8 +982,8 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
           <div style={{display:"flex",gap:8,marginBottom:11}}>{[{id:"add",l:"Add new"},{id:"replace",l:"Replace all"}].map(m=>(
             <button key={m.id} onClick={()=>smode(m.id)} style={S.pill(mode===m.id)}>{m.l}</button>
           ))}</div>
-          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,async items=>{if(!items.length){toast.error(INV_FAIL,"0 items found — check Unique Code and Round Off Final columns.");e.target.value="";return;}const inv=mergeInvItems(ev.inv||[],items,mode);const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added:items.length,total:inv.length,by:user?.name||"Admin"})};await queueInventoryFileForDrive(ev.id,f);onUpdate(updated);toast.success("Inventory updated",items.length+" items "+(mode==="add"?"added":"imported")+" · "+inv.length+" total · Excel queued for Google Drive");e.target.value="";},err=>{toast.error(INV_FAIL,String(err).replace(INV_FAIL+" — ",""));e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
-          <div style={{fontSize:11,color:T3,lineHeight:1.5}}>Upload your Vianne price list (.xlsx). Parsed data syncs to this event&apos;s Google Drive folder along with the original Excel file.</div>
+          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,async items=>{if(!items.length){toast.error(INV_FAIL,"0 items found — check Unique Code and Round Off Final columns.");e.target.value="";return;}const{inv,added,skipped}=mergeInvItems(ev.inv||[],items,mode);if(mode==="add"&&added===0&&skipped>0){invMergeToast({added,skipped,mode,total:(ev.inv||[]).length});e.target.value="";return;}const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added,skipped,total:inv.length,by:user?.name||"Admin"})};await queueInventoryFileForDrive(ev.id,f);onUpdate(updated);invMergeToast({added,skipped,mode,total:inv.length});e.target.value="";},err=>{toast.error(INV_FAIL,String(err).replace(INV_FAIL+" — ",""));e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
+          <div style={{fontSize:11,color:T3,lineHeight:1.5,marginTop:6}}>Duplicate Unique Codes are never added twice. You will see how many duplicates were skipped after each upload.</div>
         </div>
       )}
     </Sheet>
@@ -1035,7 +1213,7 @@ function UserManager({users,currentUser,onUsersChange,events}){
   const addUser=()=>{
     if(!form.name.trim()||!form.un.trim()||!form.pw.trim())return;
     if(users.find(u=>u.un===form.un.trim().toLowerCase())){toast.error("Username already exists","Choose a different username.");return;}
-    onUsersChange([...users,{id:Date.now(),name:form.name.trim(),un:form.un.trim().toLowerCase(),pw:form.pw.trim(),role:form.role,perms:null,eventAccess:form.role==="Admin"?"all":[]}]);
+    onUsersChange([...users,{id:Date.now(),name:form.name.trim(),un:form.un.trim().toLowerCase(),pw:form.pw.trim(),role:form.role,perms:null,eventAccess:"all"}]);
     sf({name:"",un:"",pw:"",role:"Staff"});sAdd(false);
   };
 
@@ -1081,7 +1259,7 @@ function UserManager({users,currentUser,onUsersChange,events}){
         <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",margin:"14px 0 10px"}}>📅 Event Access</div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid "+CRD2,marginBottom:6}}>
           <span style={{fontSize:13,color:T1,fontWeight:600}}>All events</span>
-          <div onClick={()=>sEP(p=>({...p,eventAccess:allEventsOn?[]:"all"}))} style={{width:42,height:24,background:allEventsOn?G:"#ccc",borderRadius:12,position:"relative",cursor:"pointer",flexShrink:0}}>
+          <div onClick={()=>sEP(p=>({...p,eventAccess:allEventsOn?(events||[]).map(e=>e.id):"all"}))} style={{width:42,height:24,background:allEventsOn?G:"#ccc",borderRadius:12,position:"relative",cursor:"pointer",flexShrink:0}}>
             <div style={{position:"absolute",width:18,height:18,top:3,left:allEventsOn?21:3,background:WH,borderRadius:"50%"}}/>
           </div>
         </div>
@@ -1642,7 +1820,7 @@ function SingleLookup(p){
                   <input style={{...S.inp({marginBottom:4}),borderColor:G}} placeholder="Search code, collection, metal, category..." value={jc} onChange={ev=>sjc(ev.target.value)}/>
                   <div style={{fontSize:10,color:T4,marginBottom:7}}>Type to search all {inv.length} items</div>
                   <div style={{background:"#edf7f0",border:"1px solid rgba(30,92,69,0.2)",borderRadius:8,padding:"7px 11px",display:"flex",alignItems:"center",gap:7}}>
-                    <span style={{fontSize:12}}>{isCloudOnline()?"☁":"💾"}</span><span style={{fontSize:11,color:G,fontWeight:600}}>{isCloudOnline()?"Vianne Google Drive sync":"Saved locally (cloud pending setup)"}</span>
+                    <span style={{fontSize:12}}>{isCloudOnline()?"☁":"💾"}</span><span style={{fontSize:11,color:G,fontWeight:600}}>{isCloudOnline()?"Company cloud sync on":"Saved locally only"}</span>
                   </div>
                 </div>
 
@@ -2111,7 +2289,7 @@ function InventoryTab(p){
                   <div><div style={{fontWeight:700,fontSize:12,color:T1}}>{h.fileName}</div><div style={{fontSize:10,color:T3,marginTop:2}}>{h.date} · {h.time}</div></div>
                   <Bdg t="g" ch={"+"+h.added}/>
                 </div>
-                <div style={{fontSize:10,color:T2,marginTop:6}}>{h.mode==="initial"?"Initial load":h.mode==="replace"?"Replaced all":"Added to existing"} · {h.total} items total{h.by?" · by "+h.by:""}{h.driveFileId?<span style={{color:"#27ae60"}}> · ☁ saved to Google Drive</span>:""}</div>
+                <div style={{fontSize:10,color:T2,marginTop:6}}>{h.mode==="initial"?"Initial load":h.mode==="replace"?"Replaced all":"Added to existing"} · {h.total} items total{h.skipped?(" · "+h.skipped+" skipped"):""}{h.by?" · by "+h.by:""}{h.driveFileId?<span style={{color:"#27ae60"}}> · ☁ saved to Google Drive</span>:""}</div>
               </div>
             ))}
           </div>}
@@ -2803,22 +2981,46 @@ function AnalyticsTab(p){
 function CloudStoragePanel({pr}){
   const [busy,setBusy]=useState(false);
   const [meta,setMeta]=useState(getCloudMeta());
+  const [lastErr,setLastErr]=useState("");
   const online=isCloudOnline();
-  const syncNow=async()=>{setBusy(true);try{const d=await cloudLoad();if(d&&d.configured){setMeta(getCloudMeta());toast.success("Loaded from Google Drive","Version "+(d.version||0));setTimeout(()=>window.location.reload(),800);}else toast.warn("Cloud not ready","Ask admin to configure Vercel + Google Drive.");}catch(e){toast.warn("Sync failed",e.message||"");}finally{setBusy(false);}};
+  const syncNow=async()=>{
+    setBusy(true);
+    setLastErr("");
+    try{
+      const d=await cloudFetchData();
+      if(!d||!d.configured){toast.warn("Cloud not ready","Set up Vercel Blob storage (see instructions below).");return;}
+      const local=await loadEventsAsync();
+      const merged=mergeEvents(local,d.events||[]);
+      saveEvents(merged);
+      if(Array.isArray(d.users)&&d.users.length)saveUsers(mergeUserDefaults(d.users));
+      const r=await flushCloudSync(merged,loadUsers(),[],{silent:false,successMsg:"Synced with company cloud"});
+      if(!r.ok){setLastErr(r.error||getLastCloudError());return;}
+      setMeta(getCloudMeta());
+      toast.success("All devices updated","Reloading latest events…");
+      setTimeout(()=>window.location.reload(),800);
+    }catch(e){setLastErr(e.message||"");toast.warn("Sync failed",e.message||"");}
+    finally{setBusy(false);}
+  };
   if(!pr.mU)return null;
   return(
     <div style={{...S.card({margin:0,marginBottom:12})}}>
-      <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:12}}>☁ VIANNE JEWELS GOOGLE DRIVE</div>
+      <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:12}}>☁ COMPANY CLOUD SYNC</div>
       <div style={{fontSize:11,color:T2,lineHeight:1.55,marginBottom:10}}>
-        All team data is stored in the company <strong>{DRIVE_ROOT_NAME}</strong> folder on a Google Workspace <strong>Shared Drive</strong>.
-        Each event has its own subfolder with <strong>event-data.json</strong> plus a master backup file.
-        Deleting an event renames its folder to add <strong>deleted</strong> — archives are kept.
+        Events and inventory sync through <strong>Vercel Blob</strong> so every user and device sees the same data.
+        Google Drive (optional) stores Excel backups when Shared Drive is configured.
       </div>
       <div style={{fontSize:10,color:online?"#27ae60":AM,fontWeight:600,marginBottom:8}}>
-        {online?"✓ Connected to Vianne Google Drive — all devices share the same data":"⚠ Cloud not configured yet — using this device only until Vercel is set up"}
+        {online?"✓ Cloud connected — create an event and wait for “Shared with all users & devices”":"⚠ Cloud not connected — data stays on this device only"}
       </div>
+      {lastErr&&<div style={{fontSize:10,color:RE,background:REBG,borderRadius:8,padding:"8px 10px",marginBottom:8,lineHeight:1.45}}>{lastErr}</div>}
+      {!online&&<div style={{fontSize:10,color:T2,background:CRD,borderRadius:8,padding:"10px 12px",marginBottom:10,lineHeight:1.5}}>
+        <strong>One-time fix (Naman / admin):</strong><br/>
+        1. Vercel → your project → <strong>Storage</strong> → Create <strong>Blob</strong> store → Connect to project<br/>
+        2. Redeploy (push any commit or Redeploy in Vercel)<br/>
+        3. Come back here → tap Sync below
+      </div>}
       {meta.updatedAt&&<div style={{fontSize:10,color:T3,marginBottom:8}}>Last cloud save: {new Date(meta.updatedAt).toLocaleString()}</div>}
-      <button style={S.btn({padding:"10px",fontSize:12})} disabled={busy} onClick={syncNow}>{busy?"Syncing…":"↻ Reload from Google Drive"}</button>
+      <button style={S.btn({padding:"10px",fontSize:12})} disabled={busy} onClick={syncNow}>{busy?"Syncing…":"↻ Sync all devices now"}</button>
     </div>
   );
 }
@@ -3713,6 +3915,12 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const [auditLoc,saLoc]=useState("Exhibition");
   const [auditScanned,saScanned]=useState([]);
   const [audits,sAudits]=useState(ev.audits||[]);
+  useEffect(()=>{
+    si(ev.inv||[]);
+    ssl(ev.sales||[]);
+    sld(ev.leads||[]);
+    sAudits(ev.audits||[]);
+  },[ev.id,ev.localUpdatedAt,ev.syncedAt]);
   const [hstaff,shs]=useState("All");
   const [atab,sat]=useState("overview");
   const syncUp=(ni,ns,nl,na)=>onUpdateEvent({...ev,inv:ni||inv,sales:ns||sales,leads:nl||leads,audits:na||audits});
@@ -3824,35 +4032,95 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
 export default function App(){
   const [user,su]=useState(null);
-  const [events,sevents]=useState(loadEvents);
+  const [events,sevents]=useState([]);
   const [appUsers,sappUsers]=useState(loadUsers);
+  const [dataReady,setDataReady]=useState(false);
   const [cloudReady,setCloudReady]=useState(false);
   const dark=useDark();
   const cloudSyncRef=useRef(null);
   const pendingDeletesRef=useRef([]);
+  const pendingCloudSaveRef=useRef(false);
+  const eventsRef=useRef([]);
+  const appUsersRef=useRef([]);
+  useEffect(()=>{eventsRef.current=events;},[events]);
+  useEffect(()=>{appUsersRef.current=appUsers;},[appUsers]);
+  const runCloudSave=async(snap,usersSnap,deleted,{silent=true}={})=>{
+    const r=await flushCloudSync(snap||eventsRef.current,usersSnap||appUsersRef.current,deleted||[],{silent});
+    if(r.ok&&r.synced)sevents(p=>applyCloudDriveMeta(p,r.synced));
+    return r;
+  };
+  const scheduleCloudSave=(delay=2500,snapshot,{silent=true,notify=false}={})=>{
+    if(!cloudReady||!isCloudOnline()){
+      pendingCloudSaveRef.current=true;
+      return;
+    }
+    if(cloudSyncRef.current)clearTimeout(cloudSyncRef.current);
+    cloudSyncRef.current=setTimeout(async()=>{
+      const deleted=pendingDeletesRef.current.splice(0);
+      const r=await runCloudSave(snapshot||eventsRef.current,appUsersRef.current,deleted,{silent:!notify});
+      if(!r.ok&&deleted.length)pendingDeletesRef.current.unshift(...deleted);
+    },delay);
+  };
   useEffect(()=>{
+    (async()=>{
+      const local=await loadEventsAsync();
+      sevents(local);
+      saveEvents(local);
+      setDataReady(true);
+    })();
+  },[]);
+  useEffect(()=>{
+    if(!dataReady)return;
     (async()=>{
       const d=await cloudFetchData();
       if(d&&d.configured){
-        if(Array.isArray(d.events)&&d.events.length){sevents(d.events);saveEvents(d.events);}
-        if(Array.isArray(d.users)&&d.users.length){const merged=mergeUserDefaults(d.users);sappUsers(merged);saveUsers(merged);}
+        sevents(prev=>{
+          const merged=mergeEvents(prev,d.events||[]);
+          saveEvents(merged);
+          eventsRef.current=merged;
+          return merged;
+        });
+        if(Array.isArray(d.users)&&d.users.length){const merged=mergeUserDefaults(d.users);sappUsers(merged);saveUsers(merged);appUsersRef.current=merged;}
         if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
         if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
       }
       setCloudReady(true);
     })();
-  },[]);
+  },[dataReady]);
   useEffect(()=>{
+    if(!dataReady||!cloudReady||!isCloudOnline())return;
+    runCloudSave(eventsRef.current,appUsersRef.current,[],{silent:true});
+    if(pendingCloudSaveRef.current){
+      pendingCloudSaveRef.current=false;
+      scheduleCloudSave(800,eventsRef.current,{silent:true});
+    }
+  },[cloudReady,dataReady]);
+  useEffect(()=>{
+    if(!dataReady)return;
     saveEvents(events);
-    if(!cloudReady||!isCloudOnline())return;
-    if(cloudSyncRef.current)clearTimeout(cloudSyncRef.current);
-    cloudSyncRef.current=setTimeout(async()=>{
-      const deleted=pendingDeletesRef.current.splice(0);
-      const synced=await cloudSave(events,appUsers,deleted);
-      if(synced)sevents(p=>p.map(e=>{const m=synced.find(x=>x.id===e.id);return m?{...e,...m}:e;}));
-    },2500);
+    scheduleCloudSave();
     return()=>{if(cloudSyncRef.current)clearTimeout(cloudSyncRef.current);};
-  },[events,appUsers,cloudReady]);
+  },[events,appUsers,cloudReady,dataReady]);
+  useEffect(()=>{
+    if(!user||!cloudReady||!isCloudOnline())return;
+    const pull=async()=>{
+      const d=await cloudFetchData();
+      if(!d||!d.configured)return;
+      sevents(prev=>{
+        const merged=mergeEvents(prev,d.events||[]);
+        saveEvents(merged);
+        eventsRef.current=merged;
+        return merged;
+      });
+      if(Array.isArray(d.users)&&d.users.length)sappUsers(prev=>{const m=mergeUserDefaults(d.users);saveUsers(m);return m;});
+      if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
+    };
+    pull();
+    const id=setInterval(pull,30000);
+    const onVis=()=>{if(document.visibilityState==="visible")pull();};
+    document.addEventListener("visibilitychange",onVis);
+    return()=>{clearInterval(id);document.removeEventListener("visibilitychange",onVis);};
+  },[user,cloudReady]);
   useEffect(()=>{saveUsers(appUsers);},[appUsers]);
   useEffect(()=>{
     if(!user)return;
@@ -3869,7 +4137,13 @@ export default function App(){
   },[]);
   const [activeEv,sae]=useState(null);
   const [manageEv,smev]=useState(null);
-  const upEv=ev=>sevents(p=>ev?p.map(e=>e.id===ev.id?ev:e):p);
+  const upEv=ev=>sevents(p=>{
+    const next=ev?p.map(e=>e.id===ev.id?{...ev,localUpdatedAt:new Date().toISOString()}:e):p;
+    eventsRef.current=next;
+    saveEvents(next);
+    if(ev)scheduleCloudSave(800,next,{silent:true,notify:!!((ev.inv||[]).length||(ev.invHistory||[]).length)});
+    return next;
+  });
   const updateUsers=next=>{
     sappUsers(prev=>{
       const prot=prev.filter(isProtectedUser);
@@ -3879,15 +4153,25 @@ export default function App(){
     });
   };
   const delEv=id=>{const ev=events.find(e=>e.id===id);if(ev)pendingDeletesRef.current.push({id:ev.id,name:ev.name,driveFolderId:ev.driveFolderId});sevents(p=>p.filter(e=>e.id!==id));};
-  const createEv=ev=>sevents(p=>[ev,...p]);
-  const logout=()=>{su(null);sae(null);};
-  useEffect(()=>{
-    if(!window.XLSX){
-      const s=document.createElement("script");
-      s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onerror=function(){console.log("XLSX CDN blocked");};
-      document.head.appendChild(s);
+  const createEv=ev=>{
+    sevents(p=>{
+      const next=[{...ev,localUpdatedAt:new Date().toISOString()},...p];
+      eventsRef.current=next;
+      saveEvents(next);
+      return next;
+    });
+    if(user){
+      sappUsers(prev=>prev.map(u=>{
+        if(u.id!==user.id)return u;
+        const access=normalizeEventAccess(u.eventAccess);
+        if(access==="all"||access.includes(ev.id))return u;
+        return{...u,eventAccess:[...access,ev.id]};
+      }));
     }
-  },[]);
+    setTimeout(()=>scheduleCloudSave(400,eventsRef.current,{silent:false,notify:true}),100);
+  };
+  const logout=()=>{su(null);sae(null);};
+  useEffect(()=>{ensureXLSX(()=>{});},[]);
 
   // Patch images into events once VJ_IMG is available
   useEffect(()=>{
@@ -3903,21 +4187,29 @@ export default function App(){
     const patch=()=>{
       if(!window.VJ_IMG&&!window.IMGS)return;
       if(!window.VJ_IMG&&window.IMGS)window.VJ_IMG=window.IMGS;
-      sevents(prev=>prev.map(ev=>({
-        ...ev,
-        inv:ev.inv.map(item=>{
-          const img=item.img||resolveItemImage(item.id);
-          return img?{...item,img}:item;
-        })
-      })));
+      sevents(prev=>{
+        let anyChanged=false;
+        const next=prev.map(ev=>{
+          let evChanged=false;
+          const inv=(ev.inv||[]).map(item=>{
+            if(item.img)return item;
+            const img=resolveItemImage(item.id);
+            if(!img)return item;
+            evChanged=true;
+            return{...item,img};
+          });
+          if(evChanged)anyChanged=true;
+          return evChanged?{...ev,inv}:ev;
+        });
+        return anyChanged?next:prev;
+      });
     };
-    // Try immediately and after short delay (script may still be loading)
     patch();
     const t1=setTimeout(patch,1000);
     const t2=setTimeout(patch,3000);
     return()=>{clearTimeout(t1);clearTimeout(t2);};
   },[]);
-  if(!cloudReady)return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",background:GD,fontFamily:"Lato,sans-serif",color:G}}>Loading Vianne data…</div>);
+  if(!dataReady||!cloudReady)return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",background:GD,fontFamily:"Lato,sans-serif",color:G}}>Loading Vianne data…</div>);
   if(!user) return (<><ToastContainer/><Login onLogin={su} users={appUsers}/></>);
   if(activeEv){
     if(!userHasEventAccess(user,activeEv.id)){
@@ -3928,7 +4220,7 @@ export default function App(){
       ev={events.find(e=>e.id===activeEv.id)||activeEv}
       user={user} allUsers={appUsers} onUsersChange={updateUsers}
       allEvents={events}
-      onSwitch={ev=>{if(!userHasEventAccess(user,ev.id))return;upEv(ev);sae(ev);}}
+      onSwitch={ev=>{if(!userHasEventAccess(user,ev.id))return;sae(ev);}}
       onUpdateEvent={ev=>{upEv(ev);sae(ev);}}
       onBack={()=>sae(null)}
       onLogout={logout}

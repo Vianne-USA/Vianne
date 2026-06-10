@@ -1,9 +1,11 @@
 const {
-  isConfigured,
-  loadMasterData,
-  saveMasterData,
+  isSyncConfigured,
+  isBlobConfigured,
+  isDriveConfigured,
+  loadSyncData,
+  saveSyncData,
   driveErrorMessage,
-} = require("./lib/drive");
+} = require("./lib/sync-store");
 
 function cors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -21,21 +23,24 @@ module.exports = async function handler(req, res) {
   cors(res);
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  if (!isConfigured()) {
+  if (!isSyncConfigured()) {
     return res.status(503).json({
       ok: false,
       configured: false,
       error:
-        "Vianne Google Drive is not configured yet. Add GOOGLE_SERVICE_ACCOUNT_JSON and GOOGLE_DRIVE_FOLDER_ID in Vercel.",
+        "Cloud sync not configured. In Vercel: create a Blob store (recommended) OR set GOOGLE_SERVICE_ACCOUNT_JSON + GOOGLE_DRIVE_FOLDER_ID on a Shared Drive.",
     });
   }
 
   try {
     if (req.method === "GET") {
-      const data = await loadMasterData();
+      const data = await loadSyncData();
       return res.status(200).json({
         ok: true,
         configured: true,
+        blob: isBlobConfigured(),
+        drive: isDriveConfigured(),
+        store: data.store || null,
         version: data.version || 0,
         updatedAt: data.updatedAt || null,
         events: data.events || [],
@@ -50,13 +55,22 @@ module.exports = async function handler(req, res) {
       }
       const body =
         typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
-      const result = await saveMasterData(body);
-      return res.status(200).json({ ok: true, configured: true, ...result });
+      const result = await saveSyncData(body);
+      return res.status(200).json({
+        ok: true,
+        configured: true,
+        blob: isBlobConfigured(),
+        drive: isDriveConfigured(),
+        ...result,
+      });
     }
 
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   } catch (err) {
     console.error("api/data error:", err);
-    return res.status(500).json({ ok: false, error: driveErrorMessage(err) });
+    return res.status(500).json({
+      ok: false,
+      error: String(err && err.message ? err.message : err).slice(0, 400),
+    });
   }
 };

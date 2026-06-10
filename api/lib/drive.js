@@ -220,6 +220,57 @@ async function renameFile(fileId, newName) {
   });
 }
 
+function slimEventForMaster(ev) {
+  const inv = ev.inv || [];
+  return {
+    id: ev.id,
+    name: ev.name,
+    loc: ev.loc,
+    start: ev.start,
+    end: ev.end,
+    status: ev.status,
+    color: ev.color,
+    driveFolderId: ev.driveFolderId,
+    driveFileId: ev.driveFileId,
+    syncedAt: ev.syncedAt,
+    localUpdatedAt: ev.localUpdatedAt,
+    invCount: inv.length,
+    salesCount: (ev.sales || []).length,
+    leadsCount: (ev.leads || []).length,
+    invHistory: ev.invHistory || [],
+  };
+}
+
+async function hydrateEventFromFolder(ev) {
+  if (!ev || !ev.driveFolderId) return ev;
+  try {
+    const existing = await findFile("event-data.json", ev.driveFolderId);
+    if (!existing) return ev;
+    const full = await downloadJson(existing.id);
+    const masterInv = (ev.inv && ev.inv.length) || 0;
+    const folderInv = (full.inv && full.inv.length) || 0;
+    if (folderInv >= masterInv) {
+      return {
+        ...full,
+        ...ev,
+        inv: full.inv || ev.inv || [],
+        sales: (full.sales && full.sales.length) ? full.sales : ev.sales || [],
+        leads: (full.leads && full.leads.length) ? full.leads : ev.leads || [],
+        memos: full.memos || ev.memos || [],
+        audits: full.audits || ev.audits || [],
+        invHistory: (full.invHistory && full.invHistory.length)
+          ? full.invHistory
+          : ev.invHistory || [],
+        driveFolderId: ev.driveFolderId || full.driveFolderId,
+        driveFileId: ev.driveFileId || full.driveFileId,
+      };
+    }
+  } catch (e) {
+    console.warn("Event folder hydrate failed", ev.name, e.message);
+  }
+  return ev;
+}
+
 async function loadMasterData() {
   if (!isConfigured()) return null;
   const root = rootFolderId();
@@ -235,8 +286,11 @@ async function loadMasterData() {
     };
   }
   const data = await downloadJson(master.id);
+  const events = Array.isArray(data.events) ? data.events : [];
+  const hydrated = await Promise.all(events.map((ev) => hydrateEventFromFolder(ev)));
   return {
     ...data,
+    events: hydrated,
     masterFileId: master.id,
     version: data.version || 0,
   };
@@ -407,9 +461,9 @@ async function saveMasterData(payload) {
   const master = {
     version,
     updatedAt: new Date().toISOString(),
-    events: syncedEvents,
-    users: payload.users || null,
-    currency: payload.currency || null,
+    events: syncedEvents.map(slimEventForMaster),
+    users: payload.users || (prev && prev.users) || null,
+    currency: payload.currency || (prev && prev.currency) || null,
   };
 
   const masterHit = await findFile(MASTER_NAME, root);

@@ -175,26 +175,46 @@ function saveUsers(users){
   try{localStorage.setItem(USERS_KEY,JSON.stringify(users));}catch(e){}
 }
 
-// ── Google Drive backup (optional — connect in Settings) ─────────────────
-const DRIVE_TOKEN_KEY="vj_drive_tok";
-const DRIVE_ROOT_KEY="vj_drive_root";
-const GCLIENT_KEY="vj_gclient_id";
-const DRIVE_ROOT_NAME="Vianne Events";
-function getGClientId(){try{return localStorage.getItem(GCLIENT_KEY)||"";}catch(e){return "";}}
-function setGClientId(id){try{localStorage.setItem(GCLIENT_KEY,id||"");}catch(e){}}
-function getDriveAuth(){try{return JSON.parse(localStorage.getItem(DRIVE_TOKEN_KEY)||"null");}catch(e){return null;}}
-function saveDriveAuth(tok,expSec){try{localStorage.setItem(DRIVE_TOKEN_KEY,JSON.stringify({token:tok,exp:Date.now()+(expSec||3600)*1000}));}catch(e){}}
-function clearDriveAuth(){try{localStorage.removeItem(DRIVE_TOKEN_KEY);localStorage.removeItem(DRIVE_ROOT_KEY);}catch(e){}}
-function isDriveConnected(){const a=getDriveAuth();return !!(a&&a.token&&a.exp>Date.now()+30000);}
-function loadGis(){return new Promise((res,rej)=>{if(window.google&&window.google.accounts&&window.google.accounts.oauth2)return res();const s=document.createElement("script");s.src="https://accounts.google.com/gsi/client";s.onload=()=>res();s.onerror=()=>rej(new Error("Could not load Google sign-in"));document.head.appendChild(s);});}
-function driveConnect(clientId,prompt){return loadGis().then(()=>new Promise((res,rej)=>{if(!clientId)return rej(new Error("Add your Google OAuth Client ID in Settings first."));const c=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:"https://www.googleapis.com/auth/drive.file",callback:r=>{if(r.error)return rej(r);saveDriveAuth(r.access_token,r.expires_in||3600);res(r.access_token);}});c.requestAccessToken({prompt:prompt||""});}));}
-async function driveToken(forcePrompt){const a=getDriveAuth();if(!forcePrompt&&a&&a.exp>Date.now()+60000)return a.token;const id=getGClientId();if(!id)return null;try{return await driveConnect(id,forcePrompt?"consent":"");}catch(e){return null;}}
-async function driveApi(path,opts,tok){const t=tok||await driveToken();if(!t)throw new Error("Google Drive not connected");const r=await fetch("https://www.googleapis.com/drive/v3"+path,{...opts,headers:{...(opts.headers||{}),Authorization:"Bearer "+t,...(opts.body&&typeof opts.body==="string"?{"Content-Type":"application/json"}:{})}});if(!r.ok)throw new Error((await r.text()).slice(0,200));const ct=r.headers.get("content-type")||"";return ct.includes("json")?r.json():null;}
-async function driveFindFolder(name,parentId,tok){let q="mimeType='application/vnd.google-apps.folder' and name='"+String(name).replace(/'/g,"\\'")+"' and trashed=false";if(parentId)q+=" and '"+parentId+"' in parents";const r=await driveApi("/files?q="+encodeURIComponent(q)+"&fields=files(id,name)",{},tok);return(r.files&&r.files[0])||null;}
-async function driveCreateFolder(name,parentId,tok){const hit=await driveFindFolder(name,parentId,tok);if(hit)return hit;return driveApi("/files",{method:"POST",body:JSON.stringify({name,mimeType:"application/vnd.google-apps.folder",...(parentId?{parents:[parentId]}:{})})},tok);}
-async function ensureDriveRoot(tok){const cached=localStorage.getItem(DRIVE_ROOT_KEY);if(cached){try{const info=await driveApi("/files/"+cached+"?fields=id,trashed",{},tok);if(info&&!info.trashed)return cached;}catch(e){}}const f=await driveFindFolder(DRIVE_ROOT_NAME,null,tok)||await driveCreateFolder(DRIVE_ROOT_NAME,null,tok);localStorage.setItem(DRIVE_ROOT_KEY,f.id);return f.id;}
-async function driveUploadEventJson(ev,tok){const t=tok||await driveToken();if(!t)return ev;const root=await ensureDriveRoot(t);let folderId=ev.driveFolderId;if(!folderId){const folder=await driveCreateFolder(ev.name,root,t);folderId=folder.id;}const payload={...ev,driveFolderId:folderId,syncedAt:new Date().toISOString()};const fileName="event-data.json";const q="'"+folderId+"' in parents and name='"+fileName+"' and trashed=false";const existing=await driveApi("/files?q="+encodeURIComponent(q)+"&fields=files(id)",{},t);const fileId=existing.files&&existing.files[0]&&existing.files[0].id;const meta=fileId?{name:fileName,mimeType:"application/json"}:{name:fileName,mimeType:"application/json",parents:[folderId]};const boundary="vjb"+Date.now();const body="--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+JSON.stringify(meta)+"\r\n--"+boundary+"\r\nContent-Type: application/json\r\n\r\n"+JSON.stringify(payload,null,2)+"\r\n--"+boundary+"--";const url=fileId?"https://www.googleapis.com/upload/drive/v3/files/"+fileId+"?uploadType=multipart":"https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart";const r=await fetch(url,{method:fileId?"PATCH":"POST",headers:{Authorization:"Bearer "+t,"Content-Type":"multipart/related; boundary="+boundary},body});if(!r.ok)throw new Error((await r.text()).slice(0,200));const file=await r.json();return {...ev,driveFolderId:folderId,driveFileId:file.id};}
-async function driveMarkEventDeleted(ev){if(!ev.driveFolderId||!isDriveConnected())return;try{const t=await driveToken();if(!t)return;await driveUploadEventJson({...ev,deletedAt:new Date().toISOString(),status:"deleted"},t);await driveApi("/files/"+ev.driveFolderId,{method:"PATCH",body:JSON.stringify({name:ev.name.trim()+" deleted"})},t);}catch(e){console.warn("Drive rename on delete",e);}}
+// ── Vianne Jewels Google Drive (company cloud via Vercel API) ─────────────
+const CLOUD_META_KEY="vj_cloud_meta";
+const DRIVE_ROOT_NAME="Vianne Jewels Data";
+let _cloudOnline=false;
+function isCloudOnline(){return _cloudOnline;}
+function getCloudMeta(){try{return JSON.parse(localStorage.getItem(CLOUD_META_KEY)||"{}");}catch(e){return {};}}
+function setCloudMeta(m){try{localStorage.setItem(CLOUD_META_KEY,JSON.stringify(m));}catch(e){}}
+async function cloudFetchData(){
+  try{
+    const r=await fetch("/api/data",{method:"GET",cache:"no-store"});
+    const d=await r.json();
+    if(!r.ok||!d.configured){_cloudOnline=false;return null;}
+    _cloudOnline=true;
+    return d;
+  }catch(e){_cloudOnline=false;return null;}
+}
+async function cloudLoad(){
+  const d=await cloudFetchData();
+  if(!d)return null;
+  if(Array.isArray(d.events)&&d.events.length){saveEvents(d.events);}
+  if(Array.isArray(d.users)&&d.users.length){saveUsers(d.users);}
+  if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
+  if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
+  return d;
+}
+async function cloudSave(events,users,deletedEvents){
+  if(!_cloudOnline){const ping=await cloudFetchData();if(!ping)return null;}
+  let currency=null;
+  try{currency=JSON.parse(localStorage.getItem("vj_curr_rates")||"null");}catch(e){}
+  const body={events,users,currency,deletedEvents:deletedEvents||[]};
+  try{
+    const r=await fetch("/api/data",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!r.ok||!d.ok)throw new Error(d.error||"Save failed");
+    _cloudOnline=true;
+    if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
+    if(Array.isArray(d.events)&&d.events.length)return d.events;
+    return null;
+  }catch(e){console.warn("Cloud save",e);return null;}
+}
 const S={
   btn:o=>({background:G,color:CR,border:"none",borderRadius:10,padding:"13px 18px",fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:600,cursor:"pointer",width:"100%",...o}),
   bOut:o=>({background:"transparent",color:G,border:"1.5px solid "+G,borderRadius:9,padding:"9px 14px",fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:600,cursor:"pointer",...o}),
@@ -1341,7 +1361,7 @@ function SingleLookup(p){
                   <input style={{...S.inp({marginBottom:4}),borderColor:G}} placeholder="Search code, collection, metal, category..." value={jc} onChange={ev=>sjc(ev.target.value)}/>
                   <div style={{fontSize:10,color:T4,marginBottom:7}}>Type to search all {inv.length} items</div>
                   <div style={{background:"#edf7f0",border:"1px solid rgba(30,92,69,0.2)",borderRadius:8,padding:"7px 11px",display:"flex",alignItems:"center",gap:7}}>
-                    <span style={{fontSize:12}}>{isDriveConnected()?"☁":"💾"}</span><span style={{fontSize:11,color:G,fontWeight:600}}>{isDriveConnected()?"Google Drive sync active":"Saved on this device"}</span>
+                    <span style={{fontSize:12}}>{isCloudOnline()?"☁":"💾"}</span><span style={{fontSize:11,color:G,fontWeight:600}}>{isCloudOnline()?"Vianne Google Drive sync":"Saved locally (cloud pending setup)"}</span>
                   </div>
                 </div>
 
@@ -2426,37 +2446,25 @@ function AnalyticsTab(p){
   );
 }
 
-function DriveManager({pr}){
-  const [clientId,setClientId]=useState(getGClientId());
-  const [connected,setConnected]=useState(isDriveConnected());
+function CloudStoragePanel({pr}){
   const [busy,setBusy]=useState(false);
-  const [msg,setMsg]=useState("");
-  const refresh=()=>setConnected(isDriveConnected());
-  const connect=async()=>{setBusy(true);setMsg("");try{setGClientId(clientId.trim());await driveConnect(clientId.trim(),"consent");refresh();toast.success("Google Drive connected","Event folders will sync to "+DRIVE_ROOT_NAME);}catch(e){setMsg(e.message||"Connection failed");}finally{setBusy(false);}};
-  const disconnect=()=>{clearDriveAuth();refresh();toast.info("Drive disconnected","Local data is still saved on this device.");};
-  const syncAll=async()=>{setBusy(true);setMsg("");try{const t=await driveToken("consent");if(!t)throw new Error("Connect Google Drive first");const evts=loadEvents();for(const ev of evts){await driveUploadEventJson(ev,t);}toast.success("Backup complete",""+evts.length+" event(s) uploaded to Drive");}catch(e){setMsg(e.message||"Sync failed");}finally{setBusy(false);}};
+  const [meta,setMeta]=useState(getCloudMeta());
+  const online=isCloudOnline();
+  const syncNow=async()=>{setBusy(true);try{const d=await cloudLoad();if(d&&d.configured){setMeta(getCloudMeta());toast.success("Loaded from Google Drive","Version "+(d.version||0));setTimeout(()=>window.location.reload(),800);}else toast.warn("Cloud not ready","Ask admin to configure Vercel + Google Drive.");}catch(e){toast.warn("Sync failed",e.message||"");}finally{setBusy(false);}};
   if(!pr.mU)return null;
   return(
     <div style={{...S.card({margin:0,marginBottom:12})}}>
-      <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:12}}>☁ GOOGLE DRIVE BACKUP</div>
+      <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:12}}>☁ VIANNE JEWELS GOOGLE DRIVE</div>
       <div style={{fontSize:11,color:T2,lineHeight:1.55,marginBottom:10}}>
-        Each event gets its own folder inside <strong>{DRIVE_ROOT_NAME}</strong> on your Google Drive.
-        All sales, inventory, and customers are saved as <strong>event-data.json</strong>.
-        Deleting an event in the app renames the folder to add <strong>deleted</strong> — nothing is erased from Drive.
+        All team data is stored in the company <strong>{DRIVE_ROOT_NAME}</strong> folder on Google Drive.
+        Each event has its own subfolder with <strong>event-data.json</strong> plus a master backup file.
+        Deleting an event renames its folder to add <strong>deleted</strong> — archives are kept.
       </div>
-      <div style={{fontSize:10,color:T3,marginBottom:10,padding:"8px 10px",background:CRD,borderRadius:8,lineHeight:1.5}}>
-        <strong>Current storage:</strong> this phone/browser (localStorage) + optional Google Drive backup.
-        Data is <em>not</em> on iCloud unless you use Safari and iCloud backs up this device.
+      <div style={{fontSize:10,color:online?"#27ae60":AM,fontWeight:600,marginBottom:8}}>
+        {online?"✓ Connected to Vianne Google Drive — all devices share the same data":"⚠ Cloud not configured yet — using this device only until Vercel is set up"}
       </div>
-      <span style={S.lbl}>GOOGLE OAUTH CLIENT ID</span>
-      <input style={{...S.inp(),marginBottom:8,fontSize:11}} placeholder="xxxx.apps.googleusercontent.com" value={clientId} onChange={e=>setClientId(e.target.value)}/>
-      <div style={{display:"flex",gap:7,marginBottom:8,flexWrap:"wrap"}}>
-        {!connected?<button style={S.btn({flex:1,padding:"10px",fontSize:12,minWidth:120})} disabled={!clientId.trim()||busy} onClick={connect}>{busy?"Connecting…":"Connect Google Drive"}</button>
-        :<><button style={S.btn({flex:1,padding:"10px",fontSize:12,minWidth:100})} disabled={busy} onClick={syncAll}>{busy?"Syncing…":"Sync all now"}</button>
-        <button style={S.bOut({padding:"10px 12px",fontSize:12})} onClick={disconnect}>Disconnect</button></>}
-      </div>
-      <div style={{fontSize:10,color:connected?"#27ae60":T3,fontWeight:600}}>{connected?"✓ Connected — new events auto-sync to Drive":"Not connected — data stays on this device only"}</div>
-      {msg&&<div style={{marginTop:8,fontSize:10,color:RE,background:REBG,padding:"7px 10px",borderRadius:7}}>{msg}</div>}
+      {meta.updatedAt&&<div style={{fontSize:10,color:T3,marginBottom:8}}>Last cloud save: {new Date(meta.updatedAt).toLocaleString()}</div>}
+      <button style={S.btn({padding:"10px",fontSize:12})} disabled={busy} onClick={syncNow}>{busy?"Syncing…":"↻ Reload from Google Drive"}</button>
     </div>
   );
 }
@@ -2562,7 +2570,7 @@ function AdminTab(p){
           {/* Currency & Display */}
           <CurrencyManager cur={cur} scur={scur} pr={pr}/>
 
-          <DriveManager pr={pr}/>
+          <CloudStoragePanel pr={pr}/>
 
           {/* Event Info */}
           <div style={{...S.card({margin:0,marginBottom:12})}}>
@@ -3462,51 +3470,46 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 export default function App(){
   const [user,su]=useState(null);
   const [events,sevents]=useState(loadEvents);
+  const [appUsers,sappUsers]=useState(loadUsers);
+  const [cloudReady,setCloudReady]=useState(false);
   const dark=useDark();
-  const driveSyncRef=useRef(null);
-  const driveBusyRef=useRef(false);
+  const cloudSyncRef=useRef(null);
+  const pendingDeletesRef=useRef([]);
+  useEffect(()=>{
+    (async()=>{
+      const d=await cloudFetchData();
+      if(d&&d.configured){
+        if(Array.isArray(d.events)&&d.events.length){sevents(d.events);saveEvents(d.events);}
+        if(Array.isArray(d.users)&&d.users.length){sappUsers(d.users);saveUsers(d.users);}
+        if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
+        if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
+      }
+      setCloudReady(true);
+    })();
+  },[]);
   useEffect(()=>{
     saveEvents(events);
-    if(!isDriveConnected()||driveBusyRef.current)return;
-    if(driveSyncRef.current)clearTimeout(driveSyncRef.current);
-    driveSyncRef.current=setTimeout(async()=>{
-      driveBusyRef.current=true;
-      try{
-        const t=await driveToken();
-        if(!t)return;
-        let changed=false;
-        const next=await Promise.all(events.map(async ev=>{
-          try{
-            const synced=await driveUploadEventJson(ev,t);
-            if((synced.driveFolderId||"")!==(ev.driveFolderId||"")||(synced.driveFileId||"")!==(ev.driveFileId||"")){changed=true;return synced;}
-          }catch(e){console.warn("Drive sync",ev.name,e);}
-          return ev;
-        }));
-        if(changed)sevents(next);
-      }finally{driveBusyRef.current=false;}
-    },3000);
-    return()=>{if(driveSyncRef.current)clearTimeout(driveSyncRef.current);};
-  },[events]);
+    if(!cloudReady||!isCloudOnline())return;
+    if(cloudSyncRef.current)clearTimeout(cloudSyncRef.current);
+    cloudSyncRef.current=setTimeout(async()=>{
+      const deleted=pendingDeletesRef.current.splice(0);
+      const synced=await cloudSave(events,appUsers,deleted);
+      if(synced)sevents(p=>p.map(e=>{const m=synced.find(x=>x.id===e.id);return m?{...e,...m}:e;}));
+    },2500);
+    return()=>{if(cloudSyncRef.current)clearTimeout(cloudSyncRef.current);};
+  },[events,appUsers,cloudReady]);
+  useEffect(()=>{saveUsers(appUsers);},[appUsers]);
   useEffect(()=>{
     const style=document.createElement("style");
     style.innerHTML="@keyframes toastIn{from{transform:translateY(-80px);opacity:0}to{transform:translateY(0);opacity:1}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}";
     document.head.appendChild(style);
     return()=>{if(style.parentNode)style.parentNode.removeChild(style);};
   },[]);
-  const [appUsers,sappUsers]=useState(loadUsers);
   const [activeEv,sae]=useState(null);
   const [manageEv,smev]=useState(null);
-  useEffect(()=>{saveUsers(appUsers);},[appUsers]);
   const upEv=ev=>sevents(p=>ev?p.map(e=>e.id===ev.id?ev:e):p);
-  const delEv=id=>{const ev=events.find(e=>e.id===id);if(ev)driveMarkEventDeleted(ev);sevents(p=>p.filter(e=>e.id!==id));};
-  const createEv=ev=>{
-    sevents(p=>[ev,...p]);
-    if(isDriveConnected()){
-      driveToken().then(t=>t&&driveUploadEventJson(ev,t).then(synced=>{
-        if(synced.driveFolderId)sevents(p=>p.map(e=>e.id===ev.id?{...e,...synced}:e));
-      })).catch(e=>console.warn("Drive folder create",e));
-    }
-  };
+  const delEv=id=>{const ev=events.find(e=>e.id===id);if(ev)pendingDeletesRef.current.push({id:ev.id,name:ev.name,driveFolderId:ev.driveFolderId});sevents(p=>p.filter(e=>e.id!==id));};
+  const createEv=ev=>sevents(p=>[ev,...p]);
   const logout=()=>{su(null);sae(null);};
   useEffect(()=>{
     if(!window.XLSX){
@@ -3531,6 +3534,7 @@ export default function App(){
     const t2=setTimeout(patch,3000);
     return()=>{clearTimeout(t1);clearTimeout(t2);};
   },[]);
+  if(!cloudReady)return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",background:GD,fontFamily:"Lato,sans-serif",color:G}}>Loading Vianne data…</div>);
   if(!user) return (<><ToastContainer/><Login onLogin={su} users={appUsers}/></>);
   if(activeEv){
     return (<div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:GD}}><ToastContainer/><EventERP

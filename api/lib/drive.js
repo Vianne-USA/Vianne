@@ -1,0 +1,317 @@
+const crypto = require("crypto");
+
+const MASTER_NAME = "vianne-master.json";
+const SCOPES = "https://www.googleapis.com/auth/drive";
+
+function credentials() {
+  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function rootFolderId() {
+  return process.env.GOOGLE_DRIVE_FOLDER_ID || "";
+}
+
+function isConfigured() {
+  return !!(credentials() && rootFolderId());
+}
+
+function b64url(input) {
+  return Buffer.from(input)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+let tokenCache = { token: null, exp: 0 };
+
+async function accessToken() {
+  const cred = credentials();
+  if (!cred) throw new Error("Google service account not configured");
+
+  const now = Math.floor(Date.now() / 1000);
+  if (tokenCache.token && tokenCache.exp > now + 60) return tokenCache.token;
+
+  const header = b64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+  const claim = b64url(
+    JSON.stringify({
+      iss: cred.client_email,
+      scope: SCOPES,
+      aud: "https://oauth2.googleapis.com/token",
+      iat: now,
+      exp: now + 3600,
+    })
+  );
+  const signInput = header + "." + claim;
+  const sign = crypto
+    .createSign("RSA-SHA256")
+    .update(signInput)
+    .sign(cred.private_key, "base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  const jwt = signInput + "." + sign;
+
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body:
+      "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=" +
+      jwt,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.error || "Token failed");
+  tokenCache = { token: data.access_token, exp: now + (data.expires_in || 3600) };
+  return data.access_token;
+}
+
+async function drive(path, opts = {}) {
+  const token = await accessToken();
+  const res = await fetch("https://www.googleapis.com/drive/v3" + path, {
+    ...opts,
+    headers: {
+      ...(opts.headers || {}),
+      Authorization: "Bearer " + token,
+      ...(opts.body && typeof opts.body === "string"
+        ? { "Content-Type": "application/json" }
+        : {}),
+    },
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text.slice(0, 300));
+  }
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("json")) return res.json();
+  return null;
+}
+
+async function driveUpload(url, body, contentType, method) {
+  const token = await accessToken();
+  const res = await fetch(url, {
+    method: method || "POST",
+    headers: {
+      Authorization: "Bearer " + token,
+      "Content-Type": contentType,
+    },
+    body,
+  });
+  if (!res.ok) throw new Error((await res.text()).slice(0, 300));
+  return res.json();
+}
+
+function escQ(s) {
+  return String(s).replace(/'/g, "\\'");
+}
+
+async function findFile(name, parentId) {
+  let q =
+    "name='" +
+    escQ(name) +
+    "' and trashed=false and '" +
+    parentId +
+    "' in parents";
+  const r = await drive(
+    "/files?q=" + encodeURIComponent(q) + "&fields=files(id,name,mimeType,modifiedTime)"
+  );
+  return (r.files && r.files[0]) || null;
+}
+
+async function findFolder(name, parentId) {
+  let q =
+    "mimeType='application/vnd.google-apps.folder' and name='" +
+    escQ(name) +
+    "' and trashed=false and '" +
+    parentId +
+    "' in parents";
+  const r = await drive("/files?q=" + encodeURIComponent(q) + "&fields=files(id,name)");
+  return (r.files && r.files[0]) || null;
+}
+
+async function createFolder(name, parentId) {
+  const hit = await findFolder(name, parentId);
+  if (hit) return hit;
+  return drive("/files", {
+    method: "POST",
+    body: JSON.stringify({
+      name,
+      mimeType: "application/vnd.google-apps.folder",
+      parents: [parentId],
+    }),
+  });
+}
+
+async function downloadJson(fileId) {
+  const token = await accessToken();
+  const res = await fetch(
+    "https://www.googleapis.com/drive/v3/files/" +
+      fileId +
+      "?alt=media",
+    { headers: { Authorization: "Bearer " + token } }
+  );
+  if (!res.ok) throw new Error((await res.text()).slice(0, 200));
+  return res.json();
+}
+
+async function uploadJson(name, data, parentId, existingId) {
+  const meta = existingId
+    ? { name, mimeType: "application/json" }
+    : { name, mimeType: "application/json", parents: [parentId] };
+  const boundary = "vianne" + Date.now();
+  const body =
+    "--" +
+    boundary +
+    "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" +
+    JSON.stringify(meta) +
+    "\r\n--" +
+    boundary +
+    "\r\nContent-Type: application/json\r\n\r\n" +
+    JSON.stringify(data, null, 2) +
+    "\r\n--" +
+    boundary +
+    "--";
+  if (existingId) {
+    const url =
+      "https://www.googleapis.com/upload/drive/v3/files/" +
+      existingId +
+      "?uploadType=multipart";
+    return driveUpload(url, body, "multipart/related; boundary=" + boundary, "PATCH");
+  }
+  return driveUpload(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+    body,
+    "multipart/related; boundary=" + boundary,
+    "POST"
+  );
+}
+
+async function renameFile(fileId, newName) {
+  return drive("/files/" + fileId, {
+    method: "PATCH",
+    body: JSON.stringify({ name: newName }),
+  });
+}
+
+async function loadMasterData() {
+  if (!isConfigured()) return null;
+  const root = rootFolderId();
+  const master = await findFile(MASTER_NAME, root);
+  if (!master) {
+    return {
+      version: 0,
+      updatedAt: null,
+      events: [],
+      users: null,
+      currency: null,
+      masterFileId: null,
+    };
+  }
+  const data = await downloadJson(master.id);
+  return {
+    ...data,
+    masterFileId: master.id,
+    version: data.version || 0,
+  };
+}
+
+async function syncEventFolder(ev, root) {
+  const folderName = (ev.name || ev.id || "Event").trim();
+  let folderId = ev.driveFolderId;
+  if (folderId) {
+    try {
+      await drive("/files/" + folderId + "?fields=id,trashed");
+    } catch (e) {
+      folderId = null;
+    }
+  }
+  if (!folderId) {
+    const folder = await createFolder(folderName, root);
+    folderId = folder.id;
+  }
+  const payload = {
+    ...ev,
+    driveFolderId: folderId,
+    syncedAt: new Date().toISOString(),
+  };
+  const existing = await findFile("event-data.json", folderId);
+  const file = await uploadJson(
+    "event-data.json",
+    payload,
+    folderId,
+    existing && existing.id
+  );
+  return { ...ev, driveFolderId: folderId, driveFileId: file.id };
+}
+
+async function markEventDeleted(deleted) {
+  if (!deleted || !deleted.driveFolderId) return;
+  const deletedName = (deleted.name || "Event").trim() + " deleted";
+  await renameFile(deleted.driveFolderId, deletedName);
+  const existing = await findFile("event-data.json", deleted.driveFolderId);
+  if (existing) {
+    const snap = await downloadJson(existing.id);
+    await uploadJson(
+      "event-data.json",
+      { ...snap, deletedAt: new Date().toISOString(), status: "deleted" },
+      deleted.driveFolderId,
+      existing.id
+    );
+  }
+}
+
+async function saveMasterData(payload) {
+  if (!isConfigured()) throw new Error("Google Drive not configured on server");
+  const root = rootFolderId();
+  const deleted = Array.isArray(payload.deletedEvents) ? payload.deletedEvents : [];
+
+  for (const d of deleted) {
+    try {
+      await markEventDeleted(d);
+    } catch (e) {
+      console.warn("Delete folder rename failed", d.name, e.message);
+    }
+  }
+
+  const eventsIn = Array.isArray(payload.events) ? payload.events : [];
+  const syncedEvents = [];
+  for (const ev of eventsIn) {
+    try {
+      syncedEvents.push(await syncEventFolder(ev, root));
+    } catch (e) {
+      console.warn("Event sync failed", ev.name, e.message);
+      syncedEvents.push(ev);
+    }
+  }
+
+  const prev = await loadMasterData();
+  const version = (prev && prev.version ? prev.version : 0) + 1;
+  const master = {
+    version,
+    updatedAt: new Date().toISOString(),
+    events: syncedEvents,
+    users: payload.users || null,
+    currency: payload.currency || null,
+  };
+
+  const masterHit = await findFile(MASTER_NAME, root);
+  const file = await uploadJson(
+    MASTER_NAME,
+    master,
+    root,
+    (masterHit && masterHit.id) || (prev && prev.masterFileId)
+  );
+
+  return { version, updatedAt: master.updatedAt, masterFileId: file.id, events: syncedEvents };
+}
+
+module.exports = {
+  isConfigured,
+  loadMasterData,
+  saveMasterData,
+};

@@ -126,9 +126,17 @@ const f$=n=>"$"+Number(n||0).toFixed(2);
 const uid=p=>(p||"X")+Date.now().toString(36).slice(-4).toUpperCase();
 const dstr=()=>new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
 const tstr=()=>new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
-const USERS=[{id:1,name:"Nilay",un:"nilay",pw:"nilay123",role:"Admin"},{id:2,name:"Jimit",un:"jimit",pw:"jimit123",role:"Manager"},{id:3,name:"Ruchit",un:"ruchit",pw:"ruchit123",role:"Admin"},{id:4,name:"Naresh",un:"naresh",pw:"naresh123",role:"Staff"},{id:5,name:"Naman",un:"naman",pw:"naman123",role:"Admin"}];
+const USERS=[{id:1,name:"Nilay",un:"nilay",pw:"nilay123",role:"Admin"},{id:2,name:"Jimit",un:"jimit",pw:"jimit123",role:"Manager"},{id:3,name:"Ruchit",un:"ruchit",pw:"ruchit123",role:"Admin"},{id:4,name:"Naresh",un:"naresh",pw:"naresh123",role:"Staff"},{id:5,name:"Naman",un:"naman",pw:"naman123",role:"Admin"},{id:6,name:"Dhruvit",un:"dhruvit",pw:"dhruvit123",role:"Admin"}];
 const AP={vP:1,vH:1,vA:1,oP:1,eC:1,mU:1,sF:1,sB:1,delSale:1},MP={vP:1,vH:1,vA:1,oP:1,eC:0,mU:0,sF:1,sB:1,delSale:0},SP={vP:1,vH:0,vA:0,oP:0,eC:0,mU:0,sF:0,sB:0,delSale:0};
-const gp=(r,customPerms)=>customPerms||{Admin:AP,Manager:MP,Staff:SP}[r]||SP;
+const RD={Admin:AP,Manager:MP,Staff:SP};
+const SUPER_ADMIN_UNS=new Set(["naman","dhruvit"]);
+const gp=(r,customPerms)=>{const base=RD[r]||SP;if(!customPerms||typeof customPerms!=="object")return{...base};return{...base,...customPerms};};
+function isSuperAdmin(u){return u&&SUPER_ADMIN_UNS.has(String(u.un).toLowerCase());}
+function isProtectedUser(u){return isSuperAdmin(u);}
+function normalizeEventAccess(v){if(v==="all"||v==null)return"all";if(Array.isArray(v))return v;return"all";}
+function userHasEventAccess(user,eventId){if(!user||!eventId)return false;if(isSuperAdmin(user))return true;const access=normalizeEventAccess(user.eventAccess);if(access==="all")return true;return access.includes(eventId);}
+function filterEventsForUser(user,events){if(!Array.isArray(events))return[];if(isSuperAdmin(user))return events;const access=normalizeEventAccess(user.eventAccess);if(access==="all")return events;return events.filter(ev=>access.includes(ev.id));}
+function mergeUserDefaults(saved){const out=[...saved];const known=new Set(out.map(u=>u.un));USERS.forEach(d=>{if(!known.has(d.un))out.push({...d,perms:null,eventAccess:"all"});});return out.map(u=>isSuperAdmin(u)?{...u,role:"Admin",eventAccess:"all"}:u);}
 const JCK_INV=[{id:"VJBR0094",cat:"Bracelets",col:"CLASSICS",metal:"G14KWG",style:"BR0065",sz:"L 6.75 INCH",gw:9.66,nw:8.282,tc:6.89,fp:2015,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER0784",cat:"Earrings",col:"ROSE",metal:"G18KWG",style:"ER0147",sz:"",gw:7.69,nw:4.434,tc:16.28,fp:3975,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3259",cat:"Earrings",col:"LINQ",metal:"G14KYG",style:"ER0530",sz:"NONE",gw:3.715,nw:3.063,tc:3.26,fp:1325,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3234",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0148",sz:"L 16 - 18 INCH",gw:2.421,nw:1.857,tc:2.82,fp:835,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3260",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0134",sz:"L 16 - 18 INCH",gw:2.687,nw:2.079,tc:3.04,fp:950,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3268",cat:"Pendants",col:"CLASSICS",metal:"G14KYG",style:"PN0412",sz:"L 16 - 18 INCH",gw:1.5,nw:0.9,tc:3.0,fp:600,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3156",cat:"Earrings",col:"CLASSICS",metal:"G14KYG",style:"ER0479",sz:"NONE",gw:2.05,nw:1.874,tc:0.88,fp:405,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3157",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0382",sz:"NONE",gw:1.01,nw:0.826,tc:0.92,fp:505,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3159",cat:"Earrings",col:"CLASSICS",metal:"G14KWG",style:"ER0527",sz:"NONE",gw:3.4,nw:2.7,tc:3.5,fp:950,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3160",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0504",sz:"3.5 US",gw:3.88,nw:3.674,tc:1.03,fp:785,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3174",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0384",sz:"NONE",gw:0.834,nw:0.71,tc:0.62,fp:375,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3166",cat:"Earrings",col:"CLASSICS",metal:"G14KYG",style:"ER0359",sz:"NONE",gw:2.34,nw:1.932,tc:2.04,fp:610,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3167",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0414",sz:"L 16 - 18 INCH",gw:3.77,nw:3.354,tc:2.08,fp:890,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3168",cat:"Necklaces",col:"BEZEL",metal:"G14KYG",style:"NC0159",sz:"L 16 - 18 INCH",gw:5.99,nw:4.958,tc:5.16,fp:1600,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3169",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0506",sz:"3.5 US",gw:3.14,nw:2.922,tc:1.09,fp:685,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3170",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0404",sz:"NONE",gw:1.53,nw:1.24,tc:1.45,fp:785,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3171",cat:"Rings",col:"OTHER",metal:"G14KWG",style:"RG0498",sz:"6.50 US",gw:2.82,nw:2.358,tc:2.31,fp:735,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3178",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0150",sz:"L 16 - 18 INCH",gw:2.263,nw:1.831,tc:2.16,fp:790,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3179",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0131",sz:"L 16 - 18 INCH",gw:2.196,nw:2.036,tc:0.8,fp:650,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3180",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0147",sz:"L 16 - 18 INCH",gw:2.056,nw:1.912,tc:0.72,fp:650,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3181",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0149",sz:"L 16 - 18 INCH",gw:2.651,nw:1.935,tc:3.58,fp:1100,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3182",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0139",sz:"L 16 - 18 INCH",gw:2.058,nw:1.786,tc:1.36,fp:650,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3183",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0135",sz:"L 16 - 18 INCH",gw:2.199,nw:1.699,tc:2.5,fp:750,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3184",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0039",sz:"L 16 - 18 INCH",gw:2.239,nw:1.451,tc:3.94,fp:950,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3191",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0390",sz:"NONE",gw:1.031,nw:0.855,tc:0.88,fp:495,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3192",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0395",sz:"NONE",gw:1.396,nw:1.17,tc:1.13,fp:650,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3194",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0505",sz:"3.5 US",gw:3.378,nw:3.174,tc:1.02,fp:695,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3195",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0507",sz:"3.5 US",gw:3.48,nw:3.268,tc:1.06,fp:710,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3196",cat:"Rings",col:"BEZEL",metal:"G14KWG",style:"RG0501",sz:"6.50 US",gw:4.055,nw:3.759,tc:1.48,fp:830,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3197",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0405",sz:"NONE",gw:1.299,nw:1.087,tc:1.06,fp:595,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3204",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0383",sz:"NONE",gw:1.01,nw:0.77,tc:1.2,fp:595,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3074",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0406",sz:"NONE",gw:1.092,nw:0.94,tc:0.76,fp:475,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3205",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0320",sz:"6.50 US",gw:2.373,nw:2.141,tc:1.16,fp:510,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3206",cat:"Rings",col:"CLASSICS",metal:"G14KYG",style:"RG0499",sz:"6.50 US",gw:4.457,nw:3.855,tc:3.01,fp:1175,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3207",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0497",sz:"6.50 US",gw:4.39,nw:3.88,tc:2.55,fp:975,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3208",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0326",sz:"6.00 US",gw:2.79,nw:2.586,tc:1.02,fp:595,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3209",cat:"Earrings",col:"OTHER",metal:"G14KYG",style:"ER0535",sz:"NONE",gw:4.881,nw:4.477,tc:2.02,fp:1075,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1548",cat:"Rings",col:"CLASSICS",metal:"SL925",style:"RG0309",sz:"10.50 US",gw:5.56,nw:5.49,tc:0.35,fp:150,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR1552",cat:"Bracelets",col:"OTHER",metal:"G14KYG",style:"BR0161",sz:"L 10.00 INCH",gw:1.76,nw:1.08,tc:0.15,fp:225,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR1609",cat:"Bracelets",col:"BEZEL",metal:"G14KYG",style:"BR0174",sz:"L 10.00 INCH",gw:1.09,nw:0.18,tc:0.2,fp:90,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR0054",cat:"Bracelets",col:"LINQ",metal:"G18KRG",style:"BR0048",sz:"L 7.25 INCH",gw:2.476,nw:1.476,tc:5.0,fp:1325,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR0877",cat:"Bracelets",col:"LINQ",metal:"G18KWG",style:"BR0082",sz:"L 7.00 INCH",gw:3.21,nw:0.38,tc:12.52,fp:1895,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER1413",cat:"Earrings",col:"LINQ",metal:"G18KYG",style:"ER0260",sz:"NONE",gw:0.68,nw:0.274,tc:2.03,fp:525,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1814",cat:"Rings",col:"CLASSICS",metal:"G14KWG",style:"RG0337",sz:"5.75 US",gw:2.77,nw:1.75,tc:5.1,fp:625,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER1841",cat:"Earrings",col:"CLASSICS",metal:"G14KYG",style:"ER0293",sz:"NONE",gw:2.77,nw:2.338,tc:2.16,fp:675,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1452",cat:"Rings",col:"LINQ",metal:"G18KWG",style:"RG0299",sz:"12 IN",gw:1.03,nw:0.906,tc:0.62,fp:450,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR1461",cat:"Bracelets",col:"CLASSICS",metal:"G14KWG",style:"BR0140",sz:"L 6.50 INCH",gw:6.97,nw:6.37,tc:3.0,fp:1125,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC1040",cat:"Necklaces",col:"LINQ",metal:"G18KWG",style:"NC0042",sz:"L 69.00 INCH",gw:10.6,nw:5.13,tc:27.35,fp:6250,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN0022",cat:"Pendants",col:"PALETTE",metal:"G18KWG",style:"PN0021",sz:"",gw:10.82,nw:10.684,tc:0.68,fp:2350,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1756",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0325",sz:"6.00 US",gw:2.86,nw:2.67,tc:0.95,fp:575,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]}];
 const DI=[
   {id:"VJBR0094",style:"BR0065",cat:"Bracelets",col:"CLASSICS",metal:"G14KWG",sz:"L 6.75",qty:1,gw:9.66,nw:8.28,tc:6.89,sp:27,iv:1427,tod:1556,cpt:1712,ipt:1570,fp:2015,em:"💎",st:"available",loc:"Exhibition",views:42,searches:18,stones:[]},
@@ -166,10 +174,10 @@ function loadUsers(){
     const raw=localStorage.getItem(USERS_KEY);
     if(raw){
       const parsed=JSON.parse(raw);
-      if(Array.isArray(parsed)&&parsed.length)return parsed;
+      if(Array.isArray(parsed)&&parsed.length)return mergeUserDefaults(parsed);
     }
   }catch(e){}
-  return USERS;
+  return USERS.map(u=>({...u,perms:null,eventAccess:"all"}));
 }
 function saveUsers(users){
   try{localStorage.setItem(USERS_KEY,JSON.stringify(users));}catch(e){}
@@ -195,7 +203,7 @@ async function cloudLoad(){
   const d=await cloudFetchData();
   if(!d)return null;
   if(Array.isArray(d.events)&&d.events.length){saveEvents(d.events);}
-  if(Array.isArray(d.users)&&d.users.length){saveUsers(d.users);}
+  if(Array.isArray(d.users)&&d.users.length){saveUsers(mergeUserDefaults(d.users));}
   if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
   if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
   return d;
@@ -373,7 +381,8 @@ function Login({onLogin,users}){
 }
 function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const [sc,ssc]=useState(false),[form,sf]=useState({name:"",loc:"",start:"",end:"",color:G}),[xlf,sxl]=useState(null),[msg,smsg]=useState(""),[loading,sl]=useState(false);
-  const pr=gp(user.role);
+  const pr=gp(user.role,user.perms);
+  const visibleEvents=filterEventsForUser(user,events);
   const create=()=>{if(!form.name.trim())return;const fin=(inv)=>{onCreate({id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[]});ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,inv=>{sl(false);fin(inv);},err=>{sl(false);smsg(err);});}else fin([...DI.slice(0,5)]);};
   return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
@@ -382,7 +391,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
     </div>
     <div style={{padding:"16px 14px",paddingLeft:"calc(14px + env(safe-area-inset-left,0px))",paddingRight:"calc(14px + env(safe-area-inset-right,0px))",maxWidth:430,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9,marginBottom:16}}>
-        {[{l:"Events",v:events.length},...(gp(user.role).vA?[{l:"Total Sales",v:events.reduce((s,e)=>s+e.sales.length,0)},{l:"Revenue",v:"$"+Math.round(events.reduce((s,e)=>s+e.sales.reduce((ss,x)=>ss+x.total,0),0)/1000)+"k"}]:[])].map(x=>(
+        {[{l:"Events",v:visibleEvents.length},...(pr.vA?[{l:"Total Sales",v:visibleEvents.reduce((s,e)=>s+e.sales.length,0)},{l:"Revenue",v:"$"+Math.round(visibleEvents.reduce((s,e)=>s+e.sales.reduce((ss,x)=>ss+x.total,0),0)/1000)+"k"}]:[])].map(x=>(
           <div key={x.l} style={{background:WH,borderRadius:11,padding:"12px 8px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.08)"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:3,textTransform:"uppercase"}}>{x.l}</div></div>
         ))}
       </div>
@@ -390,7 +399,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
         <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>Your Events</div>
         {pr.mU&&<button onClick={()=>ssc(true)} style={{background:GO,color:G,border:"none",borderRadius:8,padding:"8px 13px",fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,cursor:"pointer"}}>+ New Event</button>}
       </div>
-      {events.map(ev=>(
+      {visibleEvents.map(ev=>(
         <div key={ev.id} style={{background:WH,borderRadius:13,marginBottom:12,boxShadow:"0 3px 14px rgba(0,0,0,0.12)",overflow:"hidden"}}>
           <div style={{background:ev.color||G,padding:"13px 15px"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
@@ -400,7 +409,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
           </div>
           <div style={{padding:"11px 14px"}}>
             <div style={{display:"flex",gap:14,marginBottom:11}}>
-              {[{l:"Items",v:(ev.inv||[]).length},...(gp(user.role).vA?[{l:"Sales",v:(ev.sales||[]).length},{l:"Revenue",v:"$"+Math.round((ev.sales||[]).reduce((s,x)=>s+x.total,0)/1000)+"k"}]:[])].map(x=>(
+              {[{l:"Items",v:(ev.inv||[]).length},...(pr.vA?[{l:"Sales",v:(ev.sales||[]).length},{l:"Revenue",v:"$"+Math.round((ev.sales||[]).reduce((s,x)=>s+x.total,0)/1000)+"k"}]:[])].map(x=>(
                 <div key={x.l} style={{textAlign:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:G}}>{x.v}</div><div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{x.l}</div></div>
               ))}
             </div>
@@ -411,7 +420,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
           </div>
         </div>
       ))}
-      {events.length===0&&<div style={{textAlign:"center",padding:40,color:T3,fontSize:14}}>No events yet. Create your first event.</div>}
+      {visibleEvents.length===0&&<div style={{textAlign:"center",padding:40,color:T3,fontSize:14}}>{events.length===0?"No events yet. Create your first event.":"No events assigned to your account. Ask an admin for access."}</div>}
     </div>
     {sc&&<Sheet onClose={()=>{ssc(false);smsg("");}} title="Create New Event">
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
@@ -622,7 +631,7 @@ function SaleSuccess({sale,item,fc,cur,onDone,onPrint}){
 }
 
 function ItemCard({item,user,inv,leads,cur,preCustName,onSell,onBack,onAddLead}){
-  const pr=gp(user.role);
+  const pr=gp(user.role,user.perms);
   const [mode,sm]=useState(null),[saleResult,setSaleResult]=useState(null),[f,sf]=useState({cu:preCustName||"",ph:"",email:"",company:"",source:"Walk-in",pm:"NEFT",disc:0,remark:"",cc_type:"pct",cc_val:""});
   const [matchedCust,setMatchedCust]=useState(null);
   const set=(k,v)=>{
@@ -788,29 +797,50 @@ function InvoiceSheet({sale,onClose}){
 }
 
 // ─── USER MANAGER ────────────────────────────────────────────────────────────
-function UserManager({users,currentUser,onUsersChange}){
+function UserManager({users,currentUser,onUsersChange,events}){
   const [editPerms,sEP]=useState(null);
   const [showAdd,sAdd]=useState(false);
   const [form,sf]=useState({name:"",un:"",pw:"",role:"Staff"});
   const PK=[{k:"vP",l:"View Prices"},{k:"vH",l:"View History"},{k:"vA",l:"View Revenue & Analytics"},{k:"oP",l:"Override Price"},{k:"eC",l:"Export CSV"},{k:"mU",l:"Manage Users"},{k:"sF",l:"Show Formula"},{k:"sB",l:"Show Breakdown"},{k:"delSale",l:"Delete Sales Entry"}];
-  const RD={Admin:{vP:1,vH:1,vA:1,oP:1,eC:1,mU:1,sF:1,sB:1,delSale:1},Manager:{vP:1,vH:1,vA:1,oP:1,eC:0,mU:0,sF:1,sB:1,delSale:0},Staff:{vP:1,vH:0,vA:0,oP:0,eC:0,mU:0,sF:0,sB:0,delSale:0}};
 
   const addUser=()=>{
     if(!form.name.trim()||!form.un.trim()||!form.pw.trim())return;
     if(users.find(u=>u.un===form.un.trim().toLowerCase())){toast.error("Username already exists","Choose a different username.");return;}
-    onUsersChange([...users,{id:Date.now(),name:form.name.trim(),un:form.un.trim().toLowerCase(),pw:form.pw.trim(),role:form.role,perms:null}]);
+    onUsersChange([...users,{id:Date.now(),name:form.name.trim(),un:form.un.trim().toLowerCase(),pw:form.pw.trim(),role:form.role,perms:null,eventAccess:form.role==="Admin"?"all":[]}]);
     sf({name:"",un:"",pw:"",role:"Staff"});sAdd(false);
+  };
+
+  const saveEdit=()=>{
+    const roleBase=RD[editPerms.role]||RD.Staff;
+    const merged={...roleBase,...(editPerms.perms||{})};
+    const overrides={};
+    PK.forEach(({k})=>{if(merged[k]!==roleBase[k])overrides[k]=merged[k];});
+    onUsersChange(users.map(u=>u.id===editPerms.id?{...u,perms:Object.keys(overrides).length?overrides:null,eventAccess:editPerms.eventAccess==="all"||!editPerms.eventAccess?"all":editPerms.eventAccess}:u));
+    toast.success("User updated",editPerms.name+" permissions saved.");
+    sEP(null);
+  };
+
+  const toggleEventAccess=(eventId)=>{
+    sEP(p=>{
+      const allIds=(events||[]).map(e=>e.id);
+      let ids=p.eventAccess==="all"||p.eventAccess==null?[...allIds]:[...(p.eventAccess||[])];
+      if(ids.includes(eventId))ids=ids.filter(id=>id!==eventId);else ids.push(eventId);
+      const next=ids.length===allIds.length?"all":ids;
+      return{...p,eventAccess:next};
+    });
   };
 
   if(editPerms){
     const base={...(RD[editPerms.role]||RD.Staff),...(editPerms.perms||{})};
+    const allEventsOn=editPerms.eventAccess==="all"||editPerms.eventAccess==null;
+    const selectedIds=allEventsOn?(events||[]).map(e=>e.id):[...(editPerms.eventAccess||[])];
     return(
       <div style={{...S.card({margin:0,marginBottom:12})}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <div><div style={{fontWeight:700,fontSize:14,color:T1}}>{editPerms.name}</div><div style={{fontSize:10,color:T3}}>Editing permissions · {editPerms.role}</div></div>
+          <div><div style={{fontWeight:700,fontSize:14,color:T1}}>{editPerms.name}</div><div style={{fontSize:10,color:T3}}>Permissions & event access · {editPerms.role}</div></div>
           <button onClick={()=>sEP(null)} style={{background:"none",border:"none",fontSize:20,color:T3,cursor:"pointer"}}>✕</button>
         </div>
-        <div style={{background:AMBG,borderRadius:8,padding:"8px 11px",marginBottom:11,fontSize:10,color:AM,fontWeight:600}}>Defaults set by role. Toggle to customise this user only.</div>
+        <div style={{background:AMBG,borderRadius:8,padding:"8px 11px",marginBottom:11,fontSize:10,color:AM,fontWeight:600}}>Toggle app permissions. Changes apply immediately after save.</div>
         {PK.map(({k,l})=>(
           <div key={k} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid "+CRD2}}>
             <span style={{fontSize:13,color:T1}}>{l}</span>
@@ -819,9 +849,25 @@ function UserManager({users,currentUser,onUsersChange}){
             </div>
           </div>
         ))}
+        <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",margin:"14px 0 10px"}}>📅 Event Access</div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid "+CRD2,marginBottom:6}}>
+          <span style={{fontSize:13,color:T1,fontWeight:600}}>All events</span>
+          <div onClick={()=>sEP(p=>({...p,eventAccess:allEventsOn?[]:"all"}))} style={{width:42,height:24,background:allEventsOn?G:"#ccc",borderRadius:12,position:"relative",cursor:"pointer",flexShrink:0}}>
+            <div style={{position:"absolute",width:18,height:18,top:3,left:allEventsOn?21:3,background:WH,borderRadius:"50%"}}/>
+          </div>
+        </div>
+        {(events||[]).map(ev=>(
+          <div key={ev.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid "+CRD2}}>
+            <div style={{minWidth:0,paddingRight:8}}><div style={{fontSize:12,fontWeight:600,color:T1}}>{ev.name}</div><div style={{fontSize:9,color:T3}}>{ev.loc||"—"}</div></div>
+            <div onClick={()=>toggleEventAccess(ev.id)} style={{width:42,height:24,background:(allEventsOn||selectedIds.includes(ev.id))?G:"#ccc",borderRadius:12,position:"relative",cursor:"pointer",flexShrink:0}}>
+              <div style={{position:"absolute",width:18,height:18,top:3,left:(allEventsOn||selectedIds.includes(ev.id))?21:3,background:WH,borderRadius:"50%"}}/>
+            </div>
+          </div>
+        ))}
+        {(events||[]).length===0&&<div style={{fontSize:11,color:T3,padding:"8px 0"}}>No events yet — create an event first.</div>}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:13}}>
-          <button style={S.btn({padding:"11px",fontSize:12})} onClick={()=>{onUsersChange(users.map(u=>u.id===editPerms.id?{...u,perms:editPerms.perms}:u));sEP(null);}}>✓ Save</button>
-          <button style={S.bOut({padding:"11px",fontSize:12})} onClick={()=>{onUsersChange(users.map(u=>u.id===editPerms.id?{...u,perms:null}:u));sEP(null);}}>↺ Reset to Role Default</button>
+          <button style={S.btn({padding:"11px",fontSize:12})} onClick={saveEdit}>✓ Save</button>
+          <button style={S.bOut({padding:"11px",fontSize:12})} onClick={()=>{onUsersChange(users.map(u=>u.id===editPerms.id?{...u,perms:null,eventAccess:"all"}:u));sEP(null);}}>↺ Reset Defaults</button>
         </div>
       </div>
     );
@@ -851,26 +897,32 @@ function UserManager({users,currentUser,onUsersChange}){
           <button style={S.btn({marginTop:10,padding:"11px",fontSize:13})} onClick={addUser} disabled={!form.name||!form.un||!form.pw}>✓ Create User</button>
         </div>
       )}
-      {users.map(u=>(
+      {users.map(u=>{
+        const protectedU=isProtectedUser(u);
+        const canManage=!protectedU&&u.id!==currentUser.id;
+        const evAccess=normalizeEventAccess(u.eventAccess);
+        const evLabel=evAccess==="all"?"All events":evAccess.length+" event"+(evAccess.length!==1?"s":"");
+        return(
         <div key={u.id} style={{padding:"10px 0",borderBottom:"1px solid "+CRD2}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:7}}>
             <div style={{width:34,height:34,background:u.id===currentUser.id?GO:G,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:700,color:u.id===currentUser.id?G:CR,flexShrink:0}}>{u.name[0]}</div>
             <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:13,fontWeight:700,color:T1}}>{u.name}{u.id===currentUser.id&&<span style={{fontSize:9,color:T3,fontWeight:400}}> (you)</span>}</div>
-              <div style={{fontSize:10,color:T3}}>@{u.un}{u.perms&&<span style={{color:AM}}> · custom perms</span>}</div>
+              <div style={{fontSize:13,fontWeight:700,color:T1}}>{u.name}{u.id===currentUser.id&&<span style={{fontSize:9,color:T3,fontWeight:400}}> (you)</span>}{protectedU&&<span style={{fontSize:8,color:AM,fontWeight:700,marginLeft:6}}>SUPER ADMIN</span>}</div>
+              <div style={{fontSize:10,color:T3}}>@{u.un}{u.perms&&<span style={{color:AM}}> · custom perms</span>}{!protectedU&&<span> · {evLabel}</span>}</div>
             </div>
-            <select value={u.role} onChange={ev=>onUsersChange(users.map(x=>x.id===u.id?{...x,role:ev.target.value,perms:null}:x))} disabled={u.id===currentUser.id} style={{background:CRD,border:"1.5px solid "+CRD2,borderRadius:7,padding:"4px 7px",fontSize:11,fontWeight:600,color:G,cursor:"pointer",fontFamily:"Lato,sans-serif"}}>
+            <select value={u.role} onChange={ev=>onUsersChange(users.map(x=>x.id===u.id?{...x,role:ev.target.value,perms:null}:x))} disabled={!canManage} style={{background:CRD,border:"1.5px solid "+CRD2,borderRadius:7,padding:"4px 7px",fontSize:11,fontWeight:600,color:canManage?G:T3,cursor:canManage?"pointer":"not-allowed",fontFamily:"Lato,sans-serif",opacity:canManage?1:0.6}}>
               <option>Admin</option><option>Manager</option><option>Staff</option>
             </select>
           </div>
-          {u.id!==currentUser.id&&(
+          {protectedU&&<div style={{fontSize:10,color:T3,paddingLeft:44,marginBottom:4}}>Protected account — role and permissions cannot be changed.</div>}
+          {canManage&&(
             <div style={{display:"flex",gap:7,paddingLeft:44}}>
-              <button onClick={()=>sEP({...u})} style={{flex:1,background:CRD,border:"1px solid "+CRD2,borderRadius:7,padding:"7px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,color:G,cursor:"pointer"}}>🔐 Edit Permissions</button>
+              <button onClick={()=>sEP({...u,eventAccess:u.eventAccess??"all"})} style={{flex:1,background:CRD,border:"1px solid "+CRD2,borderRadius:7,padding:"7px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,color:G,cursor:"pointer"}}>🔐 Edit Access</button>
               <button onClick={()=>{if(window.confirm("Delete "+u.name+"?"))onUsersChange(users.filter(x=>x.id!==u.id));}} style={{background:REBG,border:"1px solid rgba(160,48,48,0.2)",borderRadius:7,padding:"7px 11px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,color:RE,cursor:"pointer"}}>✕</button>
             </div>
           )}
         </div>
-      ))}
+      );})}
     </div>
   );
 }
@@ -2558,7 +2610,7 @@ function AdminTab(p){
               <div><div style={{fontWeight:700,fontSize:16,color:T1}}>{user.name}</div><div style={{fontSize:12,color:T3,marginTop:2}}>@{user.un} · {user.role}</div></div>
             </div>
             <div style={{background:CRD,borderRadius:9,padding:"10px 12px"}}>
-              {[["Role",user.role],["Permissions",user.role==="Admin"?"Full Access":user.role==="Manager"?"View + Edit":"View Only"],["Event",ev.name],["Signed in as",user.un]].map(([l,v])=>(
+              {[["Role",user.role],["Permissions",Object.entries(pr).filter(([,v])=>v).map(([k])=>k).join(", ")||"None"],["Events",isSuperAdmin(user)?"All (Super Admin)":normalizeEventAccess(user.eventAccess)==="all"?"All assigned":normalizeEventAccess(user.eventAccess).length+" event(s)"],["Event",ev.name],["Signed in as",user.un]].map(([l,v])=>(
                 <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid "+CRD2}}>
                   <span style={{fontSize:11,color:T3}}>{l}</span>
                   <span style={{fontSize:11,fontWeight:600,color:T1}}>{v}</span>
@@ -2588,7 +2640,7 @@ function AdminTab(p){
           </div>
 
           {/* User Management - Admin only */}
-          {pr.mU&&<UserManager users={users} currentUser={user} onUsersChange={onUsersChange}/>}
+          {pr.mU&&<UserManager users={users} currentUser={user} onUsersChange={onUsersChange} events={allEvents}/>}
 
           {/* Role Permissions */}
           <div style={{...S.card({margin:0,marginBottom:12})}}>
@@ -3318,6 +3370,7 @@ function CustomersTab(p){
 function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEvent,onBack,onLogout}){
   const pr=gp(user.role, user.perms);
   const users=allUsers;
+  const accessibleEvents=filterEventsForUser(user,allEvents);
   const [tab,st]=useState("lookup");
   const [inv,si]=useState(ev.inv);
   const [sales,ssl]=useState(ev.sales);
@@ -3448,7 +3501,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
         {showSwitch&&(
           <Sheet onClose={()=>ssw(false)} title="Switch Event">
             <div style={{fontSize:11,color:T3,marginBottom:14}}>Select an event to switch. Your data is saved automatically.</div>
-            {allEvents.map(e=>(
+            {accessibleEvents.map(e=>(
               <div key={e.id} onClick={()=>{onSwitch(e);ssw(false);}} style={{...S.card({margin:0,marginBottom:10,cursor:"pointer",border:e.id===ev.id?"2px solid "+G:"1px solid "+CRD2})}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div><div style={{fontWeight:700,fontSize:13,color:T1}}>{e.name}</div><div style={{fontSize:10,color:T3,marginTop:2}}>{e.loc} · {e.start}</div></div>
@@ -3480,7 +3533,7 @@ export default function App(){
       const d=await cloudFetchData();
       if(d&&d.configured){
         if(Array.isArray(d.events)&&d.events.length){sevents(d.events);saveEvents(d.events);}
-        if(Array.isArray(d.users)&&d.users.length){sappUsers(d.users);saveUsers(d.users);}
+        if(Array.isArray(d.users)&&d.users.length){const merged=mergeUserDefaults(d.users);sappUsers(merged);saveUsers(merged);}
         if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
         if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
       }
@@ -3500,6 +3553,13 @@ export default function App(){
   },[events,appUsers,cloudReady]);
   useEffect(()=>{saveUsers(appUsers);},[appUsers]);
   useEffect(()=>{
+    if(!user)return;
+    const fresh=appUsers.find(u=>u.id===user.id);
+    if(fresh&&(fresh.role!==user.role||JSON.stringify(fresh.perms)!==JSON.stringify(user.perms)||JSON.stringify(fresh.eventAccess)!==JSON.stringify(user.eventAccess)||fresh.name!==user.name)){
+      su(fresh);
+    }
+  },[appUsers,user]);
+  useEffect(()=>{
     const style=document.createElement("style");
     style.innerHTML="@keyframes toastIn{from{transform:translateY(-80px);opacity:0}to{transform:translateY(0);opacity:1}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}";
     document.head.appendChild(style);
@@ -3508,6 +3568,14 @@ export default function App(){
   const [activeEv,sae]=useState(null);
   const [manageEv,smev]=useState(null);
   const upEv=ev=>sevents(p=>ev?p.map(e=>e.id===ev.id?ev:e):p);
+  const updateUsers=next=>{
+    sappUsers(prev=>{
+      const prot=prev.filter(isProtectedUser);
+      let out=next.map(u=>{const p=prot.find(x=>x.id===u.id);return p||u;});
+      prot.forEach(p=>{if(!out.find(u=>u.id===p.id))out=[...out,p];});
+      return out;
+    });
+  };
   const delEv=id=>{const ev=events.find(e=>e.id===id);if(ev)pendingDeletesRef.current.push({id:ev.id,name:ev.name,driveFolderId:ev.driveFolderId});sevents(p=>p.filter(e=>e.id!==id));};
   const createEv=ev=>sevents(p=>[ev,...p]);
   const logout=()=>{su(null);sae(null);};
@@ -3537,21 +3605,25 @@ export default function App(){
   if(!cloudReady)return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",background:GD,fontFamily:"Lato,sans-serif",color:G}}>Loading Vianne data…</div>);
   if(!user) return (<><ToastContainer/><Login onLogin={su} users={appUsers}/></>);
   if(activeEv){
+    if(!userHasEventAccess(user,activeEv.id)){
+      sae(null);
+    }else{
     return (<div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:GD}}><ToastContainer/><EventERP
       key={activeEv.id}
       ev={events.find(e=>e.id===activeEv.id)||activeEv}
-      user={user} allUsers={appUsers} onUsersChange={sappUsers}
+      user={user} allUsers={appUsers} onUsersChange={updateUsers}
       allEvents={events}
-      onSwitch={ev=>{upEv(ev);sae(ev);}}
+      onSwitch={ev=>{if(!userHasEventAccess(user,ev.id))return;upEv(ev);sae(ev);}}
       onUpdateEvent={ev=>{upEv(ev);sae(ev);}}
       onBack={()=>sae(null)}
       onLogout={logout}
     /></div>);
+    }
   }
   return(
     <div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:dark?"#0f0f0f":"#163D2E"}}>
       <ToastContainer/>
-      <EventHub user={user} events={events} onEnter={ev=>sae(ev)} onCreate={createEv} onManage={ev=>smev(ev)} onDelete={delEv} onLogout={logout}/>
+      <EventHub user={user} events={events} onEnter={ev=>{if(!userHasEventAccess(user,ev.id)){toast.warn("No access","Ask an admin to assign this event to your account.");return;}sae(ev);}} onCreate={createEv} onManage={ev=>smev(ev)} onDelete={delEv} onLogout={logout}/>
       {manageEv&&<ManageEvent ev={events.find(e=>e.id===manageEv.id)||manageEv} onClose={()=>smev(null)} onUpdate={ev=>{upEv(ev);smev(ev);}} onDelete={id=>{delEv(id);smev(null);}}/>}
     </div>
   );

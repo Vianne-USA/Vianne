@@ -10702,19 +10702,19 @@ function registerBio(_x) {
   return _registerBio.apply(this, arguments);
 }
 function _registerBio() {
-  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(username) {
+  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9(username) {
     var cred, _t4;
-    return _regenerator().w(function (_context6) {
-      while (1) switch (_context6.p = _context6.n) {
+    return _regenerator().w(function (_context9) {
+      while (1) switch (_context9.p = _context9.n) {
         case 0:
           if (window.PublicKeyCredential) {
-            _context6.n = 1;
+            _context9.n = 1;
             break;
           }
-          return _context6.a(2, false);
+          return _context9.a(2, false);
         case 1:
-          _context6.p = 1;
-          _context6.n = 2;
+          _context9.p = 1;
+          _context9.n = 2;
           return navigator.credentials.create({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -10743,22 +10743,22 @@ function _registerBio() {
             }
           });
         case 2:
-          cred = _context6.v;
+          cred = _context9.v;
           if (cred) {
-            _context6.n = 3;
+            _context9.n = 3;
             break;
           }
-          return _context6.a(2, false);
+          return _context9.a(2, false);
         case 3:
           localStorage.setItem(BIO_KEY, b64u(cred.rawId));
           localStorage.setItem(BIO_USER, username.toLowerCase());
-          return _context6.a(2, true);
+          return _context9.a(2, true);
         case 4:
-          _context6.p = 4;
-          _t4 = _context6.v;
-          return _context6.a(2, false);
+          _context9.p = 4;
+          _t4 = _context9.v;
+          return _context9.a(2, false);
       }
-    }, _callee6, null, [[1, 4]]);
+    }, _callee9, null, [[1, 4]]);
   }));
   return _registerBio.apply(this, arguments);
 }
@@ -10766,22 +10766,22 @@ function loginBio(_x2, _x3, _x4) {
   return _loginBio.apply(this, arguments);
 } // ── Dark Mode system ──────────────────────────────────────────────────────
 function _loginBio() {
-  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(onLogin, onFail, users) {
+  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0(onLogin, onFail, users) {
     var id, un, cred, usr, _t5;
-    return _regenerator().w(function (_context7) {
-      while (1) switch (_context7.p = _context7.n) {
+    return _regenerator().w(function (_context0) {
+      while (1) switch (_context0.p = _context0.n) {
         case 0:
           id = localStorage.getItem(BIO_KEY);
           un = localStorage.getItem(BIO_USER);
           if (!(!id || !un)) {
-            _context7.n = 1;
+            _context0.n = 1;
             break;
           }
           onFail("Sign in with password once to enable Face ID.");
-          return _context7.a(2);
+          return _context0.a(2);
         case 1:
-          _context7.p = 1;
-          _context7.n = 2;
+          _context0.p = 1;
+          _context0.n = 2;
           return navigator.credentials.get({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -10796,27 +10796,27 @@ function _loginBio() {
             }
           });
         case 2:
-          cred = _context7.v;
+          cred = _context0.v;
           if (cred) {
-            _context7.n = 3;
+            _context0.n = 3;
             break;
           }
-          return _context7.a(2);
+          return _context0.a(2);
         case 3:
           usr = users.find(function (x) {
             return x.un === un;
           });
           if (usr) onLogin(usr);else onFail("Saved sign-in expired. Use password once.");
-          _context7.n = 5;
+          _context0.n = 5;
           break;
         case 4:
-          _context7.p = 4;
-          _t5 = _context7.v;
+          _context0.p = 4;
+          _t5 = _context0.v;
           if (_t5.name !== "NotAllowedError") onFail(_t5.message || "Face ID failed");
         case 5:
-          return _context7.a(2);
+          return _context0.a(2);
       }
-    }, _callee7, null, [[1, 4]]);
+    }, _callee0, null, [[1, 4]]);
   }));
   return _loginBio.apply(this, arguments);
 }
@@ -12227,6 +12227,75 @@ function saveUsers(users) {
 var CLOUD_META_KEY = "vj_cloud_meta";
 var DRIVE_ROOT_NAME = "Vianne Jewels Data";
 var _cloudOnline = false;
+var _pendingInvFiles = [];
+function fileToBase64(file) {
+  return new Promise(function (resolve, reject) {
+    var r = new FileReader();
+    r.onload = function () {
+      return resolve(String(r.result || "").split(",")[1] || "");
+    };
+    r.onerror = function () {
+      return reject(new Error("Could not read file"));
+    };
+    r.readAsDataURL(file);
+  });
+}
+function mimeForFileName(name) {
+  var n = String(name || "").toLowerCase();
+  if (n.endsWith(".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  if (n.endsWith(".xls")) return "application/vnd.ms-excel";
+  if (n.endsWith(".csv")) return "text/csv";
+  return "application/octet-stream";
+}
+function queueInventoryFileForDrive(_x5, _x6) {
+  return _queueInventoryFileForDrive.apply(this, arguments);
+}
+function _queueInventoryFileForDrive() {
+  _queueInventoryFileForDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee1(eventId, file) {
+    var contentBase64, _t6;
+    return _regenerator().w(function (_context1) {
+      while (1) switch (_context1.p = _context1.n) {
+        case 0:
+          if (!(!file || !eventId)) {
+            _context1.n = 1;
+            break;
+          }
+          return _context1.a(2);
+        case 1:
+          _context1.p = 1;
+          _context1.n = 2;
+          return fileToBase64(file);
+        case 2:
+          contentBase64 = _context1.v;
+          if (contentBase64) {
+            _context1.n = 3;
+            break;
+          }
+          return _context1.a(2);
+        case 3:
+          _pendingInvFiles.push({
+            eventId: eventId,
+            fileName: file.name,
+            contentBase64: contentBase64,
+            mimeType: mimeForFileName(file.name)
+          });
+          _context1.n = 5;
+          break;
+        case 4:
+          _context1.p = 4;
+          _t6 = _context1.v;
+          console.warn("Drive inventory queue", _t6);
+        case 5:
+          return _context1.a(2);
+      }
+    }, _callee1, null, [[1, 4]]);
+  }));
+  return _queueInventoryFileForDrive.apply(this, arguments);
+}
+function takePendingInvFiles() {
+  if (!_pendingInvFiles.length) return [];
+  return _pendingInvFiles.splice(0, _pendingInvFiles.length);
+}
 function isCloudOnline() {
   return _cloudOnline;
 }
@@ -12246,39 +12315,39 @@ function cloudFetchData() {
   return _cloudFetchData.apply(this, arguments);
 }
 function _cloudFetchData() {
-  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
-    var r, d, _t6;
-    return _regenerator().w(function (_context8) {
-      while (1) switch (_context8.p = _context8.n) {
+  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10() {
+    var r, d, _t7;
+    return _regenerator().w(function (_context10) {
+      while (1) switch (_context10.p = _context10.n) {
         case 0:
-          _context8.p = 0;
-          _context8.n = 1;
+          _context10.p = 0;
+          _context10.n = 1;
           return fetch("/api/data", {
             method: "GET",
             cache: "no-store"
           });
         case 1:
-          r = _context8.v;
-          _context8.n = 2;
+          r = _context10.v;
+          _context10.n = 2;
           return r.json();
         case 2:
-          d = _context8.v;
+          d = _context10.v;
           if (!(!r.ok || !d.configured)) {
-            _context8.n = 3;
+            _context10.n = 3;
             break;
           }
           _cloudOnline = false;
-          return _context8.a(2, null);
+          return _context10.a(2, null);
         case 3:
           _cloudOnline = true;
-          return _context8.a(2, d);
+          return _context10.a(2, d);
         case 4:
-          _context8.p = 4;
-          _t6 = _context8.v;
+          _context10.p = 4;
+          _t7 = _context10.v;
           _cloudOnline = false;
-          return _context8.a(2, null);
+          return _context10.a(2, null);
       }
-    }, _callee8, null, [[0, 4]]);
+    }, _callee10, null, [[0, 4]]);
   }));
   return _cloudFetchData.apply(this, arguments);
 }
@@ -12286,20 +12355,20 @@ function cloudLoad() {
   return _cloudLoad.apply(this, arguments);
 }
 function _cloudLoad() {
-  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9() {
+  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee11() {
     var d;
-    return _regenerator().w(function (_context9) {
-      while (1) switch (_context9.n) {
+    return _regenerator().w(function (_context11) {
+      while (1) switch (_context11.n) {
         case 0:
-          _context9.n = 1;
+          _context11.n = 1;
           return cloudFetchData();
         case 1:
-          d = _context9.v;
+          d = _context11.v;
           if (d) {
-            _context9.n = 2;
+            _context11.n = 2;
             break;
           }
-          return _context9.a(2, null);
+          return _context11.a(2, null);
         case 2:
           if (Array.isArray(d.events) && d.events.length) {
             saveEvents(d.events);
@@ -12317,47 +12386,49 @@ function _cloudLoad() {
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context9.a(2, d);
+          return _context11.a(2, d);
       }
-    }, _callee9);
+    }, _callee11);
   }));
   return _cloudLoad.apply(this, arguments);
 }
-function cloudSave(_x5, _x6, _x7) {
+function cloudSave(_x7, _x8, _x9) {
   return _cloudSave.apply(this, arguments);
 }
 function _cloudSave() {
-  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0(events, users, deletedEvents) {
-    var ping, currency, body, r, d, _t7;
-    return _regenerator().w(function (_context0) {
-      while (1) switch (_context0.p = _context0.n) {
+  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee12(events, users, deletedEvents) {
+    var ping, currency, inventoryFiles, body, r, d, _t8;
+    return _regenerator().w(function (_context12) {
+      while (1) switch (_context12.p = _context12.n) {
         case 0:
           if (_cloudOnline) {
-            _context0.n = 2;
+            _context12.n = 2;
             break;
           }
-          _context0.n = 1;
+          _context12.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context0.v;
+          ping = _context12.v;
           if (ping) {
-            _context0.n = 2;
+            _context12.n = 2;
             break;
           }
-          return _context0.a(2, null);
+          return _context12.a(2, null);
         case 2:
           currency = null;
           try {
             currency = JSON.parse(localStorage.getItem("vj_curr_rates") || "null");
           } catch (e) {}
+          inventoryFiles = takePendingInvFiles();
           body = {
             events: events,
             users: users,
             currency: currency,
-            deletedEvents: deletedEvents || []
+            deletedEvents: deletedEvents || [],
+            inventoryFiles: inventoryFiles
           };
-          _context0.p = 3;
-          _context0.n = 4;
+          _context12.p = 3;
+          _context12.n = 4;
           return fetch("/api/data", {
             method: "POST",
             headers: {
@@ -12366,15 +12437,16 @@ function _cloudSave() {
             body: JSON.stringify(body)
           });
         case 4:
-          r = _context0.v;
-          _context0.n = 5;
+          r = _context12.v;
+          _context12.n = 5;
           return r.json();
         case 5:
-          d = _context0.v;
+          d = _context12.v;
           if (!(!r.ok || !d.ok)) {
-            _context0.n = 6;
+            _context12.n = 6;
             break;
           }
+          if (inventoryFiles.length) _pendingInvFiles.unshift.apply(_pendingInvFiles, _toConsumableArray(inventoryFiles));
           throw new Error(d.error || "Save failed");
         case 6:
           _cloudOnline = true;
@@ -12383,19 +12455,19 @@ function _cloudSave() {
             updatedAt: d.updatedAt
           });
           if (!(Array.isArray(d.events) && d.events.length)) {
-            _context0.n = 7;
+            _context12.n = 7;
             break;
           }
-          return _context0.a(2, d.events);
+          return _context12.a(2, d.events);
         case 7:
-          return _context0.a(2, null);
+          return _context12.a(2, null);
         case 8:
-          _context0.p = 8;
-          _t7 = _context0.v;
-          console.warn("Cloud save", _t7);
-          return _context0.a(2, null);
+          _context12.p = 8;
+          _t8 = _context12.v;
+          console.warn("Cloud save", _t8);
+          return _context12.a(2, null);
       }
-    }, _callee0, null, [[3, 8]]);
+    }, _callee12, null, [[3, 8]]);
   }));
   return _cloudSave.apply(this, arguments);
 }
@@ -13044,53 +13116,53 @@ function codeForExcelRow(excelRow, idByRow) {
   }
   return null;
 }
-function extractXLImages(_x8, _x9) {
+function extractXLImages(_x0, _x1) {
   return _extractXLImages.apply(this, arguments);
 }
 function _extractXLImages() {
-  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee1(arrayBuffer, idByRow) {
-    var zip, imgs, drawingPaths, _iterator3, _step3, _loop3, _t8, _t9;
-    return _regenerator().w(function (_context10) {
-      while (1) switch (_context10.p = _context10.n) {
+  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee13(arrayBuffer, idByRow) {
+    var zip, imgs, drawingPaths, _iterator3, _step3, _loop3, _t9, _t0;
+    return _regenerator().w(function (_context14) {
+      while (1) switch (_context14.p = _context14.n) {
         case 0:
           if (!(!window.JSZip || !idByRow)) {
-            _context10.n = 1;
+            _context14.n = 1;
             break;
           }
-          return _context10.a(2, {});
+          return _context14.a(2, {});
         case 1:
-          _context10.p = 1;
-          _context10.n = 2;
+          _context14.p = 1;
+          _context14.n = 2;
           return window.JSZip.loadAsync(arrayBuffer);
         case 2:
-          zip = _context10.v;
+          zip = _context14.v;
           imgs = {};
           drawingPaths = Object.keys(zip.files).filter(function (n) {
             return /xl\/drawings\/drawing\d+\.xml$/.test(n);
           });
           _iterator3 = _createForOfIteratorHelper(drawingPaths);
-          _context10.p = 3;
+          _context14.p = 3;
           _loop3 = /*#__PURE__*/_regenerator().m(function _loop3() {
             var dp, xml, relsPath, relsXml, relMap, re, m, code, mediaPath, ext, mime, b64;
-            return _regenerator().w(function (_context1) {
-              while (1) switch (_context1.n) {
+            return _regenerator().w(function (_context13) {
+              while (1) switch (_context13.n) {
                 case 0:
                   dp = _step3.value;
-                  _context1.n = 1;
+                  _context13.n = 1;
                   return zip.file(dp).async("string");
                 case 1:
-                  xml = _context1.v;
+                  xml = _context13.v;
                   relsPath = dp.replace("drawings/", "drawings/_rels/").replace(".xml", ".xml.rels");
                   if (zip.files[relsPath]) {
-                    _context1.n = 2;
+                    _context13.n = 2;
                     break;
                   }
-                  return _context1.a(2, 1);
+                  return _context13.a(2, 1);
                 case 2:
-                  _context1.n = 3;
+                  _context13.n = 3;
                   return zip.file(relsPath).async("string");
                 case 3:
-                  relsXml = _context1.v;
+                  relsXml = _context13.v;
                   relMap = {};
                   relsXml.replace(/Id="([^"]+)"[^>]*Target="([^"]+)"/g, function (_, id, tgt) {
                     relMap[id] = "xl/" + tgt.replace(/^\.\.\//, "");
@@ -13098,67 +13170,67 @@ function _extractXLImages() {
                   re = /<xdr:row>(\d+)<\/xdr:row>[\s\S]*?r:embed="([^"]+)"/g;
                 case 4:
                   if (!(m = re.exec(xml))) {
-                    _context1.n = 7;
+                    _context13.n = 7;
                     break;
                   }
                   code = codeForExcelRow(parseInt(m[1], 10) + 1, idByRow);
                   mediaPath = relMap[m[2]];
                   if (!(!code || !mediaPath || imgs[code])) {
-                    _context1.n = 5;
+                    _context13.n = 5;
                     break;
                   }
-                  return _context1.a(3, 4);
+                  return _context13.a(3, 4);
                 case 5:
                   ext = (mediaPath.split(".").pop() || "jpg").toLowerCase();
                   mime = ext === "png" ? "image/png" : ext === "gif" ? "image/gif" : "image/jpeg";
-                  _context1.n = 6;
+                  _context13.n = 6;
                   return zip.file(mediaPath).async("base64");
                 case 6:
-                  b64 = _context1.v;
+                  b64 = _context13.v;
                   imgs[code] = "data:" + mime + ";base64," + b64;
-                  _context1.n = 4;
+                  _context13.n = 4;
                   break;
                 case 7:
-                  return _context1.a(2);
+                  return _context13.a(2);
               }
             }, _loop3);
           });
           _iterator3.s();
         case 4:
           if ((_step3 = _iterator3.n()).done) {
-            _context10.n = 7;
+            _context14.n = 7;
             break;
           }
-          return _context10.d(_regeneratorValues(_loop3()), 5);
+          return _context14.d(_regeneratorValues(_loop3()), 5);
         case 5:
-          if (!_context10.v) {
-            _context10.n = 6;
+          if (!_context14.v) {
+            _context14.n = 6;
             break;
           }
-          return _context10.a(3, 6);
+          return _context14.a(3, 6);
         case 6:
-          _context10.n = 4;
+          _context14.n = 4;
           break;
         case 7:
-          _context10.n = 9;
+          _context14.n = 9;
           break;
         case 8:
-          _context10.p = 8;
-          _t8 = _context10.v;
-          _iterator3.e(_t8);
+          _context14.p = 8;
+          _t9 = _context14.v;
+          _iterator3.e(_t9);
         case 9:
-          _context10.p = 9;
+          _context14.p = 9;
           _iterator3.f();
-          return _context10.f(9);
+          return _context14.f(9);
         case 10:
-          return _context10.a(2, imgs);
+          return _context14.a(2, imgs);
         case 11:
-          _context10.p = 11;
-          _t9 = _context10.v;
-          console.warn("Image extract", _t9);
-          return _context10.a(2, {});
+          _context14.p = 11;
+          _t0 = _context14.v;
+          console.warn("Image extract", _t0);
+          return _context14.a(2, {});
       }
-    }, _callee1, null, [[3, 8, 9, 10], [1, 11]]);
+    }, _callee13, null, [[3, 8, 9, 10], [1, 11]]);
   }));
   return _extractXLImages.apply(this, arguments);
 }
@@ -13387,7 +13459,7 @@ function parseXL(file, onDone, onError) {
             }
           }, _callee, null, [[1, 6, 7, 8], [0, 11]]);
         }));
-        return function (_x0) {
+        return function (_x10) {
           return _ref1.apply(this, arguments);
         };
       }();
@@ -13773,55 +13845,91 @@ function EventHub(_ref12) {
   }, [sc]);
   var create = function create() {
     if (!form.name.trim()) return;
-    var fin = function fin(inv, fileName) {
-      if (xlf && !inv.length) {
-        smsg(INV_FAIL + " — 0 items found. Check Unique Code and Round Off Final columns.");
-        return;
-      }
-      var base = {
-        id: uid("EVT"),
-        name: form.name,
-        loc: form.loc,
-        start: form.start,
-        end: form.end,
-        status: "active",
-        color: form.color,
-        inv: inv,
-        sales: [],
-        leads: [],
-        memos: [],
-        audits: [],
-        invHistory: []
+    var fin = /*#__PURE__*/function () {
+      var _ref13 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(inv, fileName, fileObj) {
+        var base;
+        return _regenerator().w(function (_context3) {
+          while (1) switch (_context3.n) {
+            case 0:
+              if (!(fileObj && !inv.length)) {
+                _context3.n = 1;
+                break;
+              }
+              smsg(INV_FAIL + " — 0 items found. Check Unique Code and Round Off Final columns.");
+              return _context3.a(2);
+            case 1:
+              base = {
+                id: uid("EVT"),
+                name: form.name,
+                loc: form.loc,
+                start: form.start,
+                end: form.end,
+                status: "active",
+                color: form.color,
+                inv: inv,
+                sales: [],
+                leads: [],
+                memos: [],
+                audits: [],
+                invHistory: []
+              };
+              if (inv.length) base.invHistory = appendInvHistory(base, {
+                fileName: fileName || (fileObj === null || fileObj === void 0 ? void 0 : fileObj.name) || "inventory.xlsx",
+                mode: "initial",
+                added: inv.length,
+                total: inv.length,
+                by: user.name
+              });
+              if (!(fileObj && inv.length)) {
+                _context3.n = 2;
+                break;
+              }
+              _context3.n = 2;
+              return queueInventoryFileForDrive(base.id, fileObj);
+            case 2:
+              onCreate(base);
+              ssc(false);
+              sf({
+                name: "",
+                loc: "",
+                start: "",
+                end: "",
+                color: G
+              });
+              sxl(null);
+              smsg("");
+            case 3:
+              return _context3.a(2);
+          }
+        }, _callee3);
+      }));
+      return function fin(_x11, _x12, _x13) {
+        return _ref13.apply(this, arguments);
       };
-      if (inv.length) base.invHistory = appendInvHistory(base, {
-        fileName: fileName || (xlf === null || xlf === void 0 ? void 0 : xlf.name) || "inventory.xlsx",
-        mode: "initial",
-        added: inv.length,
-        total: inv.length,
-        by: user.name
-      });
-      onCreate(base);
-      ssc(false);
-      sf({
-        name: "",
-        loc: "",
-        start: "",
-        end: "",
-        color: G
-      });
-      sxl(null);
-      smsg("");
-    };
+    }();
     if (xlf) {
       sl(true);
-      parseXL(xlf, function (inv) {
-        sl(false);
-        fin(inv, xlf.name);
-      }, function (err) {
+      parseXL(xlf, /*#__PURE__*/function () {
+        var _ref14 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(inv) {
+          return _regenerator().w(function (_context4) {
+            while (1) switch (_context4.n) {
+              case 0:
+                sl(false);
+                _context4.n = 1;
+                return fin(inv, xlf.name, xlf);
+              case 1:
+                return _context4.a(2);
+            }
+          }, _callee4);
+        }));
+        return function (_x14) {
+          return _ref14.apply(this, arguments);
+        };
+      }(), function (err) {
         sl(false);
         smsg(err);
       });
-    } else fin([], null);
+    } else fin([], null, null);
   };
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -14288,13 +14396,13 @@ function EventHub(_ref12) {
     onClick: create
   }, loading ? "Parsing..." : "✓ Create Event")));
 }
-function ManageEvent(_ref13) {
+function ManageEvent(_ref15) {
   var _COLORS$find;
-  var ev = _ref13.ev,
-    onClose = _ref13.onClose,
-    onUpdate = _ref13.onUpdate,
-    onDelete = _ref13.onDelete,
-    user = _ref13.user;
+  var ev = _ref15.ev,
+    onClose = _ref15.onClose,
+    onUpdate = _ref15.onUpdate,
+    onDelete = _ref15.onDelete,
+    user = _ref15.user;
   var _useState31 = useState("details"),
     _useState32 = _slicedToArray(_useState31, 2),
     tab = _useState32[0],
@@ -14636,7 +14744,7 @@ function ManageEvent(_ref13) {
         color: T3,
         marginTop: 2
       }
-    }, h.date, " ", h.time, " \xB7 ", h.mode, " \xB7 +", h.added, " items \xB7 total ", h.total), h.by && /*#__PURE__*/React.createElement("div", {
+    }, h.date, " ", h.time, " \xB7 ", h.mode, " \xB7 +", h.added, " items \xB7 total ", h.total, h.driveFileId ? " · ☁ Drive" : ""), h.by && /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 9,
         color: T4,
@@ -14671,27 +14779,46 @@ function ManageEvent(_ref13) {
     onChange: function onChange(e) {
       var f = e.target.files[0];
       if (!f) return;
-      parseXL(f, function (items) {
-        if (!items.length) {
-          toast.error(INV_FAIL, "0 items found — check Unique Code and Round Off Final columns.");
-          e.target.value = "";
-          return;
-        }
-        var inv = mergeInvItems(ev.inv || [], items, mode);
-        var updated = _objectSpread(_objectSpread({}, ev), {}, {
-          inv: inv,
-          invHistory: appendInvHistory(ev, {
-            fileName: f.name,
-            mode: mode,
-            added: items.length,
-            total: inv.length,
-            by: (user === null || user === void 0 ? void 0 : user.name) || "Admin"
-          })
-        });
-        onUpdate(updated);
-        toast.success("Inventory updated", items.length + " items " + (mode === "add" ? "added" : "imported") + " · " + inv.length + " total");
-        e.target.value = "";
-      }, function (err) {
+      parseXL(f, /*#__PURE__*/function () {
+        var _ref16 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(items) {
+          var inv, updated;
+          return _regenerator().w(function (_context5) {
+            while (1) switch (_context5.n) {
+              case 0:
+                if (items.length) {
+                  _context5.n = 1;
+                  break;
+                }
+                toast.error(INV_FAIL, "0 items found — check Unique Code and Round Off Final columns.");
+                e.target.value = "";
+                return _context5.a(2);
+              case 1:
+                inv = mergeInvItems(ev.inv || [], items, mode);
+                updated = _objectSpread(_objectSpread({}, ev), {}, {
+                  inv: inv,
+                  invHistory: appendInvHistory(ev, {
+                    fileName: f.name,
+                    mode: mode,
+                    added: items.length,
+                    total: inv.length,
+                    by: (user === null || user === void 0 ? void 0 : user.name) || "Admin"
+                  })
+                });
+                _context5.n = 2;
+                return queueInventoryFileForDrive(ev.id, f);
+              case 2:
+                onUpdate(updated);
+                toast.success("Inventory updated", items.length + " items " + (mode === "add" ? "added" : "imported") + " · " + inv.length + " total · Excel queued for Google Drive");
+                e.target.value = "";
+              case 3:
+                return _context5.a(2);
+            }
+          }, _callee5);
+        }));
+        return function (_x15) {
+          return _ref16.apply(this, arguments);
+        };
+      }(), function (err) {
         toast.error(INV_FAIL, String(err).replace(INV_FAIL + " — ", ""));
         e.target.value = "";
       });
@@ -14706,15 +14833,15 @@ function ManageEvent(_ref13) {
       color: T3,
       lineHeight: 1.5
     }
-  }, "Upload your Vianne price list (.xlsx). All columns are saved. Images embedded in the sheet are imported by Unique Code.")));
+  }, "Upload your Vianne price list (.xlsx). Parsed data syncs to this event's Google Drive folder along with the original Excel file.")));
 }
-function SaleSuccess(_ref14) {
-  var sale = _ref14.sale,
-    item = _ref14.item,
-    fc = _ref14.fc,
-    cur = _ref14.cur,
-    onDone = _ref14.onDone,
-    onPrint = _ref14.onPrint;
+function SaleSuccess(_ref17) {
+  var sale = _ref17.sale,
+    item = _ref17.item,
+    fc = _ref17.fc,
+    cur = _ref17.cur,
+    onDone = _ref17.onDone,
+    onPrint = _ref17.onPrint;
   var _useState39 = useState(4),
     _useState40 = _slicedToArray(_useState39, 2),
     count = _useState40[0],
@@ -14883,16 +15010,16 @@ function SaleSuccess(_ref14) {
     }
   }, "Auto-closing in ", count, "s..."));
 }
-function ItemCard(_ref15) {
-  var item = _ref15.item,
-    user = _ref15.user,
-    inv = _ref15.inv,
-    leads = _ref15.leads,
-    cur = _ref15.cur,
-    preCustName = _ref15.preCustName,
-    onSell = _ref15.onSell,
-    onBack = _ref15.onBack,
-    onAddLead = _ref15.onAddLead;
+function ItemCard(_ref18) {
+  var item = _ref18.item,
+    user = _ref18.user,
+    inv = _ref18.inv,
+    leads = _ref18.leads,
+    cur = _ref18.cur,
+    preCustName = _ref18.preCustName,
+    onSell = _ref18.onSell,
+    onBack = _ref18.onBack,
+    onAddLead = _ref18.onAddLead;
   var pr = gp(user.role, user.perms);
   var _useState41 = useState(null),
     _useState42 = _slicedToArray(_useState41, 2),
@@ -15374,10 +15501,10 @@ function ItemCard(_ref15) {
     style: _objectSpread({}, S.cc({
       marginBottom: 11
     }))
-  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref16) {
-    var _ref17 = _slicedToArray(_ref16, 2),
-      l = _ref17[0],
-      v = _ref17[1];
+  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref19) {
+    var _ref20 = _slicedToArray(_ref19, 2),
+      l = _ref20[0],
+      v = _ref20[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15601,10 +15728,10 @@ function ItemCard(_ref15) {
       gap: 8,
       marginBottom: 13
     }
-  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref18) {
-    var _ref19 = _slicedToArray(_ref18, 2),
-      l = _ref19[0],
-      v = _ref19[1];
+  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref21) {
+    var _ref22 = _slicedToArray(_ref21, 2),
+      l = _ref22[0],
+      v = _ref22[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15638,10 +15765,10 @@ function ItemCard(_ref15) {
       gridTemplateColumns: "1fr 1fr",
       gap: 9
     }
-  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref20) {
-    var _ref21 = _slicedToArray(_ref20, 2),
-      l = _ref21[0],
-      v = _ref21[1];
+  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref23) {
+    var _ref24 = _slicedToArray(_ref23, 2),
+      l = _ref24[0],
+      v = _ref24[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l
     }, /*#__PURE__*/React.createElement("div", {
@@ -15757,9 +15884,9 @@ function ItemCard(_ref15) {
     }
   })));
 }
-function InvoiceSheet(_ref22) {
-  var sale = _ref22.sale,
-    onClose = _ref22.onClose;
+function InvoiceSheet(_ref25) {
+  var sale = _ref25.sale,
+    onClose = _ref25.onClose;
   var sub = sale.price,
     dsc = sale.disc > 0 ? Math.round(sub * sale.disc / 100 * 100) / 100 : 0,
     tax = sub - dsc,
@@ -15927,11 +16054,11 @@ function InvoiceSheet(_ref22) {
       borderRadius: 6,
       padding: "8px 9px"
     }
-  }, [["Subtotal", f$(sub), false], sale.disc > 0 ? ["Disc (" + sale.disc + "%)", "−" + f$(dsc), true] : null, sale.ccAmt > 0 ? ["💳 CC" + (sale.ccType === "pct" ? " " + sale.ccVal + "%" : ""), f$(sale.ccAmt), false] : null].filter(Boolean).map(function (_ref23) {
-    var _ref24 = _slicedToArray(_ref23, 3),
-      l = _ref24[0],
-      v = _ref24[1],
-      d = _ref24[2];
+  }, [["Subtotal", f$(sub), false], sale.disc > 0 ? ["Disc (" + sale.disc + "%)", "−" + f$(dsc), true] : null, sale.ccAmt > 0 ? ["💳 CC" + (sale.ccType === "pct" ? " " + sale.ccVal + "%" : ""), f$(sale.ccAmt), false] : null].filter(Boolean).map(function (_ref26) {
+    var _ref27 = _slicedToArray(_ref26, 3),
+      l = _ref27[0],
+      v = _ref27[1],
+      d = _ref27[2];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15986,11 +16113,11 @@ function InvoiceSheet(_ref22) {
 }
 
 // ─── USER MANAGER ────────────────────────────────────────────────────────────
-function UserManager(_ref25) {
-  var users = _ref25.users,
-    currentUser = _ref25.currentUser,
-    onUsersChange = _ref25.onUsersChange,
-    events = _ref25.events;
+function UserManager(_ref28) {
+  var users = _ref28.users,
+    currentUser = _ref28.currentUser,
+    onUsersChange = _ref28.onUsersChange,
+    events = _ref28.events;
   var _useState49 = useState(null),
     _useState50 = _slicedToArray(_useState49, 2),
     editPerms = _useState50[0],
@@ -16065,8 +16192,8 @@ function UserManager(_ref25) {
     var roleBase = RD[editPerms.role] || RD.Staff;
     var merged = _objectSpread(_objectSpread({}, roleBase), editPerms.perms || {});
     var overrides = {};
-    PK.forEach(function (_ref26) {
-      var k = _ref26.k;
+    PK.forEach(function (_ref29) {
+      var k = _ref29.k;
       if (merged[k] !== roleBase[k]) overrides[k] = merged[k];
     });
     onUsersChange(users.map(function (u) {
@@ -16143,9 +16270,9 @@ function UserManager(_ref25) {
         color: AM,
         fontWeight: 600
       }
-    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref27) {
-      var k = _ref27.k,
-        l = _ref27.l;
+    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref30) {
+      var k = _ref30.k,
+        l = _ref30.l;
       return /*#__PURE__*/React.createElement("div", {
         key: k,
         style: {
@@ -16601,10 +16728,10 @@ function UserManager(_ref25) {
     }, "\u2715")));
   }));
 }
-function PhotoSearch(_ref28) {
-  var inv = _ref28.inv,
-    onResult = _ref28.onResult,
-    onClose = _ref28.onClose;
+function PhotoSearch(_ref31) {
+  var inv = _ref31.inv,
+    onResult = _ref31.onResult,
+    onClose = _ref31.onClose;
   var _useState55 = useState("upload"),
     _useState56 = _slicedToArray(_useState55, 2),
     phase = _useState56[0],
@@ -17804,12 +17931,12 @@ function SingleLookup(p) {
     sMin: sfMinFp,
     max: fMaxFp,
     sMax: sfMaxFp
-  }].map(function (_ref29) {
-    var l = _ref29.l,
-      min = _ref29.min,
-      sMin = _ref29.sMin,
-      max = _ref29.max,
-      sMax = _ref29.sMax;
+  }].map(function (_ref32) {
+    var l = _ref32.l,
+      min = _ref32.min,
+      sMin = _ref32.sMin,
+      max = _ref32.max,
+      sMax = _ref32.sMax;
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -19292,10 +19419,10 @@ function InventoryTab(p) {
     return i.st === "available";
   }).reduce(function (s, i) {
     return s + i.fp;
-  }, 0), cur)]].map(function (_ref30) {
-    var _ref31 = _slicedToArray(_ref30, 2),
-      l = _ref31[0],
-      v = _ref31[1];
+  }, 0), cur)]].map(function (_ref33) {
+    var _ref34 = _slicedToArray(_ref33, 2),
+      l = _ref34[0],
+      v = _ref34[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -19369,7 +19496,11 @@ function InventoryTab(p) {
         color: T2,
         marginTop: 6
       }
-    }, h.mode === "initial" ? "Initial load" : h.mode === "replace" ? "Replaced all" : "Added to existing", " \xB7 ", h.total, " items total", h.by ? " · by " + h.by : ""));
+    }, h.mode === "initial" ? "Initial load" : h.mode === "replace" ? "Replaced all" : "Added to existing", " \xB7 ", h.total, " items total", h.by ? " · by " + h.by : "", h.driveFileId ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "#27ae60"
+      }
+    }, " \xB7 \u2601 saved to Google Drive") : ""));
   })), invTab === "audit" && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "13px 12px 40px"
@@ -19563,9 +19694,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref32) {
-    var item = _ref32.item,
-      scannedAt = _ref32.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref35) {
+    var item = _ref35.item,
+      scannedAt = _ref35.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -19699,12 +19830,12 @@ function invBuckets(inv, keyFn) {
     return b.cnt - a.cnt;
   });
 }
-function AnalyticsBucketCard(_ref33) {
-  var title = _ref33.title,
-    data = _ref33.data,
-    cur = _ref33.cur,
-    fc = _ref33.fc,
-    maxVal = _ref33.maxVal;
+function AnalyticsBucketCard(_ref36) {
+  var title = _ref36.title,
+    data = _ref36.data,
+    cur = _ref36.cur,
+    fc = _ref36.fc,
+    maxVal = _ref36.maxVal;
   var mx = maxVal || Math.max.apply(Math, [1].concat(_toConsumableArray(data.map(function (x) {
     return x.cnt;
   }))));
@@ -19797,10 +19928,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref34) {
-    var pct = _ref34.pct,
-      col = _ref34.col,
-      h = _ref34.h;
+  var Bar = function Bar(_ref37) {
+    var pct = _ref37.pct,
+      col = _ref37.col,
+      h = _ref37.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -19860,10 +19991,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref35) {
-    var _ref36 = _slicedToArray(_ref35, 2),
-      d = _ref36[0],
-      v = _ref36[1];
+  }).map(function (_ref38) {
+    var _ref39 = _slicedToArray(_ref38, 2),
+      d = _ref39[0],
+      v = _ref39[1];
     return {
       d: d,
       v: v
@@ -20424,9 +20555,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref37) {
-    var h = _ref37.h,
-      v = _ref37.v;
+  }, hourData.map(function (_ref40) {
+    var h = _ref40.h,
+      v = _ref40.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -21017,10 +21148,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref38, i) {
-    var _ref39 = _slicedToArray(_ref38, 2),
-      src = _ref39[0],
-      cnt = _ref39[1];
+  }, "No leads yet"), srcData.map(function (_ref41, i) {
+    var _ref42 = _slicedToArray(_ref41, 2),
+      src = _ref42[0],
+      cnt = _ref42[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -21704,8 +21835,8 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref40) {
-  var pr = _ref40.pr;
+function CloudStoragePanel(_ref43) {
+  var pr = _ref43.pr;
   var _useState73 = useState(false),
     _useState74 = _slicedToArray(_useState73, 2),
     busy = _useState74[0],
@@ -21716,17 +21847,17 @@ function CloudStoragePanel(_ref40) {
     setMeta = _useState76[1];
   var online = isCloudOnline();
   var syncNow = /*#__PURE__*/function () {
-    var _ref41 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+    var _ref44 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
       var d, _t3;
-      return _regenerator().w(function (_context3) {
-        while (1) switch (_context3.p = _context3.n) {
+      return _regenerator().w(function (_context6) {
+        while (1) switch (_context6.p = _context6.n) {
           case 0:
             setBusy(true);
-            _context3.p = 1;
-            _context3.n = 2;
+            _context6.p = 1;
+            _context6.n = 2;
             return cloudLoad();
           case 2:
-            d = _context3.v;
+            d = _context6.v;
             if (d && d.configured) {
               setMeta(getCloudMeta());
               toast.success("Loaded from Google Drive", "Version " + (d.version || 0));
@@ -21734,23 +21865,23 @@ function CloudStoragePanel(_ref40) {
                 return window.location.reload();
               }, 800);
             } else toast.warn("Cloud not ready", "Ask admin to configure Vercel + Google Drive.");
-            _context3.n = 4;
+            _context6.n = 4;
             break;
           case 3:
-            _context3.p = 3;
-            _t3 = _context3.v;
+            _context6.p = 3;
+            _t3 = _context6.v;
             toast.warn("Sync failed", _t3.message || "");
           case 4:
-            _context3.p = 4;
+            _context6.p = 4;
             setBusy(false);
-            return _context3.f(4);
+            return _context6.f(4);
           case 5:
-            return _context3.a(2);
+            return _context6.a(2);
         }
-      }, _callee3, null, [[1, 3, 4, 5]]);
+      }, _callee6, null, [[1, 3, 4, 5]]);
     }));
     return function syncNow() {
-      return _ref41.apply(this, arguments);
+      return _ref44.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -21797,10 +21928,10 @@ function CloudStoragePanel(_ref40) {
     onClick: syncNow
   }, busy ? "Syncing…" : "↻ Reload from Google Drive"));
 }
-function CurrencyManager(_ref42) {
-  var cur = _ref42.cur,
-    scur = _ref42.scur,
-    pr = _ref42.pr;
+function CurrencyManager(_ref45) {
+  var cur = _ref45.cur,
+    scur = _ref45.scur,
+    pr = _ref45.pr;
   var _useState77 = useState(false),
     _useState78 = _slicedToArray(_useState77, 2),
     editMode = _useState78[0],
@@ -21818,10 +21949,10 @@ function CurrencyManager(_ref42) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref43) {
-      var _ref44 = _slicedToArray(_ref43, 2),
-        k = _ref44[0],
-        v = _ref44[1];
+    Object.entries(getCurr()).forEach(function (_ref46) {
+      var _ref47 = _slicedToArray(_ref46, 2),
+        k = _ref47[0],
+        v = _ref47[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -21829,10 +21960,10 @@ function CurrencyManager(_ref42) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref45) {
-      var _ref46 = _slicedToArray(_ref45, 2),
-        k = _ref46[0],
-        v = _ref46[1];
+    Object.entries(getCurr()).forEach(function (_ref48) {
+      var _ref49 = _slicedToArray(_ref48, 2),
+        k = _ref49[0],
+        v = _ref49[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -21892,10 +22023,10 @@ function CurrencyManager(_ref42) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref47) {
-    var _ref48 = _slicedToArray(_ref47, 2),
-      k = _ref48[0],
-      v = _ref48[1];
+  }, Object.entries(rates).map(function (_ref50) {
+    var _ref51 = _slicedToArray(_ref50, 2),
+      k = _ref51[0],
+      v = _ref51[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -21923,10 +22054,10 @@ function CurrencyManager(_ref42) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref49, i, arr) {
-    var _ref50 = _slicedToArray(_ref49, 2),
-      k = _ref50[0],
-      v = _ref50[1];
+  })), Object.entries(rates).map(function (_ref52, i, arr) {
+    var _ref53 = _slicedToArray(_ref52, 2),
+      k = _ref53[0],
+      v = _ref53[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -22130,18 +22261,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref51) {
-    var _ref52 = _slicedToArray(_ref51, 2),
-      v = _ref52[1];
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref54) {
+    var _ref55 = _slicedToArray(_ref54, 2),
+      v = _ref55[1];
     return v;
-  }).map(function (_ref53) {
-    var _ref54 = _slicedToArray(_ref53, 1),
-      k = _ref54[0];
+  }).map(function (_ref56) {
+    var _ref57 = _slicedToArray(_ref56, 1),
+      k = _ref57[0];
     return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref55) {
-    var _ref56 = _slicedToArray(_ref55, 2),
-      l = _ref56[0],
-      v = _ref56[1];
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref58) {
+    var _ref59 = _slicedToArray(_ref58, 2),
+      l = _ref59[0],
+      v = _ref59[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -22182,10 +22313,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref57) {
-    var _ref58 = _slicedToArray(_ref57, 2),
-      l = _ref58[0],
-      v = _ref58[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref60) {
+    var _ref61 = _slicedToArray(_ref60, 2),
+      l = _ref61[0],
+      v = _ref61[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -22253,10 +22384,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref59) {
-    var _ref60 = _slicedToArray(_ref59, 2),
-      l = _ref60[0],
-      v = _ref60[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref62) {
+    var _ref63 = _slicedToArray(_ref62, 2),
+      l = _ref63[0],
+      v = _ref63[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -24277,10 +24408,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref61) {
-      var _ref62 = _slicedToArray(_ref61, 2),
-        ic = _ref62[0],
-        v = _ref62[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref64) {
+      var _ref65 = _slicedToArray(_ref64, 2),
+        ic = _ref65[0],
+        v = _ref65[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -24743,16 +24874,16 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref63) {
-  var ev = _ref63.ev,
-    user = _ref63.user,
-    allUsers = _ref63.allUsers,
-    onUsersChange = _ref63.onUsersChange,
-    allEvents = _ref63.allEvents,
-    onSwitch = _ref63.onSwitch,
-    onUpdateEvent = _ref63.onUpdateEvent,
-    onBack = _ref63.onBack,
-    onLogout = _ref63.onLogout;
+function EventERP(_ref66) {
+  var ev = _ref66.ev,
+    user = _ref66.user,
+    allUsers = _ref66.allUsers,
+    onUsersChange = _ref66.onUsersChange,
+    allEvents = _ref66.allEvents,
+    onSwitch = _ref66.onSwitch,
+    onUpdateEvent = _ref66.onUpdateEvent,
+    onBack = _ref66.onBack,
+    onLogout = _ref66.onLogout;
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents);
@@ -26013,15 +26144,15 @@ function App() {
   var cloudSyncRef = useRef(null);
   var pendingDeletesRef = useRef([]);
   useEffect(function () {
-    _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
+    _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7() {
       var d, merged;
-      return _regenerator().w(function (_context4) {
-        while (1) switch (_context4.n) {
+      return _regenerator().w(function (_context7) {
+        while (1) switch (_context7.n) {
           case 0:
-            _context4.n = 1;
+            _context7.n = 1;
             return cloudFetchData();
           case 1:
-            d = _context4.v;
+            d = _context7.v;
             if (d && d.configured) {
               if (Array.isArray(d.events) && d.events.length) {
                 sevents(d.events);
@@ -26045,25 +26176,25 @@ function App() {
             }
             setCloudReady(true);
           case 2:
-            return _context4.a(2);
+            return _context7.a(2);
         }
-      }, _callee4);
+      }, _callee7);
     }))();
   }, []);
   useEffect(function () {
     saveEvents(events);
     if (!cloudReady || !isCloudOnline()) return;
     if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
-    cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
+    cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
       var deleted, synced;
-      return _regenerator().w(function (_context5) {
-        while (1) switch (_context5.n) {
+      return _regenerator().w(function (_context8) {
+        while (1) switch (_context8.n) {
           case 0:
             deleted = pendingDeletesRef.current.splice(0);
-            _context5.n = 1;
+            _context8.n = 1;
             return cloudSave(events, appUsers, deleted);
           case 1:
-            synced = _context5.v;
+            synced = _context8.v;
             if (synced) sevents(function (p) {
               return p.map(function (e) {
                 var m = synced.find(function (x) {
@@ -26073,9 +26204,9 @@ function App() {
               });
             });
           case 2:
-            return _context5.a(2);
+            return _context8.a(2);
         }
-      }, _callee5);
+      }, _callee8);
     })), 2500);
     return function () {
       if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);

@@ -201,6 +201,34 @@ function saveUsers(users){
 const CLOUD_META_KEY="vj_cloud_meta";
 const DRIVE_ROOT_NAME="Vianne Jewels Data";
 let _cloudOnline=false;
+const _pendingInvFiles=[];
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(String(r.result||"").split(",")[1]||"");
+    r.onerror=()=>reject(new Error("Could not read file"));
+    r.readAsDataURL(file);
+  });
+}
+function mimeForFileName(name){
+  const n=String(name||"").toLowerCase();
+  if(n.endsWith(".xlsx"))return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  if(n.endsWith(".xls"))return "application/vnd.ms-excel";
+  if(n.endsWith(".csv"))return "text/csv";
+  return "application/octet-stream";
+}
+async function queueInventoryFileForDrive(eventId,file){
+  if(!file||!eventId)return;
+  try{
+    const contentBase64=await fileToBase64(file);
+    if(!contentBase64)return;
+    _pendingInvFiles.push({eventId,fileName:file.name,contentBase64,mimeType:mimeForFileName(file.name)});
+  }catch(e){console.warn("Drive inventory queue",e);}
+}
+function takePendingInvFiles(){
+  if(!_pendingInvFiles.length)return [];
+  return _pendingInvFiles.splice(0,_pendingInvFiles.length);
+}
 function isCloudOnline(){return _cloudOnline;}
 function getCloudMeta(){try{return JSON.parse(localStorage.getItem(CLOUD_META_KEY)||"{}");}catch(e){return {};}}
 function setCloudMeta(m){try{localStorage.setItem(CLOUD_META_KEY,JSON.stringify(m));}catch(e){}}
@@ -226,11 +254,15 @@ async function cloudSave(events,users,deletedEvents){
   if(!_cloudOnline){const ping=await cloudFetchData();if(!ping)return null;}
   let currency=null;
   try{currency=JSON.parse(localStorage.getItem("vj_curr_rates")||"null");}catch(e){}
-  const body={events,users,currency,deletedEvents:deletedEvents||[]};
+  const inventoryFiles=takePendingInvFiles();
+  const body={events,users,currency,deletedEvents:deletedEvents||[],inventoryFiles};
   try{
     const r=await fetch("/api/data",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     const d=await r.json();
-    if(!r.ok||!d.ok)throw new Error(d.error||"Save failed");
+    if(!r.ok||!d.ok){
+      if(inventoryFiles.length)_pendingInvFiles.unshift(...inventoryFiles);
+      throw new Error(d.error||"Save failed");
+    }
     _cloudOnline=true;
     if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
     if(Array.isArray(d.events)&&d.events.length)return d.events;
@@ -568,7 +600,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const pr=gp(user.role,user.perms);
   const visibleEvents=filterEventsForUser(user,events);
   useEffect(()=>{if(sc)ensureXLSX(()=>{});},[sc]);
-  const create=()=>{if(!form.name.trim())return;const fin=(inv,fileName)=>{if(xlf&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(inv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||xlf?.name||"inventory.xlsx",mode:"initial",added:inv.length,total:inv.length,by:user.name});onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,inv=>{sl(false);fin(inv,xlf.name);},err=>{sl(false);smsg(err);});}else fin([],null);};
+  const create=()=>{if(!form.name.trim())return;const fin=async(inv,fileName,fileObj)=>{if(fileObj&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(inv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||fileObj?.name||"inventory.xlsx",mode:"initial",added:inv.length,total:inv.length,by:user.name});if(fileObj&&inv.length)await queueInventoryFileForDrive(base.id,fileObj);onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,async inv=>{sl(false);await fin(inv,xlf.name,xlf);},err=>{sl(false);smsg(err);});}else fin([],null,null);};
   return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
       <div style={{display:"flex",alignItems:"flex-start",gap:10}}><Logo h={34}/><div style={{paddingTop:1}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
@@ -757,7 +789,7 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
               {[...(ev.invHistory||[])].reverse().map(h=>(
                 <div key={h.id} style={{...S.cc({marginBottom:8})}}>
                   <div style={{fontWeight:700,fontSize:12,color:T1}}>{h.fileName}</div>
-                  <div style={{fontSize:10,color:T3,marginTop:2}}>{h.date} {h.time} · {h.mode} · +{h.added} items · total {h.total}</div>
+                  <div style={{fontSize:10,color:T3,marginTop:2}}>{h.date} {h.time} · {h.mode} · +{h.added} items · total {h.total}{h.driveFileId?" · ☁ Drive":""}</div>
                   {h.by&&<div style={{fontSize:9,color:T4,marginTop:1}}>By {h.by}</div>}
                 </div>
               ))}
@@ -772,8 +804,8 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
           <div style={{display:"flex",gap:8,marginBottom:11}}>{[{id:"add",l:"Add new"},{id:"replace",l:"Replace all"}].map(m=>(
             <button key={m.id} onClick={()=>smode(m.id)} style={S.pill(mode===m.id)}>{m.l}</button>
           ))}</div>
-          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,items=>{if(!items.length){toast.error(INV_FAIL,"0 items found — check Unique Code and Round Off Final columns.");e.target.value="";return;}const inv=mergeInvItems(ev.inv||[],items,mode);const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added:items.length,total:inv.length,by:user?.name||"Admin"})};onUpdate(updated);toast.success("Inventory updated",items.length+" items "+(mode==="add"?"added":"imported")+" · "+inv.length+" total");e.target.value="";},err=>{toast.error(INV_FAIL,String(err).replace(INV_FAIL+" — ",""));e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
-          <div style={{fontSize:11,color:T3,lineHeight:1.5}}>Upload your Vianne price list (.xlsx). All columns are saved. Images embedded in the sheet are imported by Unique Code.</div>
+          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,async items=>{if(!items.length){toast.error(INV_FAIL,"0 items found — check Unique Code and Round Off Final columns.");e.target.value="";return;}const inv=mergeInvItems(ev.inv||[],items,mode);const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added:items.length,total:inv.length,by:user?.name||"Admin"})};await queueInventoryFileForDrive(ev.id,f);onUpdate(updated);toast.success("Inventory updated",items.length+" items "+(mode==="add"?"added":"imported")+" · "+inv.length+" total · Excel queued for Google Drive");e.target.value="";},err=>{toast.error(INV_FAIL,String(err).replace(INV_FAIL+" — ",""));e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
+          <div style={{fontSize:11,color:T3,lineHeight:1.5}}>Upload your Vianne price list (.xlsx). Parsed data syncs to this event&apos;s Google Drive folder along with the original Excel file.</div>
         </div>
       )}
     </Sheet>
@@ -2079,7 +2111,7 @@ function InventoryTab(p){
                   <div><div style={{fontWeight:700,fontSize:12,color:T1}}>{h.fileName}</div><div style={{fontSize:10,color:T3,marginTop:2}}>{h.date} · {h.time}</div></div>
                   <Bdg t="g" ch={"+"+h.added}/>
                 </div>
-                <div style={{fontSize:10,color:T2,marginTop:6}}>{h.mode==="initial"?"Initial load":h.mode==="replace"?"Replaced all":"Added to existing"} · {h.total} items total{h.by?" · by "+h.by:""}</div>
+                <div style={{fontSize:10,color:T2,marginTop:6}}>{h.mode==="initial"?"Initial load":h.mode==="replace"?"Replaced all":"Added to existing"} · {h.total} items total{h.by?" · by "+h.by:""}{h.driveFileId?<span style={{color:"#27ae60"}}> · ☁ saved to Google Drive</span>:""}</div>
               </div>
             ))}
           </div>}

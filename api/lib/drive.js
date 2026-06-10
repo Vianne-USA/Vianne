@@ -242,7 +242,92 @@ async function loadMasterData() {
   };
 }
 
-async function syncEventFolder(ev, root) {
+async function uploadBinary(name, buffer, parentId, mimeType) {
+  const safeName = String(name || "inventory.xlsx").replace(/[\\/:*?"<>|]/g, "_");
+  const existing = await findFile(safeName, parentId);
+  const finalName = existing
+    ? new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-") + "_" + safeName
+    : safeName;
+  const boundary = "viannebin" + Date.now();
+  const meta = JSON.stringify({
+    name: finalName,
+    mimeType: mimeType || "application/octet-stream",
+    parents: [parentId],
+  });
+  const prelude =
+    "--" +
+    boundary +
+    "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" +
+    meta +
+    "\r\n--" +
+    boundary +
+    "\r\nContent-Type: " +
+    (mimeType || "application/octet-stream") +
+    "\r\n\r\n";
+  const epilogue = "\r\n--" + boundary + "--";
+  const body = Buffer.concat([
+    Buffer.from(prelude),
+    Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer),
+    Buffer.from(epilogue),
+  ]);
+  return driveUpload(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+    body,
+    "multipart/related; boundary=" + boundary,
+    "POST"
+  );
+}
+
+function mimeForFileName(name) {
+  const n = String(name || "").toLowerCase();
+  if (n.endsWith(".xlsx"))
+    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  if (n.endsWith(".xls")) return "application/vnd.ms-excel";
+  if (n.endsWith(".csv")) return "text/csv";
+  return "application/octet-stream";
+}
+
+async function uploadInventoryFilesToFolder(ev, folderId, files) {
+  if (!files || !files.length) return ev;
+  const uploaded = [];
+  for (const f of files) {
+    if (!f || !f.contentBase64) continue;
+    try {
+      const buf = Buffer.from(f.contentBase64, "base64");
+      if (!buf.length) continue;
+      const file = await uploadBinary(
+        f.fileName || "inventory.xlsx",
+        buf,
+        folderId,
+        f.mimeType || mimeForFileName(f.fileName)
+      );
+      uploaded.push({
+        fileName: f.fileName,
+        driveFileId: file.id,
+        driveFileName: file.name,
+      });
+    } catch (e) {
+      console.warn("Inventory file upload failed", f.fileName, e.message);
+    }
+  }
+  if (!uploaded.length || !Array.isArray(ev.invHistory)) return ev;
+  const used = new Set();
+  const invHistory = ev.invHistory.map((h) => {
+    if (h.driveFileId) return h;
+    const hit = uploaded.find((u) => u.fileName === h.fileName && !used.has(u.driveFileId));
+    if (!hit) return h;
+    used.add(hit.driveFileId);
+    return {
+      ...h,
+      driveFileId: hit.driveFileId,
+      driveFileName: hit.driveFileName,
+      driveSyncedAt: new Date().toISOString(),
+    };
+  });
+  return { ...ev, invHistory };
+}
+
+async function syncEventFolder(ev, root, inventoryFiles) {
   const folderName = (ev.name || ev.id || "Event").trim();
   let folderId = ev.driveFolderId;
   if (folderId) {
@@ -261,14 +346,19 @@ async function syncEventFolder(ev, root) {
     driveFolderId: folderId,
     syncedAt: new Date().toISOString(),
   };
+  const filesForEvent = (inventoryFiles || []).filter((f) => f.eventId === ev.id);
+  const withFiles =
+    filesForEvent.length > 0
+      ? await uploadInventoryFilesToFolder(payload, folderId, filesForEvent)
+      : payload;
   const existing = await findFile("event-data.json", folderId);
   const file = await uploadJson(
     "event-data.json",
-    payload,
+    withFiles,
     folderId,
     existing && existing.id
   );
-  return { ...ev, driveFolderId: folderId, driveFileId: file.id };
+  return { ...withFiles, driveFolderId: folderId, driveFileId: file.id };
 }
 
 async function markEventDeleted(deleted) {
@@ -301,10 +391,11 @@ async function saveMasterData(payload) {
   }
 
   const eventsIn = Array.isArray(payload.events) ? payload.events : [];
+  const inventoryFiles = Array.isArray(payload.inventoryFiles) ? payload.inventoryFiles : [];
   const syncedEvents = [];
   for (const ev of eventsIn) {
     try {
-      syncedEvents.push(await syncEventFolder(ev, root));
+      syncedEvents.push(await syncEventFolder(ev, root, inventoryFiles));
     } catch (e) {
       console.warn("Event sync failed", ev.name, e.message);
       syncedEvents.push(ev);

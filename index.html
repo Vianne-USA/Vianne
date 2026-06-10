@@ -10742,11 +10742,11 @@ function _registerBio() {
   }));
   return _registerBio.apply(this, arguments);
 }
-function loginBio(_x2, _x3) {
+function loginBio(_x2, _x3, _x4) {
   return _loginBio.apply(this, arguments);
 } // ── Dark Mode system ──────────────────────────────────────────────────────
 function _loginBio() {
-  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(onLogin, onFail) {
+  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(onLogin, onFail, users) {
     var id, un, cred, usr, _t2;
     return _regenerator().w(function (_context3) {
       while (1) switch (_context3.p = _context3.n) {
@@ -10783,7 +10783,7 @@ function _loginBio() {
           }
           return _context3.a(2);
         case 3:
-          usr = USERS.find(function (x) {
+          usr = users.find(function (x) {
             return x.un === un;
           });
           if (usr) onLogin(usr);else onFail("Saved sign-in expired. Use password once.");
@@ -12126,6 +12126,22 @@ function saveEvents(evts) {
     localStorage.setItem(EVENTS_KEY, JSON.stringify(evts));
   } catch (e) {}
 }
+var USERS_KEY = "vj_users";
+function loadUsers() {
+  try {
+    var raw = localStorage.getItem(USERS_KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch (e) {}
+  return USERS;
+}
+function saveUsers(users) {
+  try {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  } catch (e) {}
+}
 var S = {
   btn: function btn(o) {
     return _objectSpread({
@@ -12726,7 +12742,8 @@ function parseXL(file, onDone, onError) {
   r.readAsArrayBuffer(file);
 }
 function Login(_ref7) {
-  var onLogin = _ref7.onLogin;
+  var onLogin = _ref7.onLogin,
+    users = _ref7.users;
   var _useState11 = useState(""),
     _useState12 = _slicedToArray(_useState11, 2),
     u = _useState12[0],
@@ -12800,7 +12817,7 @@ function Login(_ref7) {
       return _regenerator().w(function (_context) {
         while (1) switch (_context.n) {
           case 0:
-            usr = USERS.find(function (x) {
+            usr = users.find(function (x) {
               return x.un === u.toLowerCase() && x.pw === p;
             });
             if (usr) {
@@ -12844,7 +12861,7 @@ function Login(_ref7) {
   var doBio = function doBio() {
     return loginBio(onLogin, function (msg) {
       return toast.warn("Face ID", msg);
-    });
+    }, users);
   };
   var isIOS = /iPhone|iPad/.test(navigator.userAgent);
   var hasBio = !!localStorage.getItem(BIO_KEY);
@@ -20825,8 +20842,8 @@ function AdminTab(p) {
   var onSwitch = p.onSwitch;
   var showSwitch = p.showSwitch;
   var ssw = p.ssw;
-  var totalRev = p.totalRev;
   var audits = p.audits;
+  var totalRev = p.totalRev;
   var ist = p.ist;
   var atab = p.atab;
   var sat = p.sat;
@@ -22007,13 +22024,13 @@ function SalesTab(p) {
         fontSize: 11
       }),
       onClick: function onClick() {
-        return ssl(function (p) {
-          return p.map(function (x) {
-            return x.id === s.id ? _objectSpread(_objectSpread({}, x), {}, {
-              st: "delivered"
-            }) : x;
-          });
+        var ns = sales.map(function (x) {
+          return x.id === s.id ? _objectSpread(_objectSpread({}, x), {}, {
+            st: "delivered"
+          }) : x;
         });
+        ssl(ns);
+        syncUp(null, ns, null, null);
       }
     }, "\u2713 Delivered"), pr.delSale && /*#__PURE__*/React.createElement("button", {
       style: {
@@ -22853,10 +22870,12 @@ function CustomersTab(p) {
   var leads = p.leads,
     sld = p.sld,
     sales = p.sales,
+    ssl = p.ssl,
     inv = p.inv,
     fc = p.fc,
     cur = p.cur,
-    pr = p.pr;
+    pr = p.pr,
+    syncUp = p.syncUp;
   var _useState107 = useState(false),
     _useState108 = _slicedToArray(_useState107, 2),
     showForm = _useState108[0],
@@ -22900,9 +22919,9 @@ function CustomersTab(p) {
       contact: form.email.trim(),
       created: dstr()
     };
-    sld(function (p) {
-      return [newC].concat(_toConsumableArray(p));
-    });
+    var nl = [newC].concat(_toConsumableArray(leads));
+    sld(nl);
+    syncUp(null, null, nl, null);
     setForm({
       name: "",
       phone: "",
@@ -24763,7 +24782,7 @@ function App() {
       if (style.parentNode) style.parentNode.removeChild(style);
     };
   }, []);
-  var _useState203 = useState(USERS),
+  var _useState203 = useState(loadUsers),
     _useState204 = _slicedToArray(_useState203, 2),
     appUsers = _useState204[0],
     sappUsers = _useState204[1];
@@ -24775,6 +24794,9 @@ function App() {
     _useState208 = _slicedToArray(_useState207, 2),
     manageEv = _useState208[0],
     smev = _useState208[1];
+  useEffect(function () {
+    saveUsers(appUsers);
+  }, [appUsers]);
   var upEv = function upEv(ev) {
     return sevents(function (p) {
       return ev ? p.map(function (e) {
@@ -24830,7 +24852,8 @@ function App() {
     };
   }, []);
   if (!user) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(Login, {
-    onLogin: su
+    onLogin: su,
+    users: appUsers
   }));
   if (activeEv) {
     return /*#__PURE__*/React.createElement("div", {
@@ -24841,6 +24864,7 @@ function App() {
         background: GD
       }
     }, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(EventERP, {
+      key: activeEv.id,
       ev: events.find(function (e) {
         return e.id === activeEv.id;
       }) || activeEv,

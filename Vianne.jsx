@@ -70,7 +70,7 @@ async function registerBio(username){
     return true;
   }catch(_){return false;}
 }
-async function loginBio(onLogin,onFail){
+async function loginBio(onLogin,onFail,users){
   const id=localStorage.getItem(BIO_KEY);
   const un=localStorage.getItem(BIO_USER);
   if(!id||!un){onFail("Sign in with password once to enable Face ID.");return;}
@@ -83,7 +83,7 @@ async function loginBio(onLogin,onFail){
       timeout:60000
     }});
     if(!cred)return;
-    const usr=USERS.find(x=>x.un===un);
+    const usr=users.find(x=>x.un===un);
     if(usr)onLogin(usr);
     else onFail("Saved sign-in expired. Use password once.");
   }catch(err){
@@ -159,6 +159,20 @@ function loadEvents(){
 }
 function saveEvents(evts){
   try{localStorage.setItem(EVENTS_KEY,JSON.stringify(evts));}catch(e){}
+}
+const USERS_KEY="vj_users";
+function loadUsers(){
+  try{
+    const raw=localStorage.getItem(USERS_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      if(Array.isArray(parsed)&&parsed.length)return parsed;
+    }
+  }catch(e){}
+  return USERS;
+}
+function saveUsers(users){
+  try{localStorage.setItem(USERS_KEY,JSON.stringify(users));}catch(e){}
 }
 const S={
   btn:o=>({background:G,color:CR,border:"none",borderRadius:10,padding:"13px 18px",fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:600,cursor:"pointer",width:"100%",...o}),
@@ -288,7 +302,7 @@ function parseXL(file,onDone,onError){
   r.onload=e=>{try{const wb=X.read(new Uint8Array(e.target.result),{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const rows=X.utils.sheet_to_json(ws,{defval:""});const emo={Bracelets:"💎",Earrings:"✨",Necklaces:"📿",Rings:"💍",Pendants:"⭐",Bangles:"🔮",Brooch:"📌"};const items=rows.map(r=>{const id=String(r["Jewel Code"]||r["ID"]||r["id"]||"").trim().toUpperCase();const fp=parseFloat(r["Sale Price"]||r["Final Price"]||r["fp"]||r["Price"]||0);const cat=String(r["Category"]||r["cat"]||"Jewellery").trim();if(!id||fp<=0)return null;return{id,style:String(r["Style"]||r["style"]||""),cat,col:String(r["Collection"]||r["col"]||r["Coll'n"]||""),metal:String(r["Metal"]||r["metal"]||""),sz:String(r["Size"]||r["sz"]||"Std"),qty:parseInt(r["Qty"]||r["qty"]||1),gw:parseFloat(r["Gross Wt"]||r["gw"]||0),nw:parseFloat(r["Net Wt"]||r["nw"]||0),tc:parseFloat(r["Total Carats"]||r["tc"]||0),sp:parseFloat(r["Stone Pcs"]||r["sp"]||0),iv:parseFloat(r["Inward Value"]||r["iv"]||0),tod:parseFloat(r["Today Cost"]||r["tod"]||0),cpt:parseFloat(r["Cost+Tariffs"]||r["cpt"]||0),ipt:parseFloat(r["Inward+Tariffs"]||r["ipt"]||0),fp,em:emo[cat]||"💎",st:"available",loc:String(r["Location"]||r["loc"]||"Exhibition"),views:0,searches:0,stones:[]};}).filter(Boolean);onDone(items);}catch(err){onError("Parse error: "+err.message);}};
   r.onerror=()=>onError("Read failed");r.readAsArrayBuffer(file);
 }
-function Login({onLogin}){
+function Login({onLogin,users}){
   const [u,su]=useState(""),[p,sp]=useState(""),[e,se]=useState(""),[show,ssh]=useState(false),[bio,sbio]=useState(false);
   const scrollRef=useRef(null);
   useEffect(()=>{try{if(window.PublicKeyCredential)window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok=>sbio(!!ok));}catch(_){}if(!window.XLSX){const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onerror=function(){console.log("XLSX CDN blocked");};document.head.appendChild(s);}},[]);
@@ -299,8 +313,8 @@ function Login({onLogin}){
     return()=>{html.style.overflow=sh;body.style.overflow=sb;body.style.position=sp;body.style.width=sw;body.style.left=sl;};
   },[]);
   const focusIn=(ev)=>{setTimeout(()=>{try{ev.target.scrollIntoView({block:"center",behavior:"smooth"});}catch(_){}},320);};
-  const go=async()=>{const usr=USERS.find(x=>x.un===u.toLowerCase()&&x.pw===p);if(!usr){se("Invalid username or password");return;}const saved=localStorage.getItem(BIO_USER);if(bio&&saved!==usr.un){await registerBio(usr.un);}else if(bio&&!saved){const ok=await registerBio(usr.un);if(ok)toast.success("Face ID enabled","Use Face ID next time you sign in.");}onLogin(usr);};
-  const doBio=()=>loginBio(onLogin,msg=>toast.warn("Face ID",msg));
+  const go=async()=>{const usr=users.find(x=>x.un===u.toLowerCase()&&x.pw===p);if(!usr){se("Invalid username or password");return;}const saved=localStorage.getItem(BIO_USER);if(bio&&saved!==usr.un){await registerBio(usr.un);}else if(bio&&!saved){const ok=await registerBio(usr.un);if(ok)toast.success("Face ID enabled","Use Face ID next time you sign in.");}onLogin(usr);};
+  const doBio=()=>loginBio(onLogin,msg=>toast.warn("Face ID",msg),users);
   const isIOS=/iPhone|iPad/.test(navigator.userAgent);
   const hasBio=!!localStorage.getItem(BIO_KEY);
   return(<div ref={scrollRef} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:GD,overflowY:"auto",WebkitOverflowScrolling:"touch",overscrollBehavior:"contain",padding:"calc(12px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
@@ -2466,6 +2480,8 @@ function AdminTab(p){
   var onSwitch=p.onSwitch;
   var showSwitch=p.showSwitch;
   var ssw=p.ssw;
+  var audits=p.audits;
+  var totalRev=p.totalRev;
   return(
     <div style={{padding:"13px 12px 40px"}}>
           <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G,marginBottom:16}}>⚙ Settings</div>
@@ -2795,7 +2811,7 @@ function SalesTab(p){
                   </div>
                   <div style={{display:"flex",gap:6}}>
                     <button style={S.btn({flex:1,padding:"8px",fontSize:11})} onClick={()=>sinvm(s)}>🧾 Invoice</button>
-                    {s.st!=="delivered"&&<button style={S.bOut({flex:1,padding:"8px",fontSize:11})} onClick={()=>ssl(p=>p.map(x=>x.id===s.id?{...x,st:"delivered"}:x))}>✓ Delivered</button>}
+                    {s.st!=="delivered"&&<button style={S.bOut({flex:1,padding:"8px",fontSize:11})} onClick={()=>{const ns=sales.map(x=>x.id===s.id?{...x,st:"delivered"}:x);ssl(ns);syncUp(null,ns,null,null);}}>✓ Delivered</button>}
                                         {pr.delSale&&<button style={{background:REBG,border:"1px solid rgba(160,48,48,0.2)",borderRadius:8,padding:"8px 10px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,color:RE,cursor:"pointer"}} onClick={()=>{{const ni2=inv.map(x=>x.id===s.itemId?{...x,st:"available"}:x);const ns2=sales.filter(x=>x.id!==s.id);si(ni2);ssl(ns2);syncUp(ni2,ns2,null,null);toast.success("Sale deleted",""+s.itemId+" restored to available");}}}>🗑 Delete</button>}
                   </div>
                 </div>
@@ -3081,7 +3097,7 @@ function HistoryTab(p){
 }
 
 function CustomersTab(p){
-  var leads=p.leads,sld=p.sld,sales=p.sales,inv=p.inv,fc=p.fc,cur=p.cur,pr=p.pr;
+  var leads=p.leads,sld=p.sld,sales=p.sales,ssl=p.ssl,inv=p.inv,fc=p.fc,cur=p.cur,pr=p.pr,syncUp=p.syncUp;
   const [showForm,sShowForm]=useState(false);
   const [search,setSearch]=useState("");
   const [selected,setSelected]=useState(null);
@@ -3094,7 +3110,9 @@ function CustomersTab(p){
   const addCustomer=()=>{
     if(!form.name.trim())return;
     const newC={id:uid("LD"),name:form.name.trim(),phone:form.phone.trim(),email:form.email.trim(),company:form.company.trim(),notes:form.notes.trim(),status:form.status,source:form.source,contact:form.email.trim(),created:dstr()};
-    sld(p=>[newC,...p]);
+    const nl=[newC,...leads];
+    sld(nl);
+    syncUp(null,null,nl,null);
     setForm({name:"",phone:"",email:"",company:"",notes:"",status:"Warm",source:"Walk-in"});
     sShowForm(false);
   };
@@ -3394,9 +3412,10 @@ export default function App(){
     document.head.appendChild(style);
     return()=>{if(style.parentNode)style.parentNode.removeChild(style);};
   },[]);
-  const [appUsers,sappUsers]=useState(USERS);
+  const [appUsers,sappUsers]=useState(loadUsers);
   const [activeEv,sae]=useState(null);
   const [manageEv,smev]=useState(null);
+  useEffect(()=>{saveUsers(appUsers);},[appUsers]);
   const upEv=ev=>sevents(p=>ev?p.map(e=>e.id===ev.id?ev:e):p);
   const delEv=id=>sevents(p=>p.filter(e=>e.id!==id));
   const logout=()=>{su(null);sae(null);};
@@ -3423,9 +3442,10 @@ export default function App(){
     const t2=setTimeout(patch,3000);
     return()=>{clearTimeout(t1);clearTimeout(t2);};
   },[]);
-  if(!user) return (<><ToastContainer/><Login onLogin={su}/></>);
+  if(!user) return (<><ToastContainer/><Login onLogin={su} users={appUsers}/></>);
   if(activeEv){
     return (<div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:GD}}><ToastContainer/><EventERP
+      key={activeEv.id}
       ev={events.find(e=>e.id===activeEv.id)||activeEv}
       user={user} allUsers={appUsers} onUsersChange={sappUsers}
       allEvents={events}

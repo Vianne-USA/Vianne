@@ -35,6 +35,7 @@ async function loadSyncData() {
     }
   }
   const picked = pickNewer(blob, drive);
+  if (isBlobConfigured() && blob) return blob;
   if (picked) return picked;
   return {
     version: 0,

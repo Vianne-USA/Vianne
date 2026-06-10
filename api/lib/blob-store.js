@@ -1,4 +1,4 @@
-const { put, get } = require("@vercel/blob");
+const { put, get, list } = require("@vercel/blob");
 
 const MASTER_PATH = "vianne-master.json";
 
@@ -23,8 +23,14 @@ function blobAuthOpts() {
 }
 
 async function readBlobMaster() {
+  const opts = { ...blobAuthOpts(), access: "private", useCache: false };
   try {
-    const hit = await get(MASTER_PATH, { ...blobAuthOpts(), useCache: false });
+    let hit = await get(MASTER_PATH, opts);
+    if (!hit || !hit.blob) {
+      const ls = await list({ prefix: MASTER_PATH, limit: 5, ...blobAuthOpts() });
+      const url = ls.blobs && ls.blobs[0] && ls.blobs[0].url;
+      if (url) hit = await get(url, opts);
+    }
     if (!hit || !hit.blob) return null;
     const text = await hit.blob.text();
     const data = JSON.parse(text);
@@ -73,6 +79,7 @@ async function saveToBlob(payload) {
   };
   await put(MASTER_PATH, JSON.stringify(master), {
     ...blobAuthOpts(),
+    access: "private",
     contentType: "application/json",
     addRandomSuffix: false,
     allowOverwrite: true,

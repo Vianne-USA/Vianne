@@ -18,9 +18,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <title>Vianne</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}
-html{height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:light dark}
-body{height:100%;min-height:100dvh;min-height:-webkit-fill-available;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;font-family:Lato,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#163D2E;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
-#root{min-height:100dvh;min-height:-webkit-fill-available}
+html{width:100%;height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:light dark}
+body{width:100%;height:100%;min-height:100dvh;min-height:-webkit-fill-available;margin:0;padding:0;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;font-family:Lato,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#163D2E}
+#root{width:100%;min-height:100dvh;min-height:-webkit-fill-available;overflow-x:hidden}
 button,input,select,textarea{font-family:inherit;font-size:16px;touch-action:manipulation}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 input,select,textarea{-webkit-appearance:none;appearance:none;border-radius:0}
@@ -10410,11 +10410,15 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 /******/ ])["default"];
 });</script>
 <script>function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
@@ -10589,7 +10593,7 @@ function ToastContainer() {
       left: 0,
       right: 0,
       zIndex: 9999,
-      padding: "calc(10px + env(safe-area-inset-top,0px)) 12px 10px",
+      padding: "calc(10px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) 10px calc(12px + env(safe-area-inset-left,0px))",
       display: "flex",
       flexDirection: "column",
       gap: 6,
@@ -10657,7 +10661,145 @@ function ToastContainer() {
   }));
 }
 
-// ── Dark Mode system ──────────────────────────────────────────────────────
+// ── Face ID / Touch ID (WebAuthn, stored locally) ────────────────────────
+var BIO_KEY = "vj_bio_cred";
+var BIO_USER = "vj_bio_user";
+var rpId = function rpId() {
+  return window.location.hostname || "localhost";
+};
+var b64u = function b64u(buf) {
+  return btoa(String.fromCharCode.apply(String, _toConsumableArray(new Uint8Array(buf)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+var b64uDec = function b64uDec(str) {
+  str = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (str.length % 4) str += "=";
+  var bin = atob(str);
+  var out = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+};
+function registerBio(_x) {
+  return _registerBio.apply(this, arguments);
+}
+function _registerBio() {
+  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(username) {
+    var cred, _t;
+    return _regenerator().w(function (_context2) {
+      while (1) switch (_context2.p = _context2.n) {
+        case 0:
+          if (window.PublicKeyCredential) {
+            _context2.n = 1;
+            break;
+          }
+          return _context2.a(2, false);
+        case 1:
+          _context2.p = 1;
+          _context2.n = 2;
+          return navigator.credentials.create({
+            publicKey: {
+              challenge: crypto.getRandomValues(new Uint8Array(32)),
+              rp: {
+                name: "Vianne Jewels",
+                id: rpId()
+              },
+              user: {
+                id: new TextEncoder().encode(username),
+                name: username,
+                displayName: username
+              },
+              pubKeyCredParams: [{
+                alg: -7,
+                type: "public-key"
+              }, {
+                alg: -257,
+                type: "public-key"
+              }],
+              authenticatorSelection: {
+                authenticatorAttachment: "platform",
+                residentKey: "discouraged",
+                userVerification: "required"
+              },
+              timeout: 60000
+            }
+          });
+        case 2:
+          cred = _context2.v;
+          if (cred) {
+            _context2.n = 3;
+            break;
+          }
+          return _context2.a(2, false);
+        case 3:
+          localStorage.setItem(BIO_KEY, b64u(cred.rawId));
+          localStorage.setItem(BIO_USER, username.toLowerCase());
+          return _context2.a(2, true);
+        case 4:
+          _context2.p = 4;
+          _t = _context2.v;
+          return _context2.a(2, false);
+      }
+    }, _callee2, null, [[1, 4]]);
+  }));
+  return _registerBio.apply(this, arguments);
+}
+function loginBio(_x2, _x3) {
+  return _loginBio.apply(this, arguments);
+} // ── Dark Mode system ──────────────────────────────────────────────────────
+function _loginBio() {
+  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(onLogin, onFail) {
+    var id, un, cred, usr, _t2;
+    return _regenerator().w(function (_context3) {
+      while (1) switch (_context3.p = _context3.n) {
+        case 0:
+          id = localStorage.getItem(BIO_KEY);
+          un = localStorage.getItem(BIO_USER);
+          if (!(!id || !un)) {
+            _context3.n = 1;
+            break;
+          }
+          onFail("Sign in with password once to enable Face ID.");
+          return _context3.a(2);
+        case 1:
+          _context3.p = 1;
+          _context3.n = 2;
+          return navigator.credentials.get({
+            publicKey: {
+              challenge: crypto.getRandomValues(new Uint8Array(32)),
+              rpId: rpId(),
+              allowCredentials: [{
+                id: b64uDec(id),
+                type: "public-key",
+                transports: ["internal"]
+              }],
+              userVerification: "required",
+              timeout: 60000
+            }
+          });
+        case 2:
+          cred = _context3.v;
+          if (cred) {
+            _context3.n = 3;
+            break;
+          }
+          return _context3.a(2);
+        case 3:
+          usr = USERS.find(function (x) {
+            return x.un === un;
+          });
+          if (usr) onLogin(usr);else onFail("Saved sign-in expired. Use password once.");
+          _context3.n = 5;
+          break;
+        case 4:
+          _context3.p = 4;
+          _t2 = _context3.v;
+          if (_t2.name !== "NotAllowedError") onFail(_t2.message || "Face ID failed");
+        case 5:
+          return _context3.a(2);
+      }
+    }, _callee3, null, [[1, 4]]);
+  }));
+  return _loginBio.apply(this, arguments);
+}
 var _darkMode = false;
 try {
   _darkMode = localStorage.getItem("vj_dark") === "1";
@@ -12195,7 +12337,8 @@ function Sheet(_ref3) {
       zIndex: 400,
       display: "flex",
       alignItems: "flex-end",
-      justifyContent: "center"
+      justifyContent: "center",
+      padding: "0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)"
     }
   }, /*#__PURE__*/React.createElement("div", {
     onClick: function onClick(e) {
@@ -12206,7 +12349,7 @@ function Sheet(_ref3) {
       borderRadius: "20px 20px 0 0",
       width: "100%",
       maxWidth: 430,
-      maxHeight: "93vh",
+      maxHeight: "93dvh",
       overflowY: "auto"
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -12250,7 +12393,7 @@ function Sheet(_ref3) {
     }
   }, "\u2715"))), /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: "14px 16px 36px"
+      padding: "14px 16px calc(36px + env(safe-area-inset-bottom,0px))"
     }
   }, children)));
 }
@@ -12635,7 +12778,7 @@ function Login(_ref7) {
   useEffect(function () {
     try {
       if (window.PublicKeyCredential) window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(function (ok) {
-        return sbio(ok);
+        return sbio(!!ok);
       });
     } catch (_) {}
     if (!window.XLSX) {
@@ -12647,42 +12790,71 @@ function Login(_ref7) {
       document.head.appendChild(s);
     }
   }, []);
-  var go = function go() {
-    var usr = USERS.find(function (x) {
-      return x.un === u.toLowerCase() && x.pw === p;
-    });
-    if (usr) onLogin(usr);else se("Invalid username or password");
-  };
-  var doBio = function doBio() {
-    try {
-      var ch = new Uint8Array(32);
-      window.crypto.getRandomValues(ch);
-      navigator.credentials.get({
-        publicKey: {
-          challenge: ch,
-          timeout: 60000,
-          userVerification: "required",
-          rpId: window.location.hostname || "localhost"
+  var go = /*#__PURE__*/function () {
+    var _ref8 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+      var usr, saved, ok;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.n) {
+          case 0:
+            usr = USERS.find(function (x) {
+              return x.un === u.toLowerCase() && x.pw === p;
+            });
+            if (usr) {
+              _context.n = 1;
+              break;
+            }
+            se("Invalid username or password");
+            return _context.a(2);
+          case 1:
+            saved = localStorage.getItem(BIO_USER);
+            if (!(bio && saved !== usr.un)) {
+              _context.n = 3;
+              break;
+            }
+            _context.n = 2;
+            return registerBio(usr.un);
+          case 2:
+            _context.n = 5;
+            break;
+          case 3:
+            if (!(bio && !saved)) {
+              _context.n = 5;
+              break;
+            }
+            _context.n = 4;
+            return registerBio(usr.un);
+          case 4:
+            ok = _context.v;
+            if (ok) toast.success("Face ID enabled", "Use Face ID next time you sign in.");
+          case 5:
+            onLogin(usr);
+          case 6:
+            return _context.a(2);
         }
-      }).then(function (cr) {
-        if (cr) onLogin(USERS[0]);
-      }).catch(function (err) {
-        if (err.name !== "NotAllowedError") toast.error("Biometric failed", err.message);
-      });
-    } catch (err) {
-      toast.error("Biometric failed", err.message);
-    }
+      }, _callee);
+    }));
+    return function go() {
+      return _ref8.apply(this, arguments);
+    };
+  }();
+  var doBio = function doBio() {
+    return loginBio(onLogin, function (msg) {
+      return toast.warn("Face ID", msg);
+    });
   };
   var isIOS = /iPhone|iPad/.test(navigator.userAgent);
+  var hasBio = !!localStorage.getItem(BIO_KEY);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       background: GD,
       minHeight: "100dvh",
+      width: "100%",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: "calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px))",
-      fontFamily: "Lato,sans-serif"
+      padding: "calc(20px + env(safe-area-inset-top,0px)) calc(20px + env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) calc(20px + env(safe-area-inset-left,0px))",
+      fontFamily: "Lato,sans-serif",
+      boxSizing: "border-box"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -12754,7 +12926,14 @@ function Login(_ref7) {
     style: {
       fontSize: 18
     }
-  }, isIOS ? "🔒" : "🫆"), isIOS ? "Face ID / Touch ID" : "Fingerprint / Face Unlock"), /*#__PURE__*/React.createElement("div", {
+  }, isIOS ? "🔒" : "🫆"), isIOS ? hasBio ? "Sign in with Face ID" : "Face ID / Touch ID" : "Fingerprint / Face Unlock"), !hasBio && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: T4,
+      textAlign: "center",
+      marginBottom: 10
+    }
+  }, "Sign in with password once to enable Face ID"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       alignItems: "center",
@@ -12861,14 +13040,14 @@ function Login(_ref7) {
     }
   }, "nilay/nilay123 \xB7 jimit/jimit123 \xB7 naresh/naresh123")));
 }
-function EventHub(_ref8) {
-  var user = _ref8.user,
-    events = _ref8.events,
-    onEnter = _ref8.onEnter,
-    onCreate = _ref8.onCreate,
-    onManage = _ref8.onManage,
-    onDelete = _ref8.onDelete,
-    onLogout = _ref8.onLogout;
+function EventHub(_ref9) {
+  var user = _ref9.user,
+    events = _ref9.events,
+    onEnter = _ref9.onEnter,
+    onCreate = _ref9.onCreate,
+    onManage = _ref9.onManage,
+    onDelete = _ref9.onDelete,
+    onLogout = _ref9.onLogout;
   var _useState21 = useState(false),
     _useState22 = _slicedToArray(_useState21, 2),
     sc = _useState22[0],
@@ -12939,15 +13118,19 @@ function EventHub(_ref8) {
     style: {
       background: "#f5f0e8",
       minHeight: "100dvh",
-      fontFamily: "Lato,sans-serif"
+      width: "100%",
+      fontFamily: "Lato,sans-serif",
+      boxSizing: "border-box"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
-      padding: "calc(13px + env(safe-area-inset-top,0px)) 16px 13px",
+      padding: "calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",
       display: "flex",
       alignItems: "center",
-      justifyContent: "space-between"
+      justifyContent: "space-between",
+      flexWrap: "wrap",
+      gap: 8
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -13013,8 +13196,12 @@ function EventHub(_ref8) {
   }, "\uD83D\uDEAA Sign Out"))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "16px 14px",
+      paddingLeft: "calc(14px + env(safe-area-inset-left,0px))",
+      paddingRight: "calc(14px + env(safe-area-inset-right,0px))",
       maxWidth: 430,
-      margin: "0 auto"
+      margin: "0 auto",
+      width: "100%",
+      boxSizing: "border-box"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -13386,12 +13573,12 @@ function EventHub(_ref8) {
     onClick: create
   }, loading ? "Parsing..." : "✓ Create Event")));
 }
-function ManageEvent(_ref9) {
+function ManageEvent(_ref0) {
   var _COLORS$find;
-  var ev = _ref9.ev,
-    onClose = _ref9.onClose,
-    onUpdate = _ref9.onUpdate,
-    onDelete = _ref9.onDelete;
+  var ev = _ref0.ev,
+    onClose = _ref0.onClose,
+    onUpdate = _ref0.onUpdate,
+    onDelete = _ref0.onDelete;
   var _useState31 = useState("details"),
     _useState32 = _slicedToArray(_useState31, 2),
     tab = _useState32[0],
@@ -13755,13 +13942,13 @@ function ManageEvent(_ref9) {
     }
   }, "Upload the JCK price list Excel file to import inventory items.")));
 }
-function SaleSuccess(_ref0) {
-  var sale = _ref0.sale,
-    item = _ref0.item,
-    fc = _ref0.fc,
-    cur = _ref0.cur,
-    onDone = _ref0.onDone,
-    onPrint = _ref0.onPrint;
+function SaleSuccess(_ref1) {
+  var sale = _ref1.sale,
+    item = _ref1.item,
+    fc = _ref1.fc,
+    cur = _ref1.cur,
+    onDone = _ref1.onDone,
+    onPrint = _ref1.onPrint;
   var _useState39 = useState(4),
     _useState40 = _slicedToArray(_useState39, 2),
     count = _useState40[0],
@@ -13930,16 +14117,16 @@ function SaleSuccess(_ref0) {
     }
   }, "Auto-closing in ", count, "s..."));
 }
-function ItemCard(_ref1) {
-  var item = _ref1.item,
-    user = _ref1.user,
-    inv = _ref1.inv,
-    leads = _ref1.leads,
-    cur = _ref1.cur,
-    preCustName = _ref1.preCustName,
-    onSell = _ref1.onSell,
-    onBack = _ref1.onBack,
-    onAddLead = _ref1.onAddLead;
+function ItemCard(_ref10) {
+  var item = _ref10.item,
+    user = _ref10.user,
+    inv = _ref10.inv,
+    leads = _ref10.leads,
+    cur = _ref10.cur,
+    preCustName = _ref10.preCustName,
+    onSell = _ref10.onSell,
+    onBack = _ref10.onBack,
+    onAddLead = _ref10.onAddLead;
   var pr = gp(user.role);
   var _useState41 = useState(null),
     _useState42 = _slicedToArray(_useState41, 2),
@@ -14421,10 +14608,10 @@ function ItemCard(_ref1) {
     style: _objectSpread({}, S.cc({
       marginBottom: 11
     }))
-  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref10) {
-    var _ref11 = _slicedToArray(_ref10, 2),
-      l = _ref11[0],
-      v = _ref11[1];
+  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref11) {
+    var _ref12 = _slicedToArray(_ref11, 2),
+      l = _ref12[0],
+      v = _ref12[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -14648,10 +14835,10 @@ function ItemCard(_ref1) {
       gap: 8,
       marginBottom: 13
     }
-  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref12) {
-    var _ref13 = _slicedToArray(_ref12, 2),
-      l = _ref13[0],
-      v = _ref13[1];
+  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref13) {
+    var _ref14 = _slicedToArray(_ref13, 2),
+      l = _ref14[0],
+      v = _ref14[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -14685,10 +14872,10 @@ function ItemCard(_ref1) {
       gridTemplateColumns: "1fr 1fr",
       gap: 9
     }
-  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref14) {
-    var _ref15 = _slicedToArray(_ref14, 2),
-      l = _ref15[0],
-      v = _ref15[1];
+  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref15) {
+    var _ref16 = _slicedToArray(_ref15, 2),
+      l = _ref16[0],
+      v = _ref16[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l
     }, /*#__PURE__*/React.createElement("div", {
@@ -14804,9 +14991,9 @@ function ItemCard(_ref1) {
     }
   })));
 }
-function InvoiceSheet(_ref16) {
-  var sale = _ref16.sale,
-    onClose = _ref16.onClose;
+function InvoiceSheet(_ref17) {
+  var sale = _ref17.sale,
+    onClose = _ref17.onClose;
   var sub = sale.price,
     dsc = sale.disc > 0 ? Math.round(sub * sale.disc / 100 * 100) / 100 : 0,
     tax = sub - dsc,
@@ -14974,11 +15161,11 @@ function InvoiceSheet(_ref16) {
       borderRadius: 6,
       padding: "8px 9px"
     }
-  }, [["Subtotal", f$(sub), false], sale.disc > 0 ? ["Disc (" + sale.disc + "%)", "−" + f$(dsc), true] : null, sale.ccAmt > 0 ? ["💳 CC" + (sale.ccType === "pct" ? " " + sale.ccVal + "%" : ""), f$(sale.ccAmt), false] : null].filter(Boolean).map(function (_ref17) {
-    var _ref18 = _slicedToArray(_ref17, 3),
-      l = _ref18[0],
-      v = _ref18[1],
-      d = _ref18[2];
+  }, [["Subtotal", f$(sub), false], sale.disc > 0 ? ["Disc (" + sale.disc + "%)", "−" + f$(dsc), true] : null, sale.ccAmt > 0 ? ["💳 CC" + (sale.ccType === "pct" ? " " + sale.ccVal + "%" : ""), f$(sale.ccAmt), false] : null].filter(Boolean).map(function (_ref18) {
+    var _ref19 = _slicedToArray(_ref18, 3),
+      l = _ref19[0],
+      v = _ref19[1],
+      d = _ref19[2];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15033,10 +15220,10 @@ function InvoiceSheet(_ref16) {
 }
 
 // ─── USER MANAGER ────────────────────────────────────────────────────────────
-function UserManager(_ref19) {
-  var users = _ref19.users,
-    currentUser = _ref19.currentUser,
-    onUsersChange = _ref19.onUsersChange;
+function UserManager(_ref20) {
+  var users = _ref20.users,
+    currentUser = _ref20.currentUser,
+    onUsersChange = _ref20.onUsersChange;
   var _useState49 = useState(null),
     _useState50 = _slicedToArray(_useState49, 2),
     editPerms = _useState50[0],
@@ -15187,9 +15374,9 @@ function UserManager(_ref19) {
         color: AM,
         fontWeight: 600
       }
-    }, "Defaults set by role. Toggle to customise this user only."), PK.map(function (_ref20) {
-      var k = _ref20.k,
-        l = _ref20.l;
+    }, "Defaults set by role. Toggle to customise this user only."), PK.map(function (_ref21) {
+      var k = _ref21.k,
+        l = _ref21.l;
       return /*#__PURE__*/React.createElement("div", {
         key: k,
         style: {
@@ -15522,10 +15709,10 @@ function UserManager(_ref19) {
     }, "\u2715")));
   }));
 }
-function PhotoSearch(_ref21) {
-  var inv = _ref21.inv,
-    onResult = _ref21.onResult,
-    onClose = _ref21.onClose;
+function PhotoSearch(_ref22) {
+  var inv = _ref22.inv,
+    onResult = _ref22.onResult,
+    onClose = _ref22.onClose;
   var _useState55 = useState("upload"),
     _useState56 = _slicedToArray(_useState55, 2),
     phase = _useState56[0],
@@ -16725,12 +16912,12 @@ function SingleLookup(p) {
     sMin: sfMinFp,
     max: fMaxFp,
     sMax: sfMaxFp
-  }].map(function (_ref22) {
-    var l = _ref22.l,
-      min = _ref22.min,
-      sMin = _ref22.sMin,
-      max = _ref22.max,
-      sMax = _ref22.sMax;
+  }].map(function (_ref23) {
+    var l = _ref23.l,
+      min = _ref23.min,
+      sMin = _ref23.sMin,
+      max = _ref23.max,
+      sMax = _ref23.sMax;
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -18380,9 +18567,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref23) {
-    var item = _ref23.item,
-      scannedAt = _ref23.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref24) {
+    var item = _ref24.item,
+      scannedAt = _ref24.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -18508,10 +18695,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref24) {
-    var pct = _ref24.pct,
-      col = _ref24.col,
-      h = _ref24.h;
+  var Bar = function Bar(_ref25) {
+    var pct = _ref25.pct,
+      col = _ref25.col,
+      h = _ref25.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -18571,10 +18758,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref25) {
-    var _ref26 = _slicedToArray(_ref25, 2),
-      d = _ref26[0],
-      v = _ref26[1];
+  }).map(function (_ref26) {
+    var _ref27 = _slicedToArray(_ref26, 2),
+      d = _ref27[0],
+      v = _ref27[1];
     return {
       d: d,
       v: v
@@ -19072,9 +19259,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref27) {
-    var h = _ref27.h,
-      v = _ref27.v;
+  }, hourData.map(function (_ref28) {
+    var h = _ref28.h,
+      v = _ref28.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -19665,10 +19852,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref28, i) {
-    var _ref29 = _slicedToArray(_ref28, 2),
-      src = _ref29[0],
-      cnt = _ref29[1];
+  }, "No leads yet"), srcData.map(function (_ref29, i) {
+    var _ref30 = _slicedToArray(_ref29, 2),
+      src = _ref30[0],
+      cnt = _ref30[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -20352,10 +20539,10 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CurrencyManager(_ref30) {
-  var cur = _ref30.cur,
-    scur = _ref30.scur,
-    pr = _ref30.pr;
+function CurrencyManager(_ref31) {
+  var cur = _ref31.cur,
+    scur = _ref31.scur,
+    pr = _ref31.pr;
   var _useState73 = useState(false),
     _useState74 = _slicedToArray(_useState73, 2),
     editMode = _useState74[0],
@@ -20373,10 +20560,10 @@ function CurrencyManager(_ref30) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref31) {
-      var _ref32 = _slicedToArray(_ref31, 2),
-        k = _ref32[0],
-        v = _ref32[1];
+    Object.entries(getCurr()).forEach(function (_ref32) {
+      var _ref33 = _slicedToArray(_ref32, 2),
+        k = _ref33[0],
+        v = _ref33[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -20384,10 +20571,10 @@ function CurrencyManager(_ref30) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref33) {
-      var _ref34 = _slicedToArray(_ref33, 2),
-        k = _ref34[0],
-        v = _ref34[1];
+    Object.entries(getCurr()).forEach(function (_ref34) {
+      var _ref35 = _slicedToArray(_ref34, 2),
+        k = _ref35[0],
+        v = _ref35[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -20447,10 +20634,10 @@ function CurrencyManager(_ref30) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref35) {
-    var _ref36 = _slicedToArray(_ref35, 2),
-      k = _ref36[0],
-      v = _ref36[1];
+  }, Object.entries(rates).map(function (_ref36) {
+    var _ref37 = _slicedToArray(_ref36, 2),
+      k = _ref37[0],
+      v = _ref37[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -20478,10 +20665,10 @@ function CurrencyManager(_ref30) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref37, i, arr) {
-    var _ref38 = _slicedToArray(_ref37, 2),
-      k = _ref38[0],
-      v = _ref38[1];
+  })), Object.entries(rates).map(function (_ref38, i, arr) {
+    var _ref39 = _slicedToArray(_ref38, 2),
+      k = _ref39[0],
+      v = _ref39[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -20685,10 +20872,10 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", user.role === "Admin" ? "Full Access" : user.role === "Manager" ? "View + Edit" : "View Only"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref39) {
-    var _ref40 = _slicedToArray(_ref39, 2),
-      l = _ref40[0],
-      v = _ref40[1];
+  }, [["Role", user.role], ["Permissions", user.role === "Admin" ? "Full Access" : user.role === "Manager" ? "View + Edit" : "View Only"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref40) {
+    var _ref41 = _slicedToArray(_ref40, 2),
+      l = _ref41[0],
+      v = _ref41[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -20727,10 +20914,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref41) {
-    var _ref42 = _slicedToArray(_ref41, 2),
-      l = _ref42[0],
-      v = _ref42[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref42) {
+    var _ref43 = _slicedToArray(_ref42, 2),
+      l = _ref43[0],
+      v = _ref43[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -20797,10 +20984,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref43) {
-    var _ref44 = _slicedToArray(_ref43, 2),
-      l = _ref44[0],
-      v = _ref44[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref44) {
+    var _ref45 = _slicedToArray(_ref44, 2),
+      l = _ref45[0],
+      v = _ref45[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -22819,10 +23006,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref45) {
-      var _ref46 = _slicedToArray(_ref45, 2),
-        ic = _ref46[0],
-        v = _ref46[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref46) {
+      var _ref47 = _slicedToArray(_ref46, 2),
+        ic = _ref47[0],
+        v = _ref47[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -23285,16 +23472,16 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref47) {
-  var ev = _ref47.ev,
-    user = _ref47.user,
-    allUsers = _ref47.allUsers,
-    onUsersChange = _ref47.onUsersChange,
-    allEvents = _ref47.allEvents,
-    onSwitch = _ref47.onSwitch,
-    onUpdateEvent = _ref47.onUpdateEvent,
-    onBack = _ref47.onBack,
-    onLogout = _ref47.onLogout;
+function EventERP(_ref48) {
+  var ev = _ref48.ev,
+    user = _ref48.user,
+    allUsers = _ref48.allUsers,
+    onUsersChange = _ref48.onUsersChange,
+    allEvents = _ref48.allEvents,
+    onSwitch = _ref48.onSwitch,
+    onUpdateEvent = _ref48.onUpdateEvent,
+    onBack = _ref48.onBack,
+    onLogout = _ref48.onLogout;
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var _useState115 = useState("lookup"),
@@ -23706,22 +23893,35 @@ function EventERP(_ref47) {
   var lkShowResults = lkQ.length > 0 || activeFilters > 0;
   return /*#__PURE__*/React.createElement("div", {
     style: {
+      width: "100%",
+      minHeight: "100dvh",
+      background: GD,
+      display: "flex",
+      flexDirection: "column",
+      boxSizing: "border-box"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: "100%",
       maxWidth: 430,
       margin: "0 auto",
+      flex: 1,
       minHeight: "100dvh",
       display: "flex",
       flexDirection: "column",
       background: GD,
-      fontFamily: "Lato,sans-serif"
+      fontFamily: "Lato,sans-serif",
+      boxSizing: "border-box"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
-      padding: "calc(9px + env(safe-area-inset-top,0px)) 13px 9px",
+      padding: "calc(9px + env(safe-area-inset-top,0px)) calc(13px + env(safe-area-inset-right,0px)) 9px calc(13px + env(safe-area-inset-left,0px))",
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      flexShrink: 0
+      flexShrink: 0,
+      gap: 6
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -24512,7 +24712,7 @@ function EventERP(_ref47) {
         color: T3
       }
     }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE6 ", e.inv.length, " items"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCB0 ", e.sales.length, " sales"), /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFAF ", e.leads.length, " leads")));
-  }))));
+  })))));
 }
 function App() {
   var _useState199 = useState(null),
@@ -24598,11 +24798,25 @@ function App() {
       clearTimeout(t2);
     };
   }, []);
-  if (!user) return /*#__PURE__*/React.createElement(Login, {
+  if (!user) return /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: "100%",
+      minHeight: "100dvh",
+      overflowX: "hidden",
+      background: GD
+    }
+  }, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(Login, {
     onLogin: su
-  });
+  }));
   if (activeEv) {
-    return /*#__PURE__*/React.createElement(EventERP, {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: "100%",
+        minHeight: "100dvh",
+        overflowX: "hidden",
+        background: GD
+      }
+    }, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(EventERP, {
       ev: events.find(function (e) {
         return e.id === activeEv.id;
       }) || activeEv,
@@ -24622,12 +24836,15 @@ function App() {
         return sae(null);
       },
       onLogout: logout
-    });
+    }));
   }
   return /*#__PURE__*/React.createElement("div", {
-    style: _defineProperty(_defineProperty({
-      height: "100%"
-    }, "height", "100dvh"), "background", dark ? "#0f0f0f" : "#163D2E")
+    style: {
+      width: "100%",
+      minHeight: "100dvh",
+      overflowX: "hidden",
+      background: dark ? "#0f0f0f" : "#163D2E"
+    }
   }, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(EventHub, {
     user: user,
     events: events,

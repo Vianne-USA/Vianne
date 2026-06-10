@@ -29,7 +29,7 @@ function ToastContainer(){
   if(!toasts.length)return null;
   const cols={success:{bg:"#1E5C45",ic:"✅"},error:{bg:"#a03030",ic:"⚠️"},warn:{bg:"#C8963A",ic:"📦"},info:{bg:"#1a3a6c",ic:"ℹ️"}};
   return(
-    <div style={{position:"fixed",top:0,left:0,right:0,zIndex:9999,padding:"calc(10px + env(safe-area-inset-top,0px)) 12px 10px",display:"flex",flexDirection:"column",gap:6,pointerEvents:"none"}}>
+    <div style={{position:"fixed",top:0,left:0,right:0,zIndex:9999,padding:"calc(10px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) 10px calc(12px + env(safe-area-inset-left,0px))",display:"flex",flexDirection:"column",gap:6,pointerEvents:"none"}}>
       {toasts.map(t=>{
         const col=cols[t.type]||cols.success;
         return(
@@ -45,6 +45,50 @@ function ToastContainer(){
       })}
     </div>
   );
+}
+
+// ── Face ID / Touch ID (WebAuthn, stored locally) ────────────────────────
+const BIO_KEY="vj_bio_cred";
+const BIO_USER="vj_bio_user";
+const rpId=()=>window.location.hostname||"localhost";
+const b64u=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const b64uDec=str=>{str=str.replace(/-/g,"+").replace(/_/g,"/");while(str.length%4)str+="=";const bin=atob(str);const out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out;};
+async function registerBio(username){
+  if(!window.PublicKeyCredential)return false;
+  try{
+    const cred=await navigator.credentials.create({publicKey:{
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      rp:{name:"Vianne Jewels",id:rpId()},
+      user:{id:new TextEncoder().encode(username),name:username,displayName:username},
+      pubKeyCredParams:[{alg:-7,type:"public-key"},{alg:-257,type:"public-key"}],
+      authenticatorSelection:{authenticatorAttachment:"platform",residentKey:"discouraged",userVerification:"required"},
+      timeout:60000
+    }});
+    if(!cred)return false;
+    localStorage.setItem(BIO_KEY,b64u(cred.rawId));
+    localStorage.setItem(BIO_USER,username.toLowerCase());
+    return true;
+  }catch(_){return false;}
+}
+async function loginBio(onLogin,onFail){
+  const id=localStorage.getItem(BIO_KEY);
+  const un=localStorage.getItem(BIO_USER);
+  if(!id||!un){onFail("Sign in with password once to enable Face ID.");return;}
+  try{
+    const cred=await navigator.credentials.get({publicKey:{
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      rpId:rpId(),
+      allowCredentials:[{id:b64uDec(id),type:"public-key",transports:["internal"]}],
+      userVerification:"required",
+      timeout:60000
+    }});
+    if(!cred)return;
+    const usr=USERS.find(x=>x.un===un);
+    if(usr)onLogin(usr);
+    else onFail("Saved sign-in expired. Use password once.");
+  }catch(err){
+    if(err.name!=="NotAllowedError")onFail(err.message||"Face ID failed");
+  }
 }
 
 // ── Dark Mode system ──────────────────────────────────────────────────────
@@ -137,7 +181,7 @@ function Lotus({sz=36}){
     </svg>
   );
 }
-function Sheet({onClose,title,children}){return(<div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:400,display:"flex",alignItems:"flex-end",justifyContent:"center"}}><div onClick={e=>e.stopPropagation()} style={{background:CRD,borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,maxHeight:"93vh",overflowY:"auto"}}><div style={{padding:"14px 16px 12px",borderBottom:"1px solid "+CRD2,position:"sticky",top:0,background:CRD,zIndex:1}}><div style={{width:36,height:3.5,background:CRD2,borderRadius:2,margin:"0 auto 12px"}}/><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>{title}</div><button onClick={onClose} style={{background:"none",border:"none",fontSize:22,color:T3,cursor:"pointer"}}>✕</button></div></div><div style={{padding:"14px 16px 36px"}}>{children}</div></div></div>);}
+function Sheet({onClose,title,children}){return(<div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:400,display:"flex",alignItems:"flex-end",justifyContent:"center",padding:"0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)"}}><div onClick={e=>e.stopPropagation()} style={{background:CRD,borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,maxHeight:"93dvh",overflowY:"auto"}}><div style={{padding:"14px 16px 12px",borderBottom:"1px solid "+CRD2,position:"sticky",top:0,background:CRD,zIndex:1}}><div style={{width:36,height:3.5,background:CRD2,borderRadius:2,margin:"0 auto 12px"}}/><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>{title}</div><button onClick={onClose} style={{background:"none",border:"none",fontSize:22,color:T3,cursor:"pointer"}}>✕</button></div></div><div style={{padding:"14px 16px calc(36px + env(safe-area-inset-bottom,0px))"}}>{children}</div></div></div>);}
 function QRScanner({onScanned,inv}){
   const vr=useRef(null),sr=useRef(null),cv=useRef(null),raf=useRef(null);
   const [err,se]=useState(""),[manual,sm]=useState(""),[scanning,ssc]=useState(false),[lastCode,slc]=useState("");
@@ -252,15 +296,16 @@ function parseXL(file,onDone,onError){
 }
 function Login({onLogin}){
   const [u,su]=useState(""),[p,sp]=useState(""),[e,se]=useState(""),[show,ssh]=useState(false),[bio,sbio]=useState(false);
-  useEffect(()=>{try{if(window.PublicKeyCredential)window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok=>sbio(ok));}catch(_){}if(!window.XLSX){const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onerror=function(){console.log("XLSX CDN blocked");};document.head.appendChild(s);}},[]);
-  const go=()=>{const usr=USERS.find(x=>x.un===u.toLowerCase()&&x.pw===p);if(usr)onLogin(usr);else se("Invalid username or password");};
-  const doBio=()=>{try{const ch=new Uint8Array(32);window.crypto.getRandomValues(ch);navigator.credentials.get({publicKey:{challenge:ch,timeout:60000,userVerification:"required",rpId:window.location.hostname||"localhost"}}).then(function(cr){if(cr)onLogin(USERS[0]);}).catch(function(err){if(err.name!=="NotAllowedError")toast.error("Biometric failed",err.message);});}catch(err){toast.error("Biometric failed",err.message);}};
+  useEffect(()=>{try{if(window.PublicKeyCredential)window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok=>sbio(!!ok));}catch(_){}if(!window.XLSX){const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onerror=function(){console.log("XLSX CDN blocked");};document.head.appendChild(s);}},[]);
+  const go=async()=>{const usr=USERS.find(x=>x.un===u.toLowerCase()&&x.pw===p);if(!usr){se("Invalid username or password");return;}const saved=localStorage.getItem(BIO_USER);if(bio&&saved!==usr.un){await registerBio(usr.un);}else if(bio&&!saved){const ok=await registerBio(usr.un);if(ok)toast.success("Face ID enabled","Use Face ID next time you sign in.");}onLogin(usr);};
+  const doBio=()=>loginBio(onLogin,msg=>toast.warn("Face ID",msg));
   const isIOS=/iPhone|iPad/.test(navigator.userAgent);
-  return(<div style={{background:GD,minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",padding:"calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px))",fontFamily:"Lato,sans-serif"}}>
+  const hasBio=!!localStorage.getItem(BIO_KEY);
+  return(<div style={{background:GD,minHeight:"100dvh",width:"100%",display:"flex",alignItems:"center",justifyContent:"center",padding:"calc(20px + env(safe-area-inset-top,0px)) calc(20px + env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) calc(20px + env(safe-area-inset-left,0px))",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{width:"100%",maxWidth:380,background:CRD,borderRadius:22,padding:"36px 28px 32px",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
       <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:28}}><Lotus sz={52}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:21,fontWeight:700,color:G,letterSpacing:"0.14em",textTransform:"uppercase",lineHeight:1.1}}>VIANNE JEWELS</div><div style={{fontSize:9,color:T4,letterSpacing:"0.12em",textTransform:"uppercase",marginTop:4,lineHeight:1.5}}>THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div>
       <div style={{fontSize:12,fontWeight:700,color:T1,letterSpacing:"0.18em",textAlign:"center",marginBottom:20,textTransform:"uppercase"}}>SIGN IN TO CONTINUE</div>
-      {bio&&<><button onClick={doBio} style={{width:"100%",background:G,color:CR,border:"none",borderRadius:11,padding:"13px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:9,marginBottom:12}}><span style={{fontSize:18}}>{isIOS?"🔒":"🫆"}</span>{isIOS?"Face ID / Touch ID":"Fingerprint / Face Unlock"}</button><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{flex:1,height:1,background:CRD2}}/><span style={{fontSize:11,color:T4,fontWeight:600}}>OR</span><div style={{flex:1,height:1,background:CRD2}}/></div></>}
+      {bio&&<><button onClick={doBio} style={{width:"100%",background:G,color:CR,border:"none",borderRadius:11,padding:"13px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:9,marginBottom:12}}><span style={{fontSize:18}}>{isIOS?"🔒":"🫆"}</span>{isIOS?(hasBio?"Sign in with Face ID":"Face ID / Touch ID"):"Fingerprint / Face Unlock"}</button>{!hasBio&&<div style={{fontSize:10,color:T4,textAlign:"center",marginBottom:10}}>Sign in with password once to enable Face ID</div>}<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{flex:1,height:1,background:CRD2}}/><span style={{fontSize:11,color:T4,fontWeight:600}}>OR</span><div style={{flex:1,height:1,background:CRD2}}/></div></>}
       <div style={{marginBottom:12}}><span style={S.lbl}>USERNAME</span><input style={S.inp()} placeholder="Enter username" value={u} onChange={ev=>{su(ev.target.value);se("");}} onKeyDown={ev=>ev.key==="Enter"&&go()}/></div>
       <div style={{marginBottom:18}}><span style={S.lbl}>PASSWORD</span><div style={{position:"relative"}}><input type={show?"text":"password"} style={S.inp({paddingRight:42})} placeholder="Enter password" value={p} onChange={ev=>{sp(ev.target.value);se("");}} onKeyDown={ev=>ev.key==="Enter"&&go()}/><button onClick={()=>ssh(x=>!x)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:T3}}>{show?"🙈":"👁"}</button></div></div>
       {e&&<div style={{color:RE,fontSize:12,marginBottom:12,textAlign:"center",background:REBG,borderRadius:8,padding:"8px 12px"}}>{e}</div>}
@@ -273,12 +318,12 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const [sc,ssc]=useState(false),[form,sf]=useState({name:"",loc:"",start:"",end:"",color:G}),[xlf,sxl]=useState(null),[msg,smsg]=useState(""),[loading,sl]=useState(false);
   const pr=gp(user.role);
   const create=()=>{if(!form.name.trim())return;const fin=(inv)=>{onCreate({id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[]});ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,inv=>{sl(false);fin(inv);},err=>{sl(false);smsg(err);});}else fin([...DI.slice(0,5)]);};
-  return(<div style={{background:"#f5f0e8",minHeight:"100dvh",fontFamily:"Lato,sans-serif"}}>
-    <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) 16px 13px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+  return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
+    <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
       <div style={{display:"flex",alignItems:"center",gap:10}}><Lotus sz={28}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
       <div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:26,height:26,background:GO,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:G}}>{user.name[0]}</div><span style={{color:CR,fontSize:11,fontWeight:600}}>{user.name}</span><button onClick={onLogout} style={{background:"rgba(255,255,255,0.12)",border:"none",borderRadius:7,color:CR,padding:"5px 9px",cursor:"pointer",fontSize:11,fontWeight:600}}>🚪 Sign Out</button></div>
     </div>
-    <div style={{padding:"16px 14px",maxWidth:430,margin:"0 auto"}}>
+    <div style={{padding:"16px 14px",paddingLeft:"calc(14px + env(safe-area-inset-left,0px))",paddingRight:"calc(14px + env(safe-area-inset-right,0px))",maxWidth:430,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9,marginBottom:16}}>
         {[{l:"Events",v:events.length},...(gp(user.role).vA?[{l:"Total Sales",v:events.reduce((s,e)=>s+e.sales.length,0)},{l:"Revenue",v:"$"+Math.round(events.reduce((s,e)=>s+e.sales.reduce((ss,x)=>ss+x.total,0),0)/1000)+"k"}]:[])].map(x=>(
           <div key={x.l} style={{background:WH,borderRadius:11,padding:"12px 8px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.08)"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:3,textTransform:"uppercase"}}>{x.l}</div></div>
@@ -3281,8 +3326,9 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const lkShowResults = lkQ.length > 0 || activeFilters > 0;
 
   return(
-    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100dvh",display:"flex",flexDirection:"column",background:GD,fontFamily:"Lato,sans-serif"}}>
-      <div style={{background:G,padding:"calc(9px + env(safe-area-inset-top,0px)) 13px 9px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+    <div style={{width:"100%",minHeight:"100dvh",background:GD,display:"flex",flexDirection:"column",boxSizing:"border-box"}}>
+    <div style={{width:"100%",maxWidth:430,margin:"0 auto",flex:1,minHeight:"100dvh",display:"flex",flexDirection:"column",background:GD,fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
+      <div style={{background:G,padding:"calc(9px + env(safe-area-inset-top,0px)) calc(13px + env(safe-area-inset-right,0px)) 9px calc(13px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,gap:6}}>
         <div style={{display:"flex",alignItems:"center",gap:7}}><button onClick={onBack} style={{background:"none",border:"none",color:GO,cursor:"pointer",fontSize:16,padding:"0 3px 0 0"}}>‹</button><Lotus sz={24}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:7,color:GO,textTransform:"uppercase",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ev.name}</div></div></div>
         <div style={{display:"flex",alignItems:"center",gap:5}}>
           <select value={cur} onChange={ev=>scur(ev.target.value)} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",color:CR,borderRadius:5,padding:"2px 5px",fontSize:9,fontWeight:600,cursor:"pointer"}}>{Object.keys(CURR).map(k=><option key={k} style={{color:T1}}>{k}</option>)}</select>
@@ -3331,6 +3377,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
         )}
       </div>
     </div>
+    </div>
   );
 }
 
@@ -3373,9 +3420,9 @@ export default function App(){
     const t2=setTimeout(patch,3000);
     return()=>{clearTimeout(t1);clearTimeout(t2);};
   },[]);
-  if(!user) return <Login onLogin={su}/>;
+  if(!user) return (<div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:GD}}><ToastContainer/><Login onLogin={su}/></div>);
   if(activeEv){
-    return <EventERP
+    return (<div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:GD}}><ToastContainer/><EventERP
       ev={events.find(e=>e.id===activeEv.id)||activeEv}
       user={user} allUsers={appUsers} onUsersChange={sappUsers}
       allEvents={events}
@@ -3383,10 +3430,10 @@ export default function App(){
       onUpdateEvent={ev=>{upEv(ev);sae(ev);}}
       onBack={()=>sae(null)}
       onLogout={logout}
-    />;
+    /></div>);
   }
   return(
-    <div style={{height:"100%",height:"100dvh",background:dark?"#0f0f0f":"#163D2E"}}>
+    <div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:dark?"#0f0f0f":"#163D2E"}}>
       <ToastContainer/>
       <EventHub user={user} events={events} onEnter={ev=>sae(ev)} onCreate={ev=>sevents(p=>[ev,...p])} onManage={ev=>smev(ev)} onDelete={delEv} onLogout={logout}/>
       {manageEv&&<ManageEvent ev={events.find(e=>e.id===manageEv.id)||manageEv} onClose={()=>smev(null)} onUpdate={ev=>{upEv(ev);smev(ev);}} onDelete={id=>{delEv(id);smev(null);}}/>}

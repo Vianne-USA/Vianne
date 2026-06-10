@@ -16,9 +16,9 @@ const jsqr = fs.readFileSync(
 const app = fs.readFileSync(path.join(__dirname, 'compiled.js'), 'utf8');
 
 const css = `*{box-sizing:border-box;margin:0;padding:0}
-html{height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:light dark}
-body{height:100%;min-height:100dvh;min-height:-webkit-fill-available;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;font-family:Lato,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#163D2E;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
-#root{min-height:100dvh;min-height:-webkit-fill-available}
+html{width:100%;height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:light dark}
+body{width:100%;height:100%;min-height:100dvh;min-height:-webkit-fill-available;margin:0;padding:0;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;font-family:Lato,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#163D2E}
+#root{width:100%;min-height:100dvh;min-height:-webkit-fill-available;overflow-x:hidden}
 button,input,select,textarea{font-family:inherit;font-size:16px;touch-action:manipulation}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 input,select,textarea{-webkit-appearance:none;appearance:none;border-radius:0}

@@ -1,37 +1,40 @@
-const { put, list } = require("@vercel/blob");
+const { put, get } = require("@vercel/blob");
 
 const MASTER_PATH = "vianne-master.json";
 
 function isBlobConfigured() {
-  return !!process.env.BLOB_READ_WRITE_TOKEN;
+  return !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
 }
 
-function blobToken() {
-  return process.env.BLOB_READ_WRITE_TOKEN;
+function blobAuthOpts() {
+  const opts = { access: "private" };
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    opts.token = process.env.BLOB_READ_WRITE_TOKEN;
+  }
+  if (process.env.BLOB_STORE_ID) {
+    opts.storeId = process.env.BLOB_STORE_ID;
+  }
+  return opts;
 }
 
 async function loadFromBlob() {
   if (!isBlobConfigured()) return null;
   try {
-    const { blobs } = await list({
-      prefix: MASTER_PATH,
-      limit: 1,
-      token: blobToken(),
-    });
-    if (!blobs.length) return null;
-    const res = await fetch(blobs[0].url, {
-      cache: "no-store",
-      headers: { Authorization: "Bearer " + blobToken() },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
+    const hit = await get(MASTER_PATH, { ...blobAuthOpts(), useCache: false });
+    if (!hit || !hit.blob) return null;
+    const text = await hit.blob.text();
+    const data = JSON.parse(text);
     return {
       ...data,
       version: data.version || 0,
       store: "blob",
     };
   } catch (e) {
-    console.warn("blob load", e.message);
+    const msg = String(e && e.message ? e.message : e);
+    if (msg.includes("404") || msg.includes("not found") || msg.includes("Not Found")) {
+      return null;
+    }
+    console.warn("blob load", msg);
     return null;
   }
 }
@@ -53,11 +56,10 @@ async function saveToBlob(payload) {
     store: "blob",
   };
   await put(MASTER_PATH, JSON.stringify(master), {
-    access: "private",
+    ...blobAuthOpts(),
     contentType: "application/json",
     addRandomSuffix: false,
     allowOverwrite: true,
-    token: blobToken(),
   });
   return {
     version: master.version,

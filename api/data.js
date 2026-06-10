@@ -40,6 +40,11 @@ module.exports = async function handler(req, res) {
         configured: true,
         blob: isBlobConfigured(),
         drive: isDriveConfigured(),
+        blobEnv: {
+          storeId: !!process.env.BLOB_STORE_ID,
+          rwToken: !!process.env.BLOB_READ_WRITE_TOKEN,
+          oidc: !!process.env.VERCEL_OIDC_TOKEN,
+        },
         store: data.store || null,
         version: data.version || 0,
         updatedAt: data.updatedAt || null,

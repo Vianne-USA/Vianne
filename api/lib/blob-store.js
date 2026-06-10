@@ -3,7 +3,11 @@ const { put, get } = require("@vercel/blob");
 const MASTER_PATH = "vianne-master.json";
 
 function isBlobConfigured() {
-  return !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+  return !!(
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    process.env.BLOB_STORE_ID ||
+    (process.env.VERCEL === "1" && process.env.VERCEL_OIDC_TOKEN)
+  );
 }
 
 function blobAuthOpts() {
@@ -11,14 +15,14 @@ function blobAuthOpts() {
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     opts.token = process.env.BLOB_READ_WRITE_TOKEN;
   }
-  if (process.env.BLOB_STORE_ID) {
-    opts.storeId = process.env.BLOB_STORE_ID;
+  const storeId = process.env.BLOB_STORE_ID;
+  if (storeId) {
+    opts.storeId = storeId.startsWith("store_") ? storeId : storeId;
   }
   return opts;
 }
 
-async function loadFromBlob() {
-  if (!isBlobConfigured()) return null;
+async function readBlobMaster() {
   try {
     const hit = await get(MASTER_PATH, { ...blobAuthOpts(), useCache: false });
     if (!hit || !hit.blob) return null;
@@ -34,14 +38,26 @@ async function loadFromBlob() {
     if (msg.includes("404") || msg.includes("not found") || msg.includes("Not Found")) {
       return null;
     }
-    console.warn("blob load", msg);
+    throw e;
+  }
+}
+
+async function loadFromBlob() {
+  if (!isBlobConfigured()) return null;
+  try {
+    return await readBlobMaster();
+  } catch (e) {
+    console.warn("blob load", e.message);
     return null;
   }
 }
 
 async function saveToBlob(payload) {
-  if (!isBlobConfigured()) return null;
-  const prev = (await loadFromBlob()) || { version: 0 };
+  let prev = { version: 0 };
+  try {
+    const existing = await readBlobMaster();
+    if (existing) prev = existing;
+  } catch (_) {}
   const eventsIn = Array.isArray(payload.events) ? payload.events : [];
   const version = (prev.version || 0) + 1;
   const master = {

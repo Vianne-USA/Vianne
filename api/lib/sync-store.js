@@ -50,12 +50,21 @@ async function saveSyncData(payload) {
   let blobResult = null;
   let driveResult = null;
 
-  if (isBlobConfigured()) {
+  const tryBlob = async () => {
     try {
-      blobResult = await saveToBlob(payload);
+      return await saveToBlob(payload);
     } catch (e) {
-      errors.push("Blob: " + e.message);
+      errors.push("Blob: " + (e && e.message ? e.message : e));
+      return null;
     }
+  };
+
+  if (isBlobConfigured() || process.env.VERCEL === "1") {
+    blobResult = await tryBlob();
+  }
+
+  if (blobResult) {
+    return blobResult;
   }
 
   if (isDriveConfigured()) {
@@ -67,19 +76,20 @@ async function saveSyncData(payload) {
     }
   }
 
-  if (blobResult || driveResult) {
-    return blobResult || driveResult;
+  if (driveResult) {
+    return driveResult;
   }
 
   if (!isBlobConfigured() && !isDriveConfigured()) {
     throw new Error(
-      "Cloud storage not configured. Add BLOB_READ_WRITE_TOKEN (Vercel → Storage → Blob) or Google Drive Shared Drive env vars."
+      "Cloud storage not configured. In Vercel → Storage → create a Blob store and connect it to this project, then redeploy."
     );
   }
 
+  const blobHint =
+    "Fix: Vercel → Storage → Blob → Connect to project → Redeploy (Production). Drive-only writes need a Shared Drive folder.";
   throw new Error(
-    errors.join(" · ") ||
-      "Cloud save failed. Add Vercel Blob storage (recommended) or move Google Drive folder to a Shared Drive."
+    (errors.length ? errors.join(" · ") + " · " : "") + blobHint
   );
 }
 

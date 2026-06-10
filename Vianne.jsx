@@ -291,6 +291,7 @@ function saveUsers(users){
 const CLOUD_META_KEY="vj_cloud_meta";
 const DRIVE_ROOT_NAME="Vianne Jewels Data";
 let _cloudOnline=false;
+let _lastCloudPing=null;
 const _pendingInvFiles=[];
 function fileToBase64(file){
   return new Promise((resolve,reject)=>{
@@ -326,10 +327,31 @@ async function cloudFetchData(){
   try{
     const r=await fetch("/api/data",{method:"GET",cache:"no-store"});
     const d=await r.json();
-    if(!r.ok||!d.configured){_cloudOnline=false;return null;}
+    if(!r.ok||!d.configured){_cloudOnline=false;_lastCloudPing=d;return null;}
     _cloudOnline=true;
+    _lastCloudPing=d;
     return d;
   }catch(e){_cloudOnline=false;return null;}
+}
+function getCloudPingInfo(){return _lastCloudPing;}
+function applyCloudPull(d,sevents,sappUsers,refs){
+  if(!d||!d.configured)return;
+  sevents(prev=>{
+    const merged=mergeEvents(prev,d.events||[]);
+    saveEvents(merged);
+    if(refs&&refs.eventsRef)refs.eventsRef.current=merged;
+    return merged;
+  });
+  if(Array.isArray(d.users)&&d.users.length){
+    sappUsers(prev=>{
+      const merged=mergeUserDefaults(d.users);
+      saveUsers(merged);
+      if(refs&&refs.appUsersRef)refs.appUsersRef.current=merged;
+      return merged;
+    });
+  }
+  if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
+  if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
 }
 async function cloudLoad(){
   const d=await cloudFetchData();
@@ -399,7 +421,7 @@ async function flushCloudSync(events,users,deletedEvents,{silent=false,successMs
     if(!silent&&(events||[]).length)toast.error("Cloud sync failed",errMsg);
     return{ok:false,error:errMsg};
   }
-  if(!silent&&successMsg)toast.success(successMsg,"Saved to company Google Drive — visible to all permitted users.");
+  if(!silent&&successMsg)toast.success(successMsg,"Saved to company cloud — visible to all permitted users.");
   return{ok:true,synced:synced||[]};
 }
 const S={
@@ -2982,13 +3004,17 @@ function CloudStoragePanel({pr}){
   const [busy,setBusy]=useState(false);
   const [meta,setMeta]=useState(getCloudMeta());
   const [lastErr,setLastErr]=useState("");
+  const [ping,setPing]=useState(getCloudPingInfo());
   const online=isCloudOnline();
+  useEffect(()=>{cloudFetchData().then(d=>{if(d)setPing(d);});},[]);
+  const blobOk=ping&&ping.blob;
   const syncNow=async()=>{
     setBusy(true);
     setLastErr("");
     try{
       const d=await cloudFetchData();
       if(!d||!d.configured){toast.warn("Cloud not ready","Set up Vercel Blob storage (see instructions below).");return;}
+      setPing(d);
       const local=await loadEventsAsync();
       const merged=mergeEvents(local,d.events||[]);
       saveEvents(merged);
@@ -3010,7 +3036,7 @@ function CloudStoragePanel({pr}){
         Google Drive (optional) stores Excel backups when Shared Drive is configured.
       </div>
       <div style={{fontSize:10,color:online?"#27ae60":AM,fontWeight:600,marginBottom:8}}>
-        {online?"✓ Cloud connected — create an event and wait for “Shared with all users & devices”":"⚠ Cloud not connected — data stays on this device only"}
+        {online?(blobOk?"✓ Blob sync active — changes share to all devices":"⚠ Cloud reachable but Blob not active — redeploy after connecting Blob store"):"⚠ Cloud not connected — data stays on this device only"}
       </div>
       {lastErr&&<div style={{fontSize:10,color:RE,background:REBG,borderRadius:8,padding:"8px 10px",marginBottom:8,lineHeight:1.45}}>{lastErr}</div>}
       {!online&&<div style={{fontSize:10,color:T2,background:CRD,borderRadius:8,padding:"10px 12px",marginBottom:10,lineHeight:1.5}}>
@@ -4074,15 +4100,7 @@ export default function App(){
     (async()=>{
       const d=await cloudFetchData();
       if(d&&d.configured){
-        sevents(prev=>{
-          const merged=mergeEvents(prev,d.events||[]);
-          saveEvents(merged);
-          eventsRef.current=merged;
-          return merged;
-        });
-        if(Array.isArray(d.users)&&d.users.length){const merged=mergeUserDefaults(d.users);sappUsers(merged);saveUsers(merged);appUsersRef.current=merged;}
-        if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
-        if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
+        applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
       }
       setCloudReady(true);
     })();
@@ -4102,25 +4120,18 @@ export default function App(){
     return()=>{if(cloudSyncRef.current)clearTimeout(cloudSyncRef.current);};
   },[events,appUsers,cloudReady,dataReady]);
   useEffect(()=>{
-    if(!user||!cloudReady||!isCloudOnline())return;
+    if(!cloudReady||!isCloudOnline())return;
     const pull=async()=>{
       const d=await cloudFetchData();
       if(!d||!d.configured)return;
-      sevents(prev=>{
-        const merged=mergeEvents(prev,d.events||[]);
-        saveEvents(merged);
-        eventsRef.current=merged;
-        return merged;
-      });
-      if(Array.isArray(d.users)&&d.users.length)sappUsers(prev=>{const m=mergeUserDefaults(d.users);saveUsers(m);return m;});
-      if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
+      applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
     };
     pull();
-    const id=setInterval(pull,30000);
+    const id=setInterval(pull,15000);
     const onVis=()=>{if(document.visibilityState==="visible")pull();};
     document.addEventListener("visibilitychange",onVis);
     return()=>{clearInterval(id);document.removeEventListener("visibilitychange",onVis);};
-  },[user,cloudReady]);
+  },[cloudReady]);
   useEffect(()=>{saveUsers(appUsers);},[appUsers]);
   useEffect(()=>{
     if(!user)return;
@@ -4149,6 +4160,9 @@ export default function App(){
       const prot=prev.filter(isProtectedUser);
       let out=next.map(u=>{const p=prot.find(x=>x.id===u.id);return p||u;});
       prot.forEach(p=>{if(!out.find(u=>u.id===p.id))out=[...out,p];});
+      appUsersRef.current=out;
+      saveUsers(out);
+      setTimeout(()=>scheduleCloudSave(400,eventsRef.current,{silent:false,notify:true}),50);
       return out;
     });
   };
@@ -4210,7 +4224,14 @@ export default function App(){
     return()=>{clearTimeout(t1);clearTimeout(t2);};
   },[]);
   if(!dataReady||!cloudReady)return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",background:GD,fontFamily:"Lato,sans-serif",color:G}}>Loading Vianne data…</div>);
-  if(!user) return (<><ToastContainer/><Login onLogin={su} users={appUsers}/></>);
+  const handleLogin=async u=>{
+    const d=await cloudFetchData();
+    if(d&&d.configured){
+      applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
+    }
+    su(u);
+  };
+  if(!user) return (<><ToastContainer/><Login onLogin={handleLogin} users={appUsers}/></>);
   if(activeEv){
     if(!userHasEventAccess(user,activeEv.id)){
       sae(null);

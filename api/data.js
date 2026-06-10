@@ -1,4 +1,9 @@
-const { isConfigured, loadMasterData, saveMasterData } = require("./lib/drive");
+const {
+  isConfigured,
+  loadMasterData,
+  saveMasterData,
+  driveErrorMessage,
+} = require("./lib/drive");
 
 function cors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -52,6 +57,6 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   } catch (err) {
     console.error("api/data error:", err);
-    return res.status(500).json({ ok: false, error: err.message || "Server error" });
+    return res.status(500).json({ ok: false, error: driveErrorMessage(err) });
   }
 };

@@ -2,6 +2,23 @@ const crypto = require("crypto");
 
 const MASTER_NAME = "vianne-master.json";
 const SCOPES = "https://www.googleapis.com/auth/drive";
+const DRIVE_FLAGS = "supportsAllDrives=true&includeItemsFromAllDrives=true";
+
+function withDriveFlags(path) {
+  return path + (path.includes("?") ? "&" : "?") + DRIVE_FLAGS;
+}
+
+function driveErrorMessage(err) {
+  const msg = String(err && err.message ? err.message : err);
+  if (msg.includes("storage quota") || msg.includes("Service Accounts do not have")) {
+    return (
+      "Google Drive folder must be inside a Shared Drive (Google Workspace), not My Drive. " +
+      "Create a Shared Drive, add the Vianne folder there, share it with the service account, " +
+      "and update GOOGLE_DRIVE_FOLDER_ID in Vercel."
+    );
+  }
+  return msg.slice(0, 400);
+}
 
 function credentials() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
@@ -73,7 +90,7 @@ async function accessToken() {
 
 async function drive(path, opts = {}) {
   const token = await accessToken();
-  const res = await fetch("https://www.googleapis.com/drive/v3" + path, {
+  const res = await fetch("https://www.googleapis.com/drive/v3" + withDriveFlags(path), {
     ...opts,
     headers: {
       ...(opts.headers || {}),
@@ -94,7 +111,10 @@ async function drive(path, opts = {}) {
 
 async function driveUpload(url, body, contentType, method) {
   const token = await accessToken();
-  const res = await fetch(url, {
+  const uploadUrl = url.includes("supportsAllDrives=")
+    ? url
+    : url + (url.includes("?") ? "&" : "?") + "supportsAllDrives=true";
+  const res = await fetch(uploadUrl, {
     method: method || "POST",
     headers: {
       Authorization: "Bearer " + token,
@@ -152,7 +172,9 @@ async function downloadJson(fileId) {
   const res = await fetch(
     "https://www.googleapis.com/drive/v3/files/" +
       fileId +
-      "?alt=media",
+      "?" +
+      DRIVE_FLAGS +
+      "&alt=media",
     { headers: { Authorization: "Bearer " + token } }
   );
   if (!res.ok) throw new Error((await res.text()).slice(0, 200));
@@ -314,4 +336,5 @@ module.exports = {
   isConfigured,
   loadMasterData,
   saveMasterData,
+  driveErrorMessage,
 };

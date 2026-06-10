@@ -2456,7 +2456,7 @@ function CloudStoragePanel({pr}){
     <div style={{...S.card({margin:0,marginBottom:12})}}>
       <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:12}}>☁ VIANNE JEWELS GOOGLE DRIVE</div>
       <div style={{fontSize:11,color:T2,lineHeight:1.55,marginBottom:10}}>
-        All team data is stored in the company <strong>{DRIVE_ROOT_NAME}</strong> folder on Google Drive.
+        All team data is stored in the company <strong>{DRIVE_ROOT_NAME}</strong> folder on a Google Workspace <strong>Shared Drive</strong>.
         Each event has its own subfolder with <strong>event-data.json</strong> plus a master backup file.
         Deleting an event renames its folder to add <strong>deleted</strong> — archives are kept.
       </div>

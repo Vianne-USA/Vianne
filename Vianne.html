@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="description" content="Vianne Jewels — trade show ERP for inventory, sales, and customer lookup">
 <meta name="format-detection" content="telephone=no">
 <meta name="mobile-web-app-capable" content="yes">
@@ -23,7 +23,7 @@ body{width:100%;height:100%;min-height:100dvh;min-height:-webkit-fill-available;
 #root{width:100%;min-height:100dvh;min-height:-webkit-fill-available;overflow-x:hidden}
 button,input,select,textarea{font-family:inherit;font-size:16px;touch-action:manipulation}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
-input,select,textarea{-webkit-appearance:none;appearance:none;border-radius:0}
+input,select,textarea{-webkit-appearance:none;appearance:none}
 img,svg,video{max-width:100%;height:auto;display:block}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:rgba(30,92,69,0.3);border-radius:2px}</style>
@@ -12775,6 +12775,7 @@ function Login(_ref7) {
     _useState20 = _slicedToArray(_useState19, 2),
     bio = _useState20[0],
     sbio = _useState20[1];
+  var scrollRef = useRef(null);
   useEffect(function () {
     try {
       if (window.PublicKeyCredential) window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(function (ok) {
@@ -12790,6 +12791,37 @@ function Login(_ref7) {
       document.head.appendChild(s);
     }
   }, []);
+  useEffect(function () {
+    var html = document.documentElement,
+      body = document.body;
+    var sh = html.style.overflow,
+      sb = body.style.overflow,
+      sp = body.style.position,
+      sw = body.style.width,
+      sl = body.style.left;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.width = "100%";
+    body.style.left = "0";
+    return function () {
+      html.style.overflow = sh;
+      body.style.overflow = sb;
+      body.style.position = sp;
+      body.style.width = sw;
+      body.style.left = sl;
+    };
+  }, []);
+  var focusIn = function focusIn(ev) {
+    setTimeout(function () {
+      try {
+        ev.target.scrollIntoView({
+          block: "center",
+          behavior: "smooth"
+        });
+      } catch (_) {}
+    }, 320);
+  };
   var go = /*#__PURE__*/function () {
     var _ref8 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
       var usr, saved, ok;
@@ -12845,14 +12877,18 @@ function Login(_ref7) {
   var isIOS = /iPhone|iPad/.test(navigator.userAgent);
   var hasBio = !!localStorage.getItem(BIO_KEY);
   return /*#__PURE__*/React.createElement("div", {
+    ref: scrollRef,
     style: {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       background: GD,
-      minHeight: "100dvh",
-      width: "100%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "calc(20px + env(safe-area-inset-top,0px)) calc(20px + env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) calc(20px + env(safe-area-inset-left,0px))",
+      overflowY: "auto",
+      WebkitOverflowScrolling: "touch",
+      overscrollBehavior: "contain",
+      padding: "calc(12px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))",
       fontFamily: "Lato,sans-serif",
       boxSizing: "border-box"
     }
@@ -12860,9 +12896,10 @@ function Login(_ref7) {
     style: {
       width: "100%",
       maxWidth: 380,
+      margin: "0 auto",
       background: CRD,
       borderRadius: 22,
-      padding: "36px 28px 32px",
+      padding: "32px 24px 28px",
       boxShadow: "0 20px 60px rgba(0,0,0,0.35)"
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -12870,14 +12907,14 @@ function Login(_ref7) {
       display: "flex",
       alignItems: "center",
       gap: 14,
-      marginBottom: 28
+      marginBottom: 24
     }
   }, /*#__PURE__*/React.createElement(Lotus, {
-    sz: 52
+    sz: 48
   }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "Cormorant Garamond,serif",
-      fontSize: 21,
+      fontSize: 20,
       fontWeight: 700,
       color: G,
       letterSpacing: "0.14em",
@@ -12900,10 +12937,11 @@ function Login(_ref7) {
       color: T1,
       letterSpacing: "0.18em",
       textAlign: "center",
-      marginBottom: 20,
+      marginBottom: 18,
       textTransform: "uppercase"
     }
   }, "SIGN IN TO CONTINUE"), bio && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: doBio,
     style: {
       width: "100%",
@@ -12972,6 +13010,7 @@ function Login(_ref7) {
       su(ev.target.value);
       se("");
     },
+    onFocus: focusIn,
     onKeyDown: function onKeyDown(ev) {
       return ev.key === "Enter" && go();
     }
@@ -12996,10 +13035,12 @@ function Login(_ref7) {
       sp(ev.target.value);
       se("");
     },
+    onFocus: focusIn,
     onKeyDown: function onKeyDown(ev) {
       return ev.key === "Enter" && go();
     }
   }), /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: function onClick() {
       return ssh(function (x) {
         return !x;
@@ -13027,6 +13068,7 @@ function Login(_ref7) {
       padding: "8px 12px"
     }
   }, e), /*#__PURE__*/React.createElement("button", {
+    type: "button",
     style: S.btn({
       fontSize: 15
     }),
@@ -24798,14 +24840,7 @@ function App() {
       clearTimeout(t2);
     };
   }, []);
-  if (!user) return /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: "100%",
-      minHeight: "100dvh",
-      overflowX: "hidden",
-      background: GD
-    }
-  }, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(Login, {
+  if (!user) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(Login, {
     onLogin: su
   }));
   if (activeEv) {

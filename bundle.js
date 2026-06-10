@@ -21,13 +21,13 @@ body{width:100%;height:100%;min-height:100dvh;min-height:-webkit-fill-available;
 #root{width:100%;min-height:100dvh;min-height:-webkit-fill-available;overflow-x:hidden}
 button,input,select,textarea{font-family:inherit;font-size:16px;touch-action:manipulation}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
-input,select,textarea{-webkit-appearance:none;appearance:none;border-radius:0}
+input,select,textarea{-webkit-appearance:none;appearance:none}
 img,svg,video{max-width:100%;height:auto;display:block}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:rgba(30,92,69,0.3);border-radius:2px}`;
 
 const headMeta = `<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="description" content="Vianne Jewels — trade show ERP for inventory, sales, and customer lookup">
 <meta name="format-detection" content="telephone=no">
 <meta name="mobile-web-app-capable" content="yes">

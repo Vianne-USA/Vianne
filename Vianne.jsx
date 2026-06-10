@@ -296,20 +296,28 @@ function parseXL(file,onDone,onError){
 }
 function Login({onLogin}){
   const [u,su]=useState(""),[p,sp]=useState(""),[e,se]=useState(""),[show,ssh]=useState(false),[bio,sbio]=useState(false);
+  const scrollRef=useRef(null);
   useEffect(()=>{try{if(window.PublicKeyCredential)window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok=>sbio(!!ok));}catch(_){}if(!window.XLSX){const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onerror=function(){console.log("XLSX CDN blocked");};document.head.appendChild(s);}},[]);
+  useEffect(()=>{
+    const html=document.documentElement,body=document.body;
+    const sh=html.style.overflow,sb=body.style.overflow,sp=body.style.position,sw=body.style.width,sl=body.style.left;
+    html.style.overflow="hidden";body.style.overflow="hidden";body.style.position="fixed";body.style.width="100%";body.style.left="0";
+    return()=>{html.style.overflow=sh;body.style.overflow=sb;body.style.position=sp;body.style.width=sw;body.style.left=sl;};
+  },[]);
+  const focusIn=(ev)=>{setTimeout(()=>{try{ev.target.scrollIntoView({block:"center",behavior:"smooth"});}catch(_){}},320);};
   const go=async()=>{const usr=USERS.find(x=>x.un===u.toLowerCase()&&x.pw===p);if(!usr){se("Invalid username or password");return;}const saved=localStorage.getItem(BIO_USER);if(bio&&saved!==usr.un){await registerBio(usr.un);}else if(bio&&!saved){const ok=await registerBio(usr.un);if(ok)toast.success("Face ID enabled","Use Face ID next time you sign in.");}onLogin(usr);};
   const doBio=()=>loginBio(onLogin,msg=>toast.warn("Face ID",msg));
   const isIOS=/iPhone|iPad/.test(navigator.userAgent);
   const hasBio=!!localStorage.getItem(BIO_KEY);
-  return(<div style={{background:GD,minHeight:"100dvh",width:"100%",display:"flex",alignItems:"center",justifyContent:"center",padding:"calc(20px + env(safe-area-inset-top,0px)) calc(20px + env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) calc(20px + env(safe-area-inset-left,0px))",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
-    <div style={{width:"100%",maxWidth:380,background:CRD,borderRadius:22,padding:"36px 28px 32px",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
-      <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:28}}><Lotus sz={52}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:21,fontWeight:700,color:G,letterSpacing:"0.14em",textTransform:"uppercase",lineHeight:1.1}}>VIANNE JEWELS</div><div style={{fontSize:9,color:T4,letterSpacing:"0.12em",textTransform:"uppercase",marginTop:4,lineHeight:1.5}}>THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div>
-      <div style={{fontSize:12,fontWeight:700,color:T1,letterSpacing:"0.18em",textAlign:"center",marginBottom:20,textTransform:"uppercase"}}>SIGN IN TO CONTINUE</div>
-      {bio&&<><button onClick={doBio} style={{width:"100%",background:G,color:CR,border:"none",borderRadius:11,padding:"13px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:9,marginBottom:12}}><span style={{fontSize:18}}>{isIOS?"🔒":"🫆"}</span>{isIOS?(hasBio?"Sign in with Face ID":"Face ID / Touch ID"):"Fingerprint / Face Unlock"}</button>{!hasBio&&<div style={{fontSize:10,color:T4,textAlign:"center",marginBottom:10}}>Sign in with password once to enable Face ID</div>}<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{flex:1,height:1,background:CRD2}}/><span style={{fontSize:11,color:T4,fontWeight:600}}>OR</span><div style={{flex:1,height:1,background:CRD2}}/></div></>}
-      <div style={{marginBottom:12}}><span style={S.lbl}>USERNAME</span><input style={S.inp()} placeholder="Enter username" value={u} onChange={ev=>{su(ev.target.value);se("");}} onKeyDown={ev=>ev.key==="Enter"&&go()}/></div>
-      <div style={{marginBottom:18}}><span style={S.lbl}>PASSWORD</span><div style={{position:"relative"}}><input type={show?"text":"password"} style={S.inp({paddingRight:42})} placeholder="Enter password" value={p} onChange={ev=>{sp(ev.target.value);se("");}} onKeyDown={ev=>ev.key==="Enter"&&go()}/><button onClick={()=>ssh(x=>!x)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:T3}}>{show?"🙈":"👁"}</button></div></div>
+  return(<div ref={scrollRef} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:GD,overflowY:"auto",WebkitOverflowScrolling:"touch",overscrollBehavior:"contain",padding:"calc(12px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
+    <div style={{width:"100%",maxWidth:380,margin:"0 auto",background:CRD,borderRadius:22,padding:"32px 24px 28px",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
+      <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:24}}><Lotus sz={48}/><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:G,letterSpacing:"0.14em",textTransform:"uppercase",lineHeight:1.1}}>VIANNE JEWELS</div><div style={{fontSize:9,color:T4,letterSpacing:"0.12em",textTransform:"uppercase",marginTop:4,lineHeight:1.5}}>THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div>
+      <div style={{fontSize:12,fontWeight:700,color:T1,letterSpacing:"0.18em",textAlign:"center",marginBottom:18,textTransform:"uppercase"}}>SIGN IN TO CONTINUE</div>
+      {bio&&<><button type="button" onClick={doBio} style={{width:"100%",background:G,color:CR,border:"none",borderRadius:11,padding:"13px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:9,marginBottom:12}}><span style={{fontSize:18}}>{isIOS?"🔒":"🫆"}</span>{isIOS?(hasBio?"Sign in with Face ID":"Face ID / Touch ID"):"Fingerprint / Face Unlock"}</button>{!hasBio&&<div style={{fontSize:10,color:T4,textAlign:"center",marginBottom:10}}>Sign in with password once to enable Face ID</div>}<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{flex:1,height:1,background:CRD2}}/><span style={{fontSize:11,color:T4,fontWeight:600}}>OR</span><div style={{flex:1,height:1,background:CRD2}}/></div></>}
+      <div style={{marginBottom:12}}><span style={S.lbl}>USERNAME</span><input style={S.inp()} placeholder="Enter username" value={u} onChange={ev=>{su(ev.target.value);se("");}} onFocus={focusIn} onKeyDown={ev=>ev.key==="Enter"&&go()}/></div>
+      <div style={{marginBottom:18}}><span style={S.lbl}>PASSWORD</span><div style={{position:"relative"}}><input type={show?"text":"password"} style={S.inp({paddingRight:42})} placeholder="Enter password" value={p} onChange={ev=>{sp(ev.target.value);se("");}} onFocus={focusIn} onKeyDown={ev=>ev.key==="Enter"&&go()}/><button type="button" onClick={()=>ssh(x=>!x)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:T3}}>{show?"🙈":"👁"}</button></div></div>
       {e&&<div style={{color:RE,fontSize:12,marginBottom:12,textAlign:"center",background:REBG,borderRadius:8,padding:"8px 12px"}}>{e}</div>}
-      <button style={S.btn({fontSize:15})} onClick={go}>Sign In</button>
+      <button type="button" style={S.btn({fontSize:15})} onClick={go}>Sign In</button>
       <div style={{fontSize:10,color:T4,textAlign:"center",marginTop:14}}>nilay/nilay123 · jimit/jimit123 · naresh/naresh123</div>
     </div>
   </div>);
@@ -3420,7 +3428,7 @@ export default function App(){
     const t2=setTimeout(patch,3000);
     return()=>{clearTimeout(t1);clearTimeout(t2);};
   },[]);
-  if(!user) return (<div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:GD}}><ToastContainer/><Login onLogin={su}/></div>);
+  if(!user) return (<><ToastContainer/><Login onLogin={su}/></>);
   if(activeEv){
     return (<div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:GD}}><ToastContainer/><EventERP
       ev={events.find(e=>e.id===activeEv.id)||activeEv}

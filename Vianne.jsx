@@ -1,5 +1,19 @@
 import{useState,useRef,useEffect}from"react";
-const getImg=(item)=>item.img||( window.VJ_IMG&&window.VJ_IMG[item.id])||"";
+const getImg=(item)=>{if(!item)return "";if(item.img)return item.img;return resolveItemImage(item.id);};
+function resolveItemImage(id){
+  const k=String(id||"").toUpperCase();
+  if(!k)return "";
+  if(window.VJ_IMG&&window.VJ_IMG[k])return window.VJ_IMG[k];
+  if(window.IMGS&&window.IMGS[k])return window.IMGS[k];
+  return "";
+}
+function attachItemImages(items,imgMap){
+  return items.map(it=>{
+    const img=(imgMap&&imgMap[it.id])||resolveItemImage(it.id)||"";
+    return img?{...it,img}:it;
+  });
+}
+const INV_FAIL="Inventory adding failed";
 const G="#1E5C45",GD="#163D2E",GO="#C9A84C",CR="#F5EDE0",WH="#FFFFFF",CRD="#F5EDE0",CRD2="#E8DCCB",INP="#FBF5E8";
 const T1="#1E5C45",T2="#3D5C4A",T3="#7A8C7E",T4="#B0A88A",RE="#A03030",REBG="#F9ECEC",AM="#C8963A",AMBG="#FDF5E6";
 const DEFAULT_CURR={USD:{s:"$",r:1,name:"US Dollar"},INR:{s:"₹",r:83.5,name:"Indian Rupee"},AED:{s:"AED ",r:3.67,name:"UAE Dirham"},GBP:{s:"£",r:0.79,name:"British Pound"},EUR:{s:"€",r:0.92,name:"Euro"},SGD:{s:"S$",r:1.35,name:"Singapore Dollar"},HKD:{s:"HK$",r:7.82,name:"Hong Kong Dollar"},JPY:{s:"¥",r:149.5,name:"Japanese Yen"},CAD:{s:"CA$",r:1.36,name:"Canadian Dollar"},AUD:{s:"A$",r:1.52,name:"Australian Dollar"}};
@@ -370,7 +384,11 @@ function xlNum(v){
 function mergeInvItems(existing,incoming,mode){
   if(mode==="replace")return incoming;
   const byId=new Map((existing||[]).map(i=>[String(i.id).toUpperCase(),i]));
-  incoming.forEach(i=>byId.set(String(i.id).toUpperCase(),i));
+  incoming.forEach(i=>{
+    const k=String(i.id).toUpperCase();
+    const prev=byId.get(k);
+    byId.set(k,prev?{...prev,...i,img:i.img||prev.img,st:prev.st||i.st}:i);
+  });
   return [...byId.values()];
 }
 function makeInvHistoryEntry(meta){
@@ -380,67 +398,142 @@ function appendInvHistory(ev,meta){
   return[...(ev.invHistory||[]),makeInvHistoryEntry(meta)];
 }
 
+function ensureJSZip(cb){
+  if(window.JSZip){cb();return;}
+  if(document.getElementById("vj-jszip")){setTimeout(()=>cb(),500);return;}
+  const s=document.createElement("script");
+  s.id="vj-jszip";
+  s.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+  s.onload=()=>cb();
+  s.onerror=()=>cb();
+  document.head.appendChild(s);
+}
+function codeForExcelRow(excelRow,idByRow){
+  for(let r=excelRow;r>=1;r--){if(idByRow[r])return idByRow[r];}
+  return null;
+}
+async function extractXLImages(arrayBuffer,idByRow){
+  if(!window.JSZip||!idByRow)return {};
+  try{
+    const zip=await window.JSZip.loadAsync(arrayBuffer);
+    const imgs={};
+    const drawingPaths=Object.keys(zip.files).filter(n=>/xl\/drawings\/drawing\d+\.xml$/.test(n));
+    for(const dp of drawingPaths){
+      const xml=await zip.file(dp).async("string");
+      const relsPath=dp.replace("drawings/","drawings/_rels/").replace(".xml",".xml.rels");
+      if(!zip.files[relsPath])continue;
+      const relsXml=await zip.file(relsPath).async("string");
+      const relMap={};
+      relsXml.replace(/Id="([^"]+)"[^>]*Target="([^"]+)"/g,(_,id,tgt)=>{relMap[id]="xl/"+tgt.replace(/^\.\.\//,"");});
+      const re=/<xdr:row>(\d+)<\/xdr:row>[\s\S]*?r:embed="([^"]+)"/g;
+      let m;
+      while((m=re.exec(xml))){
+        const code=codeForExcelRow(parseInt(m[1],10)+1,idByRow);
+        const mediaPath=relMap[m[2]];
+        if(!code||!mediaPath||imgs[code])continue;
+        const ext=(mediaPath.split(".").pop()||"jpg").toLowerCase();
+        const mime=ext==="png"?"image/png":ext==="gif"?"image/gif":"image/jpeg";
+        const b64=await zip.file(mediaPath).async("base64");
+        imgs[code]="data:"+mime+";base64,"+b64;
+      }
+    }
+    return imgs;
+  }catch(e){console.warn("Image extract",e);return {};}
+}
+function rowToItem(row,excelRow){
+  let id=String(xlVal(row,["Unique Code","Jewel Code","JewelCode","Code","SKU","ID","Item Code","VJ Code"])||"").trim().toUpperCase();
+  if(!id){
+    for(const v of Object.values(row)){const s=String(v||"").trim().toUpperCase();if(/^VJ[A-Z]{2,4}\d+/i.test(s)){id=s;break;}}
+  }
+  if(!id||id.length<3)return null;
+  if(["UNIQUE CODE","JEWEL CODE","JEWEL","CODE","ID","SKU","STYLE CODE"].includes(id))return null;
+  const design=String(xlVal(row,["Design","Category","Cat","Product Type"])||"Jewellery").trim();
+  const col=String(xlVal(row,["Coll'n","Collection","Col","Collection Name"])||"").trim();
+  const metal=String(xlVal(row,["KT/Col","KT Col","Metal","Metal Type"])||"").trim();
+  const stoneShape=String(xlVal(row,["Stone Shape","Shape"])||"").trim();
+  const clarity=String(xlVal(row,["Color/Clarity","Color Clarity","Clarity"])||"").trim();
+  const pcs=xlNum(xlVal(row,["PCS","Stone Pcs","Total PCS"]));
+  const cts=xlNum(xlVal(row,["CTS","Total CTS","Total Carats"]));
+  let fp=xlNum(xlVal(row,["Round Off Final","Round Off","Final Price"]));
+  if(fp<=0)fp=xlNum(xlVal(row,["Sale Price","Price","FP","MRP"]));
+  if(fp<=0)fp=xlNum(xlVal(row,["Inward + Tarriffs","Inward + Tariffs","IPT","Inward+Tariffs"]));
+  if(fp<=0)return null;
+  const salePrice=xlNum(xlVal(row,["Sale Price"]));
+  const roundOff=xlNum(xlVal(row,["Round Off Final","Round Off"]));
+  const xlRaw={};
+  Object.entries(row||{}).forEach(([k,v])=>{if(v!=null&&String(v).trim()!=="")xlRaw[String(k).trim()]=v;});
+  const stones=(stoneShape||clarity||pcs||cts)?[{sh:stoneShape,cl:clarity,pc:pcs,ct:cts,tct:cts||xlNum(xlVal(row,["Total CTS"]))}]:[];
+  const emo={Bracelets:"💎",Earrings:"✨",Necklaces:"📿",Rings:"💍",Pendants:"⭐",Bangles:"🔮",Brooch:"📌",Jewellery:"💎",Jewelry:"💎","Men's":"💎"};
+  return{
+    id,style:String(xlVal(row,["Style Code","Style","Style No"])||""),
+    cat:design,col,metal,sz:String(xlVal(row,["Item Size","Size","Sz"])||"Std"),
+    qty:parseInt(xlNum(xlVal(row,["Qty","Quantity"]))||1)||1,
+    gw:xlNum(xlVal(row,["Gross Wt","Gross Weight","GW"])),
+    nw:xlNum(xlVal(row,["Net Wt","Net Weight","NW"])),
+    tc:cts||xlNum(xlVal(row,["Total Carats","TC"])),
+    sp:pcs||xlNum(xlVal(row,["Total PCS","Stone Pcs"])),
+    iv:xlNum(xlVal(row,["Inward Value $","Inward Value","IV"])),
+    tod:xlNum(xlVal(row,["Today Cost $","Today Cost","TOD"])),
+    cpt:xlNum(xlVal(row,["Today Cost + Tariffs","Cost+Tariffs","CPT"])),
+    ipt:xlNum(xlVal(row,["Inward + Tarriffs","Inward + Tariffs","Inward+Tariffs","IPT"])),
+    fp,salePrice,roundOff,design,stoneShape,clarity,ktCol:metal,xl:xlRaw,excelRow,
+    em:emo[design]||"💎",st:"available",
+    loc:String(xlVal(row,["Location","Loc"])||"Exhibition"),
+    views:0,searches:0,stones,img:""
+  };
+}
+function parseSheetRows(X,ws){
+  const aoa=X.utils.sheet_to_json(ws,{header:1,defval:"",raw:false});
+  if(!aoa.length)return{items:[],idByRow:{}};
+  let hIdx=0;
+  for(let i=0;i<Math.min(aoa.length,20);i++){
+    const line=aoa[i].map(c=>String(c||"").toLowerCase()).join(" ");
+    if(line.includes("unique")&&line.includes("code")){hIdx=i;break;}
+    if(line.includes("jewel")&&line.includes("code")){hIdx=i;break;}
+  }
+  const headers=(aoa[hIdx]||[]).map(h=>String(h||"").trim());
+  const items=[];const idByRow={};
+  for(let r=hIdx+1;r<aoa.length;r++){
+    if(!aoa[r].some(v=>v!==""&&v!=null))continue;
+    const row={};
+    headers.forEach((h,i)=>{if(h)row[h]=aoa[r][i]!=null?aoa[r][i]:"";});
+    const excelRow=r+1;
+    const item=rowToItem(row,excelRow);
+    if(item){items.push(item);idByRow[excelRow]=item.id;}
+  }
+  return{items,idByRow};
+}
+
 function parseXL(file,onDone,onError){
-  ensureXLSX(()=>{
+  ensureXLSX(()=>ensureJSZip(()=>{
     const X=window.XLSX;
-    if(!X){onError("Excel library still loading — wait a moment and try again.");return;}
+    if(!X){onError(INV_FAIL+" — Excel library still loading. Wait a moment and try again.");return;}
     const r=new FileReader();
-    r.onload=e=>{
+    r.onload=async e=>{
       try{
-        const wb=X.read(new Uint8Array(e.target.result),{type:"array"});
-        let rows=[];
+        const buf=e.target.result;
+        const wb=X.read(new Uint8Array(buf),{type:"array"});
+        let items=[];let idByRow={};
         for(const sn of wb.SheetNames){
           const ws=wb.Sheets[sn];
           if(!ws)continue;
-          const part=X.utils.sheet_to_json(ws,{defval:"",raw:false});
-          if(part.length>rows.length)rows=part;
+          const parsed=parseSheetRows(X,ws);
+          if(parsed.items.length>=items.length){items=parsed.items;idByRow=parsed.idByRow;}
         }
-        if(!rows.length){onError("The file has no data rows. Check the Excel sheet is not empty.");return;}
-        const headers=Object.keys(rows[0]||{});
-        const emo={Bracelets:"💎",Earrings:"✨",Necklaces:"📿",Rings:"💍",Pendants:"⭐",Bangles:"🔮",Brooch:"📌",Jewellery:"💎",Jewelry:"💎"};
-        const ID_KEYS=["Jewel Code","JewelCode","Jewel","Code","SKU","ID","Item Code","Item ID","Style Code","VJ Code","Product Code","Stock Code"];
-        const PRICE_KEYS=["Sale Price","Final Price","FP","Price","MRP","Retail","Selling Price","Amount","List Price","Exhibition Price","IPT","Inward+Tariffs","CPT","Cost+Tariffs"];
-        const items=rows.map(row=>{
-          let id=String(xlVal(row,ID_KEYS)||"").trim().toUpperCase();
-          if(!id){
-            for(const v of Object.values(row)){const s=String(v||"").trim().toUpperCase();if(/^VJ[A-Z]{2,4}\d+/i.test(s)){id=s;break;}}
-          }
-          if(!id||id.length<3)return null;
-          if(["JEWEL CODE","JEWEL","CODE","ID","SKU","ITEM"].includes(id))return null;
-          let fp=xlNum(xlVal(row,PRICE_KEYS));
-          if(fp<=0)fp=xlNum(xlVal(row,["TOD","Today Cost","IV","Inward Value"]));
-          const cat=String(xlVal(row,["Category","Cat","Product Type","Type"])||"Jewellery").trim();
-          if(fp<=0)return null;
-          return{
-            id,style:String(xlVal(row,["Style","Style No","Style Number","style"])||""),
-            cat,col:String(xlVal(row,["Collection","Col","Coll'n","Collection Name"])||""),
-            metal:String(xlVal(row,["Metal","Metal Type","metal"])||""),
-            sz:String(xlVal(row,["Size","Sz","Ring Size"])||"Std"),
-            qty:parseInt(xlNum(xlVal(row,["Qty","Quantity","qty"]))||1),
-            gw:xlNum(xlVal(row,["Gross Wt","Gross Weight","GW","gw"])),
-            nw:xlNum(xlVal(row,["Net Wt","Net Weight","NW","nw"])),
-            tc:xlNum(xlVal(row,["Total Carats","TC","Total Ct","tc"])),
-            sp:xlNum(xlVal(row,["Stone Pcs","Stone Pieces","SP","sp"])),
-            iv:xlNum(xlVal(row,["Inward Value","IV","iv"])),
-            tod:xlNum(xlVal(row,["Today Cost","TOD","tod"])),
-            cpt:xlNum(xlVal(row,["Cost+Tariffs","CPT","cpt"])),
-            ipt:xlNum(xlVal(row,["Inward+Tariffs","IPT","ipt"])),
-            fp:fp||0,
-            em:emo[cat]||"💎",st:"available",
-            loc:String(xlVal(row,["Location","Loc","loc"])||"Exhibition"),
-            views:0,searches:0,stones:[]
-          };
-        }).filter(Boolean);
         if(!items.length){
-          onError("0 items imported. Found columns: "+headers.slice(0,10).join(", ")+". Need Jewel Code (or VJ… code) and Sale Price.");
+          const ws=wb.Sheets[wb.SheetNames[0]];
+          const headers=ws?Object.keys(X.utils.sheet_to_json(ws,{defval:""})[0]||{}):[];
+          onError(INV_FAIL+" — 0 items found. Columns seen: "+headers.slice(0,12).join(", ")+". Need Unique Code + Round Off Final (or Sale Price).");
           return;
         }
+        const imgMap=await extractXLImages(buf,idByRow);
+        items=attachItemImages(items,imgMap);
         onDone(items);
-      }catch(err){onError("Parse error: "+err.message);}
+      }catch(err){onError(INV_FAIL+" — "+err.message);}
     };
-    r.onerror=()=>onError("Could not read file.");
+    r.onerror=()=>onError(INV_FAIL+" — Could not read file.");
     r.readAsArrayBuffer(file);
-  });
+  }));
 }
 function Login({onLogin,users}){
   const [u,su]=useState(""),[p,sp]=useState(""),[e,se]=useState(""),[show,ssh]=useState(false),[bio,sbio]=useState(false);
@@ -475,7 +568,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const pr=gp(user.role,user.perms);
   const visibleEvents=filterEventsForUser(user,events);
   useEffect(()=>{if(sc)ensureXLSX(()=>{});},[sc]);
-  const create=()=>{if(!form.name.trim())return;const fin=(inv,fileName)=>{if(xlf&&!inv.length){smsg("0 items found in file. Check columns: Jewel Code, Sale Price.");return;}const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(inv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||xlf?.name||"inventory.xlsx",mode:"initial",added:inv.length,total:inv.length,by:user.name});onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,inv=>{sl(false);fin(inv,xlf.name);},err=>{sl(false);smsg(err);});}else fin([],null);};
+  const create=()=>{if(!form.name.trim())return;const fin=(inv,fileName)=>{if(xlf&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(inv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||xlf?.name||"inventory.xlsx",mode:"initial",added:inv.length,total:inv.length,by:user.name});onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,inv=>{sl(false);fin(inv,xlf.name);},err=>{sl(false);smsg(err);});}else fin([],null);};
   return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
       <div style={{display:"flex",alignItems:"flex-start",gap:10}}><Logo h={34}/><div style={{paddingTop:1}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
@@ -526,7 +619,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
         <div><span style={S.lbl}>EXCEL INVENTORY (OPTIONAL)</span>
           <div onClick={()=>document.getElementById("xlC").click()} style={{background:INP,border:"1.5px dashed "+CRD2,borderRadius:9,padding:"14px",textAlign:"center",cursor:"pointer"}}>
             <div style={{fontSize:24,marginBottom:5}}>📊</div><div style={{fontSize:12,color:T2,fontWeight:600}}>{xlf?xlf.name:"Tap to upload .xlsx / .xls"}</div>
-            <div style={{fontSize:10,color:T3,marginTop:2}}>Columns: Jewel Code, Category, Metal, Sale Price…</div>
+            <div style={{fontSize:10,color:T3,marginTop:2}}>Columns: Unique Code, Design, Coll'n, Round Off Final…</div>
             <input id="xlC" type="file" accept=".xlsx,.xls,.csv" style={{display:"none"}} onChange={ev=>{if(ev.target.files[0]){sxl(ev.target.files[0]);smsg("");}}}/>
           </div>
           {!xlf&&<div style={{fontSize:10,color:T3,marginTop:4}}>Start with an empty event, or upload Excel to load inventory.</div>}
@@ -679,8 +772,8 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
           <div style={{display:"flex",gap:8,marginBottom:11}}>{[{id:"add",l:"Add new"},{id:"replace",l:"Replace all"}].map(m=>(
             <button key={m.id} onClick={()=>smode(m.id)} style={S.pill(mode===m.id)}>{m.l}</button>
           ))}</div>
-          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,items=>{if(!items.length){toast.warn("Import failed","0 items found — check Jewel Code and Sale Price columns.");e.target.value="";return;}const inv=mergeInvItems(ev.inv||[],items,mode);const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added:items.length,total:inv.length,by:user?.name||"Admin"})};onUpdate(updated);toast.success("Inventory updated",items.length+" items "+(mode==="add"?"added":"imported")+" · "+inv.length+" total");e.target.value="";},err=>{toast.warn("Import failed",err);e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
-          <div style={{fontSize:11,color:T3,lineHeight:1.5}}>Upload your price list Excel (.xlsx / .xls / .csv). Required columns: <strong>Jewel Code</strong> (or VJ code) and <strong>Sale Price</strong>.</div>
+          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,items=>{if(!items.length){toast.error(INV_FAIL,"0 items found — check Unique Code and Round Off Final columns.");e.target.value="";return;}const inv=mergeInvItems(ev.inv||[],items,mode);const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added:items.length,total:inv.length,by:user?.name||"Admin"})};onUpdate(updated);toast.success("Inventory updated",items.length+" items "+(mode==="add"?"added":"imported")+" · "+inv.length+" total");e.target.value="";},err=>{toast.error(INV_FAIL,String(err).replace(INV_FAIL+" — ",""));e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
+          <div style={{fontSize:11,color:T3,lineHeight:1.5}}>Upload your Vianne price list (.xlsx). All columns are saved. Images embedded in the sheet are imported by Unique Code.</div>
         </div>
       )}
     </Sheet>
@@ -2017,6 +2110,38 @@ function InventoryTab(p){
   );
 }
 
+function invBuckets(inv,keyFn){
+  const m={};
+  (inv||[]).forEach(i=>{
+    const k=keyFn(i)||"Unknown";
+    if(!m[k])m[k]={k,cnt:0,val:0,avail:0,sold:0,rev:0};
+    m[k].cnt++;m[k].val+=i.fp||0;
+    if(i.st==="sold")m[k].sold++;else if(i.st==="available")m[k].avail++;
+  });
+  return Object.values(m).sort((a,b)=>b.cnt-a.cnt);
+}
+function AnalyticsBucketCard({title,data,cur,fc,maxVal}){
+  const mx=maxVal||Math.max(1,...data.map(x=>x.cnt));
+  return(
+    <div style={S.card({margin:0})}>
+      <div style={{...S.sh,marginBottom:10}}>{title}</div>
+      {data.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11,padding:12}}>No inventory data yet</div>}
+      {data.map((x,i)=>(
+        <div key={x.k} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:i<data.length-1?"1px solid "+CRD2:"none"}}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{display:"flex",justifyContent:"space-between",gap:6,marginBottom:3}}>
+              <span style={{fontSize:11,fontWeight:600,color:T1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{x.k}</span>
+              <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G,flexShrink:0}}>{fc(x.val,cur)}</span>
+            </div>
+            <div style={{height:5,background:CRD2,borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",width:Math.round(x.cnt/mx*100)+"%",background:G,borderRadius:3}}/></div>
+            <div style={{fontSize:9,color:T3,marginTop:2}}>{x.cnt} items · {x.avail} avail · {x.sold} sold</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AnalyticsTab(p){
   var sales=p.sales,inv=p.inv,leads=p.leads,cur=p.cur,fc=p.fc,pr=p.pr,ev=p.ev;
   var atab=p.atab,sat=p.sat;
@@ -2167,8 +2292,14 @@ function AnalyticsTab(p){
   const top20rev=itemRevSorted.slice(0,top20cnt).reduce((s,x)=>s+x.rev,0);
   const top20pct=totalRev>0?Math.round(top20rev/totalRev*100):0;
 
+  const byDesign=invBuckets(inv,i=>i.design||i.cat);
+  const byCollection=invBuckets(inv,i=>i.col);
+  const byStoneShape=invBuckets(inv,i=>i.stoneShape||(i.stones&&i.stones[0]&&i.stones[0].sh)||"");
+  const byClarity=invBuckets(inv,i=>i.clarity||(i.stones&&i.stones[0]&&i.stones[0].cl)||"");
+
   const TABS=[
     {id:"overview",l:"Overview",ic:"📊"},
+    {id:"catalog",l:"Catalog",ic:"📦"},
     {id:"timing",l:"Timing",ic:"⏱"},
     {id:"inventory",l:"Stock IQ",ic:"💎"},
     {id:"customers",l:"Customers",ic:"👥"},
@@ -2233,6 +2364,19 @@ function AnalyticsTab(p){
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ═══════════════ CATALOG ANALYTICS ═══════════════ */}
+      {atab==="catalog"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div style={{...S.card({margin:0}),background:"rgba(30,92,69,0.05)",border:"1px solid "+G}}>
+            <div style={{fontSize:12,color:T1,lineHeight:1.5}}>Inventory breakdown from your Excel import — <strong>{invCount}</strong> items, <strong>{fc(inv.filter(i=>i.st==="available").reduce((s,i)=>s+i.fp,0),cur)}</strong> available value.</div>
+          </div>
+          <AnalyticsBucketCard title="🎨 By Design" data={byDesign} cur={cur} fc={fc}/>
+          <AnalyticsBucketCard title="✨ By Collection (Coll'n)" data={byCollection} cur={cur} fc={fc}/>
+          <AnalyticsBucketCard title="💎 By Stone Shape" data={byStoneShape.filter(x=>x.k)} cur={cur} fc={fc}/>
+          <AnalyticsBucketCard title="🔮 By Color / Clarity" data={byClarity.filter(x=>x.k)} cur={cur} fc={fc}/>
         </div>
       )}
 
@@ -3715,11 +3859,24 @@ export default function App(){
 
   // Patch images into events once VJ_IMG is available
   useEffect(()=>{
+    if(document.getElementById("vj-img-loader"))return;
+    const s=document.createElement("script");
+    s.id="vj-img-loader";
+    s.src="assets/vj-images.js";
+    s.onload=()=>{if(window.IMGS&&!window.VJ_IMG)window.VJ_IMG=window.IMGS;};
+    s.onerror=()=>{};
+    document.head.appendChild(s);
+  },[]);
+  useEffect(()=>{
     const patch=()=>{
-      if(!window.VJ_IMG)return;
+      if(!window.VJ_IMG&&!window.IMGS)return;
+      if(!window.VJ_IMG&&window.IMGS)window.VJ_IMG=window.IMGS;
       sevents(prev=>prev.map(ev=>({
         ...ev,
-        inv:ev.inv.map(item=>item.img?item:{...item,img:window.VJ_IMG[item.id]||""})
+        inv:ev.inv.map(item=>{
+          const img=item.img||resolveItemImage(item.id);
+          return img?{...item,img}:item;
+        })
       })));
     };
     // Try immediately and after short delay (script may still be loading)

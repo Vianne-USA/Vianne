@@ -10409,15 +10409,11 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 /***/ })
 /******/ ])["default"];
 });</script>
-<script>function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+<script>function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
 function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
@@ -10430,13 +10426,36 @@ function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) 
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 var _R = React;
 var useState = _R.useState;
 var useRef = _R.useRef;
 var useEffect = _R.useEffect;
 var getImg = function getImg(item) {
-  return item.img || window.VJ_IMG && window.VJ_IMG[item.id] || "";
+  if (!item) return "";
+  if (item.img) return item.img;
+  return resolveItemImage(item.id);
 };
+function resolveItemImage(id) {
+  var k = String(id || "").toUpperCase();
+  if (!k) return "";
+  if (window.VJ_IMG && window.VJ_IMG[k]) return window.VJ_IMG[k];
+  if (window.IMGS && window.IMGS[k]) return window.IMGS[k];
+  return "";
+}
+function attachItemImages(items, imgMap) {
+  return items.map(function (it) {
+    var img = imgMap && imgMap[it.id] || resolveItemImage(it.id) || "";
+    return img ? _objectSpread(_objectSpread({}, it), {}, {
+      img: img
+    }) : it;
+  });
+}
+var INV_FAIL = "Inventory adding failed";
 var G = "#1E5C45",
   GD = "#163D2E",
   GO = "#C9A84C",
@@ -10683,19 +10702,19 @@ function registerBio(_x) {
   return _registerBio.apply(this, arguments);
 }
 function _registerBio() {
-  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(username) {
-    var cred, _t2;
-    return _regenerator().w(function (_context5) {
-      while (1) switch (_context5.p = _context5.n) {
+  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(username) {
+    var cred, _t4;
+    return _regenerator().w(function (_context6) {
+      while (1) switch (_context6.p = _context6.n) {
         case 0:
           if (window.PublicKeyCredential) {
-            _context5.n = 1;
+            _context6.n = 1;
             break;
           }
-          return _context5.a(2, false);
+          return _context6.a(2, false);
         case 1:
-          _context5.p = 1;
-          _context5.n = 2;
+          _context6.p = 1;
+          _context6.n = 2;
           return navigator.credentials.create({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -10724,22 +10743,22 @@ function _registerBio() {
             }
           });
         case 2:
-          cred = _context5.v;
+          cred = _context6.v;
           if (cred) {
-            _context5.n = 3;
+            _context6.n = 3;
             break;
           }
-          return _context5.a(2, false);
+          return _context6.a(2, false);
         case 3:
           localStorage.setItem(BIO_KEY, b64u(cred.rawId));
           localStorage.setItem(BIO_USER, username.toLowerCase());
-          return _context5.a(2, true);
+          return _context6.a(2, true);
         case 4:
-          _context5.p = 4;
-          _t2 = _context5.v;
-          return _context5.a(2, false);
+          _context6.p = 4;
+          _t4 = _context6.v;
+          return _context6.a(2, false);
       }
-    }, _callee5, null, [[1, 4]]);
+    }, _callee6, null, [[1, 4]]);
   }));
   return _registerBio.apply(this, arguments);
 }
@@ -10747,22 +10766,22 @@ function loginBio(_x2, _x3, _x4) {
   return _loginBio.apply(this, arguments);
 } // ── Dark Mode system ──────────────────────────────────────────────────────
 function _loginBio() {
-  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(onLogin, onFail, users) {
-    var id, un, cred, usr, _t3;
-    return _regenerator().w(function (_context6) {
-      while (1) switch (_context6.p = _context6.n) {
+  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(onLogin, onFail, users) {
+    var id, un, cred, usr, _t5;
+    return _regenerator().w(function (_context7) {
+      while (1) switch (_context7.p = _context7.n) {
         case 0:
           id = localStorage.getItem(BIO_KEY);
           un = localStorage.getItem(BIO_USER);
           if (!(!id || !un)) {
-            _context6.n = 1;
+            _context7.n = 1;
             break;
           }
           onFail("Sign in with password once to enable Face ID.");
-          return _context6.a(2);
+          return _context7.a(2);
         case 1:
-          _context6.p = 1;
-          _context6.n = 2;
+          _context7.p = 1;
+          _context7.n = 2;
           return navigator.credentials.get({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -10777,27 +10796,27 @@ function _loginBio() {
             }
           });
         case 2:
-          cred = _context6.v;
+          cred = _context7.v;
           if (cred) {
-            _context6.n = 3;
+            _context7.n = 3;
             break;
           }
-          return _context6.a(2);
+          return _context7.a(2);
         case 3:
           usr = users.find(function (x) {
             return x.un === un;
           });
           if (usr) onLogin(usr);else onFail("Saved sign-in expired. Use password once.");
-          _context6.n = 5;
+          _context7.n = 5;
           break;
         case 4:
-          _context6.p = 4;
-          _t3 = _context6.v;
-          if (_t3.name !== "NotAllowedError") onFail(_t3.message || "Face ID failed");
+          _context7.p = 4;
+          _t5 = _context7.v;
+          if (_t5.name !== "NotAllowedError") onFail(_t5.message || "Face ID failed");
         case 5:
-          return _context6.a(2);
+          return _context7.a(2);
       }
-    }, _callee6, null, [[1, 4]]);
+    }, _callee7, null, [[1, 4]]);
   }));
   return _loginBio.apply(this, arguments);
 }
@@ -12227,39 +12246,39 @@ function cloudFetchData() {
   return _cloudFetchData.apply(this, arguments);
 }
 function _cloudFetchData() {
-  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7() {
-    var r, d, _t4;
-    return _regenerator().w(function (_context7) {
-      while (1) switch (_context7.p = _context7.n) {
+  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
+    var r, d, _t6;
+    return _regenerator().w(function (_context8) {
+      while (1) switch (_context8.p = _context8.n) {
         case 0:
-          _context7.p = 0;
-          _context7.n = 1;
+          _context8.p = 0;
+          _context8.n = 1;
           return fetch("/api/data", {
             method: "GET",
             cache: "no-store"
           });
         case 1:
-          r = _context7.v;
-          _context7.n = 2;
+          r = _context8.v;
+          _context8.n = 2;
           return r.json();
         case 2:
-          d = _context7.v;
+          d = _context8.v;
           if (!(!r.ok || !d.configured)) {
-            _context7.n = 3;
+            _context8.n = 3;
             break;
           }
           _cloudOnline = false;
-          return _context7.a(2, null);
+          return _context8.a(2, null);
         case 3:
           _cloudOnline = true;
-          return _context7.a(2, d);
+          return _context8.a(2, d);
         case 4:
-          _context7.p = 4;
-          _t4 = _context7.v;
+          _context8.p = 4;
+          _t6 = _context8.v;
           _cloudOnline = false;
-          return _context7.a(2, null);
+          return _context8.a(2, null);
       }
-    }, _callee7, null, [[0, 4]]);
+    }, _callee8, null, [[0, 4]]);
   }));
   return _cloudFetchData.apply(this, arguments);
 }
@@ -12267,20 +12286,20 @@ function cloudLoad() {
   return _cloudLoad.apply(this, arguments);
 }
 function _cloudLoad() {
-  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
+  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9() {
     var d;
-    return _regenerator().w(function (_context8) {
-      while (1) switch (_context8.n) {
+    return _regenerator().w(function (_context9) {
+      while (1) switch (_context9.n) {
         case 0:
-          _context8.n = 1;
+          _context9.n = 1;
           return cloudFetchData();
         case 1:
-          d = _context8.v;
+          d = _context9.v;
           if (d) {
-            _context8.n = 2;
+            _context9.n = 2;
             break;
           }
-          return _context8.a(2, null);
+          return _context9.a(2, null);
         case 2:
           if (Array.isArray(d.events) && d.events.length) {
             saveEvents(d.events);
@@ -12298,9 +12317,9 @@ function _cloudLoad() {
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context8.a(2, d);
+          return _context9.a(2, d);
       }
-    }, _callee8);
+    }, _callee9);
   }));
   return _cloudLoad.apply(this, arguments);
 }
@@ -12308,24 +12327,24 @@ function cloudSave(_x5, _x6, _x7) {
   return _cloudSave.apply(this, arguments);
 }
 function _cloudSave() {
-  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9(events, users, deletedEvents) {
-    var ping, currency, body, r, d, _t5;
-    return _regenerator().w(function (_context9) {
-      while (1) switch (_context9.p = _context9.n) {
+  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0(events, users, deletedEvents) {
+    var ping, currency, body, r, d, _t7;
+    return _regenerator().w(function (_context0) {
+      while (1) switch (_context0.p = _context0.n) {
         case 0:
           if (_cloudOnline) {
-            _context9.n = 2;
+            _context0.n = 2;
             break;
           }
-          _context9.n = 1;
+          _context0.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context9.v;
+          ping = _context0.v;
           if (ping) {
-            _context9.n = 2;
+            _context0.n = 2;
             break;
           }
-          return _context9.a(2, null);
+          return _context0.a(2, null);
         case 2:
           currency = null;
           try {
@@ -12337,8 +12356,8 @@ function _cloudSave() {
             currency: currency,
             deletedEvents: deletedEvents || []
           };
-          _context9.p = 3;
-          _context9.n = 4;
+          _context0.p = 3;
+          _context0.n = 4;
           return fetch("/api/data", {
             method: "POST",
             headers: {
@@ -12347,13 +12366,13 @@ function _cloudSave() {
             body: JSON.stringify(body)
           });
         case 4:
-          r = _context9.v;
-          _context9.n = 5;
+          r = _context0.v;
+          _context0.n = 5;
           return r.json();
         case 5:
-          d = _context9.v;
+          d = _context0.v;
           if (!(!r.ok || !d.ok)) {
-            _context9.n = 6;
+            _context0.n = 6;
             break;
           }
           throw new Error(d.error || "Save failed");
@@ -12364,19 +12383,19 @@ function _cloudSave() {
             updatedAt: d.updatedAt
           });
           if (!(Array.isArray(d.events) && d.events.length)) {
-            _context9.n = 7;
+            _context0.n = 7;
             break;
           }
-          return _context9.a(2, d.events);
+          return _context0.a(2, d.events);
         case 7:
-          return _context9.a(2, null);
+          return _context0.a(2, null);
         case 8:
-          _context9.p = 8;
-          _t5 = _context9.v;
-          console.warn("Cloud save", _t5);
-          return _context9.a(2, null);
+          _context0.p = 8;
+          _t7 = _context0.v;
+          console.warn("Cloud save", _t7);
+          return _context0.a(2, null);
       }
-    }, _callee9, null, [[3, 8]]);
+    }, _callee0, null, [[3, 8]]);
   }));
   return _cloudSave.apply(this, arguments);
 }
@@ -12973,7 +12992,12 @@ function mergeInvItems(existing, incoming, mode) {
     return [String(i.id).toUpperCase(), i];
   }));
   incoming.forEach(function (i) {
-    return byId.set(String(i.id).toUpperCase(), i);
+    var k = String(i.id).toUpperCase();
+    var prev = byId.get(k);
+    byId.set(k, prev ? _objectSpread(_objectSpread(_objectSpread({}, prev), i), {}, {
+      img: i.img || prev.img,
+      st: prev.st || i.st
+    }) : i);
   });
   return _toConsumableArray(byId.values());
 }
@@ -12992,117 +13016,391 @@ function makeInvHistoryEntry(meta) {
 function appendInvHistory(ev, meta) {
   return [].concat(_toConsumableArray(ev.invHistory || []), [makeInvHistoryEntry(meta)]);
 }
+function ensureJSZip(cb) {
+  if (window.JSZip) {
+    cb();
+    return;
+  }
+  if (document.getElementById("vj-jszip")) {
+    setTimeout(function () {
+      return cb();
+    }, 500);
+    return;
+  }
+  var s = document.createElement("script");
+  s.id = "vj-jszip";
+  s.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+  s.onload = function () {
+    return cb();
+  };
+  s.onerror = function () {
+    return cb();
+  };
+  document.head.appendChild(s);
+}
+function codeForExcelRow(excelRow, idByRow) {
+  for (var r = excelRow; r >= 1; r--) {
+    if (idByRow[r]) return idByRow[r];
+  }
+  return null;
+}
+function extractXLImages(_x8, _x9) {
+  return _extractXLImages.apply(this, arguments);
+}
+function _extractXLImages() {
+  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee1(arrayBuffer, idByRow) {
+    var zip, imgs, drawingPaths, _iterator3, _step3, _loop3, _t8, _t9;
+    return _regenerator().w(function (_context10) {
+      while (1) switch (_context10.p = _context10.n) {
+        case 0:
+          if (!(!window.JSZip || !idByRow)) {
+            _context10.n = 1;
+            break;
+          }
+          return _context10.a(2, {});
+        case 1:
+          _context10.p = 1;
+          _context10.n = 2;
+          return window.JSZip.loadAsync(arrayBuffer);
+        case 2:
+          zip = _context10.v;
+          imgs = {};
+          drawingPaths = Object.keys(zip.files).filter(function (n) {
+            return /xl\/drawings\/drawing\d+\.xml$/.test(n);
+          });
+          _iterator3 = _createForOfIteratorHelper(drawingPaths);
+          _context10.p = 3;
+          _loop3 = /*#__PURE__*/_regenerator().m(function _loop3() {
+            var dp, xml, relsPath, relsXml, relMap, re, m, code, mediaPath, ext, mime, b64;
+            return _regenerator().w(function (_context1) {
+              while (1) switch (_context1.n) {
+                case 0:
+                  dp = _step3.value;
+                  _context1.n = 1;
+                  return zip.file(dp).async("string");
+                case 1:
+                  xml = _context1.v;
+                  relsPath = dp.replace("drawings/", "drawings/_rels/").replace(".xml", ".xml.rels");
+                  if (zip.files[relsPath]) {
+                    _context1.n = 2;
+                    break;
+                  }
+                  return _context1.a(2, 1);
+                case 2:
+                  _context1.n = 3;
+                  return zip.file(relsPath).async("string");
+                case 3:
+                  relsXml = _context1.v;
+                  relMap = {};
+                  relsXml.replace(/Id="([^"]+)"[^>]*Target="([^"]+)"/g, function (_, id, tgt) {
+                    relMap[id] = "xl/" + tgt.replace(/^\.\.\//, "");
+                  });
+                  re = /<xdr:row>(\d+)<\/xdr:row>[\s\S]*?r:embed="([^"]+)"/g;
+                case 4:
+                  if (!(m = re.exec(xml))) {
+                    _context1.n = 7;
+                    break;
+                  }
+                  code = codeForExcelRow(parseInt(m[1], 10) + 1, idByRow);
+                  mediaPath = relMap[m[2]];
+                  if (!(!code || !mediaPath || imgs[code])) {
+                    _context1.n = 5;
+                    break;
+                  }
+                  return _context1.a(3, 4);
+                case 5:
+                  ext = (mediaPath.split(".").pop() || "jpg").toLowerCase();
+                  mime = ext === "png" ? "image/png" : ext === "gif" ? "image/gif" : "image/jpeg";
+                  _context1.n = 6;
+                  return zip.file(mediaPath).async("base64");
+                case 6:
+                  b64 = _context1.v;
+                  imgs[code] = "data:" + mime + ";base64," + b64;
+                  _context1.n = 4;
+                  break;
+                case 7:
+                  return _context1.a(2);
+              }
+            }, _loop3);
+          });
+          _iterator3.s();
+        case 4:
+          if ((_step3 = _iterator3.n()).done) {
+            _context10.n = 7;
+            break;
+          }
+          return _context10.d(_regeneratorValues(_loop3()), 5);
+        case 5:
+          if (!_context10.v) {
+            _context10.n = 6;
+            break;
+          }
+          return _context10.a(3, 6);
+        case 6:
+          _context10.n = 4;
+          break;
+        case 7:
+          _context10.n = 9;
+          break;
+        case 8:
+          _context10.p = 8;
+          _t8 = _context10.v;
+          _iterator3.e(_t8);
+        case 9:
+          _context10.p = 9;
+          _iterator3.f();
+          return _context10.f(9);
+        case 10:
+          return _context10.a(2, imgs);
+        case 11:
+          _context10.p = 11;
+          _t9 = _context10.v;
+          console.warn("Image extract", _t9);
+          return _context10.a(2, {});
+      }
+    }, _callee1, null, [[3, 8, 9, 10], [1, 11]]);
+  }));
+  return _extractXLImages.apply(this, arguments);
+}
+function rowToItem(row, excelRow) {
+  var id = String(xlVal(row, ["Unique Code", "Jewel Code", "JewelCode", "Code", "SKU", "ID", "Item Code", "VJ Code"]) || "").trim().toUpperCase();
+  if (!id) {
+    for (var _i = 0, _Object$values = Object.values(row); _i < _Object$values.length; _i++) {
+      var v = _Object$values[_i];
+      var s = String(v || "").trim().toUpperCase();
+      if (/^VJ[A-Z]{2,4}\d+/i.test(s)) {
+        id = s;
+        break;
+      }
+    }
+  }
+  if (!id || id.length < 3) return null;
+  if (["UNIQUE CODE", "JEWEL CODE", "JEWEL", "CODE", "ID", "SKU", "STYLE CODE"].includes(id)) return null;
+  var design = String(xlVal(row, ["Design", "Category", "Cat", "Product Type"]) || "Jewellery").trim();
+  var col = String(xlVal(row, ["Coll'n", "Collection", "Col", "Collection Name"]) || "").trim();
+  var metal = String(xlVal(row, ["KT/Col", "KT Col", "Metal", "Metal Type"]) || "").trim();
+  var stoneShape = String(xlVal(row, ["Stone Shape", "Shape"]) || "").trim();
+  var clarity = String(xlVal(row, ["Color/Clarity", "Color Clarity", "Clarity"]) || "").trim();
+  var pcs = xlNum(xlVal(row, ["PCS", "Stone Pcs", "Total PCS"]));
+  var cts = xlNum(xlVal(row, ["CTS", "Total CTS", "Total Carats"]));
+  var fp = xlNum(xlVal(row, ["Round Off Final", "Round Off", "Final Price"]));
+  if (fp <= 0) fp = xlNum(xlVal(row, ["Sale Price", "Price", "FP", "MRP"]));
+  if (fp <= 0) fp = xlNum(xlVal(row, ["Inward + Tarriffs", "Inward + Tariffs", "IPT", "Inward+Tariffs"]));
+  if (fp <= 0) return null;
+  var salePrice = xlNum(xlVal(row, ["Sale Price"]));
+  var roundOff = xlNum(xlVal(row, ["Round Off Final", "Round Off"]));
+  var xlRaw = {};
+  Object.entries(row || {}).forEach(function (_ref9) {
+    var _ref0 = _slicedToArray(_ref9, 2),
+      k = _ref0[0],
+      v = _ref0[1];
+    if (v != null && String(v).trim() !== "") xlRaw[String(k).trim()] = v;
+  });
+  var stones = stoneShape || clarity || pcs || cts ? [{
+    sh: stoneShape,
+    cl: clarity,
+    pc: pcs,
+    ct: cts,
+    tct: cts || xlNum(xlVal(row, ["Total CTS"]))
+  }] : [];
+  var emo = {
+    Bracelets: "💎",
+    Earrings: "✨",
+    Necklaces: "📿",
+    Rings: "💍",
+    Pendants: "⭐",
+    Bangles: "🔮",
+    Brooch: "📌",
+    Jewellery: "💎",
+    Jewelry: "💎",
+    "Men's": "💎"
+  };
+  return {
+    id: id,
+    style: String(xlVal(row, ["Style Code", "Style", "Style No"]) || ""),
+    cat: design,
+    col: col,
+    metal: metal,
+    sz: String(xlVal(row, ["Item Size", "Size", "Sz"]) || "Std"),
+    qty: parseInt(xlNum(xlVal(row, ["Qty", "Quantity"])) || 1) || 1,
+    gw: xlNum(xlVal(row, ["Gross Wt", "Gross Weight", "GW"])),
+    nw: xlNum(xlVal(row, ["Net Wt", "Net Weight", "NW"])),
+    tc: cts || xlNum(xlVal(row, ["Total Carats", "TC"])),
+    sp: pcs || xlNum(xlVal(row, ["Total PCS", "Stone Pcs"])),
+    iv: xlNum(xlVal(row, ["Inward Value $", "Inward Value", "IV"])),
+    tod: xlNum(xlVal(row, ["Today Cost $", "Today Cost", "TOD"])),
+    cpt: xlNum(xlVal(row, ["Today Cost + Tariffs", "Cost+Tariffs", "CPT"])),
+    ipt: xlNum(xlVal(row, ["Inward + Tarriffs", "Inward + Tariffs", "Inward+Tariffs", "IPT"])),
+    fp: fp,
+    salePrice: salePrice,
+    roundOff: roundOff,
+    design: design,
+    stoneShape: stoneShape,
+    clarity: clarity,
+    ktCol: metal,
+    xl: xlRaw,
+    excelRow: excelRow,
+    em: emo[design] || "💎",
+    st: "available",
+    loc: String(xlVal(row, ["Location", "Loc"]) || "Exhibition"),
+    views: 0,
+    searches: 0,
+    stones: stones,
+    img: ""
+  };
+}
+function parseSheetRows(X, ws) {
+  var aoa = X.utils.sheet_to_json(ws, {
+    header: 1,
+    defval: "",
+    raw: false
+  });
+  if (!aoa.length) return {
+    items: [],
+    idByRow: {}
+  };
+  var hIdx = 0;
+  for (var i = 0; i < Math.min(aoa.length, 20); i++) {
+    var line = aoa[i].map(function (c) {
+      return String(c || "").toLowerCase();
+    }).join(" ");
+    if (line.includes("unique") && line.includes("code")) {
+      hIdx = i;
+      break;
+    }
+    if (line.includes("jewel") && line.includes("code")) {
+      hIdx = i;
+      break;
+    }
+  }
+  var headers = (aoa[hIdx] || []).map(function (h) {
+    return String(h || "").trim();
+  });
+  var items = [];
+  var idByRow = {};
+  var _loop = function _loop(r) {
+    if (!aoa[r].some(function (v) {
+      return v !== "" && v != null;
+    })) return 1; // continue
+    var row = {};
+    headers.forEach(function (h, i) {
+      if (h) row[h] = aoa[r][i] != null ? aoa[r][i] : "";
+    });
+    var excelRow = r + 1;
+    var item = rowToItem(row, excelRow);
+    if (item) {
+      items.push(item);
+      idByRow[excelRow] = item.id;
+    }
+  };
+  for (var r = hIdx + 1; r < aoa.length; r++) {
+    if (_loop(r)) continue;
+  }
+  return {
+    items: items,
+    idByRow: idByRow
+  };
+}
 function parseXL(file, onDone, onError) {
   ensureXLSX(function () {
-    var X = window.XLSX;
-    if (!X) {
-      onError("Excel library still loading — wait a moment and try again.");
-      return;
-    }
-    var r = new FileReader();
-    r.onload = function (e) {
-      try {
-        var wb = X.read(new Uint8Array(e.target.result), {
-          type: "array"
-        });
-        var rows = [];
-        var _iterator2 = _createForOfIteratorHelper(wb.SheetNames),
-          _step2;
-        try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var sn = _step2.value;
-            var ws = wb.Sheets[sn];
-            if (!ws) continue;
-            var part = X.utils.sheet_to_json(ws, {
-              defval: "",
-              raw: false
-            });
-            if (part.length > rows.length) rows = part;
-          }
-        } catch (err) {
-          _iterator2.e(err);
-        } finally {
-          _iterator2.f();
-        }
-        if (!rows.length) {
-          onError("The file has no data rows. Check the Excel sheet is not empty.");
-          return;
-        }
-        var headers = Object.keys(rows[0] || {});
-        var emo = {
-          Bracelets: "💎",
-          Earrings: "✨",
-          Necklaces: "📿",
-          Rings: "💍",
-          Pendants: "⭐",
-          Bangles: "🔮",
-          Brooch: "📌",
-          Jewellery: "💎",
-          Jewelry: "💎"
-        };
-        var ID_KEYS = ["Jewel Code", "JewelCode", "Jewel", "Code", "SKU", "ID", "Item Code", "Item ID", "Style Code", "VJ Code", "Product Code", "Stock Code"];
-        var PRICE_KEYS = ["Sale Price", "Final Price", "FP", "Price", "MRP", "Retail", "Selling Price", "Amount", "List Price", "Exhibition Price", "IPT", "Inward+Tariffs", "CPT", "Cost+Tariffs"];
-        var items = rows.map(function (row) {
-          var id = String(xlVal(row, ID_KEYS) || "").trim().toUpperCase();
-          if (!id) {
-            for (var _i = 0, _Object$values = Object.values(row); _i < _Object$values.length; _i++) {
-              var v = _Object$values[_i];
-              var s = String(v || "").trim().toUpperCase();
-              if (/^VJ[A-Z]{2,4}\d+/i.test(s)) {
-                id = s;
-                break;
-              }
-            }
-          }
-          if (!id || id.length < 3) return null;
-          if (["JEWEL CODE", "JEWEL", "CODE", "ID", "SKU", "ITEM"].includes(id)) return null;
-          var fp = xlNum(xlVal(row, PRICE_KEYS));
-          if (fp <= 0) fp = xlNum(xlVal(row, ["TOD", "Today Cost", "IV", "Inward Value"]));
-          var cat = String(xlVal(row, ["Category", "Cat", "Product Type", "Type"]) || "Jewellery").trim();
-          if (fp <= 0) return null;
-          return {
-            id: id,
-            style: String(xlVal(row, ["Style", "Style No", "Style Number", "style"]) || ""),
-            cat: cat,
-            col: String(xlVal(row, ["Collection", "Col", "Coll'n", "Collection Name"]) || ""),
-            metal: String(xlVal(row, ["Metal", "Metal Type", "metal"]) || ""),
-            sz: String(xlVal(row, ["Size", "Sz", "Ring Size"]) || "Std"),
-            qty: parseInt(xlNum(xlVal(row, ["Qty", "Quantity", "qty"])) || 1),
-            gw: xlNum(xlVal(row, ["Gross Wt", "Gross Weight", "GW", "gw"])),
-            nw: xlNum(xlVal(row, ["Net Wt", "Net Weight", "NW", "nw"])),
-            tc: xlNum(xlVal(row, ["Total Carats", "TC", "Total Ct", "tc"])),
-            sp: xlNum(xlVal(row, ["Stone Pcs", "Stone Pieces", "SP", "sp"])),
-            iv: xlNum(xlVal(row, ["Inward Value", "IV", "iv"])),
-            tod: xlNum(xlVal(row, ["Today Cost", "TOD", "tod"])),
-            cpt: xlNum(xlVal(row, ["Cost+Tariffs", "CPT", "cpt"])),
-            ipt: xlNum(xlVal(row, ["Inward+Tariffs", "IPT", "ipt"])),
-            fp: fp || 0,
-            em: emo[cat] || "💎",
-            st: "available",
-            loc: String(xlVal(row, ["Location", "Loc", "loc"]) || "Exhibition"),
-            views: 0,
-            searches: 0,
-            stones: []
-          };
-        }).filter(Boolean);
-        if (!items.length) {
-          onError("0 items imported. Found columns: " + headers.slice(0, 10).join(", ") + ". Need Jewel Code (or VJ… code) and Sale Price.");
-          return;
-        }
-        onDone(items);
-      } catch (err) {
-        onError("Parse error: " + err.message);
+    return ensureJSZip(function () {
+      var X = window.XLSX;
+      if (!X) {
+        onError(INV_FAIL + " — Excel library still loading. Wait a moment and try again.");
+        return;
       }
-    };
-    r.onerror = function () {
-      return onError("Could not read file.");
-    };
-    r.readAsArrayBuffer(file);
+      var r = new FileReader();
+      r.onload = /*#__PURE__*/function () {
+        var _ref1 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(e) {
+          var buf, wb, items, idByRow, _iterator2, _step2, sn, _ws, parsed, ws, headers, imgMap, _t, _t2;
+          return _regenerator().w(function (_context) {
+            while (1) switch (_context.p = _context.n) {
+              case 0:
+                _context.p = 0;
+                buf = e.target.result;
+                wb = X.read(new Uint8Array(buf), {
+                  type: "array"
+                });
+                items = [];
+                idByRow = {};
+                _iterator2 = _createForOfIteratorHelper(wb.SheetNames);
+                _context.p = 1;
+                _iterator2.s();
+              case 2:
+                if ((_step2 = _iterator2.n()).done) {
+                  _context.n = 5;
+                  break;
+                }
+                sn = _step2.value;
+                _ws = wb.Sheets[sn];
+                if (_ws) {
+                  _context.n = 3;
+                  break;
+                }
+                return _context.a(3, 4);
+              case 3:
+                parsed = parseSheetRows(X, _ws);
+                if (parsed.items.length >= items.length) {
+                  items = parsed.items;
+                  idByRow = parsed.idByRow;
+                }
+              case 4:
+                _context.n = 2;
+                break;
+              case 5:
+                _context.n = 7;
+                break;
+              case 6:
+                _context.p = 6;
+                _t = _context.v;
+                _iterator2.e(_t);
+              case 7:
+                _context.p = 7;
+                _iterator2.f();
+                return _context.f(7);
+              case 8:
+                if (items.length) {
+                  _context.n = 9;
+                  break;
+                }
+                ws = wb.Sheets[wb.SheetNames[0]];
+                headers = ws ? Object.keys(X.utils.sheet_to_json(ws, {
+                  defval: ""
+                })[0] || {}) : [];
+                onError(INV_FAIL + " — 0 items found. Columns seen: " + headers.slice(0, 12).join(", ") + ". Need Unique Code + Round Off Final (or Sale Price).");
+                return _context.a(2);
+              case 9:
+                _context.n = 10;
+                return extractXLImages(buf, idByRow);
+              case 10:
+                imgMap = _context.v;
+                items = attachItemImages(items, imgMap);
+                onDone(items);
+                _context.n = 12;
+                break;
+              case 11:
+                _context.p = 11;
+                _t2 = _context.v;
+                onError(INV_FAIL + " — " + _t2.message);
+              case 12:
+                return _context.a(2);
+            }
+          }, _callee, null, [[1, 6, 7, 8], [0, 11]]);
+        }));
+        return function (_x0) {
+          return _ref1.apply(this, arguments);
+        };
+      }();
+      r.onerror = function () {
+        return onError(INV_FAIL + " — Could not read file.");
+      };
+      r.readAsArrayBuffer(file);
+    });
   });
 }
-function Login(_ref9) {
-  var onLogin = _ref9.onLogin,
-    users = _ref9.users;
+function Login(_ref10) {
+  var onLogin = _ref10.onLogin,
+    users = _ref10.users;
   var _useState11 = useState(""),
     _useState12 = _slicedToArray(_useState11, 2),
     u = _useState12[0],
@@ -13171,50 +13469,50 @@ function Login(_ref9) {
     }, 320);
   };
   var go = /*#__PURE__*/function () {
-    var _ref0 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+    var _ref11 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
       var usr, saved, ok;
-      return _regenerator().w(function (_context) {
-        while (1) switch (_context.n) {
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.n) {
           case 0:
             usr = users.find(function (x) {
               return x.un === u.toLowerCase() && x.pw === p;
             });
             if (usr) {
-              _context.n = 1;
+              _context2.n = 1;
               break;
             }
             se("Invalid username or password");
-            return _context.a(2);
+            return _context2.a(2);
           case 1:
             saved = localStorage.getItem(BIO_USER);
             if (!(bio && saved !== usr.un)) {
-              _context.n = 3;
+              _context2.n = 3;
               break;
             }
-            _context.n = 2;
+            _context2.n = 2;
             return registerBio(usr.un);
           case 2:
-            _context.n = 5;
+            _context2.n = 5;
             break;
           case 3:
             if (!(bio && !saved)) {
-              _context.n = 5;
+              _context2.n = 5;
               break;
             }
-            _context.n = 4;
+            _context2.n = 4;
             return registerBio(usr.un);
           case 4:
-            ok = _context.v;
+            ok = _context2.v;
             if (ok) toast.success("Face ID enabled", "Use Face ID next time you sign in.");
           case 5:
             onLogin(usr);
           case 6:
-            return _context.a(2);
+            return _context2.a(2);
         }
-      }, _callee);
+      }, _callee2);
     }));
     return function go() {
-      return _ref0.apply(this, arguments);
+      return _ref11.apply(this, arguments);
     };
   }();
   var doBio = function doBio() {
@@ -13434,14 +13732,14 @@ function Login(_ref9) {
     }
   }, "nilay/nilay123 \xB7 jimit/jimit123 \xB7 naresh/naresh123")));
 }
-function EventHub(_ref1) {
-  var user = _ref1.user,
-    events = _ref1.events,
-    onEnter = _ref1.onEnter,
-    onCreate = _ref1.onCreate,
-    onManage = _ref1.onManage,
-    onDelete = _ref1.onDelete,
-    onLogout = _ref1.onLogout;
+function EventHub(_ref12) {
+  var user = _ref12.user,
+    events = _ref12.events,
+    onEnter = _ref12.onEnter,
+    onCreate = _ref12.onCreate,
+    onManage = _ref12.onManage,
+    onDelete = _ref12.onDelete,
+    onLogout = _ref12.onLogout;
   var _useState21 = useState(false),
     _useState22 = _slicedToArray(_useState21, 2),
     sc = _useState22[0],
@@ -13477,7 +13775,7 @@ function EventHub(_ref1) {
     if (!form.name.trim()) return;
     var fin = function fin(inv, fileName) {
       if (xlf && !inv.length) {
-        smsg("0 items found in file. Check columns: Jewel Code, Sale Price.");
+        smsg(INV_FAIL + " — 0 items found. Check Unique Code and Round Off Final columns.");
         return;
       }
       var base = {
@@ -13955,7 +14253,7 @@ function EventHub(_ref1) {
       color: T3,
       marginTop: 2
     }
-  }, "Columns: Jewel Code, Category, Metal, Sale Price\u2026"), /*#__PURE__*/React.createElement("input", {
+  }, "Columns: Unique Code, Design, Coll'n, Round Off Final\u2026"), /*#__PURE__*/React.createElement("input", {
     id: "xlC",
     type: "file",
     accept: ".xlsx,.xls,.csv",
@@ -13990,13 +14288,13 @@ function EventHub(_ref1) {
     onClick: create
   }, loading ? "Parsing..." : "✓ Create Event")));
 }
-function ManageEvent(_ref10) {
+function ManageEvent(_ref13) {
   var _COLORS$find;
-  var ev = _ref10.ev,
-    onClose = _ref10.onClose,
-    onUpdate = _ref10.onUpdate,
-    onDelete = _ref10.onDelete,
-    user = _ref10.user;
+  var ev = _ref13.ev,
+    onClose = _ref13.onClose,
+    onUpdate = _ref13.onUpdate,
+    onDelete = _ref13.onDelete,
+    user = _ref13.user;
   var _useState31 = useState("details"),
     _useState32 = _slicedToArray(_useState31, 2),
     tab = _useState32[0],
@@ -14375,7 +14673,7 @@ function ManageEvent(_ref10) {
       if (!f) return;
       parseXL(f, function (items) {
         if (!items.length) {
-          toast.warn("Import failed", "0 items found — check Jewel Code and Sale Price columns.");
+          toast.error(INV_FAIL, "0 items found — check Unique Code and Round Off Final columns.");
           e.target.value = "";
           return;
         }
@@ -14394,7 +14692,7 @@ function ManageEvent(_ref10) {
         toast.success("Inventory updated", items.length + " items " + (mode === "add" ? "added" : "imported") + " · " + inv.length + " total");
         e.target.value = "";
       }, function (err) {
-        toast.warn("Import failed", err);
+        toast.error(INV_FAIL, String(err).replace(INV_FAIL + " — ", ""));
         e.target.value = "";
       });
     },
@@ -14408,15 +14706,15 @@ function ManageEvent(_ref10) {
       color: T3,
       lineHeight: 1.5
     }
-  }, "Upload your price list Excel (.xlsx / .xls / .csv). Required columns: ", /*#__PURE__*/React.createElement("strong", null, "Jewel Code"), " (or VJ code) and ", /*#__PURE__*/React.createElement("strong", null, "Sale Price"), ".")));
+  }, "Upload your Vianne price list (.xlsx). All columns are saved. Images embedded in the sheet are imported by Unique Code.")));
 }
-function SaleSuccess(_ref11) {
-  var sale = _ref11.sale,
-    item = _ref11.item,
-    fc = _ref11.fc,
-    cur = _ref11.cur,
-    onDone = _ref11.onDone,
-    onPrint = _ref11.onPrint;
+function SaleSuccess(_ref14) {
+  var sale = _ref14.sale,
+    item = _ref14.item,
+    fc = _ref14.fc,
+    cur = _ref14.cur,
+    onDone = _ref14.onDone,
+    onPrint = _ref14.onPrint;
   var _useState39 = useState(4),
     _useState40 = _slicedToArray(_useState39, 2),
     count = _useState40[0],
@@ -14585,16 +14883,16 @@ function SaleSuccess(_ref11) {
     }
   }, "Auto-closing in ", count, "s..."));
 }
-function ItemCard(_ref12) {
-  var item = _ref12.item,
-    user = _ref12.user,
-    inv = _ref12.inv,
-    leads = _ref12.leads,
-    cur = _ref12.cur,
-    preCustName = _ref12.preCustName,
-    onSell = _ref12.onSell,
-    onBack = _ref12.onBack,
-    onAddLead = _ref12.onAddLead;
+function ItemCard(_ref15) {
+  var item = _ref15.item,
+    user = _ref15.user,
+    inv = _ref15.inv,
+    leads = _ref15.leads,
+    cur = _ref15.cur,
+    preCustName = _ref15.preCustName,
+    onSell = _ref15.onSell,
+    onBack = _ref15.onBack,
+    onAddLead = _ref15.onAddLead;
   var pr = gp(user.role, user.perms);
   var _useState41 = useState(null),
     _useState42 = _slicedToArray(_useState41, 2),
@@ -15076,10 +15374,10 @@ function ItemCard(_ref12) {
     style: _objectSpread({}, S.cc({
       marginBottom: 11
     }))
-  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref13) {
-    var _ref14 = _slicedToArray(_ref13, 2),
-      l = _ref14[0],
-      v = _ref14[1];
+  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref16) {
+    var _ref17 = _slicedToArray(_ref16, 2),
+      l = _ref17[0],
+      v = _ref17[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15303,10 +15601,10 @@ function ItemCard(_ref12) {
       gap: 8,
       marginBottom: 13
     }
-  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref15) {
-    var _ref16 = _slicedToArray(_ref15, 2),
-      l = _ref16[0],
-      v = _ref16[1];
+  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref18) {
+    var _ref19 = _slicedToArray(_ref18, 2),
+      l = _ref19[0],
+      v = _ref19[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15340,10 +15638,10 @@ function ItemCard(_ref12) {
       gridTemplateColumns: "1fr 1fr",
       gap: 9
     }
-  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref17) {
-    var _ref18 = _slicedToArray(_ref17, 2),
-      l = _ref18[0],
-      v = _ref18[1];
+  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref20) {
+    var _ref21 = _slicedToArray(_ref20, 2),
+      l = _ref21[0],
+      v = _ref21[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l
     }, /*#__PURE__*/React.createElement("div", {
@@ -15459,9 +15757,9 @@ function ItemCard(_ref12) {
     }
   })));
 }
-function InvoiceSheet(_ref19) {
-  var sale = _ref19.sale,
-    onClose = _ref19.onClose;
+function InvoiceSheet(_ref22) {
+  var sale = _ref22.sale,
+    onClose = _ref22.onClose;
   var sub = sale.price,
     dsc = sale.disc > 0 ? Math.round(sub * sale.disc / 100 * 100) / 100 : 0,
     tax = sub - dsc,
@@ -15629,11 +15927,11 @@ function InvoiceSheet(_ref19) {
       borderRadius: 6,
       padding: "8px 9px"
     }
-  }, [["Subtotal", f$(sub), false], sale.disc > 0 ? ["Disc (" + sale.disc + "%)", "−" + f$(dsc), true] : null, sale.ccAmt > 0 ? ["💳 CC" + (sale.ccType === "pct" ? " " + sale.ccVal + "%" : ""), f$(sale.ccAmt), false] : null].filter(Boolean).map(function (_ref20) {
-    var _ref21 = _slicedToArray(_ref20, 3),
-      l = _ref21[0],
-      v = _ref21[1],
-      d = _ref21[2];
+  }, [["Subtotal", f$(sub), false], sale.disc > 0 ? ["Disc (" + sale.disc + "%)", "−" + f$(dsc), true] : null, sale.ccAmt > 0 ? ["💳 CC" + (sale.ccType === "pct" ? " " + sale.ccVal + "%" : ""), f$(sale.ccAmt), false] : null].filter(Boolean).map(function (_ref23) {
+    var _ref24 = _slicedToArray(_ref23, 3),
+      l = _ref24[0],
+      v = _ref24[1],
+      d = _ref24[2];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15688,11 +15986,11 @@ function InvoiceSheet(_ref19) {
 }
 
 // ─── USER MANAGER ────────────────────────────────────────────────────────────
-function UserManager(_ref22) {
-  var users = _ref22.users,
-    currentUser = _ref22.currentUser,
-    onUsersChange = _ref22.onUsersChange,
-    events = _ref22.events;
+function UserManager(_ref25) {
+  var users = _ref25.users,
+    currentUser = _ref25.currentUser,
+    onUsersChange = _ref25.onUsersChange,
+    events = _ref25.events;
   var _useState49 = useState(null),
     _useState50 = _slicedToArray(_useState49, 2),
     editPerms = _useState50[0],
@@ -15767,8 +16065,8 @@ function UserManager(_ref22) {
     var roleBase = RD[editPerms.role] || RD.Staff;
     var merged = _objectSpread(_objectSpread({}, roleBase), editPerms.perms || {});
     var overrides = {};
-    PK.forEach(function (_ref23) {
-      var k = _ref23.k;
+    PK.forEach(function (_ref26) {
+      var k = _ref26.k;
       if (merged[k] !== roleBase[k]) overrides[k] = merged[k];
     });
     onUsersChange(users.map(function (u) {
@@ -15845,9 +16143,9 @@ function UserManager(_ref22) {
         color: AM,
         fontWeight: 600
       }
-    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref24) {
-      var k = _ref24.k,
-        l = _ref24.l;
+    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref27) {
+      var k = _ref27.k,
+        l = _ref27.l;
       return /*#__PURE__*/React.createElement("div", {
         key: k,
         style: {
@@ -16303,10 +16601,10 @@ function UserManager(_ref22) {
     }, "\u2715")));
   }));
 }
-function PhotoSearch(_ref25) {
-  var inv = _ref25.inv,
-    onResult = _ref25.onResult,
-    onClose = _ref25.onClose;
+function PhotoSearch(_ref28) {
+  var inv = _ref28.inv,
+    onResult = _ref28.onResult,
+    onClose = _ref28.onClose;
   var _useState55 = useState("upload"),
     _useState56 = _slicedToArray(_useState55, 2),
     phase = _useState56[0],
@@ -16517,7 +16815,7 @@ function PhotoSearch(_ref25) {
     var centres = samples.slice(0, 4).map(function (s) {
       return _toConsumableArray(s);
     });
-    var _loop = function _loop() {
+    var _loop2 = function _loop2() {
       var sums = centres.map(function () {
         return [0, 0, 0, 0];
       });
@@ -16541,7 +16839,7 @@ function PhotoSearch(_ref25) {
       });
     };
     for (var iter = 0; iter < 3; iter++) {
-      _loop();
+      _loop2();
     }
     return centres.map(function (c) {
       return c.map(Math.round);
@@ -17506,12 +17804,12 @@ function SingleLookup(p) {
     sMin: sfMinFp,
     max: fMaxFp,
     sMax: sfMaxFp
-  }].map(function (_ref26) {
-    var l = _ref26.l,
-      min = _ref26.min,
-      sMin = _ref26.sMin,
-      max = _ref26.max,
-      sMax = _ref26.sMax;
+  }].map(function (_ref29) {
+    var l = _ref29.l,
+      min = _ref29.min,
+      sMin = _ref29.sMin,
+      max = _ref29.max,
+      sMax = _ref29.sMax;
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -18994,10 +19292,10 @@ function InventoryTab(p) {
     return i.st === "available";
   }).reduce(function (s, i) {
     return s + i.fp;
-  }, 0), cur)]].map(function (_ref27) {
-    var _ref28 = _slicedToArray(_ref27, 2),
-      l = _ref28[0],
-      v = _ref28[1];
+  }, 0), cur)]].map(function (_ref30) {
+    var _ref31 = _slicedToArray(_ref30, 2),
+      l = _ref31[0],
+      v = _ref31[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -19265,9 +19563,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref29) {
-    var item = _ref29.item,
-      scannedAt = _ref29.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref32) {
+    var item = _ref32.item,
+      scannedAt = _ref32.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -19381,6 +19679,112 @@ function InventoryTab(p) {
     }, "\u2713 All confirmed"));
   }))));
 }
+function invBuckets(inv, keyFn) {
+  var m = {};
+  (inv || []).forEach(function (i) {
+    var k = keyFn(i) || "Unknown";
+    if (!m[k]) m[k] = {
+      k: k,
+      cnt: 0,
+      val: 0,
+      avail: 0,
+      sold: 0,
+      rev: 0
+    };
+    m[k].cnt++;
+    m[k].val += i.fp || 0;
+    if (i.st === "sold") m[k].sold++;else if (i.st === "available") m[k].avail++;
+  });
+  return Object.values(m).sort(function (a, b) {
+    return b.cnt - a.cnt;
+  });
+}
+function AnalyticsBucketCard(_ref33) {
+  var title = _ref33.title,
+    data = _ref33.data,
+    cur = _ref33.cur,
+    fc = _ref33.fc,
+    maxVal = _ref33.maxVal;
+  var mx = maxVal || Math.max.apply(Math, [1].concat(_toConsumableArray(data.map(function (x) {
+    return x.cnt;
+  }))));
+  return /*#__PURE__*/React.createElement("div", {
+    style: S.card({
+      margin: 0
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.sh), {}, {
+      marginBottom: 10
+    })
+  }, title), data.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      color: T3,
+      fontSize: 11,
+      padding: 12
+    }
+  }, "No inventory data yet"), data.map(function (x, i) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: x.k,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "6px 0",
+        borderBottom: i < data.length - 1 ? "1px solid " + CRD2 : "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: 6,
+        marginBottom: 3
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        fontWeight: 600,
+        color: T1,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      }
+    }, x.k), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: "Cormorant Garamond,serif",
+        fontSize: 12,
+        fontWeight: 700,
+        color: G,
+        flexShrink: 0
+      }
+    }, fc(x.val, cur))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        height: 5,
+        background: CRD2,
+        borderRadius: 3,
+        overflow: "hidden"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        height: "100%",
+        width: Math.round(x.cnt / mx * 100) + "%",
+        background: G,
+        borderRadius: 3
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: T3,
+        marginTop: 2
+      }
+    }, x.cnt, " items \xB7 ", x.avail, " avail \xB7 ", x.sold, " sold")));
+  }));
+}
 function AnalyticsTab(p) {
   var sales = p.sales,
     inv = p.inv,
@@ -19393,10 +19797,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref30) {
-    var pct = _ref30.pct,
-      col = _ref30.col,
-      h = _ref30.h;
+  var Bar = function Bar(_ref34) {
+    var pct = _ref34.pct,
+      col = _ref34.col,
+      h = _ref34.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -19456,10 +19860,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref31) {
-    var _ref32 = _slicedToArray(_ref31, 2),
-      d = _ref32[0],
-      v = _ref32[1];
+  }).map(function (_ref35) {
+    var _ref36 = _slicedToArray(_ref35, 2),
+      d = _ref36[0],
+      v = _ref36[1];
     return {
       d: d,
       v: v
@@ -19741,10 +20145,26 @@ function AnalyticsTab(p) {
     return s + x.rev;
   }, 0);
   var top20pct = totalRev > 0 ? Math.round(top20rev / totalRev * 100) : 0;
+  var byDesign = invBuckets(inv, function (i) {
+    return i.design || i.cat;
+  });
+  var byCollection = invBuckets(inv, function (i) {
+    return i.col;
+  });
+  var byStoneShape = invBuckets(inv, function (i) {
+    return i.stoneShape || i.stones && i.stones[0] && i.stones[0].sh || "";
+  });
+  var byClarity = invBuckets(inv, function (i) {
+    return i.clarity || i.stones && i.stones[0] && i.stones[0].cl || "";
+  });
   var TABS = [{
     id: "overview",
     l: "Overview",
     ic: "📊"
+  }, {
+    id: "catalog",
+    l: "Catalog",
+    ic: "📦"
   }, {
     id: "timing",
     l: "Timing",
@@ -19936,7 +20356,54 @@ function AnalyticsTab(p) {
       color: T1,
       lineHeight: 1.5
     }
-  }, "Top ", /*#__PURE__*/React.createElement("strong", null, top20pct, "%"), " of revenue came from just ", /*#__PURE__*/React.createElement("strong", null, top20cnt, " item", top20cnt !== 1 ? "s" : ""), " (", Math.round(top20cnt / Math.max(itemRevSorted.length, 1) * 100), "% of catalog)."))), atab === "timing" && /*#__PURE__*/React.createElement("div", {
+  }, "Top ", /*#__PURE__*/React.createElement("strong", null, top20pct, "%"), " of revenue came from just ", /*#__PURE__*/React.createElement("strong", null, top20cnt, " item", top20cnt !== 1 ? "s" : ""), " (", Math.round(top20cnt / Math.max(itemRevSorted.length, 1) * 100), "% of catalog)."))), atab === "catalog" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.card({
+      margin: 0
+    })), {}, {
+      background: "rgba(30,92,69,0.05)",
+      border: "1px solid " + G
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: T1,
+      lineHeight: 1.5
+    }
+  }, "Inventory breakdown from your Excel import \u2014 ", /*#__PURE__*/React.createElement("strong", null, invCount), " items, ", /*#__PURE__*/React.createElement("strong", null, fc(inv.filter(function (i) {
+    return i.st === "available";
+  }).reduce(function (s, i) {
+    return s + i.fp;
+  }, 0), cur)), " available value.")), /*#__PURE__*/React.createElement(AnalyticsBucketCard, {
+    title: "\uD83C\uDFA8 By Design",
+    data: byDesign,
+    cur: cur,
+    fc: fc
+  }), /*#__PURE__*/React.createElement(AnalyticsBucketCard, {
+    title: "\u2728 By Collection (Coll'n)",
+    data: byCollection,
+    cur: cur,
+    fc: fc
+  }), /*#__PURE__*/React.createElement(AnalyticsBucketCard, {
+    title: "\uD83D\uDC8E By Stone Shape",
+    data: byStoneShape.filter(function (x) {
+      return x.k;
+    }),
+    cur: cur,
+    fc: fc
+  }), /*#__PURE__*/React.createElement(AnalyticsBucketCard, {
+    title: "\uD83D\uDD2E By Color / Clarity",
+    data: byClarity.filter(function (x) {
+      return x.k;
+    }),
+    cur: cur,
+    fc: fc
+  })), atab === "timing" && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
@@ -19957,9 +20424,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref33) {
-    var h = _ref33.h,
-      v = _ref33.v;
+  }, hourData.map(function (_ref37) {
+    var h = _ref37.h,
+      v = _ref37.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -20550,10 +21017,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref34, i) {
-    var _ref35 = _slicedToArray(_ref34, 2),
-      src = _ref35[0],
-      cnt = _ref35[1];
+  }, "No leads yet"), srcData.map(function (_ref38, i) {
+    var _ref39 = _slicedToArray(_ref38, 2),
+      src = _ref39[0],
+      cnt = _ref39[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -21237,8 +21704,8 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref36) {
-  var pr = _ref36.pr;
+function CloudStoragePanel(_ref40) {
+  var pr = _ref40.pr;
   var _useState73 = useState(false),
     _useState74 = _slicedToArray(_useState73, 2),
     busy = _useState74[0],
@@ -21249,17 +21716,17 @@ function CloudStoragePanel(_ref36) {
     setMeta = _useState76[1];
   var online = isCloudOnline();
   var syncNow = /*#__PURE__*/function () {
-    var _ref37 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
-      var d, _t;
-      return _regenerator().w(function (_context2) {
-        while (1) switch (_context2.p = _context2.n) {
+    var _ref41 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+      var d, _t3;
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.p = _context3.n) {
           case 0:
             setBusy(true);
-            _context2.p = 1;
-            _context2.n = 2;
+            _context3.p = 1;
+            _context3.n = 2;
             return cloudLoad();
           case 2:
-            d = _context2.v;
+            d = _context3.v;
             if (d && d.configured) {
               setMeta(getCloudMeta());
               toast.success("Loaded from Google Drive", "Version " + (d.version || 0));
@@ -21267,23 +21734,23 @@ function CloudStoragePanel(_ref36) {
                 return window.location.reload();
               }, 800);
             } else toast.warn("Cloud not ready", "Ask admin to configure Vercel + Google Drive.");
-            _context2.n = 4;
+            _context3.n = 4;
             break;
           case 3:
-            _context2.p = 3;
-            _t = _context2.v;
-            toast.warn("Sync failed", _t.message || "");
+            _context3.p = 3;
+            _t3 = _context3.v;
+            toast.warn("Sync failed", _t3.message || "");
           case 4:
-            _context2.p = 4;
+            _context3.p = 4;
             setBusy(false);
-            return _context2.f(4);
+            return _context3.f(4);
           case 5:
-            return _context2.a(2);
+            return _context3.a(2);
         }
-      }, _callee2, null, [[1, 3, 4, 5]]);
+      }, _callee3, null, [[1, 3, 4, 5]]);
     }));
     return function syncNow() {
-      return _ref37.apply(this, arguments);
+      return _ref41.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -21330,10 +21797,10 @@ function CloudStoragePanel(_ref36) {
     onClick: syncNow
   }, busy ? "Syncing…" : "↻ Reload from Google Drive"));
 }
-function CurrencyManager(_ref38) {
-  var cur = _ref38.cur,
-    scur = _ref38.scur,
-    pr = _ref38.pr;
+function CurrencyManager(_ref42) {
+  var cur = _ref42.cur,
+    scur = _ref42.scur,
+    pr = _ref42.pr;
   var _useState77 = useState(false),
     _useState78 = _slicedToArray(_useState77, 2),
     editMode = _useState78[0],
@@ -21351,10 +21818,10 @@ function CurrencyManager(_ref38) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref39) {
-      var _ref40 = _slicedToArray(_ref39, 2),
-        k = _ref40[0],
-        v = _ref40[1];
+    Object.entries(getCurr()).forEach(function (_ref43) {
+      var _ref44 = _slicedToArray(_ref43, 2),
+        k = _ref44[0],
+        v = _ref44[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -21362,10 +21829,10 @@ function CurrencyManager(_ref38) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref41) {
-      var _ref42 = _slicedToArray(_ref41, 2),
-        k = _ref42[0],
-        v = _ref42[1];
+    Object.entries(getCurr()).forEach(function (_ref45) {
+      var _ref46 = _slicedToArray(_ref45, 2),
+        k = _ref46[0],
+        v = _ref46[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -21425,10 +21892,10 @@ function CurrencyManager(_ref38) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref43) {
-    var _ref44 = _slicedToArray(_ref43, 2),
-      k = _ref44[0],
-      v = _ref44[1];
+  }, Object.entries(rates).map(function (_ref47) {
+    var _ref48 = _slicedToArray(_ref47, 2),
+      k = _ref48[0],
+      v = _ref48[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -21456,10 +21923,10 @@ function CurrencyManager(_ref38) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref45, i, arr) {
-    var _ref46 = _slicedToArray(_ref45, 2),
-      k = _ref46[0],
-      v = _ref46[1];
+  })), Object.entries(rates).map(function (_ref49, i, arr) {
+    var _ref50 = _slicedToArray(_ref49, 2),
+      k = _ref50[0],
+      v = _ref50[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -21663,18 +22130,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref47) {
-    var _ref48 = _slicedToArray(_ref47, 2),
-      v = _ref48[1];
-    return v;
-  }).map(function (_ref49) {
-    var _ref50 = _slicedToArray(_ref49, 1),
-      k = _ref50[0];
-    return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref51) {
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref51) {
     var _ref52 = _slicedToArray(_ref51, 2),
-      l = _ref52[0],
       v = _ref52[1];
+    return v;
+  }).map(function (_ref53) {
+    var _ref54 = _slicedToArray(_ref53, 1),
+      k = _ref54[0];
+    return k;
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref55) {
+    var _ref56 = _slicedToArray(_ref55, 2),
+      l = _ref56[0],
+      v = _ref56[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -21715,10 +22182,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref53) {
-    var _ref54 = _slicedToArray(_ref53, 2),
-      l = _ref54[0],
-      v = _ref54[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref57) {
+    var _ref58 = _slicedToArray(_ref57, 2),
+      l = _ref58[0],
+      v = _ref58[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -21786,10 +22253,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref55) {
-    var _ref56 = _slicedToArray(_ref55, 2),
-      l = _ref56[0],
-      v = _ref56[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref59) {
+    var _ref60 = _slicedToArray(_ref59, 2),
+      l = _ref60[0],
+      v = _ref60[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -23810,10 +24277,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref57) {
-      var _ref58 = _slicedToArray(_ref57, 2),
-        ic = _ref58[0],
-        v = _ref58[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref61) {
+      var _ref62 = _slicedToArray(_ref61, 2),
+        ic = _ref62[0],
+        v = _ref62[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -24276,16 +24743,16 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref59) {
-  var ev = _ref59.ev,
-    user = _ref59.user,
-    allUsers = _ref59.allUsers,
-    onUsersChange = _ref59.onUsersChange,
-    allEvents = _ref59.allEvents,
-    onSwitch = _ref59.onSwitch,
-    onUpdateEvent = _ref59.onUpdateEvent,
-    onBack = _ref59.onBack,
-    onLogout = _ref59.onLogout;
+function EventERP(_ref63) {
+  var ev = _ref63.ev,
+    user = _ref63.user,
+    allUsers = _ref63.allUsers,
+    onUsersChange = _ref63.onUsersChange,
+    allEvents = _ref63.allEvents,
+    onSwitch = _ref63.onSwitch,
+    onUpdateEvent = _ref63.onUpdateEvent,
+    onBack = _ref63.onBack,
+    onLogout = _ref63.onLogout;
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents);
@@ -25546,15 +26013,15 @@ function App() {
   var cloudSyncRef = useRef(null);
   var pendingDeletesRef = useRef([]);
   useEffect(function () {
-    _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+    _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
       var d, merged;
-      return _regenerator().w(function (_context3) {
-        while (1) switch (_context3.n) {
+      return _regenerator().w(function (_context4) {
+        while (1) switch (_context4.n) {
           case 0:
-            _context3.n = 1;
+            _context4.n = 1;
             return cloudFetchData();
           case 1:
-            d = _context3.v;
+            d = _context4.v;
             if (d && d.configured) {
               if (Array.isArray(d.events) && d.events.length) {
                 sevents(d.events);
@@ -25578,25 +26045,25 @@ function App() {
             }
             setCloudReady(true);
           case 2:
-            return _context3.a(2);
+            return _context4.a(2);
         }
-      }, _callee3);
+      }, _callee4);
     }))();
   }, []);
   useEffect(function () {
     saveEvents(events);
     if (!cloudReady || !isCloudOnline()) return;
     if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
-    cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
+    cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
       var deleted, synced;
-      return _regenerator().w(function (_context4) {
-        while (1) switch (_context4.n) {
+      return _regenerator().w(function (_context5) {
+        while (1) switch (_context5.n) {
           case 0:
             deleted = pendingDeletesRef.current.splice(0);
-            _context4.n = 1;
+            _context5.n = 1;
             return cloudSave(events, appUsers, deleted);
           case 1:
-            synced = _context4.v;
+            synced = _context5.v;
             if (synced) sevents(function (p) {
               return p.map(function (e) {
                 var m = synced.find(function (x) {
@@ -25606,9 +26073,9 @@ function App() {
               });
             });
           case 2:
-            return _context4.a(2);
+            return _context5.a(2);
         }
-      }, _callee4);
+      }, _callee5);
     })), 2500);
     return function () {
       if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
@@ -25703,15 +26170,28 @@ function App() {
 
   // Patch images into events once VJ_IMG is available
   useEffect(function () {
+    if (document.getElementById("vj-img-loader")) return;
+    var s = document.createElement("script");
+    s.id = "vj-img-loader";
+    s.src = "assets/vj-images.js";
+    s.onload = function () {
+      if (window.IMGS && !window.VJ_IMG) window.VJ_IMG = window.IMGS;
+    };
+    s.onerror = function () {};
+    document.head.appendChild(s);
+  }, []);
+  useEffect(function () {
     var patch = function patch() {
-      if (!window.VJ_IMG) return;
+      if (!window.VJ_IMG && !window.IMGS) return;
+      if (!window.VJ_IMG && window.IMGS) window.VJ_IMG = window.IMGS;
       sevents(function (prev) {
         return prev.map(function (ev) {
           return _objectSpread(_objectSpread({}, ev), {}, {
             inv: ev.inv.map(function (item) {
-              return item.img ? item : _objectSpread(_objectSpread({}, item), {}, {
-                img: window.VJ_IMG[item.id] || ""
-              });
+              var img = item.img || resolveItemImage(item.id);
+              return img ? _objectSpread(_objectSpread({}, item), {}, {
+                img: img
+              }) : item;
             })
           });
         });

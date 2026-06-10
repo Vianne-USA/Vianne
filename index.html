@@ -10411,6 +10411,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 });</script>
 <script>function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
 function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
@@ -12913,74 +12914,195 @@ function QRScanner(_ref4) {
     onClick: go
   }, "Find"))));
 }
-function parseXL(file, onDone, onError) {
-  var X = window.XLSX;
-  if (!X) {
-    onError("Excel library loading, retry in 2s.");
+function ensureXLSX(cb) {
+  if (window.XLSX) {
+    cb();
     return;
   }
-  var r = new FileReader();
-  r.onload = function (e) {
-    try {
-      var wb = X.read(new Uint8Array(e.target.result), {
-        type: "array"
-      });
-      var ws = wb.Sheets[wb.SheetNames[0]];
-      var rows = X.utils.sheet_to_json(ws, {
-        defval: ""
-      });
-      var emo = {
-        Bracelets: "💎",
-        Earrings: "✨",
-        Necklaces: "📿",
-        Rings: "💍",
-        Pendants: "⭐",
-        Bangles: "🔮",
-        Brooch: "📌"
-      };
-      var items = rows.map(function (r) {
-        var id = String(r["Jewel Code"] || r["ID"] || r["id"] || "").trim().toUpperCase();
-        var fp = parseFloat(r["Sale Price"] || r["Final Price"] || r["fp"] || r["Price"] || 0);
-        var cat = String(r["Category"] || r["cat"] || "Jewellery").trim();
-        if (!id || fp <= 0) return null;
-        return {
-          id: id,
-          style: String(r["Style"] || r["style"] || ""),
-          cat: cat,
-          col: String(r["Collection"] || r["col"] || r["Coll'n"] || ""),
-          metal: String(r["Metal"] || r["metal"] || ""),
-          sz: String(r["Size"] || r["sz"] || "Std"),
-          qty: parseInt(r["Qty"] || r["qty"] || 1),
-          gw: parseFloat(r["Gross Wt"] || r["gw"] || 0),
-          nw: parseFloat(r["Net Wt"] || r["nw"] || 0),
-          tc: parseFloat(r["Total Carats"] || r["tc"] || 0),
-          sp: parseFloat(r["Stone Pcs"] || r["sp"] || 0),
-          iv: parseFloat(r["Inward Value"] || r["iv"] || 0),
-          tod: parseFloat(r["Today Cost"] || r["tod"] || 0),
-          cpt: parseFloat(r["Cost+Tariffs"] || r["cpt"] || 0),
-          ipt: parseFloat(r["Inward+Tariffs"] || r["ipt"] || 0),
-          fp: fp,
-          em: emo[cat] || "💎",
-          st: "available",
-          loc: String(r["Location"] || r["loc"] || "Exhibition"),
-          views: 0,
-          searches: 0,
-          stones: []
-        };
-      }).filter(Boolean);
-      onDone(items);
-    } catch (err) {
-      onError("Parse error: " + err.message);
-    }
+  if (document.getElementById("vj-xlsx")) {
+    setTimeout(function () {
+      return cb();
+    }, 500);
+    return;
+  }
+  var s = document.createElement("script");
+  s.id = "vj-xlsx";
+  s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+  s.onload = function () {
+    return cb();
   };
-  r.onerror = function () {
-    return onError("Read failed");
+  s.onerror = function () {
+    return cb();
   };
-  r.readAsArrayBuffer(file);
+  document.head.appendChild(s);
 }
-function Login(_ref7) {
-  var onLogin = _ref7.onLogin,
-    users = _ref7.users;
+function normXLKey(k) {
+  return String(k || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+function xlVal(row, keys) {
+  var map = {};
+  Object.entries(row || {}).forEach(function (_ref7) {
+    var _ref8 = _slicedToArray(_ref7, 2),
+      k = _ref8[0],
+      v = _ref8[1];
+    map[normXLKey(k)] = v;
+  });
+  var _iterator = _createForOfIteratorHelper(keys),
+    _step;
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var k = _step.value;
+      var v = map[normXLKey(k)];
+      if (v != null && String(v).trim() !== "") return v;
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
+  }
+  return "";
+}
+function xlNum(v) {
+  if (v == null || v === "") return 0;
+  var n = parseFloat(String(v).replace(/[$,₹\s]/g, ""));
+  return isNaN(n) ? 0 : n;
+}
+function mergeInvItems(existing, incoming, mode) {
+  if (mode === "replace") return incoming;
+  var byId = new Map((existing || []).map(function (i) {
+    return [String(i.id).toUpperCase(), i];
+  }));
+  incoming.forEach(function (i) {
+    return byId.set(String(i.id).toUpperCase(), i);
+  });
+  return _toConsumableArray(byId.values());
+}
+function makeInvHistoryEntry(meta) {
+  return {
+    id: uid("UPL"),
+    fileName: meta.fileName || "inventory.xlsx",
+    date: dstr(),
+    time: tstr(),
+    mode: meta.mode || "add",
+    added: meta.added || 0,
+    total: meta.total || 0,
+    by: meta.by || "Admin"
+  };
+}
+function appendInvHistory(ev, meta) {
+  return [].concat(_toConsumableArray(ev.invHistory || []), [makeInvHistoryEntry(meta)]);
+}
+function parseXL(file, onDone, onError) {
+  ensureXLSX(function () {
+    var X = window.XLSX;
+    if (!X) {
+      onError("Excel library still loading — wait a moment and try again.");
+      return;
+    }
+    var r = new FileReader();
+    r.onload = function (e) {
+      try {
+        var wb = X.read(new Uint8Array(e.target.result), {
+          type: "array"
+        });
+        var rows = [];
+        var _iterator2 = _createForOfIteratorHelper(wb.SheetNames),
+          _step2;
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var sn = _step2.value;
+            var ws = wb.Sheets[sn];
+            if (!ws) continue;
+            var part = X.utils.sheet_to_json(ws, {
+              defval: "",
+              raw: false
+            });
+            if (part.length > rows.length) rows = part;
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+        if (!rows.length) {
+          onError("The file has no data rows. Check the Excel sheet is not empty.");
+          return;
+        }
+        var headers = Object.keys(rows[0] || {});
+        var emo = {
+          Bracelets: "💎",
+          Earrings: "✨",
+          Necklaces: "📿",
+          Rings: "💍",
+          Pendants: "⭐",
+          Bangles: "🔮",
+          Brooch: "📌",
+          Jewellery: "💎",
+          Jewelry: "💎"
+        };
+        var ID_KEYS = ["Jewel Code", "JewelCode", "Jewel", "Code", "SKU", "ID", "Item Code", "Item ID", "Style Code", "VJ Code", "Product Code", "Stock Code"];
+        var PRICE_KEYS = ["Sale Price", "Final Price", "FP", "Price", "MRP", "Retail", "Selling Price", "Amount", "List Price", "Exhibition Price", "IPT", "Inward+Tariffs", "CPT", "Cost+Tariffs"];
+        var items = rows.map(function (row) {
+          var id = String(xlVal(row, ID_KEYS) || "").trim().toUpperCase();
+          if (!id) {
+            for (var _i = 0, _Object$values = Object.values(row); _i < _Object$values.length; _i++) {
+              var v = _Object$values[_i];
+              var s = String(v || "").trim().toUpperCase();
+              if (/^VJ[A-Z]{2,4}\d+/i.test(s)) {
+                id = s;
+                break;
+              }
+            }
+          }
+          if (!id || id.length < 3) return null;
+          if (["JEWEL CODE", "JEWEL", "CODE", "ID", "SKU", "ITEM"].includes(id)) return null;
+          var fp = xlNum(xlVal(row, PRICE_KEYS));
+          if (fp <= 0) fp = xlNum(xlVal(row, ["TOD", "Today Cost", "IV", "Inward Value"]));
+          var cat = String(xlVal(row, ["Category", "Cat", "Product Type", "Type"]) || "Jewellery").trim();
+          if (fp <= 0) return null;
+          return {
+            id: id,
+            style: String(xlVal(row, ["Style", "Style No", "Style Number", "style"]) || ""),
+            cat: cat,
+            col: String(xlVal(row, ["Collection", "Col", "Coll'n", "Collection Name"]) || ""),
+            metal: String(xlVal(row, ["Metal", "Metal Type", "metal"]) || ""),
+            sz: String(xlVal(row, ["Size", "Sz", "Ring Size"]) || "Std"),
+            qty: parseInt(xlNum(xlVal(row, ["Qty", "Quantity", "qty"])) || 1),
+            gw: xlNum(xlVal(row, ["Gross Wt", "Gross Weight", "GW", "gw"])),
+            nw: xlNum(xlVal(row, ["Net Wt", "Net Weight", "NW", "nw"])),
+            tc: xlNum(xlVal(row, ["Total Carats", "TC", "Total Ct", "tc"])),
+            sp: xlNum(xlVal(row, ["Stone Pcs", "Stone Pieces", "SP", "sp"])),
+            iv: xlNum(xlVal(row, ["Inward Value", "IV", "iv"])),
+            tod: xlNum(xlVal(row, ["Today Cost", "TOD", "tod"])),
+            cpt: xlNum(xlVal(row, ["Cost+Tariffs", "CPT", "cpt"])),
+            ipt: xlNum(xlVal(row, ["Inward+Tariffs", "IPT", "ipt"])),
+            fp: fp || 0,
+            em: emo[cat] || "💎",
+            st: "available",
+            loc: String(xlVal(row, ["Location", "Loc", "loc"]) || "Exhibition"),
+            views: 0,
+            searches: 0,
+            stones: []
+          };
+        }).filter(Boolean);
+        if (!items.length) {
+          onError("0 items imported. Found columns: " + headers.slice(0, 10).join(", ") + ". Need Jewel Code (or VJ… code) and Sale Price.");
+          return;
+        }
+        onDone(items);
+      } catch (err) {
+        onError("Parse error: " + err.message);
+      }
+    };
+    r.onerror = function () {
+      return onError("Could not read file.");
+    };
+    r.readAsArrayBuffer(file);
+  });
+}
+function Login(_ref9) {
+  var onLogin = _ref9.onLogin,
+    users = _ref9.users;
   var _useState11 = useState(""),
     _useState12 = _slicedToArray(_useState11, 2),
     u = _useState12[0],
@@ -13049,7 +13171,7 @@ function Login(_ref7) {
     }, 320);
   };
   var go = /*#__PURE__*/function () {
-    var _ref8 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+    var _ref0 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
       var usr, saved, ok;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.n) {
@@ -13092,7 +13214,7 @@ function Login(_ref7) {
       }, _callee);
     }));
     return function go() {
-      return _ref8.apply(this, arguments);
+      return _ref0.apply(this, arguments);
     };
   }();
   var doBio = function doBio() {
@@ -13312,14 +13434,14 @@ function Login(_ref7) {
     }
   }, "nilay/nilay123 \xB7 jimit/jimit123 \xB7 naresh/naresh123")));
 }
-function EventHub(_ref9) {
-  var user = _ref9.user,
-    events = _ref9.events,
-    onEnter = _ref9.onEnter,
-    onCreate = _ref9.onCreate,
-    onManage = _ref9.onManage,
-    onDelete = _ref9.onDelete,
-    onLogout = _ref9.onLogout;
+function EventHub(_ref1) {
+  var user = _ref1.user,
+    events = _ref1.events,
+    onEnter = _ref1.onEnter,
+    onCreate = _ref1.onCreate,
+    onManage = _ref1.onManage,
+    onDelete = _ref1.onDelete,
+    onLogout = _ref1.onLogout;
   var _useState21 = useState(false),
     _useState22 = _slicedToArray(_useState21, 2),
     sc = _useState22[0],
@@ -13348,10 +13470,17 @@ function EventHub(_ref9) {
     sl = _useState30[1];
   var pr = gp(user.role, user.perms);
   var visibleEvents = filterEventsForUser(user, events);
+  useEffect(function () {
+    if (sc) ensureXLSX(function () {});
+  }, [sc]);
   var create = function create() {
     if (!form.name.trim()) return;
-    var fin = function fin(inv) {
-      onCreate({
+    var fin = function fin(inv, fileName) {
+      if (xlf && !inv.length) {
+        smsg("0 items found in file. Check columns: Jewel Code, Sale Price.");
+        return;
+      }
+      var base = {
         id: uid("EVT"),
         name: form.name,
         loc: form.loc,
@@ -13363,8 +13492,17 @@ function EventHub(_ref9) {
         sales: [],
         leads: [],
         memos: [],
-        audits: []
+        audits: [],
+        invHistory: []
+      };
+      if (inv.length) base.invHistory = appendInvHistory(base, {
+        fileName: fileName || (xlf === null || xlf === void 0 ? void 0 : xlf.name) || "inventory.xlsx",
+        mode: "initial",
+        added: inv.length,
+        total: inv.length,
+        by: user.name
       });
+      onCreate(base);
       ssc(false);
       sf({
         name: "",
@@ -13380,12 +13518,12 @@ function EventHub(_ref9) {
       sl(true);
       parseXL(xlf, function (inv) {
         sl(false);
-        fin(inv);
+        fin(inv, xlf.name);
       }, function (err) {
         sl(false);
         smsg(err);
       });
-    } else fin(_toConsumableArray(DI.slice(0, 5)));
+    } else fin([], null);
   };
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -13836,7 +13974,7 @@ function EventHub(_ref9) {
       color: T3,
       marginTop: 4
     }
-  }, "Without file, demo items load automatically.")), msg && /*#__PURE__*/React.createElement("div", {
+  }, "Start with an empty event, or upload Excel to load inventory.")), msg && /*#__PURE__*/React.createElement("div", {
     style: {
       background: REBG,
       borderRadius: 8,
@@ -13852,12 +13990,13 @@ function EventHub(_ref9) {
     onClick: create
   }, loading ? "Parsing..." : "✓ Create Event")));
 }
-function ManageEvent(_ref0) {
+function ManageEvent(_ref10) {
   var _COLORS$find;
-  var ev = _ref0.ev,
-    onClose = _ref0.onClose,
-    onUpdate = _ref0.onUpdate,
-    onDelete = _ref0.onDelete;
+  var ev = _ref10.ev,
+    onClose = _ref10.onClose,
+    onUpdate = _ref10.onUpdate,
+    onDelete = _ref10.onDelete,
+    user = _ref10.user;
   var _useState31 = useState("details"),
     _useState32 = _slicedToArray(_useState31, 2),
     tab = _useState32[0],
@@ -14117,15 +14256,15 @@ function ManageEvent(_ref0) {
     }
   }, (ev.inv || []).length, " items in this event"), /*#__PURE__*/React.createElement("div", {
     style: {
-      maxHeight: 300,
+      maxHeight: 360,
       overflowY: "auto",
       borderRadius: 10,
       border: "1px solid " + CRD2,
       overflow: "hidden"
     }
-  }, (ev.inv || []).slice(0, 30).map(function (item, i, arr) {
+  }, (ev.inv || []).map(function (item, i, arr) {
     return /*#__PURE__*/React.createElement("div", {
-      key: item.id,
+      key: item.id + "-" + i,
       style: {
         display: "flex",
         alignItems: "center",
@@ -14161,14 +14300,52 @@ function ManageEvent(_ref0) {
         color: G
       }
     }, f$(item.fp)));
-  }), (ev.inv || []).length > 30 && /*#__PURE__*/React.createElement("div", {
+  }), (ev.inv || []).length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: "10px",
+      padding: 20,
       textAlign: "center",
-      fontSize: 11,
+      fontSize: 12,
       color: T3
     }
-  }, "+ ", (ev.inv || []).length - 30, " more items"))), tab === "upload" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, "No inventory yet \u2014 use Upload tab to add Excel.")), (ev.invHistory || []).length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 10,
+      color: T2,
+      textTransform: "uppercase",
+      letterSpacing: "0.1em",
+      marginBottom: 8
+    }
+  }, "\uD83D\uDCCB Import History"), _toConsumableArray(ev.invHistory || []).reverse().map(function (h) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: h.id,
+      style: _objectSpread({}, S.cc({
+        marginBottom: 8
+      }))
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 12,
+        color: T1
+      }
+    }, h.fileName), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T3,
+        marginTop: 2
+      }
+    }, h.date, " ", h.time, " \xB7 ", h.mode, " \xB7 +", h.added, " items \xB7 total ", h.total), h.by && /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: T4,
+        marginTop: 1
+      }
+    }, "By ", h.by));
+  }))), tab === "upload" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: S.sh
   }, "Update Inventory from Excel"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -14197,15 +14374,29 @@ function ManageEvent(_ref0) {
       var f = e.target.files[0];
       if (!f) return;
       parseXL(f, function (items) {
-        var inv = mode === "add" ? [].concat(_toConsumableArray(ev.inv || []), _toConsumableArray(items)) : items;
-        onUpdate(_objectSpread(_objectSpread({}, ev), {}, {
-          inv: inv
-        }));
-        toast.success("Inventory updated", "" + items.length + " items " + (mode === "add" ? "added" : "imported"));
+        if (!items.length) {
+          toast.warn("Import failed", "0 items found — check Jewel Code and Sale Price columns.");
+          e.target.value = "";
+          return;
+        }
+        var inv = mergeInvItems(ev.inv || [], items, mode);
+        var updated = _objectSpread(_objectSpread({}, ev), {}, {
+          inv: inv,
+          invHistory: appendInvHistory(ev, {
+            fileName: f.name,
+            mode: mode,
+            added: items.length,
+            total: inv.length,
+            by: (user === null || user === void 0 ? void 0 : user.name) || "Admin"
+          })
+        });
+        onUpdate(updated);
+        toast.success("Inventory updated", items.length + " items " + (mode === "add" ? "added" : "imported") + " · " + inv.length + " total");
+        e.target.value = "";
       }, function (err) {
-        return toast.warn("Import failed", err);
+        toast.warn("Import failed", err);
+        e.target.value = "";
       });
-      e.target.value = "";
     },
     style: _objectSpread(_objectSpread({}, S.inp()), {}, {
       cursor: "pointer",
@@ -14217,15 +14408,15 @@ function ManageEvent(_ref0) {
       color: T3,
       lineHeight: 1.5
     }
-  }, "Upload the JCK price list Excel file to import inventory items.")));
+  }, "Upload your price list Excel (.xlsx / .xls / .csv). Required columns: ", /*#__PURE__*/React.createElement("strong", null, "Jewel Code"), " (or VJ code) and ", /*#__PURE__*/React.createElement("strong", null, "Sale Price"), ".")));
 }
-function SaleSuccess(_ref1) {
-  var sale = _ref1.sale,
-    item = _ref1.item,
-    fc = _ref1.fc,
-    cur = _ref1.cur,
-    onDone = _ref1.onDone,
-    onPrint = _ref1.onPrint;
+function SaleSuccess(_ref11) {
+  var sale = _ref11.sale,
+    item = _ref11.item,
+    fc = _ref11.fc,
+    cur = _ref11.cur,
+    onDone = _ref11.onDone,
+    onPrint = _ref11.onPrint;
   var _useState39 = useState(4),
     _useState40 = _slicedToArray(_useState39, 2),
     count = _useState40[0],
@@ -14394,16 +14585,16 @@ function SaleSuccess(_ref1) {
     }
   }, "Auto-closing in ", count, "s..."));
 }
-function ItemCard(_ref10) {
-  var item = _ref10.item,
-    user = _ref10.user,
-    inv = _ref10.inv,
-    leads = _ref10.leads,
-    cur = _ref10.cur,
-    preCustName = _ref10.preCustName,
-    onSell = _ref10.onSell,
-    onBack = _ref10.onBack,
-    onAddLead = _ref10.onAddLead;
+function ItemCard(_ref12) {
+  var item = _ref12.item,
+    user = _ref12.user,
+    inv = _ref12.inv,
+    leads = _ref12.leads,
+    cur = _ref12.cur,
+    preCustName = _ref12.preCustName,
+    onSell = _ref12.onSell,
+    onBack = _ref12.onBack,
+    onAddLead = _ref12.onAddLead;
   var pr = gp(user.role, user.perms);
   var _useState41 = useState(null),
     _useState42 = _slicedToArray(_useState41, 2),
@@ -14885,10 +15076,10 @@ function ItemCard(_ref10) {
     style: _objectSpread({}, S.cc({
       marginBottom: 11
     }))
-  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref11) {
-    var _ref12 = _slicedToArray(_ref11, 2),
-      l = _ref12[0],
-      v = _ref12[1];
+  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref13) {
+    var _ref14 = _slicedToArray(_ref13, 2),
+      l = _ref14[0],
+      v = _ref14[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15112,10 +15303,10 @@ function ItemCard(_ref10) {
       gap: 8,
       marginBottom: 13
     }
-  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref13) {
-    var _ref14 = _slicedToArray(_ref13, 2),
-      l = _ref14[0],
-      v = _ref14[1];
+  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref15) {
+    var _ref16 = _slicedToArray(_ref15, 2),
+      l = _ref16[0],
+      v = _ref16[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15149,10 +15340,10 @@ function ItemCard(_ref10) {
       gridTemplateColumns: "1fr 1fr",
       gap: 9
     }
-  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref15) {
-    var _ref16 = _slicedToArray(_ref15, 2),
-      l = _ref16[0],
-      v = _ref16[1];
+  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref17) {
+    var _ref18 = _slicedToArray(_ref17, 2),
+      l = _ref18[0],
+      v = _ref18[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l
     }, /*#__PURE__*/React.createElement("div", {
@@ -15268,9 +15459,9 @@ function ItemCard(_ref10) {
     }
   })));
 }
-function InvoiceSheet(_ref17) {
-  var sale = _ref17.sale,
-    onClose = _ref17.onClose;
+function InvoiceSheet(_ref19) {
+  var sale = _ref19.sale,
+    onClose = _ref19.onClose;
   var sub = sale.price,
     dsc = sale.disc > 0 ? Math.round(sub * sale.disc / 100 * 100) / 100 : 0,
     tax = sub - dsc,
@@ -15438,11 +15629,11 @@ function InvoiceSheet(_ref17) {
       borderRadius: 6,
       padding: "8px 9px"
     }
-  }, [["Subtotal", f$(sub), false], sale.disc > 0 ? ["Disc (" + sale.disc + "%)", "−" + f$(dsc), true] : null, sale.ccAmt > 0 ? ["💳 CC" + (sale.ccType === "pct" ? " " + sale.ccVal + "%" : ""), f$(sale.ccAmt), false] : null].filter(Boolean).map(function (_ref18) {
-    var _ref19 = _slicedToArray(_ref18, 3),
-      l = _ref19[0],
-      v = _ref19[1],
-      d = _ref19[2];
+  }, [["Subtotal", f$(sub), false], sale.disc > 0 ? ["Disc (" + sale.disc + "%)", "−" + f$(dsc), true] : null, sale.ccAmt > 0 ? ["💳 CC" + (sale.ccType === "pct" ? " " + sale.ccVal + "%" : ""), f$(sale.ccAmt), false] : null].filter(Boolean).map(function (_ref20) {
+    var _ref21 = _slicedToArray(_ref20, 3),
+      l = _ref21[0],
+      v = _ref21[1],
+      d = _ref21[2];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -15497,11 +15688,11 @@ function InvoiceSheet(_ref17) {
 }
 
 // ─── USER MANAGER ────────────────────────────────────────────────────────────
-function UserManager(_ref20) {
-  var users = _ref20.users,
-    currentUser = _ref20.currentUser,
-    onUsersChange = _ref20.onUsersChange,
-    events = _ref20.events;
+function UserManager(_ref22) {
+  var users = _ref22.users,
+    currentUser = _ref22.currentUser,
+    onUsersChange = _ref22.onUsersChange,
+    events = _ref22.events;
   var _useState49 = useState(null),
     _useState50 = _slicedToArray(_useState49, 2),
     editPerms = _useState50[0],
@@ -15576,8 +15767,8 @@ function UserManager(_ref20) {
     var roleBase = RD[editPerms.role] || RD.Staff;
     var merged = _objectSpread(_objectSpread({}, roleBase), editPerms.perms || {});
     var overrides = {};
-    PK.forEach(function (_ref21) {
-      var k = _ref21.k;
+    PK.forEach(function (_ref23) {
+      var k = _ref23.k;
       if (merged[k] !== roleBase[k]) overrides[k] = merged[k];
     });
     onUsersChange(users.map(function (u) {
@@ -15654,9 +15845,9 @@ function UserManager(_ref20) {
         color: AM,
         fontWeight: 600
       }
-    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref22) {
-      var k = _ref22.k,
-        l = _ref22.l;
+    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref24) {
+      var k = _ref24.k,
+        l = _ref24.l;
       return /*#__PURE__*/React.createElement("div", {
         key: k,
         style: {
@@ -16112,10 +16303,10 @@ function UserManager(_ref20) {
     }, "\u2715")));
   }));
 }
-function PhotoSearch(_ref23) {
-  var inv = _ref23.inv,
-    onResult = _ref23.onResult,
-    onClose = _ref23.onClose;
+function PhotoSearch(_ref25) {
+  var inv = _ref25.inv,
+    onResult = _ref25.onResult,
+    onClose = _ref25.onClose;
   var _useState55 = useState("upload"),
     _useState56 = _slicedToArray(_useState55, 2),
     phase = _useState56[0],
@@ -17315,12 +17506,12 @@ function SingleLookup(p) {
     sMin: sfMinFp,
     max: fMaxFp,
     sMax: sfMaxFp
-  }].map(function (_ref24) {
-    var l = _ref24.l,
-      min = _ref24.min,
-      sMin = _ref24.sMin,
-      max = _ref24.max,
-      sMax = _ref24.sMax;
+  }].map(function (_ref26) {
+    var l = _ref26.l,
+      min = _ref26.min,
+      sMin = _ref26.sMin,
+      max = _ref26.max,
+      sMax = _ref26.sMax;
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -18571,6 +18762,9 @@ function InventoryTab(p) {
     id: "stock",
     l: "📦 STOCK"
   }, {
+    id: "history",
+    l: "📋 HISTORY"
+  }, {
     id: "audit",
     l: "🔍 AUDIT"
   }].map(function (t) {
@@ -18672,16 +18866,18 @@ function InventoryTab(p) {
     return i.st === "available";
   }).reduce(function (s, i) {
     return s + i.fp;
-  }, 0), cur), " value"), /*#__PURE__*/React.createElement("div", {
+  }, 0), cur), " value \xB7 full inventory list"), /*#__PURE__*/React.createElement("div", {
     style: {
       background: WH,
       borderRadius: 12,
       overflow: "hidden",
-      border: "1px solid " + CRD2
+      border: "1px solid " + CRD2,
+      maxHeight: "55vh",
+      overflowY: "auto"
     }
-  }, fi.slice(0, 100).map(function (item, i, arr) {
+  }, fi.map(function (item, i, arr) {
     return /*#__PURE__*/React.createElement("div", {
-      key: item.id,
+      key: item.id + "-" + i,
       onClick: function onClick() {
         sdet(item);
         st("lookup");
@@ -18763,21 +18959,120 @@ function InventoryTab(p) {
         color: G
       }
     }, fc(item.fp, cur)))));
-  }), fi.length > 100 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: "10px",
-      textAlign: "center",
-      fontSize: 11,
-      color: T3
-    }
-  }, "Showing 100 of ", fi.length, ". Use search to filter."), fi.length === 0 && /*#__PURE__*/React.createElement("div", {
+  }), fi.length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       padding: 28,
       color: T3,
       fontSize: 13
     }
-  }, "No items match filter"))), invTab === "audit" && /*#__PURE__*/React.createElement("div", {
+  }, "No items match filter"))), invTab === "history" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "13px 12px 40px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: T2,
+      marginBottom: 10,
+      lineHeight: 1.5
+    }
+  }, "Full inventory: ", /*#__PURE__*/React.createElement("strong", null, (inv || []).length), " items in this event. Import history below shows each Excel upload."), /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread({}, S.card({
+      margin: 0,
+      marginBottom: 12
+    }))
+  }, /*#__PURE__*/React.createElement("div", {
+    style: S.sh
+  }, "\uD83D\uDCE6 CURRENT INVENTORY SUMMARY"), [["Total items", inv.length], ["Available", inv.filter(function (i) {
+    return i.st === "available";
+  }).length], ["Sold", inv.filter(function (i) {
+    return i.st === "sold";
+  }).length], ["Reserved", inv.filter(function (i) {
+    return i.st === "reserved";
+  }).length], ["Total value (available)", fc(inv.filter(function (i) {
+    return i.st === "available";
+  }).reduce(function (s, i) {
+    return s + i.fp;
+  }, 0), cur)]].map(function (_ref27) {
+    var _ref28 = _slicedToArray(_ref27, 2),
+      l = _ref28[0],
+      v = _ref28[1];
+    return /*#__PURE__*/React.createElement("div", {
+      key: l,
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        padding: "7px 0",
+        borderBottom: "1px solid " + CRD2
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        color: T3
+      }
+    }, l), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        fontWeight: 700,
+        color: T1
+      }
+    }, String(v)));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: S.sh
+  }, "\uD83D\uDCCB EXCEL IMPORT HISTORY"), (ev.invHistory || []).length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread({}, S.card({
+      margin: 0,
+      textAlign: "center",
+      padding: 24
+    }))
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: T2
+    }
+  }, "No imports yet"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: T3,
+      marginTop: 4
+    }
+  }, "Upload Excel from Manage Event \u2192 Upload tab")), _toConsumableArray(ev.invHistory || []).reverse().map(function (h) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: h.id,
+      style: _objectSpread({}, S.cc({
+        marginBottom: 9
+      }))
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 12,
+        color: T1
+      }
+    }, h.fileName), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T3,
+        marginTop: 2
+      }
+    }, h.date, " \xB7 ", h.time)), /*#__PURE__*/React.createElement(Bdg, {
+      t: "g",
+      ch: "+" + h.added
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T2,
+        marginTop: 6
+      }
+    }, h.mode === "initial" ? "Initial load" : h.mode === "replace" ? "Replaced all" : "Added to existing", " \xB7 ", h.total, " items total", h.by ? " · by " + h.by : ""));
+  })), invTab === "audit" && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "13px 12px 40px"
     }
@@ -18970,9 +19265,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref25) {
-    var item = _ref25.item,
-      scannedAt = _ref25.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref29) {
+    var item = _ref29.item,
+      scannedAt = _ref29.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -19098,10 +19393,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref26) {
-    var pct = _ref26.pct,
-      col = _ref26.col,
-      h = _ref26.h;
+  var Bar = function Bar(_ref30) {
+    var pct = _ref30.pct,
+      col = _ref30.col,
+      h = _ref30.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -19161,10 +19456,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref27) {
-    var _ref28 = _slicedToArray(_ref27, 2),
-      d = _ref28[0],
-      v = _ref28[1];
+  }).map(function (_ref31) {
+    var _ref32 = _slicedToArray(_ref31, 2),
+      d = _ref32[0],
+      v = _ref32[1];
     return {
       d: d,
       v: v
@@ -19662,9 +19957,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref29) {
-    var h = _ref29.h,
-      v = _ref29.v;
+  }, hourData.map(function (_ref33) {
+    var h = _ref33.h,
+      v = _ref33.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -20255,10 +20550,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref30, i) {
-    var _ref31 = _slicedToArray(_ref30, 2),
-      src = _ref31[0],
-      cnt = _ref31[1];
+  }, "No leads yet"), srcData.map(function (_ref34, i) {
+    var _ref35 = _slicedToArray(_ref34, 2),
+      src = _ref35[0],
+      cnt = _ref35[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -20942,8 +21237,8 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref32) {
-  var pr = _ref32.pr;
+function CloudStoragePanel(_ref36) {
+  var pr = _ref36.pr;
   var _useState73 = useState(false),
     _useState74 = _slicedToArray(_useState73, 2),
     busy = _useState74[0],
@@ -20954,7 +21249,7 @@ function CloudStoragePanel(_ref32) {
     setMeta = _useState76[1];
   var online = isCloudOnline();
   var syncNow = /*#__PURE__*/function () {
-    var _ref33 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+    var _ref37 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
       var d, _t;
       return _regenerator().w(function (_context2) {
         while (1) switch (_context2.p = _context2.n) {
@@ -20988,7 +21283,7 @@ function CloudStoragePanel(_ref32) {
       }, _callee2, null, [[1, 3, 4, 5]]);
     }));
     return function syncNow() {
-      return _ref33.apply(this, arguments);
+      return _ref37.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -21035,10 +21330,10 @@ function CloudStoragePanel(_ref32) {
     onClick: syncNow
   }, busy ? "Syncing…" : "↻ Reload from Google Drive"));
 }
-function CurrencyManager(_ref34) {
-  var cur = _ref34.cur,
-    scur = _ref34.scur,
-    pr = _ref34.pr;
+function CurrencyManager(_ref38) {
+  var cur = _ref38.cur,
+    scur = _ref38.scur,
+    pr = _ref38.pr;
   var _useState77 = useState(false),
     _useState78 = _slicedToArray(_useState77, 2),
     editMode = _useState78[0],
@@ -21056,10 +21351,10 @@ function CurrencyManager(_ref34) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref35) {
-      var _ref36 = _slicedToArray(_ref35, 2),
-        k = _ref36[0],
-        v = _ref36[1];
+    Object.entries(getCurr()).forEach(function (_ref39) {
+      var _ref40 = _slicedToArray(_ref39, 2),
+        k = _ref40[0],
+        v = _ref40[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -21067,10 +21362,10 @@ function CurrencyManager(_ref34) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref37) {
-      var _ref38 = _slicedToArray(_ref37, 2),
-        k = _ref38[0],
-        v = _ref38[1];
+    Object.entries(getCurr()).forEach(function (_ref41) {
+      var _ref42 = _slicedToArray(_ref41, 2),
+        k = _ref42[0],
+        v = _ref42[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -21130,10 +21425,10 @@ function CurrencyManager(_ref34) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref39) {
-    var _ref40 = _slicedToArray(_ref39, 2),
-      k = _ref40[0],
-      v = _ref40[1];
+  }, Object.entries(rates).map(function (_ref43) {
+    var _ref44 = _slicedToArray(_ref43, 2),
+      k = _ref44[0],
+      v = _ref44[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -21161,10 +21456,10 @@ function CurrencyManager(_ref34) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref41, i, arr) {
-    var _ref42 = _slicedToArray(_ref41, 2),
-      k = _ref42[0],
-      v = _ref42[1];
+  })), Object.entries(rates).map(function (_ref45, i, arr) {
+    var _ref46 = _slicedToArray(_ref45, 2),
+      k = _ref46[0],
+      v = _ref46[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -21368,18 +21663,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref43) {
-    var _ref44 = _slicedToArray(_ref43, 2),
-      v = _ref44[1];
-    return v;
-  }).map(function (_ref45) {
-    var _ref46 = _slicedToArray(_ref45, 1),
-      k = _ref46[0];
-    return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref47) {
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref47) {
     var _ref48 = _slicedToArray(_ref47, 2),
-      l = _ref48[0],
       v = _ref48[1];
+    return v;
+  }).map(function (_ref49) {
+    var _ref50 = _slicedToArray(_ref49, 1),
+      k = _ref50[0];
+    return k;
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref51) {
+    var _ref52 = _slicedToArray(_ref51, 2),
+      l = _ref52[0],
+      v = _ref52[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -21420,10 +21715,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref49) {
-    var _ref50 = _slicedToArray(_ref49, 2),
-      l = _ref50[0],
-      v = _ref50[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref53) {
+    var _ref54 = _slicedToArray(_ref53, 2),
+      l = _ref54[0],
+      v = _ref54[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -21491,10 +21786,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref51) {
-    var _ref52 = _slicedToArray(_ref51, 2),
-      l = _ref52[0],
-      v = _ref52[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref55) {
+    var _ref56 = _slicedToArray(_ref55, 2),
+      l = _ref56[0],
+      v = _ref56[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -23515,10 +23810,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref53) {
-      var _ref54 = _slicedToArray(_ref53, 2),
-        ic = _ref54[0],
-        v = _ref54[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref57) {
+      var _ref58 = _slicedToArray(_ref57, 2),
+        ic = _ref58[0],
+        v = _ref58[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -23981,16 +24276,16 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref55) {
-  var ev = _ref55.ev,
-    user = _ref55.user,
-    allUsers = _ref55.allUsers,
-    onUsersChange = _ref55.onUsersChange,
-    allEvents = _ref55.allEvents,
-    onSwitch = _ref55.onSwitch,
-    onUpdateEvent = _ref55.onUpdateEvent,
-    onBack = _ref55.onBack,
-    onLogout = _ref55.onLogout;
+function EventERP(_ref59) {
+  var ev = _ref59.ev,
+    user = _ref59.user,
+    allUsers = _ref59.allUsers,
+    onUsersChange = _ref59.onUsersChange,
+    allEvents = _ref59.allEvents,
+    onSwitch = _ref59.onSwitch,
+    onUpdateEvent = _ref59.onUpdateEvent,
+    onBack = _ref59.onBack,
+    onLogout = _ref59.onLogout;
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents);
@@ -25509,6 +25804,7 @@ function App() {
     ev: events.find(function (e) {
       return e.id === manageEv.id;
     }) || manageEv,
+    user: user,
     onClose: function onClose() {
       return smev(null);
     },

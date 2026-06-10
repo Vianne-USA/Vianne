@@ -345,11 +345,102 @@ function QRScanner({onScanned,inv}){
 }
 
 
+function ensureXLSX(cb){
+  if(window.XLSX){cb();return;}
+  if(document.getElementById("vj-xlsx")){setTimeout(()=>cb(),500);return;}
+  const s=document.createElement("script");
+  s.id="vj-xlsx";
+  s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+  s.onload=()=>cb();
+  s.onerror=()=>cb();
+  document.head.appendChild(s);
+}
+function normXLKey(k){return String(k||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"");}
+function xlVal(row,keys){
+  const map={};
+  Object.entries(row||{}).forEach(([k,v])=>{map[normXLKey(k)]=v;});
+  for(const k of keys){const v=map[normXLKey(k)];if(v!=null&&String(v).trim()!=="")return v;}
+  return "";
+}
+function xlNum(v){
+  if(v==null||v==="")return 0;
+  const n=parseFloat(String(v).replace(/[$,₹\s]/g,""));
+  return isNaN(n)?0:n;
+}
+function mergeInvItems(existing,incoming,mode){
+  if(mode==="replace")return incoming;
+  const byId=new Map((existing||[]).map(i=>[String(i.id).toUpperCase(),i]));
+  incoming.forEach(i=>byId.set(String(i.id).toUpperCase(),i));
+  return [...byId.values()];
+}
+function makeInvHistoryEntry(meta){
+  return{id:uid("UPL"),fileName:meta.fileName||"inventory.xlsx",date:dstr(),time:tstr(),mode:meta.mode||"add",added:meta.added||0,total:meta.total||0,by:meta.by||"Admin"};
+}
+function appendInvHistory(ev,meta){
+  return[...(ev.invHistory||[]),makeInvHistoryEntry(meta)];
+}
+
 function parseXL(file,onDone,onError){
-  const X=window.XLSX;if(!X){onError("Excel library loading, retry in 2s.");return;}
-  const r=new FileReader();
-  r.onload=e=>{try{const wb=X.read(new Uint8Array(e.target.result),{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const rows=X.utils.sheet_to_json(ws,{defval:""});const emo={Bracelets:"💎",Earrings:"✨",Necklaces:"📿",Rings:"💍",Pendants:"⭐",Bangles:"🔮",Brooch:"📌"};const items=rows.map(r=>{const id=String(r["Jewel Code"]||r["ID"]||r["id"]||"").trim().toUpperCase();const fp=parseFloat(r["Sale Price"]||r["Final Price"]||r["fp"]||r["Price"]||0);const cat=String(r["Category"]||r["cat"]||"Jewellery").trim();if(!id||fp<=0)return null;return{id,style:String(r["Style"]||r["style"]||""),cat,col:String(r["Collection"]||r["col"]||r["Coll'n"]||""),metal:String(r["Metal"]||r["metal"]||""),sz:String(r["Size"]||r["sz"]||"Std"),qty:parseInt(r["Qty"]||r["qty"]||1),gw:parseFloat(r["Gross Wt"]||r["gw"]||0),nw:parseFloat(r["Net Wt"]||r["nw"]||0),tc:parseFloat(r["Total Carats"]||r["tc"]||0),sp:parseFloat(r["Stone Pcs"]||r["sp"]||0),iv:parseFloat(r["Inward Value"]||r["iv"]||0),tod:parseFloat(r["Today Cost"]||r["tod"]||0),cpt:parseFloat(r["Cost+Tariffs"]||r["cpt"]||0),ipt:parseFloat(r["Inward+Tariffs"]||r["ipt"]||0),fp,em:emo[cat]||"💎",st:"available",loc:String(r["Location"]||r["loc"]||"Exhibition"),views:0,searches:0,stones:[]};}).filter(Boolean);onDone(items);}catch(err){onError("Parse error: "+err.message);}};
-  r.onerror=()=>onError("Read failed");r.readAsArrayBuffer(file);
+  ensureXLSX(()=>{
+    const X=window.XLSX;
+    if(!X){onError("Excel library still loading — wait a moment and try again.");return;}
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const wb=X.read(new Uint8Array(e.target.result),{type:"array"});
+        let rows=[];
+        for(const sn of wb.SheetNames){
+          const ws=wb.Sheets[sn];
+          if(!ws)continue;
+          const part=X.utils.sheet_to_json(ws,{defval:"",raw:false});
+          if(part.length>rows.length)rows=part;
+        }
+        if(!rows.length){onError("The file has no data rows. Check the Excel sheet is not empty.");return;}
+        const headers=Object.keys(rows[0]||{});
+        const emo={Bracelets:"💎",Earrings:"✨",Necklaces:"📿",Rings:"💍",Pendants:"⭐",Bangles:"🔮",Brooch:"📌",Jewellery:"💎",Jewelry:"💎"};
+        const ID_KEYS=["Jewel Code","JewelCode","Jewel","Code","SKU","ID","Item Code","Item ID","Style Code","VJ Code","Product Code","Stock Code"];
+        const PRICE_KEYS=["Sale Price","Final Price","FP","Price","MRP","Retail","Selling Price","Amount","List Price","Exhibition Price","IPT","Inward+Tariffs","CPT","Cost+Tariffs"];
+        const items=rows.map(row=>{
+          let id=String(xlVal(row,ID_KEYS)||"").trim().toUpperCase();
+          if(!id){
+            for(const v of Object.values(row)){const s=String(v||"").trim().toUpperCase();if(/^VJ[A-Z]{2,4}\d+/i.test(s)){id=s;break;}}
+          }
+          if(!id||id.length<3)return null;
+          if(["JEWEL CODE","JEWEL","CODE","ID","SKU","ITEM"].includes(id))return null;
+          let fp=xlNum(xlVal(row,PRICE_KEYS));
+          if(fp<=0)fp=xlNum(xlVal(row,["TOD","Today Cost","IV","Inward Value"]));
+          const cat=String(xlVal(row,["Category","Cat","Product Type","Type"])||"Jewellery").trim();
+          if(fp<=0)return null;
+          return{
+            id,style:String(xlVal(row,["Style","Style No","Style Number","style"])||""),
+            cat,col:String(xlVal(row,["Collection","Col","Coll'n","Collection Name"])||""),
+            metal:String(xlVal(row,["Metal","Metal Type","metal"])||""),
+            sz:String(xlVal(row,["Size","Sz","Ring Size"])||"Std"),
+            qty:parseInt(xlNum(xlVal(row,["Qty","Quantity","qty"]))||1),
+            gw:xlNum(xlVal(row,["Gross Wt","Gross Weight","GW","gw"])),
+            nw:xlNum(xlVal(row,["Net Wt","Net Weight","NW","nw"])),
+            tc:xlNum(xlVal(row,["Total Carats","TC","Total Ct","tc"])),
+            sp:xlNum(xlVal(row,["Stone Pcs","Stone Pieces","SP","sp"])),
+            iv:xlNum(xlVal(row,["Inward Value","IV","iv"])),
+            tod:xlNum(xlVal(row,["Today Cost","TOD","tod"])),
+            cpt:xlNum(xlVal(row,["Cost+Tariffs","CPT","cpt"])),
+            ipt:xlNum(xlVal(row,["Inward+Tariffs","IPT","ipt"])),
+            fp:fp||0,
+            em:emo[cat]||"💎",st:"available",
+            loc:String(xlVal(row,["Location","Loc","loc"])||"Exhibition"),
+            views:0,searches:0,stones:[]
+          };
+        }).filter(Boolean);
+        if(!items.length){
+          onError("0 items imported. Found columns: "+headers.slice(0,10).join(", ")+". Need Jewel Code (or VJ… code) and Sale Price.");
+          return;
+        }
+        onDone(items);
+      }catch(err){onError("Parse error: "+err.message);}
+    };
+    r.onerror=()=>onError("Could not read file.");
+    r.readAsArrayBuffer(file);
+  });
 }
 function Login({onLogin,users}){
   const [u,su]=useState(""),[p,sp]=useState(""),[e,se]=useState(""),[show,ssh]=useState(false),[bio,sbio]=useState(false);
@@ -383,7 +474,8 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const [sc,ssc]=useState(false),[form,sf]=useState({name:"",loc:"",start:"",end:"",color:G}),[xlf,sxl]=useState(null),[msg,smsg]=useState(""),[loading,sl]=useState(false);
   const pr=gp(user.role,user.perms);
   const visibleEvents=filterEventsForUser(user,events);
-  const create=()=>{if(!form.name.trim())return;const fin=(inv)=>{onCreate({id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[]});ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,inv=>{sl(false);fin(inv);},err=>{sl(false);smsg(err);});}else fin([...DI.slice(0,5)]);};
+  useEffect(()=>{if(sc)ensureXLSX(()=>{});},[sc]);
+  const create=()=>{if(!form.name.trim())return;const fin=(inv,fileName)=>{if(xlf&&!inv.length){smsg("0 items found in file. Check columns: Jewel Code, Sale Price.");return;}const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(inv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||xlf?.name||"inventory.xlsx",mode:"initial",added:inv.length,total:inv.length,by:user.name});onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,inv=>{sl(false);fin(inv,xlf.name);},err=>{sl(false);smsg(err);});}else fin([],null);};
   return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
       <div style={{display:"flex",alignItems:"flex-start",gap:10}}><Logo h={34}/><div style={{paddingTop:1}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
@@ -437,7 +529,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
             <div style={{fontSize:10,color:T3,marginTop:2}}>Columns: Jewel Code, Category, Metal, Sale Price…</div>
             <input id="xlC" type="file" accept=".xlsx,.xls,.csv" style={{display:"none"}} onChange={ev=>{if(ev.target.files[0]){sxl(ev.target.files[0]);smsg("");}}}/>
           </div>
-          {!xlf&&<div style={{fontSize:10,color:T3,marginTop:4}}>Without file, demo items load automatically.</div>}
+          {!xlf&&<div style={{fontSize:10,color:T3,marginTop:4}}>Start with an empty event, or upload Excel to load inventory.</div>}
         </div>
         {msg&&<div style={{background:REBG,borderRadius:8,padding:"9px 12px",fontSize:11,color:RE}}>{msg}</div>}
       </div>
@@ -445,7 +537,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
     </Sheet>}
   </div>);
 }
-function ManageEvent({ev, onClose, onUpdate, onDelete}){
+function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
   const [tab,st]=useState("details");
   const [mode,smode]=useState("add");
   const [form,sf]=useState({name:ev.name||"",loc:ev.loc||"",start:ev.start||"",end:ev.end||"",status:ev.status||"active",color:ev.color||G});
@@ -553,9 +645,9 @@ function ManageEvent({ev, onClose, onUpdate, onDelete}){
       {tab==="inventory"&&(
         <div>
           <div style={{fontSize:12,color:T2,marginBottom:9}}>{(ev.inv||[]).length} items in this event</div>
-          <div style={{maxHeight:300,overflowY:"auto",borderRadius:10,border:"1px solid "+CRD2,overflow:"hidden"}}>
-            {(ev.inv||[]).slice(0,30).map((item,i,arr)=>(
-              <div key={item.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",background:WH}}>
+          <div style={{maxHeight:360,overflowY:"auto",borderRadius:10,border:"1px solid "+CRD2,overflow:"hidden"}}>
+            {(ev.inv||[]).map((item,i,arr)=>(
+              <div key={item.id+"-"+i} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",background:WH}}>
                 <span style={{fontSize:18}}>{item.em}</span>
                 <div style={{flex:1}}>
                   <div style={{fontSize:12,fontWeight:700,color:T1}}>{item.id}</div>
@@ -564,8 +656,20 @@ function ManageEvent({ev, onClose, onUpdate, onDelete}){
                 <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G}}>{f$(item.fp)}</div>
               </div>
             ))}
-            {(ev.inv||[]).length>30&&<div style={{padding:"10px",textAlign:"center",fontSize:11,color:T3}}>+ {(ev.inv||[]).length-30} more items</div>}
+            {(ev.inv||[]).length===0&&<div style={{padding:20,textAlign:"center",fontSize:12,color:T3}}>No inventory yet — use Upload tab to add Excel.</div>}
           </div>
+          {(ev.invHistory||[]).length>0&&(
+            <div style={{marginTop:14}}>
+              <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>📋 Import History</div>
+              {[...(ev.invHistory||[])].reverse().map(h=>(
+                <div key={h.id} style={{...S.cc({marginBottom:8})}}>
+                  <div style={{fontWeight:700,fontSize:12,color:T1}}>{h.fileName}</div>
+                  <div style={{fontSize:10,color:T3,marginTop:2}}>{h.date} {h.time} · {h.mode} · +{h.added} items · total {h.total}</div>
+                  {h.by&&<div style={{fontSize:9,color:T4,marginTop:1}}>By {h.by}</div>}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -575,8 +679,8 @@ function ManageEvent({ev, onClose, onUpdate, onDelete}){
           <div style={{display:"flex",gap:8,marginBottom:11}}>{[{id:"add",l:"Add new"},{id:"replace",l:"Replace all"}].map(m=>(
             <button key={m.id} onClick={()=>smode(m.id)} style={S.pill(mode===m.id)}>{m.l}</button>
           ))}</div>
-          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,items=>{const inv=mode==="add"?[...(ev.inv||[]),...items]:items;onUpdate({...ev,inv});toast.success("Inventory updated",""+items.length+" items "+(mode==="add"?"added":"imported"));},err=>toast.warn("Import failed",err));e.target.value="";}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
-          <div style={{fontSize:11,color:T3,lineHeight:1.5}}>Upload the JCK price list Excel file to import inventory items.</div>
+          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,items=>{if(!items.length){toast.warn("Import failed","0 items found — check Jewel Code and Sale Price columns.");e.target.value="";return;}const inv=mergeInvItems(ev.inv||[],items,mode);const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added:items.length,total:inv.length,by:user?.name||"Admin"})};onUpdate(updated);toast.success("Inventory updated",items.length+" items "+(mode==="add"?"added":"imported")+" · "+inv.length+" total");e.target.value="";},err=>{toast.warn("Import failed",err);e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
+          <div style={{fontSize:11,color:T3,lineHeight:1.5}}>Upload your price list Excel (.xlsx / .xls / .csv). Required columns: <strong>Jewel Code</strong> (or VJ code) and <strong>Sale Price</strong>.</div>
         </div>
       )}
     </Sheet>
@@ -1840,16 +1944,16 @@ function InventoryTab(p){
   var sscan=p.sscan;
   return(
     <div>
-          <div style={{background:G,display:"flex",borderBottom:"1px solid rgba(201,168,76,0.2)"}}>{[{id:"stock",l:"📦 STOCK"},{id:"audit",l:"🔍 AUDIT"}].map(t=><button key={t.id} onClick={()=>sivTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:invTab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:invTab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:invTab===t.id?700:500,padding:"9px 7px",cursor:"pointer"}}>{t.l}</button>)}</div>
+          <div style={{background:G,display:"flex",borderBottom:"1px solid rgba(201,168,76,0.2)"}}>{[{id:"stock",l:"📦 STOCK"},{id:"history",l:"📋 HISTORY"},{id:"audit",l:"🔍 AUDIT"}].map(t=><button key={t.id} onClick={()=>sivTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:invTab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:invTab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:invTab===t.id?700:500,padding:"9px 7px",cursor:"pointer"}}>{t.l}</button>)}</div>
           {invTab==="stock"&&<div style={{padding:"13px 12px 40px"}}>
             <div style={{display:"flex",gap:8,marginBottom:9}}><input style={S.inp({flex:1})} placeholder="Search..." value={isq} onChange={ev=>sisq(ev.target.value)}/></div>
             <div style={{display:"flex",gap:5,overflowX:"auto",scrollbarWidth:"none",marginBottom:7}}>{cats.map(c=><button key={c} style={S.pill(icat===c,{fontSize:10})} onClick={()=>sicat(c)}>{c}</button>)}</div>
             <div style={{display:"flex",gap:5,marginBottom:9}}>{["All","available","reserved","sold"].map(s=><button key={s} style={S.pill(ist===s,{fontSize:10,textTransform:"capitalize"})} onClick={()=>sist(s)}>{s}</button>)}</div>
             {deadStock.length>0&&<div style={{background:AMBG,border:"1px solid rgba(200,150,58,0.3)",borderRadius:9,padding:"8px 11px",marginBottom:9}}><div style={{fontSize:10,fontWeight:700,color:AM}}>⚠ Dead Stock: {deadStock.map(i=>i.id).slice(0,5).join(", ")}{deadStock.length>5?" +more":""}</div></div>}
-            <div style={{fontSize:10,color:T3,marginBottom:7}}>{fi.length} items · {fc(fi.filter(i=>i.st==="available").reduce((s,i)=>s+i.fp,0),cur)} value</div>
-            <div style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2}}>
-              {fi.slice(0,100).map((item,i,arr)=>(
-                <div key={item.id} onClick={()=>{sdet(item);st("lookup");}} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer",background:WH}}>
+            <div style={{fontSize:10,color:T3,marginBottom:7}}>{fi.length} items · {fc(fi.filter(i=>i.st==="available").reduce((s,i)=>s+i.fp,0),cur)} value · full inventory list</div>
+            <div style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2,maxHeight:"55vh",overflowY:"auto"}}>
+              {fi.map((item,i,arr)=>(
+                <div key={item.id+"-"+i} onClick={()=>{sdet(item);st("lookup");}} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer",background:WH}}>
                   <div style={{width:40,height:40,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
                     {getImg(item)?<img src={getImg(item)} alt="" style={{width:40,height:40,objectFit:"cover"}}/>:<span style={{fontSize:20}}>{item.em}</span>}
                   </div>
@@ -1860,9 +1964,31 @@ function InventoryTab(p){
                   </div>
                 </div>
               ))}
-              {fi.length>100&&<div style={{padding:"10px",textAlign:"center",fontSize:11,color:T3}}>Showing 100 of {fi.length}. Use search to filter.</div>}
               {fi.length===0&&<div style={{textAlign:"center",padding:28,color:T3,fontSize:13}}>No items match filter</div>}
             </div>
+          </div>}
+          {invTab==="history"&&<div style={{padding:"13px 12px 40px"}}>
+            <div style={{fontSize:11,color:T2,marginBottom:10,lineHeight:1.5}}>Full inventory: <strong>{(inv||[]).length}</strong> items in this event. Import history below shows each Excel upload.</div>
+            <div style={{...S.card({margin:0,marginBottom:12})}}>
+              <div style={S.sh}>📦 CURRENT INVENTORY SUMMARY</div>
+              {[["Total items",inv.length],["Available",inv.filter(i=>i.st==="available").length],["Sold",inv.filter(i=>i.st==="sold").length],["Reserved",inv.filter(i=>i.st==="reserved").length],["Total value (available)",fc(inv.filter(i=>i.st==="available").reduce((s,i)=>s+i.fp,0),cur)]].map(([l,v])=>(
+                <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:"1px solid "+CRD2}}>
+                  <span style={{fontSize:11,color:T3}}>{l}</span>
+                  <span style={{fontSize:11,fontWeight:700,color:T1}}>{String(v)}</span>
+                </div>
+              ))}
+            </div>
+            <div style={S.sh}>📋 EXCEL IMPORT HISTORY</div>
+            {(ev.invHistory||[]).length===0&&<div style={{...S.card({margin:0,textAlign:"center",padding:24})}}><div style={{fontSize:13,color:T2}}>No imports yet</div><div style={{fontSize:11,color:T3,marginTop:4}}>Upload Excel from Manage Event → Upload tab</div></div>}
+            {[...(ev.invHistory||[])].reverse().map(h=>(
+              <div key={h.id} style={{...S.cc({marginBottom:9})}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+                  <div><div style={{fontWeight:700,fontSize:12,color:T1}}>{h.fileName}</div><div style={{fontSize:10,color:T3,marginTop:2}}>{h.date} · {h.time}</div></div>
+                  <Bdg t="g" ch={"+"+h.added}/>
+                </div>
+                <div style={{fontSize:10,color:T2,marginTop:6}}>{h.mode==="initial"?"Initial load":h.mode==="replace"?"Replaced all":"Added to existing"} · {h.total} items total{h.by?" · by "+h.by:""}</div>
+              </div>
+            ))}
           </div>}
           {invTab==="audit"&&<div style={{padding:"13px 12px 40px"}}>
             <div style={{...S.card({margin:0,marginBottom:12})}}>
@@ -3624,7 +3750,7 @@ export default function App(){
     <div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:dark?"#0f0f0f":"#163D2E"}}>
       <ToastContainer/>
       <EventHub user={user} events={events} onEnter={ev=>{if(!userHasEventAccess(user,ev.id)){toast.warn("No access","Ask an admin to assign this event to your account.");return;}sae(ev);}} onCreate={createEv} onManage={ev=>smev(ev)} onDelete={delEv} onLogout={logout}/>
-      {manageEv&&<ManageEvent ev={events.find(e=>e.id===manageEv.id)||manageEv} onClose={()=>smev(null)} onUpdate={ev=>{upEv(ev);smev(ev);}} onDelete={id=>{delEv(id);smev(null);}}/>}
+      {manageEv&&<ManageEvent ev={events.find(e=>e.id===manageEv.id)||manageEv} user={user} onClose={()=>smev(null)} onUpdate={ev=>{upEv(ev);smev(ev);}} onDelete={id=>{delEv(id);smev(null);}}/>}
     </div>
   );
 }

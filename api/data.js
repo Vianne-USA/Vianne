@@ -34,6 +34,7 @@ module.exports = async function handler(req, res) {
 
   try {
     if (req.method === "GET") {
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
       const data = await loadSyncData();
       return res.status(200).json({
         ok: true,
@@ -45,6 +46,7 @@ module.exports = async function handler(req, res) {
           rwToken: !!process.env.BLOB_READ_WRITE_TOKEN,
           oidc: !!process.env.VERCEL_OIDC_TOKEN,
         },
+        blobRead: (data.events || []).length > 0 || (data.version || 0) > 0 ? "ok" : "empty",
         store: data.store || null,
         version: data.version || 0,
         updatedAt: data.updatedAt || null,

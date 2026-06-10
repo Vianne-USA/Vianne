@@ -12572,7 +12572,11 @@ function getCloudPingInfo() {
   return _lastCloudPing;
 }
 function applyCloudPull(d, sevents, sappUsers, refs) {
-  if (!d || !d.configured) return;
+  if (!d || !d.configured) return false;
+  var cloudVer = d.version || 0;
+  var localMeta = getCloudMeta();
+  var hasCloudData = (d.events || []).length > 0 || Array.isArray(d.users) && d.users.length > 0;
+  if (!hasCloudData && cloudVer <= localMeta.version) return false;
   sevents(function (prev) {
     var merged = mergeEvents(prev, d.events || []);
     saveEvents(merged);
@@ -12597,6 +12601,7 @@ function applyCloudPull(d, sevents, sappUsers, refs) {
     version: d.version,
     updatedAt: d.updatedAt
   });
+  return true;
 }
 function cloudLoad() {
   return _cloudLoad.apply(this, arguments);
@@ -12742,7 +12747,7 @@ function _cloudSave() {
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context20.a(2, Array.isArray(d.events) ? d.events : []);
+          return _context20.a(2, d);
         case 5:
           _context20.p = 5;
           _t0 = _context20.v;
@@ -12777,8 +12782,9 @@ function _flushCloudSync() {
       _ref77$successMsg,
       successMsg,
       ping,
+      merged,
       payload,
-      synced,
+      result,
       errMsg,
       _args21 = arguments;
     return _regenerator().w(function (_context21) {
@@ -12793,17 +12799,18 @@ function _flushCloudSync() {
             _context21.n = 2;
             break;
           }
-          if (!silent) toast.warn("Cloud not connected", "Data saved on this device only until Google Drive is ready.");
+          if (!silent) toast.warn("Cloud not connected", "Data saved on this device only until cloud sync is ready.");
           return _context21.a(2, {
             ok: false
           });
         case 2:
-          payload = eventsForCloudPayload(events);
+          merged = mergeEvents(events, ping.events || []);
+          payload = eventsForCloudPayload(merged);
           _context21.n = 3;
           return cloudSave(payload, users, deletedEvents || []);
         case 3:
-          synced = _context21.v;
-          if (!(synced === null)) {
+          result = _context21.v;
+          if (!(result === null)) {
             _context21.n = 4;
             break;
           }
@@ -12817,7 +12824,9 @@ function _flushCloudSync() {
           if (!silent && successMsg) toast.success(successMsg, "Saved to company cloud — visible to all permitted users.");
           return _context21.a(2, {
             ok: true,
-            synced: synced || []
+            synced: result.events || [],
+            users: result.users || null,
+            version: result.version || 0
           });
       }
     }, _callee21);
@@ -26697,9 +26706,19 @@ function App() {
             });
           case 1:
             r = _context7.v;
-            if (r.ok && r.synced) sevents(function (p) {
-              return applyCloudDriveMeta(p, r.synced);
-            });
+            if (r.ok) {
+              if (r.synced && r.synced.length) sevents(function (p) {
+                var m = mergeEvents(p, r.synced);
+                eventsRef.current = m;
+                return m;
+              });
+              if (Array.isArray(r.users) && r.users.length) sappUsers(function (p) {
+                var m = mergeUserDefaults(r.users);
+                appUsersRef.current = m;
+                saveUsers(m);
+                return m;
+              });
+            }
             return _context7.a(2, r);
         }
       }, _callee7);
@@ -26709,7 +26728,7 @@ function App() {
     };
   }();
   var scheduleCloudSave = function scheduleCloudSave() {
-    var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2500;
+    var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 800;
     var snapshot = arguments.length > 1 ? arguments[1] : undefined;
     var _ref70 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
       _ref70$silent = _ref70.silent,
@@ -26845,7 +26864,7 @@ function App() {
       };
     }();
     pull();
-    var id = setInterval(pull, 15000);
+    var id = setInterval(pull, 8000);
     var onVis = function onVis() {
       if (document.visibilityState === "visible") pull();
     };

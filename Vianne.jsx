@@ -345,7 +345,11 @@ async function cloudFetchData(){
 }
 function getCloudPingInfo(){return _lastCloudPing;}
 function applyCloudPull(d,sevents,sappUsers,refs){
-  if(!d||!d.configured)return;
+  if(!d||!d.configured)return false;
+  const cloudVer=d.version||0;
+  const localMeta=getCloudMeta();
+  const hasCloudData=(d.events||[]).length>0||(Array.isArray(d.users)&&d.users.length>0);
+  if(!hasCloudData&&cloudVer<=localMeta.version)return false;
   sevents(prev=>{
     const merged=mergeEvents(prev,d.events||[]);
     saveEvents(merged);
@@ -362,6 +366,7 @@ function applyCloudPull(d,sevents,sappUsers,refs){
   }
   if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
   if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
+  return true;
 }
 async function cloudLoad(){
   const d=await cloudFetchData();
@@ -401,7 +406,7 @@ async function cloudSave(events,users,deletedEvents){
     d=await trySave(inventoryFiles);
     _cloudOnline=true;
     if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
-    return Array.isArray(d.events)?d.events:[];
+    return d;
   }catch(e){
     if(inventoryFiles.length)_pendingInvFiles.unshift(...inventoryFiles);
     console.warn("Cloud save",e);
@@ -421,18 +426,19 @@ function eventsForCloudPayload(events){
 async function flushCloudSync(events,users,deletedEvents,{silent=false,successMsg="Shared with all users & devices"}={}){
   const ping=await cloudFetchData();
   if(!ping||!ping.configured){
-    if(!silent)toast.warn("Cloud not connected","Data saved on this device only until Google Drive is ready.");
+    if(!silent)toast.warn("Cloud not connected","Data saved on this device only until cloud sync is ready.");
     return{ok:false};
   }
-  const payload=eventsForCloudPayload(events);
-  const synced=await cloudSave(payload,users,deletedEvents||[]);
-  if(synced===null){
+  const merged=mergeEvents(events,ping.events||[]);
+  const payload=eventsForCloudPayload(merged);
+  const result=await cloudSave(payload,users,deletedEvents||[]);
+  if(result===null){
     const errMsg=getLastCloudError()||"Could not save to company cloud.";
     if(!silent&&(events||[]).length)toast.error("Cloud sync failed",errMsg);
     return{ok:false,error:errMsg};
   }
   if(!silent&&successMsg)toast.success(successMsg,"Saved to company cloud — visible to all permitted users.");
-  return{ok:true,synced:synced||[]};
+  return{ok:true,synced:result.events||[],users:result.users||null,version:result.version||0};
 }
 const S={
   btn:o=>({background:G,color:CR,border:"none",borderRadius:10,padding:"13px 18px",fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:600,cursor:"pointer",width:"100%",...o}),
@@ -4088,10 +4094,13 @@ export default function App(){
   useEffect(()=>{appUsersRef.current=appUsers;},[appUsers]);
   const runCloudSave=async(snap,usersSnap,deleted,{silent=true}={})=>{
     const r=await flushCloudSync(snap||eventsRef.current,usersSnap||appUsersRef.current,deleted||[],{silent});
-    if(r.ok&&r.synced)sevents(p=>applyCloudDriveMeta(p,r.synced));
+    if(r.ok){
+      if(r.synced&&r.synced.length)sevents(p=>{const m=mergeEvents(p,r.synced);eventsRef.current=m;return m;});
+      if(Array.isArray(r.users)&&r.users.length)sappUsers(p=>{const m=mergeUserDefaults(r.users);appUsersRef.current=m;saveUsers(m);return m;});
+    }
     return r;
   };
-  const scheduleCloudSave=(delay=2500,snapshot,{silent=true,notify=false}={})=>{
+  const scheduleCloudSave=(delay=800,snapshot,{silent=true,notify=false}={})=>{
     if(!cloudReady||!isCloudOnline()){
       pendingCloudSaveRef.current=true;
       return;
@@ -4150,7 +4159,7 @@ export default function App(){
       applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
     };
     pull();
-    const id=setInterval(pull,15000);
+    const id=setInterval(pull,8000);
     const onVis=()=>{if(document.visibilityState==="visible")pull();};
     document.addEventListener("visibilitychange",onVis);
     return()=>{clearInterval(id);document.removeEventListener("visibilitychange",onVis);};

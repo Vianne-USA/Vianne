@@ -1,4 +1,4 @@
-const { put, get, list } = require("@vercel/blob");
+const { put, get, list, head } = require("@vercel/blob");
 
 const MASTER_PATH = "vianne-master.json";
 
@@ -22,23 +22,36 @@ function blobAuthOpts() {
   return opts;
 }
 
+function parseBlobMaster(text) {
+  const data = JSON.parse(text);
+  return {
+    ...data,
+    version: data.version || 0,
+    store: "blob",
+  };
+}
+
 async function readBlobMaster() {
-  const opts = { ...blobAuthOpts(), access: "private", useCache: false };
+  const authOpts = blobAuthOpts();
+  const opts = { ...authOpts, access: "private", useCache: false };
   try {
-    let hit = await get(MASTER_PATH, opts);
-    if (!hit || !hit.blob) {
-      const ls = await list({ prefix: MASTER_PATH, limit: 5, ...blobAuthOpts() });
-      const url = ls.blobs && ls.blobs[0] && ls.blobs[0].url;
-      if (url) hit = await get(url, opts);
+    let meta = null;
+    try {
+      meta = await head(MASTER_PATH, opts);
+    } catch (_) {
+      const ls = await list({ prefix: "vianne", limit: 20, ...authOpts });
+      meta =
+        (ls.blobs || []).find((b) => b.pathname === MASTER_PATH) ||
+        (ls.blobs || [])[0] ||
+        null;
     }
+    if (meta && meta.url) {
+      const hit = await get(meta.url, opts);
+      if (hit && hit.blob) return parseBlobMaster(await hit.blob.text());
+    }
+    const hit = await get(MASTER_PATH, opts);
     if (!hit || !hit.blob) return null;
-    const text = await hit.blob.text();
-    const data = JSON.parse(text);
-    return {
-      ...data,
-      version: data.version || 0,
-      store: "blob",
-    };
+    return parseBlobMaster(await hit.blob.text());
   } catch (e) {
     const msg = String(e && e.message ? e.message : e);
     if (msg.includes("404") || msg.includes("not found") || msg.includes("Not Found")) {
@@ -77,17 +90,22 @@ async function saveToBlob(payload) {
     currency: payload.currency != null ? payload.currency : prev.currency || null,
     store: "blob",
   };
-  await put(MASTER_PATH, JSON.stringify(master), {
+  const putResult = await put(MASTER_PATH, JSON.stringify(master), {
     ...blobAuthOpts(),
     access: "private",
     contentType: "application/json",
     addRandomSuffix: false,
     allowOverwrite: true,
   });
+  let saved = master.events;
+  try {
+    const hit = await get(putResult.url, { ...blobAuthOpts(), access: "private", useCache: false });
+    if (hit && hit.blob) saved = parseBlobMaster(await hit.blob.text()).events || saved;
+  } catch (_) {}
   return {
     version: master.version,
     updatedAt: master.updatedAt,
-    events: master.events,
+    events: saved,
     store: "blob",
   };
 }

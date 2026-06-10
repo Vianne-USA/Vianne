@@ -24,7 +24,18 @@ function pickNewer(a, b) {
 }
 
 async function loadSyncData() {
-  const blob = await loadFromBlob();
+  if (isBlobConfigured()) {
+    const blob = await loadFromBlob();
+    if (blob) return blob;
+    return {
+      version: 0,
+      updatedAt: null,
+      events: [],
+      users: null,
+      currency: null,
+      store: "blob",
+    };
+  }
   let drive = null;
   if (isDriveConfigured()) {
     try {
@@ -34,9 +45,7 @@ async function loadSyncData() {
       console.warn("drive load", e.message);
     }
   }
-  const picked = pickNewer(blob, drive);
-  if (isBlobConfigured() && blob) return blob;
-  if (picked) return picked;
+  if (drive) return drive;
   return {
     version: 0,
     updatedAt: null,

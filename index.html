@@ -15966,7 +15966,8 @@ function ItemCard(_ref21) {
     sales = _ref21.sales,
     onSell = _ref21.onSell,
     onBack = _ref21.onBack,
-    onAddLead = _ref21.onAddLead;
+    onAddLead = _ref21.onAddLead,
+    imgTick = _ref21.imgTick;
   var pr = gp(user.role, user.perms);
   var _useState41 = useState(null),
     _useState42 = _slicedToArray(_useState41, 2),
@@ -16108,6 +16109,11 @@ function ItemCard(_ref21) {
   var similar = inv.filter(function (i) {
     return i.id !== item.id && (i.col === item.col || i.cat === item.cat) && i.st === "available";
   }).slice(0, 3);
+  useEffect(function () {
+    idbLoadImagesForIds([item.id].concat(_toConsumableArray(similar.map(function (s) {
+      return s.id;
+    })))).then(function () {});
+  }, [item.id, imgTick]);
   if (saleResult) return /*#__PURE__*/React.createElement(SaleSuccess, {
     sale: saleResult,
     item: item,
@@ -16801,7 +16807,7 @@ function ItemCard(_ref21) {
     style: S.sh
   }, "\u2728 SIMILAR"), similar.map(function (s) {
     return /*#__PURE__*/React.createElement("div", {
-      key: s.id,
+      key: s.id + "-" + imgTick,
       onClick: function onClick() {
         return window._switchItem && window._switchItem(s);
       },
@@ -16812,11 +16818,22 @@ function ItemCard(_ref21) {
         alignItems: "center",
         cursor: "pointer"
       }))
-    }, /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 20
+        width: 40,
+        height: 40,
+        borderRadius: 8,
+        overflow: "hidden",
+        flexShrink: 0,
+        background: CRD,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
       }
-    }, s.em), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement(ItemThumb, {
+      item: s,
+      size: 40
+    })), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: 1
       }
@@ -16831,7 +16848,7 @@ function ItemCard(_ref21) {
         fontSize: 9.5,
         color: T3
       }
-    }, s.col)), /*#__PURE__*/React.createElement("div", {
+    }, s.col, " \xB7 ", s.cat)), /*#__PURE__*/React.createElement("div", {
       style: {
         fontFamily: "Cormorant Garamond,serif",
         fontSize: 12,
@@ -18656,9 +18673,18 @@ function SingleLookup(p) {
   var sfMinFp = p.sfMinFp;
   var fMaxFp = p.fMaxFp;
   var sfMaxFp = p.sfMaxFp;
-  var custName = p.custName !== undefined ? p.custName : ""; var sCustName = p.sCustName || function(){};
-  var photoSearch = p.photoSearch; var sPhotoSearch = p.sPhotoSearch;
+  var photoSearch = p.photoSearch;
+  var sPhotoSearch = p.sPhotoSearch;
+  var custName = p.custName !== undefined ? p.custName : "";
+  var sCustName = p.sCustName || function () {};
   var onAddLead = p.onAddLead;
+  var openItem = p.openItem;
+  var lookupHistory = p.lookupHistory || [];
+  var imgTick = p.imgTick || 0;
+  var pickItem = function pickItem(item, type, query) {
+    return openItem ? openItem(item, type, query) : sdet(item);
+  };
+  var resultRows = lkResults.slice(0, 20);
   return /*#__PURE__*/React.createElement("div", {
     className: "v-page-pad"
   }, scan && /*#__PURE__*/React.createElement("div", {
@@ -18698,7 +18724,7 @@ function SingleLookup(p) {
     onScanned: function onScanned(code, item) {
       sscan(false);
       if (item) {
-        sdet(item);
+        pickItem(item, "scan", code);
       } else {
         sjc(code);
       }
@@ -18784,7 +18810,7 @@ function SingleLookup(p) {
     inv: inv,
     onResult: function onResult(item) {
       sPhotoSearch(false);
-      sdet(item);
+      pickItem(item, "search", "photo");
     },
     onClose: function onClose() {
       return sPhotoSearch(false);
@@ -19110,12 +19136,11 @@ function SingleLookup(p) {
       border: "1px solid " + CRD2,
       marginBottom: 12
     }
-  }, lkResults.slice(0, 20).map(function (item, i, arr) {
+  }, resultRows.map(function (item, i, arr) {
     return /*#__PURE__*/React.createElement("div", {
-      key: item.id,
+      key: item.id + "-" + imgTick,
       onClick: function onClick() {
-        sdet(item);
-        sjc("");
+        return pickItem(item, lkQ ? "search" : "view", lkQ);
       },
       style: {
         display: "flex",
@@ -19123,7 +19148,8 @@ function SingleLookup(p) {
         gap: 10,
         padding: "10px 12px",
         borderBottom: i < arr.length - 1 ? "1px solid " + CRD2 : "none",
-        cursor: "pointer"
+        cursor: "pointer",
+        background: det && det.id === item.id ? "rgba(201,168,76,0.12)" : WH
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -19186,19 +19212,84 @@ function SingleLookup(p) {
       color: T3,
       background: CRD
     }
-  }, "Showing 20 of ", lkResults.length, " \u2014 refine to narrow down")), !lkShowResults && !det && /*#__PURE__*/React.createElement("div", {
+  }, "Showing 20 of ", lkResults.length, " \u2014 refine to narrow down")), !lkShowResults && !det && lookupHistory.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread({}, S.card({
+      margin: 0,
+      marginBottom: 12
+    }))
+  }, /*#__PURE__*/React.createElement("div", {
+    style: S.sh
+  }, "\uD83D\uDD50 RECENT LOOKUPS"), lookupHistory.slice(0, 8).map(function (h, i, arr) {
+    var hi = inv.find(function (x) {
+      return x.id === h.itemId;
+    });
+    if (!hi) return null;
+    var ic = h.type === "scan" ? "📷" : h.type === "search" ? "🔍" : "👁";
+    return /*#__PURE__*/React.createElement("div", {
+      key: h.id,
+      onClick: function onClick() {
+        return pickItem(hi, h.type || "view", h.query);
+      },
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "9px 0",
+        borderBottom: i < arr.length - 1 ? "1px solid " + CRD2 : "none",
+        cursor: "pointer"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 36,
+        height: 36,
+        borderRadius: 6,
+        overflow: "hidden",
+        flexShrink: 0,
+        background: CRD,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }
+    }, /*#__PURE__*/React.createElement(ItemThumb, {
+      item: hi,
+      size: 36
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        color: T1
+      }
+    }, hi.id), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T3
+      }
+    }, ic, " ", h.query || h.type, " \xB7 ", h.time)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "Cormorant Garamond,serif",
+        fontSize: 13,
+        fontWeight: 700,
+        color: G
+      }
+    }, fc(hi.fp, cur)));
+  })), !lkShowResults && !det && /*#__PURE__*/React.createElement("div", {
     style: S.card({
       margin: 0
     })
   }, /*#__PURE__*/React.createElement("div", {
     style: S.sh
   }, "\u2B50 BESTSELLERS"), _toConsumableArray(inv).sort(function (a, b) {
-    return b.searches - a.searches;
+    return (b.searches || 0) - (a.searches || 0);
   }).slice(0, 6).map(function (item, i, arr) {
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       onClick: function onClick() {
-        return sdet(item);
+        return pickItem(item, "view");
       },
       style: {
         display: "flex",
@@ -19238,7 +19329,7 @@ function SingleLookup(p) {
         fontSize: 10,
         color: T3
       }
-    }, item.col, " \xB7 ", item.searches, "\uD83D\uDD0D")), /*#__PURE__*/React.createElement("div", {
+    }, item.col, " \xB7 ", item.searches || 0, "\uD83D\uDD0D")), /*#__PURE__*/React.createElement("div", {
       style: {
         fontFamily: "Cormorant Garamond,serif",
         fontSize: 13,
@@ -19259,6 +19350,7 @@ function SingleLookup(p) {
     preCustName: custName,
     eventName: ev.name,
     sales: sales,
+    imgTick: imgTick,
     onSell: function onSell(s) {
       doSell(s);
       sCustName("");
@@ -19994,13 +20086,16 @@ function LookupTab(p) {
   var mlTotal = p.mlTotal;
   var resolveCodes = p.resolveCodes;
   var sellMulti = p.sellMulti;
-  var onAddLead = p.onAddLead;
   var _ps = useState(false);
   var photoSearch = _ps[0];
   var sPhotoSearch = _ps[1];
   var _cn = useState("");
   var custName = _cn[0];
   var sCustName = _cn[1];
+  var onAddLead = p.onAddLead;
+  var openItem = p.openItem;
+  var lookupHistory = p.lookupHistory || [];
+  var imgTick = p.imgTick || 0;
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
@@ -20109,11 +20204,14 @@ function LookupTab(p) {
     lkResults: p.lkResults,
     lkShowResults: p.lkShowResults,
     photoSearch: photoSearch,
-    sPhotoSearch: sPhotoSearch
-  ,
+    sPhotoSearch: sPhotoSearch,
     custName: custName,
     sCustName: sCustName,
-    onAddLead: onAddLead}), mlTab === "multi" && /*#__PURE__*/React.createElement(MultiLookup, {
+    onAddLead: onAddLead,
+    openItem: openItem,
+    lookupHistory: lookupHistory,
+    imgTick: imgTick
+  }), mlTab === "multi" && /*#__PURE__*/React.createElement(MultiLookup, {
     ev: p.ev,
     inv: p.inv,
     si: p.si,
@@ -20239,8 +20337,11 @@ function InventoryTab(p) {
   var saveAudit = p.saveAudit;
   var scan = p.scan;
   var sscan = p.sscan;
+  var lookupHistory = p.lookupHistory || [];
+  var openItem = p.openItem;
   var sauditLoc = p.saLoc;
   var sauditScanned = p.saScanned;
+  var imgTick = p.imgTick || 0;
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
@@ -20369,7 +20470,7 @@ function InventoryTab(p) {
     return /*#__PURE__*/React.createElement("div", {
       key: item.id + "-" + i,
       onClick: function onClick() {
-        sdet(item);
+        if (openItem) openItem(item, "view");else sdet(item);
         st("lookup");
       },
       style: {
@@ -20501,6 +20602,84 @@ function InventoryTab(p) {
     }, String(v)));
   })), /*#__PURE__*/React.createElement("div", {
     style: S.sh
+  }, "\uD83D\uDD0D SEARCH & SCAN ACTIVITY"), lookupHistory.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread({}, S.card({
+      margin: 0,
+      marginBottom: 12,
+      textAlign: "center",
+      padding: 20
+    }))
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: T2
+    }
+  }, "No lookups yet"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: T3,
+      marginTop: 4
+    }
+  }, "Search or scan items in Lookup tab \u2014 history appears here")), lookupHistory.slice(0, 25).map(function (h) {
+    var hi = inv.find(function (x) {
+      return x.id === h.itemId;
+    });
+    if (!hi) return null;
+    var ic = h.type === "scan" ? "📷" : h.type === "search" ? "🔍" : "👁";
+    return /*#__PURE__*/React.createElement("div", {
+      key: h.id,
+      onClick: function onClick() {
+        if (openItem) openItem(hi, h.type || "view", h.query);
+        st("lookup");
+      },
+      style: _objectSpread({}, S.cc({
+        marginBottom: 8,
+        display: "flex",
+        gap: 9,
+        alignItems: "center",
+        cursor: "pointer"
+      }))
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 36,
+        height: 36,
+        borderRadius: 6,
+        overflow: "hidden",
+        flexShrink: 0,
+        background: CRD,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }
+    }, /*#__PURE__*/React.createElement(ItemThumb, {
+      item: hi,
+      size: 36
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 12,
+        color: T1
+      }
+    }, hi.id), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T3
+      }
+    }, ic, " ", h.query || h.type, " \xB7 ", h.user, " \xB7 ", h.date, " ", h.time)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: T4
+      }
+    }, "\uD83D\uDD0D ", hi.searches || 0, " \xB7 \uD83D\uDC41 ", hi.views || 0));
+  }), /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.sh), {}, {
+      marginTop: 14
+    })
   }, "\uD83D\uDCCB EXCEL IMPORT HISTORY"), (ev.invHistory || []).length === 0 && /*#__PURE__*/React.createElement("div", {
     style: _objectSpread({}, S.card({
       margin: 0,
@@ -26205,15 +26384,20 @@ function EventERP(_ref68) {
     _useState202 = _slicedToArray(_useState201, 2),
     audits = _useState202[0],
     sAudits = _useState202[1];
-  var _useState203 = useState(0),
+  var _useState203 = useState(ev.lookupHistory || []),
     _useState204 = _slicedToArray(_useState203, 2),
-    imgTick = _useState204[0],
-    sImgTick = _useState204[1];
+    lookupHistory = _useState204[0],
+    sLookupHistory = _useState204[1];
+  var _useState205 = useState(0),
+    _useState206 = _slicedToArray(_useState205, 2),
+    imgTick = _useState206[0],
+    sImgTick = _useState206[1];
   useEffect(function () {
     si(ev.inv || []);
     ssl(ev.sales || []);
     sld(ev.leads || []);
     sAudits(ev.audits || []);
+    sLookupHistory(ev.lookupHistory || []);
     idbLoadImagesForIds((ev.inv || []).map(function (i) {
       return i.id;
     })).then(function (n) {
@@ -26222,21 +26406,62 @@ function EventERP(_ref68) {
       });
     });
   }, [ev.id, ev.localUpdatedAt, ev.syncedAt]);
-  var _useState205 = useState("All"),
-    _useState206 = _slicedToArray(_useState205, 2),
-    hstaff = _useState206[0],
-    shs = _useState206[1];
-  var _useState207 = useState("overview"),
+  var _useState207 = useState("All"),
     _useState208 = _slicedToArray(_useState207, 2),
-    atab = _useState208[0],
-    sat = _useState208[1];
-  var syncUp = function syncUp(ni, ns, nl, na) {
+    hstaff = _useState208[0],
+    shs = _useState208[1];
+  var _useState209 = useState("overview"),
+    _useState210 = _slicedToArray(_useState209, 2),
+    atab = _useState210[0],
+    sat = _useState210[1];
+  var syncUp = function syncUp(ni, ns, nl, na, nlh) {
     return onUpdateEvent(_objectSpread(_objectSpread({}, ev), {}, {
       inv: ni || inv,
       sales: ns || sales,
       leads: nl || leads,
-      audits: na || audits
+      audits: na || audits,
+      lookupHistory: nlh !== undefined ? nlh : lookupHistory
     }));
+  };
+  var recordLookup = function recordLookup(item, type, query) {
+    if (!item) return null;
+    var ni = inv.map(function (i) {
+      if (i.id !== item.id) return i;
+      return _objectSpread(_objectSpread({}, i), {}, {
+        views: (i.views || 0) + (type === "view" ? 1 : 0),
+        searches: (i.searches || 0) + (type === "search" || type === "scan" ? 1 : 0)
+      });
+    });
+    si(ni);
+    var entry = {
+      id: uid("LK"),
+      itemId: item.id,
+      itemName: (item.cat || "") + " · " + (item.col || ""),
+      type: type || "view",
+      query: query || "",
+      user: user.name,
+      date: dstr(),
+      time: tstr()
+    };
+    var nh = [entry].concat(_toConsumableArray(lookupHistory)).slice(0, 300);
+    sLookupHistory(nh);
+    syncUp(ni, null, null, null, nh);
+    return ni;
+  };
+  var openItem = function openItem(item, type, query) {
+    if (!item) return;
+    recordLookup(item, type || "view", query || jc.trim());
+    var similarIds = inv.filter(function (i) {
+      return i.id !== item.id && (i.col === item.col || i.cat === item.cat);
+    }).slice(0, 3).map(function (i) {
+      return i.id;
+    });
+    idbLoadImagesForIds([item.id].concat(_toConsumableArray(similarIds))).then(function (n) {
+      if (n) sImgTick(function (x) {
+        return x + 1;
+      });
+    });
+    sdet(item);
   };
   var doSell = function doSell(sale) {
     var ni = inv.map(function (i) {
@@ -26272,7 +26497,7 @@ function EventERP(_ref68) {
     }
   };
   window._switchItem = function (item) {
-    return sdet(item);
+    return openItem(item, "view");
   };
   var mlSubtotal = mlItems.reduce(function (s, i) {
     return s + i.fp;
@@ -26786,7 +27011,10 @@ function EventERP(_ref68) {
     sat: sat,
     showSwitch: showSwitch,
     ssw: ssw,
-    onAddLead: onAddLead
+    onAddLead: onAddLead,
+    openItem: openItem,
+    lookupHistory: lookupHistory,
+    imgTick: imgTick
   }), tab === "sales" && /*#__PURE__*/React.createElement(SalesTab, {
     ev: ev,
     inv: inv,
@@ -26948,7 +27176,10 @@ function EventERP(_ref68) {
     atab: atab,
     sat: sat,
     showSwitch: showSwitch,
-    ssw: ssw
+    ssw: ssw,
+    lookupHistory: lookupHistory,
+    openItem: openItem,
+    imgTick: imgTick
   }), tab === "customers" && /*#__PURE__*/React.createElement(CustomersTab, {
     ev: ev,
     inv: inv,
@@ -27211,7 +27442,7 @@ function EventERP(_ref68) {
     inv: inv,
     onScanned: function onScanned(code, item) {
       sscan(false);
-      if (item) sdet(item);else toast.warn("Item not found", "Code: " + code);
+      if (item) openItem(item, "scan", code);else toast.warn("Item not found", "Code: " + code);
     }
   }), invm && /*#__PURE__*/React.createElement(InvoiceSheet, {
     sale: invm,
@@ -27285,26 +27516,26 @@ function EventERP(_ref68) {
   })))));
 }
 function App() {
-  var _useState209 = useState(null),
-    _useState210 = _slicedToArray(_useState209, 2),
-    user = _useState210[0],
-    su = _useState210[1];
-  var _useState211 = useState([]),
+  var _useState211 = useState(null),
     _useState212 = _slicedToArray(_useState211, 2),
-    events = _useState212[0],
-    sevents = _useState212[1];
-  var _useState213 = useState(loadUsers),
+    user = _useState212[0],
+    su = _useState212[1];
+  var _useState213 = useState([]),
     _useState214 = _slicedToArray(_useState213, 2),
-    appUsers = _useState214[0],
-    sappUsers = _useState214[1];
-  var _useState215 = useState(false),
+    events = _useState214[0],
+    sevents = _useState214[1];
+  var _useState215 = useState(loadUsers),
     _useState216 = _slicedToArray(_useState215, 2),
-    dataReady = _useState216[0],
-    setDataReady = _useState216[1];
+    appUsers = _useState216[0],
+    sappUsers = _useState216[1];
   var _useState217 = useState(false),
     _useState218 = _slicedToArray(_useState217, 2),
-    cloudReady = _useState218[0],
-    setCloudReady = _useState218[1];
+    dataReady = _useState218[0],
+    setDataReady = _useState218[1];
+  var _useState219 = useState(false),
+    _useState220 = _slicedToArray(_useState219, 2),
+    cloudReady = _useState220[0],
+    setCloudReady = _useState220[1];
   var dark = useDark();
   var cloudSyncRef = useRef(null);
   var autoSyncRef = useRef(null);
@@ -27613,14 +27844,14 @@ function App() {
       if (style.parentNode) style.parentNode.removeChild(style);
     };
   }, []);
-  var _useState219 = useState(null),
-    _useState220 = _slicedToArray(_useState219, 2),
-    activeEv = _useState220[0],
-    sae = _useState220[1];
   var _useState221 = useState(null),
     _useState222 = _slicedToArray(_useState221, 2),
-    manageEv = _useState222[0],
-    smev = _useState222[1];
+    activeEv = _useState222[0],
+    sae = _useState222[1];
+  var _useState223 = useState(null),
+    _useState224 = _slicedToArray(_useState223, 2),
+    manageEv = _useState224[0],
+    smev = _useState224[1];
   var upEv = function upEv(ev) {
     return sevents(function (p) {
       var next = ev ? p.map(function (e) {

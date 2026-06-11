@@ -1263,7 +1263,7 @@ function SaleSuccess({sale,item,fc,cur,onDone,onPrint}){
   );
 }
 
-function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,onBack,onAddLead}){
+function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,onBack,onAddLead,imgTick}){
   const pr=gp(user.role,user.perms);
   const [mode,sm]=useState(null),[saleResult,setSaleResult]=useState(null),[f,sf]=useState({cu:preCustName||"",ph:"",email:"",company:"",source:"Walk-in",pm:"NEFT",disc:0,remark:"",cc_type:"pct",cc_val:""});
   const [matchedCust,setMatchedCust]=useState(null);
@@ -1304,6 +1304,9 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
       onAddLead(newCust,"add");
     }const _s={id:nextReceiptNumber(eventName,sales),custId:custId||"",custName:f.cu.trim(),phone:f.ph.trim(),email:f.email.trim(),company:f.company.trim(),itemId:item.id,itemName:item.cat+" · "+item.col+" · "+item.metal,metal:item.metal,col:item.col,sz:item.sz,gw:item.gw,nw:item.nw,tc:item.tc,sp:item.sp,style:item.style,price:subtotal,disc:f.disc,cgst:0,sgst:0,ccType:f.cc_type,ccVal:f.cc_val,ccAmt:ccAmt,total:tot,currency:cur||"USD",margin,date:dstr(),time:tstr(),payment:f.pm,staff:user.name,st:mode==="d"?"pending":"completed",gt:"",remark:f.remark};setSaleResult(_s);onSell(_s);};
   const similar=inv.filter(i=>i.id!==item.id&&(i.col===item.col||i.cat===item.cat)&&i.st==="available").slice(0,3);
+  useEffect(()=>{
+    idbLoadImagesForIds([item.id,...similar.map(s=>s.id)]).then(()=>{});
+  },[item.id,imgTick]);
   if(saleResult)return(<SaleSuccess sale={saleResult} item={item} fc={fc} cur={cur} onDone={()=>{setSaleResult(null);onBack();}} onPrint={()=>{setSaleResult(null);sm(saleResult);}}/>);
   if(mode) return(
     <div style={{background:CRD,minHeight:"100%",padding:"10px 12px 40px"}}>
@@ -1405,7 +1408,7 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>{[["Collection",item.col],["Metal",item.metal],["Size",item.sz||"—"],["Gross Wt",item.gw+"g"],["Net Wt",item.nw+"g"],["Carats",item.tc+"ct"],["Stone Pcs",item.sp],["Qty",item.qty||1]].map(([l,v])=><div key={l}><div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{l}</div><div style={{fontSize:12,fontWeight:700,marginTop:1,color:T1}}>{v}</div></div>)}</div>
         </div>
         {item.stones&&item.stones.length>0&&<><div style={S.sh}>💎 STONES</div><table style={{width:"100%",borderCollapse:"collapse",fontSize:11,marginBottom:13}}><thead><tr style={{background:CRD2}}>{["SHAPE","CLARITY","PCS","CTS","TOTAL"].map(h=><th key={h} style={{padding:"6px 8px",textAlign:"left",fontSize:9,fontWeight:700,color:T2}}>{h}</th>)}</tr></thead><tbody>{item.stones.map((s,i)=><tr key={i} style={{borderBottom:"1px solid "+CRD2}}><td style={{padding:"7px 8px"}}>{s.sh}</td><td style={{padding:"7px 8px"}}>{s.cl}</td><td style={{padding:"7px 8px"}}>{s.pc}</td><td style={{padding:"7px 8px"}}>{s.ct}</td><td style={{padding:"7px 8px"}}>{s.tct}</td></tr>)}</tbody></table></>}
-        {similar.length>0&&<><div style={S.sh}>✨ SIMILAR</div>{similar.map(s=><div key={s.id} onClick={()=>window._switchItem&&window._switchItem(s)} style={{...S.cc({marginBottom:8,display:"flex",gap:9,alignItems:"center",cursor:"pointer"})}}><span style={{fontSize:20}}>{s.em}</span><div style={{flex:1}}><div style={{fontWeight:700,fontSize:12,color:T1}}>{s.id}</div><div style={{fontSize:9.5,color:T3}}>{s.col}</div></div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G}}>{fc(s.fp,cur)}</div></div>)}</>}
+        {similar.length>0&&<><div style={S.sh}>✨ SIMILAR</div>{similar.map(s=><div key={s.id+"-"+imgTick} onClick={()=>window._switchItem&&window._switchItem(s)} style={{...S.cc({marginBottom:8,display:"flex",gap:9,alignItems:"center",cursor:"pointer"})}}><div style={{width:40,height:40,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}><ItemThumb item={s} size={40}/></div><div style={{flex:1}}><div style={{fontWeight:700,fontSize:12,color:T1}}>{s.id}</div><div style={{fontSize:9.5,color:T3}}>{s.col} · {s.cat}</div></div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G}}>{fc(s.fp,cur)}</div></div>)}</>}
         <div style={{height:40}}/>
       </div>
     </div>
@@ -2092,6 +2095,16 @@ function SingleLookup(p){
   var sfMinFp=p.sfMinFp;
   var fMaxFp=p.fMaxFp;
   var sfMaxFp=p.sfMaxFp;
+  var photoSearch=p.photoSearch;
+  var sPhotoSearch=p.sPhotoSearch;
+  var custName=p.custName!==undefined?p.custName:"";
+  var sCustName=p.sCustName||function(){};
+  var onAddLead=p.onAddLead;
+  var openItem=p.openItem;
+  var lookupHistory=p.lookupHistory||[];
+  var imgTick=p.imgTick||0;
+  const pickItem=(item,type,query)=>openItem?openItem(item,type,query):sdet(item);
+  const resultRows=lkResults.slice(0,20);
   return(
     <div className="v-page-pad">
 
@@ -2102,7 +2115,7 @@ function SingleLookup(p){
                       <div style={{fontWeight:700,fontSize:12,color:G}}>📷 Camera Scanner</div>
                       <button onClick={()=>sscan(false)} style={{background:RE,color:WH,border:"none",borderRadius:7,padding:"5px 12px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:700,cursor:"pointer"}}>⬛ Stop</button>
                     </div>
-                    <QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item){sdet(item);}else{sjc(code);}}}/>
+                    <QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item){pickItem(item,"scan",code);}else{sjc(code);}}}/>
                   </div>
                 )}
 
@@ -2122,7 +2135,7 @@ function SingleLookup(p){
                     </div>
                   )}
                   {photoSearch&&(
-                    <PhotoSearch inv={inv} onResult={(item)=>{sPhotoSearch(false);sdet(item);}} onClose={()=>sPhotoSearch(false)}/>
+                    <PhotoSearch inv={inv} onResult={(item)=>{sPhotoSearch(false);pickItem(item,"search","photo");}} onClose={()=>sPhotoSearch(false)}/>
                   )}
                   <input style={{...S.inp({marginBottom:8}),borderColor:"rgba(201,168,76,0.5)"}} placeholder="Customer name (optional)..." value={custName} onChange={ev=>sCustName(ev.target.value)}/>
                   <input style={{...S.inp({marginBottom:4}),borderColor:G}} placeholder="Search code, collection, metal, category..." value={jc} onChange={ev=>sjc(ev.target.value)}/>
@@ -2177,11 +2190,11 @@ function SingleLookup(p){
                   </div>
                 )}
 
-                {/* Search/filter results list */}
+                {/* Search/filter results list — always above item detail */}
                 {lkShowResults&&lkResults.length>0&&(
                   <div className="v-results-grid" style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2,marginBottom:12}}>
-                    {lkResults.slice(0,20).map((item,i,arr)=>(
-                      <div key={item.id} onClick={()=>{sdet(item);sjc("");}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer"}}>
+                    {resultRows.map((item,i,arr)=>(
+                      <div key={item.id+"-"+imgTick} onClick={()=>pickItem(item,lkQ?"search":"view",lkQ)} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer",background:det&&det.id===item.id?"rgba(201,168,76,0.12)":WH}}>
                         <div style={{width:42,height:42,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
                           <ItemThumb item={item} size={42}/>
                         </div>
@@ -2200,16 +2213,40 @@ function SingleLookup(p){
                   </div>
                 )}
 
+                {/* Recent search & scan history */}
+                {!lkShowResults&&!det&&lookupHistory.length>0&&(
+                  <div style={{...S.card({margin:0,marginBottom:12})}}>
+                    <div style={S.sh}>🕐 RECENT LOOKUPS</div>
+                    {lookupHistory.slice(0,8).map((h,i,arr)=>{
+                      const hi=inv.find(x=>x.id===h.itemId);
+                      if(!hi)return null;
+                      const ic=h.type==="scan"?"📷":h.type==="search"?"🔍":"👁";
+                      return(
+                        <div key={h.id} onClick={()=>pickItem(hi,h.type||"view",h.query)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer"}}>
+                          <div style={{width:36,height:36,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                            <ItemThumb item={hi} size={36}/>
+                          </div>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{fontSize:12,fontWeight:700,color:T1}}>{hi.id}</div>
+                            <div style={{fontSize:10,color:T3}}>{ic} {h.query||h.type} · {h.time}</div>
+                          </div>
+                          <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(hi.fp,cur)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
                 {/* Bestsellers shown when nothing searched */}
                 {!lkShowResults&&!det&&(
                   <div style={S.card({margin:0})}>
                     <div style={S.sh}>⭐ BESTSELLERS</div>
-                    {[...inv].sort((a,b)=>b.searches-a.searches).slice(0,6).map((item,i,arr)=>(
-                      <div key={item.id} onClick={()=>sdet(item)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer"}}>
+                    {[...inv].sort((a,b)=>(b.searches||0)-(a.searches||0)).slice(0,6).map((item,i,arr)=>(
+                      <div key={item.id} onClick={()=>pickItem(item,"view")} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer"}}>
                         <div style={{width:36,height:36,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
                           <ItemThumb item={item} size={36}/>
                         </div>
-                        <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700,color:T1}}>{item.id}</div><div style={{fontSize:10,color:T3}}>{item.col} · {item.searches}🔍</div></div>
+                        <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700,color:T1}}>{item.id}</div><div style={{fontSize:10,color:T3}}>{item.col} · {(item.searches||0)}🔍</div></div>
                         <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
                       </div>
                     ))}
@@ -2219,7 +2256,7 @@ function SingleLookup(p){
                 {/* Item detail inline */}
                 {det&&(
                   <div style={{marginTop:12}}>
-                    <ItemCard item={det} user={user} inv={inv} leads={leads} cur={cur} preCustName={custName} eventName={ev.name} sales={sales} onSell={s=>{doSell(s);sCustName("");}} onBack={()=>sdet(null)} onAddLead={onAddLead}/>
+                    <ItemCard item={det} user={user} inv={inv} leads={leads} cur={cur} preCustName={custName} eventName={ev.name} sales={sales} imgTick={imgTick} onSell={s=>{doSell(s);sCustName("");}} onBack={()=>sdet(null)} onAddLead={onAddLead}/>
                   </div>
                 )}
               </div>
@@ -2488,6 +2525,11 @@ function LookupTab(p){
   var resolveCodes=p.resolveCodes;
   var sellMulti=p.sellMulti;
   var _ps=useState(false);var photoSearch=_ps[0];var sPhotoSearch=_ps[1];
+  var _cn=useState("");var custName=_cn[0];var sCustName=_cn[1];
+  var onAddLead=p.onAddLead;
+  var openItem=p.openItem;
+  var lookupHistory=p.lookupHistory||[];
+  var imgTick=p.imgTick||0;
   return(
     <div>
             {/* Single / Multi sub-tabs */}
@@ -2498,7 +2540,7 @@ function LookupTab(p){
             </div>
 
             {/* SINGLE LOOKUP */}
-            {mlTab==="single"&&<SingleLookup {...{ev:p.ev,inv:p.inv,si:p.si,cur:p.cur,user:p.user,pr:p.pr,fc:p.fc,st:p.st,doSell:p.doSell,sdet:p.sdet,sinvm:p.sinvm,jc:p.jc,sjc:p.sjc,det:p.det,scan:p.scan,sscan:p.sscan,mlTab:p.mlTab,smlTab:p.smlTab,mlInput:p.mlInput,smlInput:p.smlInput,mlItems:p.mlItems,smlItems:p.smlItems,mlDisc:p.mlDisc,smlDisc:p.smlDisc,mlDiscAmt:p.mlDiscAmt,smlDiscAmt:p.smlDiscAmt,mlMarkup:p.mlMarkup,smlMarkup:p.smlMarkup,mlNF:p.mlNF,smlNF:p.smlNF,mlScan:p.mlScan,smlScan:p.smlScan,mlSubtotal:p.mlSubtotal,mlFinal:p.mlFinal,mlTotal:p.mlTotal,resolveCodes:p.resolveCodes,sellMulti:p.sellMulti,showFilter:p.showFilter,sShowFilter:p.sShowFilter,activeFilters:p.activeFilters,resetFilters:p.resetFilters,fCat:p.fCat,sfCat:p.sfCat,fCol:p.fCol,sfCol:p.sfCol,fMetal:p.fMetal,sfMetal:p.sfMetal,fSt:p.fSt,sfSt:p.sfSt,fShape:p.fShape,sfShape:p.sfShape,fMinTc:p.fMinTc,sfMinTc:p.sfMinTc,fMaxTc:p.fMaxTc,sfMaxTc:p.sfMaxTc,fMinGw:p.fMinGw,sfMinGw:p.sfMinGw,fMaxGw:p.fMaxGw,sfMaxGw:p.sfMaxGw,fMinNw:p.fMinNw,sfMinNw:p.sfMinNw,fMaxNw:p.fMaxNw,sfMaxNw:p.sfMaxNw,fMinFp:p.fMinFp,sfMinFp:p.sfMinFp,fMaxFp:p.fMaxFp,sfMaxFp:p.sfMaxFp,allCats:p.allCats,allCols:p.allCols,allMetals:p.allMetals,allShapes:p.allShapes,allSt:p.allSt,lkQ:p.lkQ,lkResults:p.lkResults,lkShowResults:p.lkShowResults,photoSearch:photoSearch,sPhotoSearch:sPhotoSearch}}/>}
+            {mlTab==="single"&&<SingleLookup {...{ev:p.ev,inv:p.inv,si:p.si,cur:p.cur,user:p.user,pr:p.pr,fc:p.fc,st:p.st,doSell:p.doSell,sdet:p.sdet,sinvm:p.sinvm,jc:p.jc,sjc:p.sjc,det:p.det,scan:p.scan,sscan:p.sscan,mlTab:p.mlTab,smlTab:p.smlTab,mlInput:p.mlInput,smlInput:p.smlInput,mlItems:p.mlItems,smlItems:p.smlItems,mlDisc:p.mlDisc,smlDisc:p.smlDisc,mlDiscAmt:p.mlDiscAmt,smlDiscAmt:p.smlDiscAmt,mlMarkup:p.mlMarkup,smlMarkup:p.smlMarkup,mlNF:p.mlNF,smlNF:p.smlNF,mlScan:p.mlScan,smlScan:p.smlScan,mlSubtotal:p.mlSubtotal,mlFinal:p.mlFinal,mlTotal:p.mlTotal,resolveCodes:p.resolveCodes,sellMulti:p.sellMulti,showFilter:p.showFilter,sShowFilter:p.sShowFilter,activeFilters:p.activeFilters,resetFilters:p.resetFilters,fCat:p.fCat,sfCat:p.sfCat,fCol:p.fCol,sfCol:p.sfCol,fMetal:p.fMetal,sfMetal:p.sfMetal,fSt:p.fSt,sfSt:p.sfSt,fShape:p.fShape,sfShape:p.sfShape,fMinTc:p.fMinTc,sfMinTc:p.sfMinTc,fMaxTc:p.fMaxTc,sfMaxTc:p.sfMaxTc,fMinGw:p.fMinGw,sfMinGw:p.sfMinGw,fMaxGw:p.fMaxGw,sfMaxGw:p.sfMaxGw,fMinNw:p.fMinNw,sfMinNw:p.sfMinNw,fMaxNw:p.fMaxNw,sfMaxNw:p.sfMaxNw,fMinFp:p.fMinFp,sfMinFp:p.sfMinFp,fMaxFp:p.fMaxFp,sfMaxFp:p.sfMaxFp,allCats:p.allCats,allCols:p.allCols,allMetals:p.allMetals,allShapes:p.allShapes,allSt:p.allSt,lkQ:p.lkQ,lkResults:p.lkResults,lkShowResults:p.lkShowResults,photoSearch:photoSearch,sPhotoSearch:sPhotoSearch,custName:custName,sCustName:sCustName,onAddLead:onAddLead,openItem:openItem,lookupHistory:lookupHistory,imgTick:imgTick}}/>}
 
 
             {/* MULTI LOOKUP */}
@@ -2553,6 +2595,9 @@ function InventoryTab(p){
   var saveAudit=p.saveAudit;
   var scan=p.scan;
   var sscan=p.sscan;
+  var lookupHistory=p.lookupHistory||[];
+  var openItem=p.openItem;
+  var imgTick=p.imgTick||0;
   return(
     <div>
           <div style={{background:G,display:"flex",borderBottom:"1px solid rgba(201,168,76,0.2)"}}>{[{id:"stock",l:"📦 STOCK"},{id:"history",l:"📋 HISTORY"},{id:"audit",l:"🔍 AUDIT"}].map(t=><button key={t.id} onClick={()=>sivTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:invTab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:invTab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:invTab===t.id?700:500,padding:"9px 7px",cursor:"pointer"}}>{t.l}</button>)}</div>
@@ -2564,7 +2609,7 @@ function InventoryTab(p){
             <div style={{fontSize:10,color:T3,marginBottom:7}}>{fi.length} items · {fc(fi.filter(i=>i.st==="available").reduce((s,i)=>s+i.fp,0),cur)} value · full inventory list</div>
             <div className="v-inv-grid" style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2,maxHeight:"55vh",overflowY:"auto"}}>
               {fi.map((item,i,arr)=>(
-                <div key={item.id+"-"+i} onClick={()=>{sdet(item);st("lookup");}} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer",background:WH}}>
+                <div key={item.id+"-"+i} onClick={()=>{if(openItem)openItem(item,"view");else sdet(item);st("lookup");}} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer",background:WH}}>
                   <div style={{width:40,height:40,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
                     <ItemThumb item={item} size={40}/>
                   </div>
@@ -2589,7 +2634,24 @@ function InventoryTab(p){
                 </div>
               ))}
             </div>
-            <div style={S.sh}>📋 EXCEL IMPORT HISTORY</div>
+            <div style={S.sh}>🔍 SEARCH & SCAN ACTIVITY</div>
+            {lookupHistory.length===0&&<div style={{...S.card({margin:0,marginBottom:12,textAlign:"center",padding:20})}}><div style={{fontSize:12,color:T2}}>No lookups yet</div><div style={{fontSize:10,color:T3,marginTop:4}}>Search or scan items in Lookup tab — history appears here</div></div>}
+            {lookupHistory.slice(0,25).map(h=>{
+              const hi=inv.find(x=>x.id===h.itemId);
+              if(!hi)return null;
+              const ic=h.type==="scan"?"📷":h.type==="search"?"🔍":"👁";
+              return(
+                <div key={h.id} onClick={()=>{if(openItem)openItem(hi,h.type||"view",h.query);st("lookup");}} style={{...S.cc({marginBottom:8,display:"flex",gap:9,alignItems:"center",cursor:"pointer"})}}>
+                  <div style={{width:36,height:36,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}><ItemThumb item={hi} size={36}/></div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:700,fontSize:12,color:T1}}>{hi.id}</div>
+                    <div style={{fontSize:10,color:T3}}>{ic} {h.query||h.type} · {h.user} · {h.date} {h.time}</div>
+                  </div>
+                  <div style={{fontSize:9,color:T4}}>🔍 {hi.searches||0} · 👁 {hi.views||0}</div>
+                </div>
+              );
+            })}
+            <div style={{...S.sh,marginTop:14}}>📋 EXCEL IMPORT HISTORY</div>
             {(ev.invHistory||[]).length===0&&<div style={{...S.card({margin:0,textAlign:"center",padding:24})}}><div style={{fontSize:13,color:T2}}>No imports yet</div><div style={{fontSize:11,color:T3,marginTop:4}}>Upload Excel from Manage Event → Upload tab</div></div>}
             {[...(ev.invHistory||[])].reverse().map(h=>(
               <div key={h.id} style={{...S.cc({marginBottom:9})}}>
@@ -4242,17 +4304,39 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const [auditLoc,saLoc]=useState("Exhibition");
   const [auditScanned,saScanned]=useState([]);
   const [audits,sAudits]=useState(ev.audits||[]);
+  const [lookupHistory,sLookupHistory]=useState(ev.lookupHistory||[]);
   const [imgTick,sImgTick]=useState(0);
   useEffect(()=>{
     si(ev.inv||[]);
     ssl(ev.sales||[]);
     sld(ev.leads||[]);
     sAudits(ev.audits||[]);
+    sLookupHistory(ev.lookupHistory||[]);
     idbLoadImagesForIds((ev.inv||[]).map(i=>i.id)).then(n=>{if(n)sImgTick(x=>x+1);});
   },[ev.id,ev.localUpdatedAt,ev.syncedAt]);
   const [hstaff,shs]=useState("All");
   const [atab,sat]=useState("overview");
-  const syncUp=(ni,ns,nl,na)=>onUpdateEvent({...ev,inv:ni||inv,sales:ns||sales,leads:nl||leads,audits:na||audits});
+  const syncUp=(ni,ns,nl,na,nlh)=>onUpdateEvent({...ev,inv:ni||inv,sales:ns||sales,leads:nl||leads,audits:na||audits,lookupHistory:nlh!==undefined?nlh:lookupHistory});
+  const recordLookup=(item,type,query)=>{
+    if(!item)return null;
+    const ni=inv.map(i=>{
+      if(i.id!==item.id)return i;
+      return {...i,views:(i.views||0)+(type==="view"?1:0),searches:(i.searches||0)+(type==="search"||type==="scan"?1:0)};
+    });
+    si(ni);
+    const entry={id:uid("LK"),itemId:item.id,itemName:(item.cat||"")+" · "+(item.col||""),type:type||"view",query:query||"",user:user.name,date:dstr(),time:tstr()};
+    const nh=[entry,...lookupHistory].slice(0,300);
+    sLookupHistory(nh);
+    syncUp(ni,null,null,null,nh);
+    return ni;
+  };
+  const openItem=(item,type,query)=>{
+    if(!item)return;
+    recordLookup(item,type||"view",query||jc.trim());
+    const similarIds=inv.filter(i=>i.id!==item.id&&(i.col===item.col||i.cat===item.cat)).slice(0,3).map(i=>i.id);
+    idbLoadImagesForIds([item.id,...similarIds]).then(n=>{if(n)sImgTick(x=>x+1);});
+    sdet(item);
+  };
   const doSell=sale=>{const ni=inv.map(i=>i.id===sale.itemId?{...i,st:"sold"}:i);const ns=[sale,...sales];si(ni);ssl(ns);sdet(null);sinvm(sale);syncUp(ni,ns,null,null);};
   const onAddLead=(cust,action)=>{
     if(action==="update"){
@@ -4268,7 +4352,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
     }
   };
   
-  window._switchItem=(item)=>sdet(item);
+  window._switchItem=(item)=>openItem(item,"view");
   const mlSubtotal=mlItems.reduce((s,i)=>s+i.fp,0);
   const mlAdj=mlDisc?mlSubtotal*Number(mlDisc)/100:mlDiscAmt?Number(mlDiscAmt):mlMarkup?-(mlSubtotal*Number(mlMarkup)/100):0;
   const mlFinal=Math.max(0,Math.round((mlSubtotal-mlAdj)*100)/100);
@@ -4321,13 +4405,13 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
         {TABS.map(t=><button key={t.id} onClick={()=>st(t.id)} style={{flexShrink:0,flex:1,background:"none",border:"none",borderBottom:tab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:tab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:10,fontWeight:tab===t.id?700:500,padding:"9px 10px",cursor:"pointer",whiteSpace:"nowrap"}}>{t.ic} {t.l}</button>)}
       </div>
       <div className="v-erp-scroll">
-        {tab==="lookup"&&<LookupTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,onAddLead:onAddLead}}/>}
+        {tab==="lookup"&&<LookupTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,onAddLead:onAddLead,openItem:openItem,lookupHistory:lookupHistory,imgTick:imgTick}}/>}
 
         {tab==="sales"&&<SalesTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,onAddLead:onAddLead}}/>}
 
         {tab==="history"&&<HistoryTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout}}/>}
 
-        {tab==="inventory"&&<InventoryTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
+        {tab==="inventory"&&<InventoryTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,lookupHistory:lookupHistory,openItem:openItem,imgTick:imgTick}}/>}
 
         {tab==="customers"&&<CustomersTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,addLead:addLead}}/>}
 
@@ -4335,7 +4419,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
         {tab==="admin"&&<AdminTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,onCloudSync:onCloudSync,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
 
-        {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item)sdet(item);else toast.warn("Item not found","Code: "+code);}}/>}
+        {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item)openItem(item,"scan",code);else toast.warn("Item not found","Code: "+code);}}/>}
         {invm&&<InvoiceSheet sale={invm} event={ev} onClose={()=>sinvm(null)}/>}
         {showSwitch&&(
           <Sheet onClose={()=>ssw(false)} title="Switch Event">

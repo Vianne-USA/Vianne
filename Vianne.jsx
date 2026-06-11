@@ -49,11 +49,22 @@ async function prefetchInvImages(ids){
 function ensureJSZipAsync(){
   return new Promise(res=>ensureJSZip(()=>res()));
 }
+function countInvImages(inv){
+  return(inv||[]).filter(it=>it?.id&&resolveItemImage(it.id,it)).length;
+}
 async function ensureEventInvImages(ev){
   const invList=ev?.inv||[];
   const ids=invList.map(i=>i.id);
   let loaded=await prefetchInvImages(ids);
-  const missing=ids.filter(id=>!resolveItemImage(id,invItem(invList,id)));
+  let missing=ids.filter(id=>!resolveItemImage(id,invItem(invList,id)));
+  if(missing.length){
+    const stored=await idbGetLatestInvFile(ev.id);
+    if(stored){
+      const n=await extractImagesFromInvBase64(stored.contentBase64,invList);
+      if(n){loaded+=n;notifyImagesChanged();}
+      missing=ids.filter(id=>!resolveItemImage(id,invItem(invList,id)));
+    }
+  }
   if(!missing.length||!isCloudOnline())return loaded;
   const latest=[...(ev.invHistory||[])].reverse().find(h=>h&&h.driveFileId&&/\.xlsx?$/i.test(h.fileName||""));
   if(!latest)return loaded;
@@ -69,6 +80,51 @@ async function ensureEventInvImages(ev){
     if(n){attachItemImages(invList,imgMap);loaded+=n;notifyImagesChanged();}
   }catch(e){console.warn("Drive image refresh",e);}
   return loaded;
+}
+async function applyInventoryUpload(ev,file,items,mode,by){
+  const incoming=Array.isArray(items)?items:[];
+  const{inv,added,skipped}=mergeInvItems(ev.inv||[],incoming,mode);
+  if(mode==="add"&&added===0&&skipped>0)return{ok:false,added,skipped,total:(ev.inv||[]).length};
+  const addedN=mode==="replace"?inv.length:added;
+  const updated={
+    ...ev,
+    inv,
+    invHistory:appendInvHistory(ev,{
+      fileName:file?.name||"inventory.xlsx",
+      mode,
+      added:addedN,
+      skipped,
+      total:inv.length,
+      by:by||"Admin",
+    }),
+  };
+  let imgN=0;
+  if(file){
+    await idbSaveInvFile(ev.id,file);
+    imgN=await ensureImagesFromInvFile(file,inv);
+    await prefetchInvImages(inv.map(i=>i.id));
+    await queueInventoryFileForDrive(ev.id,file);
+  }
+  const photos=countInvImages(inv);
+  return{ok:true,updated,added:addedN,skipped,total:inv.length,imgN,photos};
+}
+function handleInvFileInput(ev,file,mode,by,onDone){
+  if(!file)return;
+  parseXL(file,async items=>{
+    const result=await applyInventoryUpload(ev,file,items,mode,by);
+    if(!result.ok){
+      invMergeToast({added:result.added,skipped:result.skipped,mode,total:result.total});
+      onDone&&onDone(null);
+      return;
+    }
+    invMergeToast({added:result.added,skipped:result.skipped,mode,total:result.total});
+    if(result.imgN)toast.success("Sheet imported",result.total+" items · "+result.imgN+" photo(s) from Excel");
+    else if(/\.xlsx?$/i.test(file.name||""))toast.info("Data imported, no embedded photos",result.total+" items loaded — use a Price List .xlsx with pictures for photos");
+    onDone&&onDone(result.updated);
+  },err=>{
+    toast.error(INV_FAIL,String(err).replace(INV_FAIL+" — ",""));
+    onDone&&onDone(null);
+  });
 }
 function ItemThumb({item,size=40,style={}}){
   const [,setImgRev]=useState(0);
@@ -267,18 +323,82 @@ function loadEvents(){
 const IDB_NAME="vianne_v1";
 const IDB_STORE="events";
 const IDB_IMG_STORE="images";
+const IDB_INV_FILE_STORE="inv_files";
 function idbOpen(){
   return new Promise((resolve,reject)=>{
     if(typeof indexedDB==="undefined"){reject(new Error("no idb"));return;}
-    const req=indexedDB.open(IDB_NAME,2);
+    const req=indexedDB.open(IDB_NAME,3);
     req.onupgradeneeded=e=>{
       const db=e.target.result;
       if(!db.objectStoreNames.contains(IDB_STORE))db.createObjectStore(IDB_STORE,{keyPath:"id"});
       if(!db.objectStoreNames.contains(IDB_IMG_STORE))db.createObjectStore(IDB_IMG_STORE,{keyPath:"id"});
+      if(!db.objectStoreNames.contains(IDB_INV_FILE_STORE)){
+        const st=db.createObjectStore(IDB_INV_FILE_STORE,{keyPath:"id"});
+        st.createIndex("eventId","eventId",{unique:false});
+      }
     };
     req.onsuccess=()=>resolve(req.result);
     req.onerror=()=>reject(req.error);
   });
+}
+async function idbSaveInvFile(eventId,file){
+  if(!eventId||!file)return;
+  try{
+    const contentBase64=await fileToBase64(file);
+    if(!contentBase64)return;
+    const db=await idbOpen();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(IDB_INV_FILE_STORE,"readwrite");
+      tx.objectStore(IDB_INV_FILE_STORE).put({
+        id:String(eventId)+":"+Date.now(),
+        eventId:String(eventId),
+        fileName:file.name,
+        uploadedAt:new Date().toISOString(),
+        mimeType:mimeForFileName(file.name),
+        contentBase64,
+      });
+      tx.oncomplete=()=>res();
+      tx.onerror=()=>rej(tx.error);
+    });
+  }catch(e){console.warn("Inventory file save failed",e);}
+}
+async function idbGetLatestInvFile(eventId){
+  if(!eventId)return null;
+  try{
+    const db=await idbOpen();
+    const all=await new Promise((res,rej)=>{
+      const r=db.transaction(IDB_INV_FILE_STORE,"readonly").objectStore(IDB_INV_FILE_STORE).getAll();
+      r.onsuccess=()=>res(r.result||[]);
+      r.onerror=()=>rej(r.error);
+    });
+    const hits=all.filter(x=>x&&x.eventId===String(eventId)&&x.contentBase64&&/\.xlsx?$/i.test(x.fileName||""));
+    if(!hits.length)return null;
+    hits.sort((a,b)=>String(b.uploadedAt).localeCompare(String(a.uploadedAt)));
+    return hits[0];
+  }catch(e){return null;}
+}
+async function extractImagesFromInvBase64(contentBase64,inv){
+  if(!contentBase64)return 0;
+  await ensureJSZipAsync();
+  try{
+    const bin=atob(contentBase64);
+    const buf=new ArrayBuffer(bin.length);
+    const view=new Uint8Array(buf);
+    for(let i=0;i<bin.length;i++)view[i]=bin.charCodeAt(i);
+    const idByRow=buildIdByRowFromInv(inv);
+    if(!Object.keys(idByRow).length)return 0;
+    const imgMap=await extractXLImages(buf,idByRow);
+    const n=Object.keys(imgMap).length;
+    if(n)attachItemImages(inv,imgMap);
+    return n;
+  }catch(e){console.warn("Image extract from stored file",e);return 0;}
+}
+async function ensureImagesFromInvFile(file,inv){
+  if(!file||!/\.xlsx?$/i.test(file.name||""))return 0;
+  try{
+    const contentBase64=await fileToBase64(file);
+    return await extractImagesFromInvBase64(contentBase64,inv);
+  }catch(e){return 0;}
 }
 async function idbSaveImages(imgMap){
   if(!imgMap||!Object.keys(imgMap).length)return;
@@ -1051,9 +1171,6 @@ function parseXL(file,onDone,onError){
         const imgMap=await extractXLImages(buf,idByRow);
         items=attachItemImages(items,imgMap);
         await prefetchInvImages(items.map(i=>i.id));
-        const imgN=Object.keys(imgMap).length;
-        if(imgN)toast.success("Product photos imported",imgN+" image(s) linked to inventory items");
-        else if(String(file.name||"").toLowerCase().endsWith(".xlsx"))toast.info("No embedded photos found","Use an Excel file with product pictures (e.g. JCK Price List), not a scan/export sheet.");
         onDone(items);
       }catch(err){onError(INV_FAIL+" — "+err.message);}
     };
@@ -1094,7 +1211,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const pr=gp(user.role,user.perms);
   const visibleEvents=filterEventsForUser(user,events);
   useEffect(()=>{if(sc)ensureXLSX(()=>{});},[sc]);
-  const create=()=>{if(!form.name.trim())return;const fin=async(inv,fileName,fileObj)=>{if(fileObj&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const merged=mergeInvItems([],inv,"add");const baseInv=merged.inv;if(merged.skipped>0)toast.warn("Duplicates skipped",merged.skipped+" duplicate(s) skipped in upload · "+baseInv.length+" item(s) in new event");const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv:baseInv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(baseInv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||fileObj?.name||"inventory.xlsx",mode:"initial",added:baseInv.length,skipped:merged.skipped,total:baseInv.length,by:user.name});if(fileObj&&baseInv.length)await queueInventoryFileForDrive(base.id,fileObj);onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,async inv=>{sl(false);await fin(inv,xlf.name,xlf);},err=>{sl(false);smsg(err);});}else fin([],null,null);};
+  const create=()=>{if(!form.name.trim())return;const fin=async(inv,fileName,fileObj)=>{if(fileObj&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const merged=mergeInvItems([],inv,"add");const baseInv=merged.inv;if(merged.skipped>0)toast.warn("Duplicates skipped",merged.skipped+" duplicate(s) skipped in upload · "+baseInv.length+" item(s) in new event");const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv:baseInv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(baseInv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||fileObj?.name||"inventory.xlsx",mode:"initial",added:baseInv.length,skipped:merged.skipped,total:baseInv.length,by:user.name});if(fileObj&&baseInv.length){const imgN=await ensureImagesFromInvFile(fileObj,baseInv);await idbSaveInvFile(base.id,fileObj);await prefetchInvImages(baseInv.map(i=>i.id));await queueInventoryFileForDrive(base.id,fileObj);if(imgN)toast.success("Sheet imported",baseInv.length+" items · "+imgN+" photo(s) from Excel");else if(/\.xlsx?$/i.test(fileObj.name||""))toast.info("Data imported",baseInv.length+" items — use a Price List .xlsx with embedded photos for images");}onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,async inv=>{sl(false);await fin(inv,xlf.name,xlf);},err=>{sl(false);smsg(err);});}else fin([],null,null);};
   return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
       <div style={{display:"flex",alignItems:"flex-start",gap:10}}><Logo h={34}/><div style={{paddingTop:1}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
@@ -1300,8 +1417,8 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
           <div style={{display:"flex",gap:8,marginBottom:11}}>{[{id:"add",l:"Add new"},{id:"replace",l:"Replace all"}].map(m=>(
             <button key={m.id} onClick={()=>smode(m.id)} style={S.pill(mode===m.id)}>{m.l}</button>
           ))}</div>
-          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,async items=>{if(!items.length){toast.error(INV_FAIL,"0 items found — check Unique Code and Round Off Final columns.");e.target.value="";return;}const{inv,added,skipped}=mergeInvItems(ev.inv||[],items,mode);if(mode==="add"&&added===0&&skipped>0){invMergeToast({added,skipped,mode,total:(ev.inv||[]).length});e.target.value="";return;}const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added,skipped,total:inv.length,by:user?.name||"Admin"})};await queueInventoryFileForDrive(ev.id,f);await prefetchInvImages(inv.map(i=>i.id));onUpdate(updated);invMergeToast({added,skipped,mode,total:inv.length});e.target.value="";},err=>{toast.error(INV_FAIL,String(err).replace(INV_FAIL+" — ",""));e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
-          <div style={{fontSize:11,color:T3,lineHeight:1.5,marginTop:6}}>Duplicate Unique Codes are never added twice. You will see how many duplicates were skipped after each upload.</div>
+          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;handleInvFileInput(ev,f,mode,user?.name||"Admin",updated=>{if(updated)onUpdate(updated);e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
+          <div style={{fontSize:11,color:T3,lineHeight:1.5,marginTop:6}}>All product data and embedded photos are imported from the sheet. Duplicate Unique Codes are skipped — you will see a summary after each upload.</div>
         </div>
       )}
     </Sheet>
@@ -2696,6 +2813,7 @@ function InventoryTab(p){
   var lookupHistory=p.lookupHistory||[];
   var openItem=p.openItem;
   var imgTick=p.imgTick||0;
+  const [upMode,setUpMode]=useState("add");
   return(
     <div>
           <div style={{background:G,display:"flex",borderBottom:"1px solid rgba(201,168,76,0.2)"}}>{[{id:"stock",l:"📦 STOCK"},{id:"history",l:"📋 HISTORY"},{id:"audit",l:"🔍 AUDIT"}].map(t=><button key={t.id} onClick={()=>sivTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:invTab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:invTab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:invTab===t.id?700:500,padding:"9px 7px",cursor:"pointer"}}>{t.l}</button>)}</div>
@@ -2722,6 +2840,14 @@ function InventoryTab(p){
             </div>
           </div>}
           {invTab==="history"&&<div style={{padding:"13px 12px 40px"}}>
+            {pr.mU&&<div style={{...S.card({margin:0,marginBottom:12,border:"2px solid "+G})}}>
+              <div style={S.sh}>📊 UPLOAD INVENTORY SHEET</div>
+              <div style={{fontSize:10,color:T3,marginBottom:8,lineHeight:1.45}}>Every upload imports all product data and embedded photos from your Excel file for this event.</div>
+              <div style={{display:"flex",gap:8,marginBottom:8}}>{[{id:"add",l:"Add new"},{id:"replace",l:"Replace all"}].map(m=>(
+                <button key={m.id} onClick={()=>setUpMode(m.id)} style={S.pill(upMode===m.id)}>{m.l}</button>
+              ))}</div>
+              <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;handleInvFileInput(ev,f,upMode,user?.name||"Admin",updated=>{if(updated)onUpdateEvent(updated);e.target.value="";});}} style={{...S.inp(),cursor:"pointer"}}/>
+            </div>}
             <div style={{fontSize:11,color:T2,marginBottom:10,lineHeight:1.5}}>Full inventory: <strong>{(inv||[]).length}</strong> items in this event. Import history below shows each Excel upload.</div>
             <div style={{...S.card({margin:0,marginBottom:12})}}>
               <div style={S.sh}>📦 CURRENT INVENTORY SUMMARY</div>
@@ -2750,7 +2876,7 @@ function InventoryTab(p){
               );
             })}
             <div style={{...S.sh,marginTop:14}}>📋 EXCEL IMPORT HISTORY</div>
-            {(ev.invHistory||[]).length===0&&<div style={{...S.card({margin:0,textAlign:"center",padding:24})}}><div style={{fontSize:13,color:T2}}>No imports yet</div><div style={{fontSize:11,color:T3,marginTop:4}}>Upload Excel from Manage Event → Upload tab</div></div>}
+            {(ev.invHistory||[]).length===0&&<div style={{...S.card({margin:0,textAlign:"center",padding:24})}}><div style={{fontSize:13,color:T2}}>No imports yet</div><div style={{fontSize:11,color:T3,marginTop:4}}>Upload Excel above or from Event Hub → Manage Event → Upload</div></div>}
             {[...(ev.invHistory||[])].reverse().map(h=>(
               <div key={h.id} style={{...S.cc({marginBottom:9})}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>

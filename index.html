@@ -10457,9 +10457,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 });</script>
 <script>var _excluded = ["img"],
   _excluded2 = ["img"];
-function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
-function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
-function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n2 = 0, F = function F() {}; return { s: F, n: function n() { return _n2 >= r.length ? { done: !0 } : { done: !1, value: r[_n2++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
 function _objectWithoutProperties(e, t) { if (null == e) return {}; var o, r, i = _objectWithoutPropertiesLoose(e, t); if (Object.getOwnPropertySymbols) { var n = Object.getOwnPropertySymbols(e); for (r = 0; r < n.length; r++) o = n[r], -1 === t.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]); } return i; }
 function _objectWithoutPropertiesLoose(r, e) { if (null == r) return {}; var t = {}; for (var n in r) if ({}.hasOwnProperty.call(r, n)) { if (-1 !== e.indexOf(n)) continue; t[n] = r[n]; } return t; }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
@@ -10472,6 +10470,8 @@ function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) 
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -10577,12 +10577,17 @@ function ensureJSZipAsync() {
     });
   });
 }
+function countInvImages(inv) {
+  return (inv || []).filter(function (it) {
+    return (it === null || it === void 0 ? void 0 : it.id) && resolveItemImage(it.id, it);
+  }).length;
+}
 function ensureEventInvImages(_x2) {
   return _ensureEventInvImages.apply(this, arguments);
 }
 function _ensureEventInvImages() {
   _ensureEventInvImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee12(ev) {
-    var invList, ids, loaded, missing, latest, r, buf, idByRow, imgMap, n, _t4;
+    var invList, ids, loaded, missing, stored, n, latest, r, buf, idByRow, imgMap, _n, _t4;
     return _regenerator().w(function (_context12) {
       while (1) switch (_context12.p = _context12.n) {
         case 0:
@@ -10597,77 +10602,216 @@ function _ensureEventInvImages() {
           missing = ids.filter(function (id) {
             return !resolveItemImage(id, invItem(invList, id));
           });
+          if (!missing.length) {
+            _context12.n = 4;
+            break;
+          }
+          _context12.n = 2;
+          return idbGetLatestInvFile(ev.id);
+        case 2:
+          stored = _context12.v;
+          if (!stored) {
+            _context12.n = 4;
+            break;
+          }
+          _context12.n = 3;
+          return extractImagesFromInvBase64(stored.contentBase64, invList);
+        case 3:
+          n = _context12.v;
+          if (n) {
+            loaded += n;
+            notifyImagesChanged();
+          }
+          missing = ids.filter(function (id) {
+            return !resolveItemImage(id, invItem(invList, id));
+          });
+        case 4:
           if (!(!missing.length || !isCloudOnline())) {
-            _context12.n = 2;
+            _context12.n = 5;
             break;
           }
           return _context12.a(2, loaded);
-        case 2:
+        case 5:
           latest = _toConsumableArray(ev.invHistory || []).reverse().find(function (h) {
             return h && h.driveFileId && /\.xlsx?$/i.test(h.fileName || "");
           });
           if (latest) {
-            _context12.n = 3;
-            break;
-          }
-          return _context12.a(2, loaded);
-        case 3:
-          _context12.p = 3;
-          _context12.n = 4;
-          return ensureJSZipAsync();
-        case 4:
-          _context12.n = 5;
-          return fetch("/api/inventory-file?eventId=" + encodeURIComponent(ev.id) + "&fileId=" + encodeURIComponent(latest.driveFileId), {
-            cache: "no-store"
-          });
-        case 5:
-          r = _context12.v;
-          if (r.ok) {
             _context12.n = 6;
             break;
           }
           return _context12.a(2, loaded);
         case 6:
+          _context12.p = 6;
           _context12.n = 7;
-          return r.arrayBuffer();
+          return ensureJSZipAsync();
         case 7:
-          buf = _context12.v;
-          idByRow = buildIdByRowFromInv(invList);
-          if (Object.keys(idByRow).length) {
-            _context12.n = 8;
+          _context12.n = 8;
+          return fetch("/api/inventory-file?eventId=" + encodeURIComponent(ev.id) + "&fileId=" + encodeURIComponent(latest.driveFileId), {
+            cache: "no-store"
+          });
+        case 8:
+          r = _context12.v;
+          if (r.ok) {
+            _context12.n = 9;
             break;
           }
           return _context12.a(2, loaded);
-        case 8:
-          _context12.n = 9;
-          return extractXLImages(buf, idByRow);
         case 9:
+          _context12.n = 10;
+          return r.arrayBuffer();
+        case 10:
+          buf = _context12.v;
+          idByRow = buildIdByRowFromInv(invList);
+          if (Object.keys(idByRow).length) {
+            _context12.n = 11;
+            break;
+          }
+          return _context12.a(2, loaded);
+        case 11:
+          _context12.n = 12;
+          return extractXLImages(buf, idByRow);
+        case 12:
           imgMap = _context12.v;
-          n = Object.keys(imgMap).length;
-          if (n) {
+          _n = Object.keys(imgMap).length;
+          if (_n) {
             attachItemImages(invList, imgMap);
-            loaded += n;
+            loaded += _n;
             notifyImagesChanged();
           }
-          _context12.n = 11;
+          _context12.n = 14;
           break;
-        case 10:
-          _context12.p = 10;
+        case 13:
+          _context12.p = 13;
           _t4 = _context12.v;
           console.warn("Drive image refresh", _t4);
-        case 11:
+        case 14:
           return _context12.a(2, loaded);
       }
-    }, _callee12, null, [[3, 10]]);
+    }, _callee12, null, [[6, 13]]);
   }));
   return _ensureEventInvImages.apply(this, arguments);
 }
-function ItemThumb(_ref) {
-  var item = _ref.item,
-    _ref$size = _ref.size,
-    size = _ref$size === void 0 ? 40 : _ref$size,
-    _ref$style = _ref.style,
-    style = _ref$style === void 0 ? {} : _ref$style;
+function applyInventoryUpload(_x3, _x4, _x5, _x6, _x7) {
+  return _applyInventoryUpload.apply(this, arguments);
+}
+function _applyInventoryUpload() {
+  _applyInventoryUpload = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee13(ev, file, items, mode, by) {
+    var incoming, _mergeInvItems, inv, added, skipped, addedN, updated, imgN, photos;
+    return _regenerator().w(function (_context13) {
+      while (1) switch (_context13.n) {
+        case 0:
+          incoming = Array.isArray(items) ? items : [];
+          _mergeInvItems = mergeInvItems(ev.inv || [], incoming, mode), inv = _mergeInvItems.inv, added = _mergeInvItems.added, skipped = _mergeInvItems.skipped;
+          if (!(mode === "add" && added === 0 && skipped > 0)) {
+            _context13.n = 1;
+            break;
+          }
+          return _context13.a(2, {
+            ok: false,
+            added: added,
+            skipped: skipped,
+            total: (ev.inv || []).length
+          });
+        case 1:
+          addedN = mode === "replace" ? inv.length : added;
+          updated = _objectSpread(_objectSpread({}, ev), {}, {
+            inv: inv,
+            invHistory: appendInvHistory(ev, {
+              fileName: (file === null || file === void 0 ? void 0 : file.name) || "inventory.xlsx",
+              mode: mode,
+              added: addedN,
+              skipped: skipped,
+              total: inv.length,
+              by: by || "Admin"
+            })
+          });
+          imgN = 0;
+          if (!file) {
+            _context13.n = 5;
+            break;
+          }
+          _context13.n = 2;
+          return idbSaveInvFile(ev.id, file);
+        case 2:
+          _context13.n = 3;
+          return ensureImagesFromInvFile(file, inv);
+        case 3:
+          imgN = _context13.v;
+          _context13.n = 4;
+          return prefetchInvImages(inv.map(function (i) {
+            return i.id;
+          }));
+        case 4:
+          _context13.n = 5;
+          return queueInventoryFileForDrive(ev.id, file);
+        case 5:
+          photos = countInvImages(inv);
+          return _context13.a(2, {
+            ok: true,
+            updated: updated,
+            added: addedN,
+            skipped: skipped,
+            total: inv.length,
+            imgN: imgN,
+            photos: photos
+          });
+      }
+    }, _callee13);
+  }));
+  return _applyInventoryUpload.apply(this, arguments);
+}
+function handleInvFileInput(ev, file, mode, by, onDone) {
+  if (!file) return;
+  parseXL(file, /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(items) {
+      var result;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.n) {
+          case 0:
+            _context.n = 1;
+            return applyInventoryUpload(ev, file, items, mode, by);
+          case 1:
+            result = _context.v;
+            if (result.ok) {
+              _context.n = 2;
+              break;
+            }
+            invMergeToast({
+              added: result.added,
+              skipped: result.skipped,
+              mode: mode,
+              total: result.total
+            });
+            onDone && onDone(null);
+            return _context.a(2);
+          case 2:
+            invMergeToast({
+              added: result.added,
+              skipped: result.skipped,
+              mode: mode,
+              total: result.total
+            });
+            if (result.imgN) toast.success("Sheet imported", result.total + " items · " + result.imgN + " photo(s) from Excel");else if (/\.xlsx?$/i.test(file.name || "")) toast.info("Data imported, no embedded photos", result.total + " items loaded — use a Price List .xlsx with pictures for photos");
+            onDone && onDone(result.updated);
+          case 3:
+            return _context.a(2);
+        }
+      }, _callee);
+    }));
+    return function (_x8) {
+      return _ref.apply(this, arguments);
+    };
+  }(), function (err) {
+    toast.error(INV_FAIL, String(err).replace(INV_FAIL + " — ", ""));
+    onDone && onDone(null);
+  });
+}
+function ItemThumb(_ref2) {
+  var item = _ref2.item,
+    _ref2$size = _ref2.size,
+    size = _ref2$size === void 0 ? 40 : _ref2$size,
+    _ref2$style = _ref2.style,
+    style = _ref2$style === void 0 ? {} : _ref2$style;
   var _useState = useState(0),
     _useState2 = _slicedToArray(_useState, 2),
     setImgRev = _useState2[1];
@@ -10958,23 +11102,23 @@ var b64uDec = function b64uDec(str) {
   for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
   return out;
 };
-function registerBio(_x3) {
+function registerBio(_x9) {
   return _registerBio.apply(this, arguments);
 }
 function _registerBio() {
-  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee13(username) {
+  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee14(username) {
     var cred, _t5;
-    return _regenerator().w(function (_context13) {
-      while (1) switch (_context13.p = _context13.n) {
+    return _regenerator().w(function (_context14) {
+      while (1) switch (_context14.p = _context14.n) {
         case 0:
           if (window.PublicKeyCredential) {
-            _context13.n = 1;
+            _context14.n = 1;
             break;
           }
-          return _context13.a(2, false);
+          return _context14.a(2, false);
         case 1:
-          _context13.p = 1;
-          _context13.n = 2;
+          _context14.p = 1;
+          _context14.n = 2;
           return navigator.credentials.create({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -11003,45 +11147,45 @@ function _registerBio() {
             }
           });
         case 2:
-          cred = _context13.v;
+          cred = _context14.v;
           if (cred) {
-            _context13.n = 3;
+            _context14.n = 3;
             break;
           }
-          return _context13.a(2, false);
+          return _context14.a(2, false);
         case 3:
           localStorage.setItem(BIO_KEY, b64u(cred.rawId));
           localStorage.setItem(BIO_USER, username.toLowerCase());
-          return _context13.a(2, true);
+          return _context14.a(2, true);
         case 4:
-          _context13.p = 4;
-          _t5 = _context13.v;
-          return _context13.a(2, false);
+          _context14.p = 4;
+          _t5 = _context14.v;
+          return _context14.a(2, false);
       }
-    }, _callee13, null, [[1, 4]]);
+    }, _callee14, null, [[1, 4]]);
   }));
   return _registerBio.apply(this, arguments);
 }
-function loginBio(_x4, _x5, _x6) {
+function loginBio(_x0, _x1, _x10) {
   return _loginBio.apply(this, arguments);
 } // ── Dark Mode system ──────────────────────────────────────────────────────
 function _loginBio() {
-  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee14(onLogin, onFail, users) {
+  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee15(onLogin, onFail, users) {
     var id, un, cred, usr, _t6;
-    return _regenerator().w(function (_context14) {
-      while (1) switch (_context14.p = _context14.n) {
+    return _regenerator().w(function (_context15) {
+      while (1) switch (_context15.p = _context15.n) {
         case 0:
           id = localStorage.getItem(BIO_KEY);
           un = localStorage.getItem(BIO_USER);
           if (!(!id || !un)) {
-            _context14.n = 1;
+            _context15.n = 1;
             break;
           }
           onFail("Sign in with password once to enable Face ID.");
-          return _context14.a(2);
+          return _context15.a(2);
         case 1:
-          _context14.p = 1;
-          _context14.n = 2;
+          _context15.p = 1;
+          _context15.n = 2;
           return navigator.credentials.get({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -11056,27 +11200,27 @@ function _loginBio() {
             }
           });
         case 2:
-          cred = _context14.v;
+          cred = _context15.v;
           if (cred) {
-            _context14.n = 3;
+            _context15.n = 3;
             break;
           }
-          return _context14.a(2);
+          return _context15.a(2);
         case 3:
           usr = users.find(function (x) {
             return x.un === un;
           });
           if (usr) onLogin(usr);else onFail("Saved sign-in expired. Use password once.");
-          _context14.n = 5;
+          _context15.n = 5;
           break;
         case 4:
-          _context14.p = 4;
-          _t6 = _context14.v;
+          _context15.p = 4;
+          _t6 = _context15.v;
           if (_t6.name !== "NotAllowedError") onFail(_t6.message || "Face ID failed");
         case 5:
-          return _context14.a(2);
+          return _context15.a(2);
       }
-    }, _callee14, null, [[1, 4]]);
+    }, _callee15, null, [[1, 4]]);
   }));
   return _loginBio.apply(this, arguments);
 }
@@ -12486,13 +12630,14 @@ function loadEvents() {
 var IDB_NAME = "vianne_v1";
 var IDB_STORE = "events";
 var IDB_IMG_STORE = "images";
+var IDB_INV_FILE_STORE = "inv_files";
 function idbOpen() {
   return new Promise(function (resolve, reject) {
     if (typeof indexedDB === "undefined") {
       reject(new Error("no idb"));
       return;
     }
-    var req = indexedDB.open(IDB_NAME, 2);
+    var req = indexedDB.open(IDB_NAME, 3);
     req.onupgradeneeded = function (e) {
       var db = e.target.result;
       if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE, {
@@ -12501,6 +12646,14 @@ function idbOpen() {
       if (!db.objectStoreNames.contains(IDB_IMG_STORE)) db.createObjectStore(IDB_IMG_STORE, {
         keyPath: "id"
       });
+      if (!db.objectStoreNames.contains(IDB_INV_FILE_STORE)) {
+        var st = db.createObjectStore(IDB_INV_FILE_STORE, {
+          keyPath: "id"
+        });
+        st.createIndex("eventId", "eventId", {
+          unique: false
+        });
+      }
     };
     req.onsuccess = function () {
       return resolve(req.result);
@@ -12510,27 +12663,223 @@ function idbOpen() {
     };
   });
 }
-function idbSaveImages(_x7) {
+function idbSaveInvFile(_x11, _x12) {
+  return _idbSaveInvFile.apply(this, arguments);
+}
+function _idbSaveInvFile() {
+  _idbSaveInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee16(eventId, file) {
+    var contentBase64, db, _t7;
+    return _regenerator().w(function (_context16) {
+      while (1) switch (_context16.p = _context16.n) {
+        case 0:
+          if (!(!eventId || !file)) {
+            _context16.n = 1;
+            break;
+          }
+          return _context16.a(2);
+        case 1:
+          _context16.p = 1;
+          _context16.n = 2;
+          return fileToBase64(file);
+        case 2:
+          contentBase64 = _context16.v;
+          if (contentBase64) {
+            _context16.n = 3;
+            break;
+          }
+          return _context16.a(2);
+        case 3:
+          _context16.n = 4;
+          return idbOpen();
+        case 4:
+          db = _context16.v;
+          _context16.n = 5;
+          return new Promise(function (res, rej) {
+            var tx = db.transaction(IDB_INV_FILE_STORE, "readwrite");
+            tx.objectStore(IDB_INV_FILE_STORE).put({
+              id: String(eventId) + ":" + Date.now(),
+              eventId: String(eventId),
+              fileName: file.name,
+              uploadedAt: new Date().toISOString(),
+              mimeType: mimeForFileName(file.name),
+              contentBase64: contentBase64
+            });
+            tx.oncomplete = function () {
+              return res();
+            };
+            tx.onerror = function () {
+              return rej(tx.error);
+            };
+          });
+        case 5:
+          _context16.n = 7;
+          break;
+        case 6:
+          _context16.p = 6;
+          _t7 = _context16.v;
+          console.warn("Inventory file save failed", _t7);
+        case 7:
+          return _context16.a(2);
+      }
+    }, _callee16, null, [[1, 6]]);
+  }));
+  return _idbSaveInvFile.apply(this, arguments);
+}
+function idbGetLatestInvFile(_x13) {
+  return _idbGetLatestInvFile.apply(this, arguments);
+}
+function _idbGetLatestInvFile() {
+  _idbGetLatestInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17(eventId) {
+    var db, all, hits, _t8;
+    return _regenerator().w(function (_context17) {
+      while (1) switch (_context17.p = _context17.n) {
+        case 0:
+          if (eventId) {
+            _context17.n = 1;
+            break;
+          }
+          return _context17.a(2, null);
+        case 1:
+          _context17.p = 1;
+          _context17.n = 2;
+          return idbOpen();
+        case 2:
+          db = _context17.v;
+          _context17.n = 3;
+          return new Promise(function (res, rej) {
+            var r = db.transaction(IDB_INV_FILE_STORE, "readonly").objectStore(IDB_INV_FILE_STORE).getAll();
+            r.onsuccess = function () {
+              return res(r.result || []);
+            };
+            r.onerror = function () {
+              return rej(r.error);
+            };
+          });
+        case 3:
+          all = _context17.v;
+          hits = all.filter(function (x) {
+            return x && x.eventId === String(eventId) && x.contentBase64 && /\.xlsx?$/i.test(x.fileName || "");
+          });
+          if (hits.length) {
+            _context17.n = 4;
+            break;
+          }
+          return _context17.a(2, null);
+        case 4:
+          hits.sort(function (a, b) {
+            return String(b.uploadedAt).localeCompare(String(a.uploadedAt));
+          });
+          return _context17.a(2, hits[0]);
+        case 5:
+          _context17.p = 5;
+          _t8 = _context17.v;
+          return _context17.a(2, null);
+      }
+    }, _callee17, null, [[1, 5]]);
+  }));
+  return _idbGetLatestInvFile.apply(this, arguments);
+}
+function extractImagesFromInvBase64(_x14, _x15) {
+  return _extractImagesFromInvBase.apply(this, arguments);
+}
+function _extractImagesFromInvBase() {
+  _extractImagesFromInvBase = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee18(contentBase64, inv) {
+    var bin, buf, view, i, idByRow, imgMap, n, _t9;
+    return _regenerator().w(function (_context18) {
+      while (1) switch (_context18.p = _context18.n) {
+        case 0:
+          if (contentBase64) {
+            _context18.n = 1;
+            break;
+          }
+          return _context18.a(2, 0);
+        case 1:
+          _context18.n = 2;
+          return ensureJSZipAsync();
+        case 2:
+          _context18.p = 2;
+          bin = atob(contentBase64);
+          buf = new ArrayBuffer(bin.length);
+          view = new Uint8Array(buf);
+          for (i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
+          idByRow = buildIdByRowFromInv(inv);
+          if (Object.keys(idByRow).length) {
+            _context18.n = 3;
+            break;
+          }
+          return _context18.a(2, 0);
+        case 3:
+          _context18.n = 4;
+          return extractXLImages(buf, idByRow);
+        case 4:
+          imgMap = _context18.v;
+          n = Object.keys(imgMap).length;
+          if (n) attachItemImages(inv, imgMap);
+          return _context18.a(2, n);
+        case 5:
+          _context18.p = 5;
+          _t9 = _context18.v;
+          console.warn("Image extract from stored file", _t9);
+          return _context18.a(2, 0);
+      }
+    }, _callee18, null, [[2, 5]]);
+  }));
+  return _extractImagesFromInvBase.apply(this, arguments);
+}
+function ensureImagesFromInvFile(_x16, _x17) {
+  return _ensureImagesFromInvFile.apply(this, arguments);
+}
+function _ensureImagesFromInvFile() {
+  _ensureImagesFromInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee19(file, inv) {
+    var contentBase64, _t0;
+    return _regenerator().w(function (_context19) {
+      while (1) switch (_context19.p = _context19.n) {
+        case 0:
+          if (!(!file || !/\.xlsx?$/i.test(file.name || ""))) {
+            _context19.n = 1;
+            break;
+          }
+          return _context19.a(2, 0);
+        case 1:
+          _context19.p = 1;
+          _context19.n = 2;
+          return fileToBase64(file);
+        case 2:
+          contentBase64 = _context19.v;
+          _context19.n = 3;
+          return extractImagesFromInvBase64(contentBase64, inv);
+        case 3:
+          return _context19.a(2, _context19.v);
+        case 4:
+          _context19.p = 4;
+          _t0 = _context19.v;
+          return _context19.a(2, 0);
+      }
+    }, _callee19, null, [[1, 4]]);
+  }));
+  return _ensureImagesFromInvFile.apply(this, arguments);
+}
+function idbSaveImages(_x18) {
   return _idbSaveImages.apply(this, arguments);
 }
 function _idbSaveImages() {
-  _idbSaveImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee15(imgMap) {
-    var db, _t7;
-    return _regenerator().w(function (_context15) {
-      while (1) switch (_context15.p = _context15.n) {
+  _idbSaveImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20(imgMap) {
+    var db, _t1;
+    return _regenerator().w(function (_context20) {
+      while (1) switch (_context20.p = _context20.n) {
         case 0:
           if (!(!imgMap || !Object.keys(imgMap).length)) {
-            _context15.n = 1;
+            _context20.n = 1;
             break;
           }
-          return _context15.a(2);
+          return _context20.a(2);
         case 1:
-          _context15.p = 1;
-          _context15.n = 2;
+          _context20.p = 1;
+          _context20.n = 2;
           return idbOpen();
         case 2:
-          db = _context15.v;
-          _context15.n = 3;
+          db = _context20.v;
+          _context20.n = 3;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_IMG_STORE, "readwrite");
             var st = tx.objectStore(IDB_IMG_STORE);
@@ -12559,27 +12908,27 @@ function _idbSaveImages() {
             window.VJ_IMG[String(id).toUpperCase()] = src;
           });
           notifyImagesChanged();
-          _context15.n = 5;
+          _context20.n = 5;
           break;
         case 4:
-          _context15.p = 4;
-          _t7 = _context15.v;
-          console.warn("Image save failed", _t7);
+          _context20.p = 4;
+          _t1 = _context20.v;
+          console.warn("Image save failed", _t1);
         case 5:
-          return _context15.a(2);
+          return _context20.a(2);
       }
-    }, _callee15, null, [[1, 4]]);
+    }, _callee20, null, [[1, 4]]);
   }));
   return _idbSaveImages.apply(this, arguments);
 }
-function idbLoadImagesForIds(_x8) {
+function idbLoadImagesForIds(_x19) {
   return _idbLoadImagesForIds.apply(this, arguments);
 }
 function _idbLoadImagesForIds() {
-  _idbLoadImagesForIds = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee16(ids) {
-    var need, db, loaded, _t8;
-    return _regenerator().w(function (_context16) {
-      while (1) switch (_context16.p = _context16.n) {
+  _idbLoadImagesForIds = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee21(ids) {
+    var need, db, loaded, _t10;
+    return _regenerator().w(function (_context21) {
+      while (1) switch (_context21.p = _context21.n) {
         case 0:
           need = _toConsumableArray(new Set((ids || []).map(function (id) {
             return String(id || "").toUpperCase();
@@ -12587,18 +12936,18 @@ function _idbLoadImagesForIds() {
             return id && !(window.VJ_IMG && window.VJ_IMG[id]);
           })));
           if (need.length) {
-            _context16.n = 1;
+            _context21.n = 1;
             break;
           }
-          return _context16.a(2, 0);
+          return _context21.a(2, 0);
         case 1:
-          _context16.p = 1;
-          _context16.n = 2;
+          _context21.p = 1;
+          _context21.n = 2;
           return idbOpen();
         case 2:
-          db = _context16.v;
+          db = _context21.v;
           loaded = 0;
-          _context16.n = 3;
+          _context21.n = 3;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_IMG_STORE, "readonly");
             var st = tx.objectStore(IDB_IMG_STORE);
@@ -12623,13 +12972,13 @@ function _idbLoadImagesForIds() {
           });
         case 3:
           if (loaded) notifyImagesChanged();
-          return _context16.a(2, loaded);
+          return _context21.a(2, loaded);
         case 4:
-          _context16.p = 4;
-          _t8 = _context16.v;
-          return _context16.a(2, 0);
+          _context21.p = 4;
+          _t10 = _context21.v;
+          return _context21.a(2, 0);
       }
-    }, _callee16, null, [[1, 4]]);
+    }, _callee21, null, [[1, 4]]);
   }));
   return _idbLoadImagesForIds.apply(this, arguments);
 }
@@ -12637,17 +12986,17 @@ function idbLoadAllImages() {
   return _idbLoadAllImages.apply(this, arguments);
 }
 function _idbLoadAllImages() {
-  _idbLoadAllImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17() {
-    var db, all, loaded, _t9;
-    return _regenerator().w(function (_context17) {
-      while (1) switch (_context17.p = _context17.n) {
+  _idbLoadAllImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee22() {
+    var db, all, loaded, _t11;
+    return _regenerator().w(function (_context22) {
+      while (1) switch (_context22.p = _context22.n) {
         case 0:
-          _context17.p = 0;
-          _context17.n = 1;
+          _context22.p = 0;
+          _context22.n = 1;
           return idbOpen();
         case 1:
-          db = _context17.v;
-          _context17.n = 2;
+          db = _context22.v;
+          _context22.n = 2;
           return new Promise(function (res, rej) {
             var r = db.transaction(IDB_IMG_STORE, "readonly").objectStore(IDB_IMG_STORE).getAll();
             r.onsuccess = function () {
@@ -12658,7 +13007,7 @@ function _idbLoadAllImages() {
             };
           });
         case 2:
-          all = _context17.v;
+          all = _context22.v;
           if (!window.VJ_IMG) window.VJ_IMG = {};
           loaded = 0;
           all.forEach(function (row) {
@@ -12668,13 +13017,13 @@ function _idbLoadAllImages() {
             }
           });
           if (loaded) notifyImagesChanged();
-          return _context17.a(2, loaded);
+          return _context22.a(2, loaded);
         case 3:
-          _context17.p = 3;
-          _t9 = _context17.v;
-          return _context17.a(2, 0);
+          _context22.p = 3;
+          _t11 = _context22.v;
+          return _context22.a(2, 0);
       }
-    }, _callee17, null, [[0, 3]]);
+    }, _callee22, null, [[0, 3]]);
   }));
   return _idbLoadAllImages.apply(this, arguments);
 }
@@ -12682,17 +13031,17 @@ function idbGetEvents() {
   return _idbGetEvents.apply(this, arguments);
 }
 function _idbGetEvents() {
-  _idbGetEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee18() {
-    var db, _t0;
-    return _regenerator().w(function (_context18) {
-      while (1) switch (_context18.p = _context18.n) {
+  _idbGetEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee23() {
+    var db, _t12;
+    return _regenerator().w(function (_context23) {
+      while (1) switch (_context23.p = _context23.n) {
         case 0:
-          _context18.p = 0;
-          _context18.n = 1;
+          _context23.p = 0;
+          _context23.n = 1;
           return idbOpen();
         case 1:
-          db = _context18.v;
-          _context18.n = 2;
+          db = _context23.v;
+          _context23.n = 2;
           return new Promise(function (res, rej) {
             var r = db.transaction(IDB_STORE, "readonly").objectStore(IDB_STORE).getAll();
             r.onsuccess = function () {
@@ -12703,31 +13052,31 @@ function _idbGetEvents() {
             };
           });
         case 2:
-          return _context18.a(2, _context18.v);
+          return _context23.a(2, _context23.v);
         case 3:
-          _context18.p = 3;
-          _t0 = _context18.v;
-          return _context18.a(2, null);
+          _context23.p = 3;
+          _t12 = _context23.v;
+          return _context23.a(2, null);
       }
-    }, _callee18, null, [[0, 3]]);
+    }, _callee23, null, [[0, 3]]);
   }));
   return _idbGetEvents.apply(this, arguments);
 }
-function idbSaveEvents(_x9) {
+function idbSaveEvents(_x20) {
   return _idbSaveEvents.apply(this, arguments);
 }
 function _idbSaveEvents() {
-  _idbSaveEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee19(evts) {
-    var db, _t1;
-    return _regenerator().w(function (_context19) {
-      while (1) switch (_context19.p = _context19.n) {
+  _idbSaveEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee24(evts) {
+    var db, _t13;
+    return _regenerator().w(function (_context24) {
+      while (1) switch (_context24.p = _context24.n) {
         case 0:
-          _context19.p = 0;
-          _context19.n = 1;
+          _context24.p = 0;
+          _context24.n = 1;
           return idbOpen();
         case 1:
-          db = _context19.v;
-          _context19.n = 2;
+          db = _context24.v;
+          _context24.n = 2;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_STORE, "readwrite");
             var st = tx.objectStore(IDB_STORE);
@@ -12743,16 +13092,16 @@ function _idbSaveEvents() {
             };
           });
         case 2:
-          _context19.n = 4;
+          _context24.n = 4;
           break;
         case 3:
-          _context19.p = 3;
-          _t1 = _context19.v;
-          console.warn("IndexedDB save failed", _t1);
+          _context24.p = 3;
+          _t13 = _context24.v;
+          console.warn("IndexedDB save failed", _t13);
         case 4:
-          return _context19.a(2);
+          return _context24.a(2);
       }
-    }, _callee19, null, [[0, 3]]);
+    }, _callee24, null, [[0, 3]]);
   }));
   return _idbSaveEvents.apply(this, arguments);
 }
@@ -12784,20 +13133,20 @@ function loadEventsAsync() {
   return _loadEventsAsync.apply(this, arguments);
 }
 function _loadEventsAsync() {
-  _loadEventsAsync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20() {
+  _loadEventsAsync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee25() {
     var local, idb;
-    return _regenerator().w(function (_context20) {
-      while (1) switch (_context20.n) {
+    return _regenerator().w(function (_context25) {
+      while (1) switch (_context25.n) {
         case 0:
           local = loadEvents();
-          _context20.n = 1;
+          _context25.n = 1;
           return idbGetEvents();
         case 1:
-          idb = _context20.v;
+          idb = _context25.v;
           if (idb && idb.length) local = mergeEvents(local, idb);
-          return _context20.a(2, applyDeletedFilter(local));
+          return _context25.a(2, applyDeletedFilter(local));
       }
-    }, _callee20);
+    }, _callee25);
   }));
   return _loadEventsAsync.apply(this, arguments);
 }
@@ -13004,31 +13353,31 @@ function mimeForFileName(name) {
   if (n.endsWith(".csv")) return "text/csv";
   return "application/octet-stream";
 }
-function queueInventoryFileForDrive(_x0, _x1) {
+function queueInventoryFileForDrive(_x21, _x22) {
   return _queueInventoryFileForDrive.apply(this, arguments);
 }
 function _queueInventoryFileForDrive() {
-  _queueInventoryFileForDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee21(eventId, file) {
-    var contentBase64, _t10;
-    return _regenerator().w(function (_context21) {
-      while (1) switch (_context21.p = _context21.n) {
+  _queueInventoryFileForDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26(eventId, file) {
+    var contentBase64, _t14;
+    return _regenerator().w(function (_context26) {
+      while (1) switch (_context26.p = _context26.n) {
         case 0:
           if (!(!file || !eventId)) {
-            _context21.n = 1;
+            _context26.n = 1;
             break;
           }
-          return _context21.a(2);
+          return _context26.a(2);
         case 1:
-          _context21.p = 1;
-          _context21.n = 2;
+          _context26.p = 1;
+          _context26.n = 2;
           return fileToBase64(file);
         case 2:
-          contentBase64 = _context21.v;
+          contentBase64 = _context26.v;
           if (contentBase64) {
-            _context21.n = 3;
+            _context26.n = 3;
             break;
           }
-          return _context21.a(2);
+          return _context26.a(2);
         case 3:
           _pendingInvFiles.push({
             eventId: eventId,
@@ -13036,16 +13385,16 @@ function _queueInventoryFileForDrive() {
             contentBase64: contentBase64,
             mimeType: mimeForFileName(file.name)
           });
-          _context21.n = 5;
+          _context26.n = 5;
           break;
         case 4:
-          _context21.p = 4;
-          _t10 = _context21.v;
-          console.warn("Drive inventory queue", _t10);
+          _context26.p = 4;
+          _t14 = _context26.v;
+          console.warn("Drive inventory queue", _t14);
         case 5:
-          return _context21.a(2);
+          return _context26.a(2);
       }
-    }, _callee21, null, [[1, 4]]);
+    }, _callee26, null, [[1, 4]]);
   }));
   return _queueInventoryFileForDrive.apply(this, arguments);
 }
@@ -13068,33 +13417,33 @@ function getCloudCurrency() {
   } catch (e) {}
   return Object.assign({}, CURR);
 }
-function cloudUploadInventoryFiles(_x10) {
+function cloudUploadInventoryFiles(_x23) {
   return _cloudUploadInventoryFiles.apply(this, arguments);
 }
 function _cloudUploadInventoryFiles() {
-  _cloudUploadInventoryFiles = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee22(files) {
-    var failed, _iterator3, _step3, f, r, d, _t11, _t12;
-    return _regenerator().w(function (_context22) {
-      while (1) switch (_context22.p = _context22.n) {
+  _cloudUploadInventoryFiles = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27(files) {
+    var failed, _iterator3, _step3, f, r, d, _t15, _t16;
+    return _regenerator().w(function (_context27) {
+      while (1) switch (_context27.p = _context27.n) {
         case 0:
           failed = [];
           _iterator3 = _createForOfIteratorHelper(files);
-          _context22.p = 1;
+          _context27.p = 1;
           _iterator3.s();
         case 2:
           if ((_step3 = _iterator3.n()).done) {
-            _context22.n = 9;
+            _context27.n = 9;
             break;
           }
           f = _step3.value;
           if (!(!f || !f.contentBase64 || !f.eventId)) {
-            _context22.n = 3;
+            _context27.n = 3;
             break;
           }
-          return _context22.a(3, 8);
+          return _context27.a(3, 8);
         case 3:
-          _context22.p = 3;
-          _context22.n = 4;
+          _context27.p = 3;
+          _context27.n = 4;
           return fetch("/api/inventory-file", {
             method: "POST",
             headers: {
@@ -13103,63 +13452,63 @@ function _cloudUploadInventoryFiles() {
             body: JSON.stringify(f)
           });
         case 4:
-          r = _context22.v;
-          _context22.n = 5;
+          r = _context27.v;
+          _context27.n = 5;
           return r.json();
         case 5:
-          d = _context22.v;
+          d = _context27.v;
           if (!(!r.ok || !d.ok)) {
-            _context22.n = 6;
+            _context27.n = 6;
             break;
           }
           throw new Error(d.error || "Upload failed");
         case 6:
-          _context22.n = 8;
+          _context27.n = 8;
           break;
         case 7:
-          _context22.p = 7;
-          _t11 = _context22.v;
-          console.warn("Inventory file upload", f.fileName, _t11);
+          _context27.p = 7;
+          _t15 = _context27.v;
+          console.warn("Inventory file upload", f.fileName, _t15);
           failed.push(f);
         case 8:
-          _context22.n = 2;
+          _context27.n = 2;
           break;
         case 9:
-          _context22.n = 11;
+          _context27.n = 11;
           break;
         case 10:
-          _context22.p = 10;
-          _t12 = _context22.v;
-          _iterator3.e(_t12);
+          _context27.p = 10;
+          _t16 = _context27.v;
+          _iterator3.e(_t16);
         case 11:
-          _context22.p = 11;
+          _context27.p = 11;
           _iterator3.f();
-          return _context22.f(11);
+          return _context27.f(11);
         case 12:
-          return _context22.a(2, failed);
+          return _context27.a(2, failed);
       }
-    }, _callee22, null, [[3, 7], [1, 10, 11, 12]]);
+    }, _callee27, null, [[3, 7], [1, 10, 11, 12]]);
   }));
   return _cloudUploadInventoryFiles.apply(this, arguments);
 }
-function cloudSaveReceipt(_x11) {
+function cloudSaveReceipt(_x24) {
   return _cloudSaveReceipt.apply(this, arguments);
 }
 function _cloudSaveReceipt() {
-  _cloudSaveReceipt = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee23(_ref2) {
-    var eventName, receiptId, html, r, d, _t13;
-    return _regenerator().w(function (_context23) {
-      while (1) switch (_context23.p = _context23.n) {
+  _cloudSaveReceipt = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28(_ref3) {
+    var eventName, receiptId, html, r, d, _t17;
+    return _regenerator().w(function (_context28) {
+      while (1) switch (_context28.p = _context28.n) {
         case 0:
-          eventName = _ref2.eventName, receiptId = _ref2.receiptId, html = _ref2.html;
+          eventName = _ref3.eventName, receiptId = _ref3.receiptId, html = _ref3.html;
           if (!(!isCloudOnline() || !eventName || !receiptId || !html)) {
-            _context23.n = 1;
+            _context28.n = 1;
             break;
           }
-          return _context23.a(2, null);
+          return _context28.a(2, null);
         case 1:
-          _context23.p = 1;
-          _context23.n = 2;
+          _context28.p = 1;
+          _context28.n = 2;
           return fetch("/api/invoice-file", {
             method: "POST",
             headers: {
@@ -13172,25 +13521,25 @@ function _cloudSaveReceipt() {
             })
           });
         case 2:
-          r = _context23.v;
-          _context23.n = 3;
+          r = _context28.v;
+          _context28.n = 3;
           return r.json();
         case 3:
-          d = _context23.v;
+          d = _context28.v;
           if (!(!r.ok || !d.ok)) {
-            _context23.n = 4;
+            _context28.n = 4;
             break;
           }
           throw new Error(d.error || "Receipt save failed");
         case 4:
-          return _context23.a(2, d);
+          return _context28.a(2, d);
         case 5:
-          _context23.p = 5;
-          _t13 = _context23.v;
-          console.warn("Receipt Drive save", receiptId, _t13);
-          return _context23.a(2, null);
+          _context28.p = 5;
+          _t17 = _context28.v;
+          console.warn("Receipt Drive save", receiptId, _t17);
+          return _context28.a(2, null);
       }
-    }, _callee23, null, [[1, 5]]);
+    }, _callee28, null, [[1, 5]]);
   }));
   return _cloudSaveReceipt.apply(this, arguments);
 }
@@ -13209,46 +13558,46 @@ function setCloudMeta(m) {
     localStorage.setItem(CLOUD_META_KEY, JSON.stringify(m));
   } catch (e) {}
 }
-function cloudFetchData(_x12) {
+function cloudFetchData(_x25) {
   return _cloudFetchData.apply(this, arguments);
 }
 function _cloudFetchData() {
-  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee24(withDebug) {
-    var url, r, d, _t14;
-    return _regenerator().w(function (_context24) {
-      while (1) switch (_context24.p = _context24.n) {
+  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29(withDebug) {
+    var url, r, d, _t18;
+    return _regenerator().w(function (_context29) {
+      while (1) switch (_context29.p = _context29.n) {
         case 0:
-          _context24.p = 0;
+          _context29.p = 0;
           url = withDebug ? "/api/data?debug=1" : "/api/data";
-          _context24.n = 1;
+          _context29.n = 1;
           return fetch(url, {
             method: "GET",
             cache: "no-store"
           });
         case 1:
-          r = _context24.v;
-          _context24.n = 2;
+          r = _context29.v;
+          _context29.n = 2;
           return r.json();
         case 2:
-          d = _context24.v;
+          d = _context29.v;
           if (!(!r.ok || !d.configured)) {
-            _context24.n = 3;
+            _context29.n = 3;
             break;
           }
           _cloudOnline = false;
           _lastCloudPing = d;
-          return _context24.a(2, null);
+          return _context29.a(2, null);
         case 3:
           _cloudOnline = true;
           _lastCloudPing = d;
-          return _context24.a(2, d);
+          return _context29.a(2, d);
         case 4:
-          _context24.p = 4;
-          _t14 = _context24.v;
+          _context29.p = 4;
+          _t18 = _context29.v;
           _cloudOnline = false;
-          return _context24.a(2, null);
+          return _context29.a(2, null);
       }
-    }, _callee24, null, [[0, 4]]);
+    }, _callee29, null, [[0, 4]]);
   }));
   return _cloudFetchData.apply(this, arguments);
 }
@@ -13292,20 +13641,20 @@ function cloudLoad() {
   return _cloudLoad.apply(this, arguments);
 }
 function _cloudLoad() {
-  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee25() {
+  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30() {
     var d;
-    return _regenerator().w(function (_context25) {
-      while (1) switch (_context25.n) {
+    return _regenerator().w(function (_context30) {
+      while (1) switch (_context30.n) {
         case 0:
-          _context25.n = 1;
+          _context30.n = 1;
           return cloudFetchData();
         case 1:
-          d = _context25.v;
+          d = _context30.v;
           if (d) {
-            _context25.n = 2;
+            _context30.n = 2;
             break;
           }
-          return _context25.a(2, null);
+          return _context30.a(2, null);
         case 2:
           if (Array.isArray(d.events) && d.events.length) {
             saveEvents(mergeEvents(loadEvents(), d.events));
@@ -13323,9 +13672,9 @@ function _cloudLoad() {
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context25.a(2, d);
+          return _context30.a(2, d);
       }
-    }, _callee25);
+    }, _callee30);
   }));
   return _cloudLoad.apply(this, arguments);
 }
@@ -13333,36 +13682,36 @@ var _lastCloudError = "";
 function getLastCloudError() {
   return _lastCloudError;
 }
-function cloudSave(_x13, _x14, _x15) {
+function cloudSave(_x26, _x27, _x28) {
   return _cloudSave.apply(this, arguments);
 }
 function _cloudSave() {
-  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27(events, users, deletedEvents) {
-    var ping, currency, inventoryFiles, trySave, failed, d, _t15;
-    return _regenerator().w(function (_context27) {
-      while (1) switch (_context27.p = _context27.n) {
+  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32(events, users, deletedEvents) {
+    var ping, currency, inventoryFiles, trySave, failed, d, _t19;
+    return _regenerator().w(function (_context32) {
+      while (1) switch (_context32.p = _context32.n) {
         case 0:
           if (_cloudOnline) {
-            _context27.n = 2;
+            _context32.n = 2;
             break;
           }
-          _context27.n = 1;
+          _context32.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context27.v;
+          ping = _context32.v;
           if (ping) {
-            _context27.n = 2;
+            _context32.n = 2;
             break;
           }
-          return _context27.a(2, null);
+          return _context32.a(2, null);
         case 2:
           currency = getCloudCurrency();
           inventoryFiles = takePendingInvFiles();
           trySave = /*#__PURE__*/function () {
-            var _ref84 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26(files) {
+            var _ref84 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee31(files) {
               var body, r, d, msg;
-              return _regenerator().w(function (_context26) {
-                while (1) switch (_context26.n) {
+              return _regenerator().w(function (_context31) {
+                while (1) switch (_context31.n) {
                   case 0:
                     body = {
                       events: events,
@@ -13371,7 +13720,7 @@ function _cloudSave() {
                       deletedEvents: deletedEvents || [],
                       inventoryFiles: files || []
                     };
-                    _context26.n = 1;
+                    _context31.n = 1;
                     return fetch("/api/data", {
                       method: "POST",
                       headers: {
@@ -13380,13 +13729,13 @@ function _cloudSave() {
                       body: JSON.stringify(body)
                     });
                   case 1:
-                    r = _context26.v;
-                    _context26.n = 2;
+                    r = _context31.v;
+                    _context31.n = 2;
                     return r.json();
                   case 2:
-                    d = _context26.v;
+                    d = _context31.v;
                     if (!(!r.ok || !d.ok)) {
-                      _context26.n = 3;
+                      _context31.n = 3;
                       break;
                     }
                     msg = d.error || "Save failed";
@@ -13394,43 +13743,43 @@ function _cloudSave() {
                     throw new Error(msg);
                   case 3:
                     _lastCloudError = "";
-                    return _context26.a(2, d);
+                    return _context31.a(2, d);
                 }
-              }, _callee26);
+              }, _callee31);
             }));
-            return function trySave(_x33) {
+            return function trySave(_x45) {
               return _ref84.apply(this, arguments);
             };
           }();
-          _context27.p = 3;
+          _context32.p = 3;
           if (!inventoryFiles.length) {
-            _context27.n = 5;
+            _context32.n = 5;
             break;
           }
-          _context27.n = 4;
+          _context32.n = 4;
           return cloudUploadInventoryFiles(inventoryFiles);
         case 4:
-          failed = _context27.v;
+          failed = _context32.v;
           if (failed.length) _pendingInvFiles.push.apply(_pendingInvFiles, _toConsumableArray(failed));
         case 5:
-          _context27.n = 6;
+          _context32.n = 6;
           return trySave([]);
         case 6:
-          d = _context27.v;
+          d = _context32.v;
           _cloudOnline = true;
           if (d.version) setCloudMeta({
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context27.a(2, d);
+          return _context32.a(2, d);
         case 7:
-          _context27.p = 7;
-          _t15 = _context27.v;
+          _context32.p = 7;
+          _t19 = _context32.v;
           if (inventoryFiles.length) _pendingInvFiles.unshift.apply(_pendingInvFiles, _toConsumableArray(inventoryFiles));
-          console.warn("Cloud save", _t15);
-          return _context27.a(2, null);
+          console.warn("Cloud save", _t19);
+          return _context32.a(2, null);
       }
-    }, _callee27, null, [[3, 7]]);
+    }, _callee32, null, [[3, 7]]);
   }));
   return _cloudSave.apply(this, arguments);
 }
@@ -13446,11 +13795,11 @@ function eventsForCloudPayload(events) {
     });
   });
 }
-function flushCloudSync(_x16, _x17, _x18) {
+function flushCloudSync(_x29, _x30, _x31) {
   return _flushCloudSync.apply(this, arguments);
 }
 function _flushCloudSync() {
-  _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28(events, users, deletedEvents) {
+  _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee33(events, users, deletedEvents) {
     var _ref85,
       _ref85$silent,
       silent,
@@ -13465,21 +13814,21 @@ function _flushCloudSync() {
       payload,
       result,
       errMsg,
-      _args28 = arguments;
-    return _regenerator().w(function (_context28) {
-      while (1) switch (_context28.n) {
+      _args33 = arguments;
+    return _regenerator().w(function (_context33) {
+      while (1) switch (_context33.n) {
         case 0:
-          _ref85 = _args28.length > 3 && _args28[3] !== undefined ? _args28[3] : {}, _ref85$silent = _ref85.silent, silent = _ref85$silent === void 0 ? false : _ref85$silent, _ref85$successMsg = _ref85.successMsg, successMsg = _ref85$successMsg === void 0 ? "Shared with all users & devices" : _ref85$successMsg;
-          _context28.n = 1;
+          _ref85 = _args33.length > 3 && _args33[3] !== undefined ? _args33[3] : {}, _ref85$silent = _ref85.silent, silent = _ref85$silent === void 0 ? false : _ref85$silent, _ref85$successMsg = _ref85.successMsg, successMsg = _ref85$successMsg === void 0 ? "Shared with all users & devices" : _ref85$successMsg;
+          _context33.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context28.v;
+          ping = _context33.v;
           if (!(!ping || !ping.configured)) {
-            _context28.n = 2;
+            _context33.n = 2;
             break;
           }
           if (!silent) toast.warn("Cloud not connected", "Data saved on this device only until Google Drive Shared Drive is configured.");
-          return _context28.a(2, {
+          return _context33.a(2, {
             ok: false
           });
         case 2:
@@ -13494,17 +13843,17 @@ function _flushCloudSync() {
           });
           merged = mergeEvents(events, cloudFiltered);
           payload = eventsForCloudPayload(merged);
-          _context28.n = 3;
+          _context33.n = 3;
           return cloudSave(payload, users, allDeleted);
         case 3:
-          result = _context28.v;
+          result = _context33.v;
           if (!(result === null)) {
-            _context28.n = 4;
+            _context33.n = 4;
             break;
           }
           errMsg = getLastCloudError() || "Could not save to company cloud.";
           if (!silent && (events || []).length) toast.error("Cloud sync failed", errMsg);
-          return _context28.a(2, {
+          return _context33.a(2, {
             ok: false,
             error: errMsg
           });
@@ -13513,7 +13862,7 @@ function _flushCloudSync() {
             return d.id;
           }));
           if (!silent && successMsg) toast.success(successMsg, "Saved to Google Drive — visible to all permitted users.");
-          return _context28.a(2, {
+          return _context33.a(2, {
             ok: true,
             synced: result.events || [],
             users: result.users || users || null,
@@ -13521,7 +13870,7 @@ function _flushCloudSync() {
             version: result.version || 0
           });
       }
-    }, _callee28);
+    }, _callee33);
   }));
   return _flushCloudSync.apply(this, arguments);
 }
@@ -13629,10 +13978,10 @@ var S = {
     }, o);
   }
 };
-function Bdg(_ref3) {
-  var t = _ref3.t,
-    ch = _ref3.ch,
-    sm = _ref3.sm;
+function Bdg(_ref4) {
+  var t = _ref4.t,
+    ch = _ref4.ch,
+    sm = _ref4.sm;
   var m = {
     g: {
       bg: "rgba(30,92,69,0.1)",
@@ -13680,9 +14029,9 @@ function Bdg(_ref3) {
     }
   }, ch);
 }
-function Logo(_ref4) {
-  var _ref4$h = _ref4.h,
-    h = _ref4$h === void 0 ? 36 : _ref4$h;
+function Logo(_ref5) {
+  var _ref5$h = _ref5.h,
+    h = _ref5$h === void 0 ? 36 : _ref5$h;
   return /*#__PURE__*/React.createElement("img", {
     src: "assets/vianne-logo.png",
     alt: "Vianne",
@@ -13695,10 +14044,10 @@ function Logo(_ref4) {
     }
   });
 }
-function Sheet(_ref5) {
-  var onClose = _ref5.onClose,
-    title = _ref5.title,
-    children = _ref5.children;
+function Sheet(_ref6) {
+  var onClose = _ref6.onClose,
+    title = _ref6.title,
+    children = _ref6.children;
   return /*#__PURE__*/React.createElement("div", {
     className: "v-sheet-overlay",
     onClick: onClose,
@@ -13763,9 +14112,9 @@ function Sheet(_ref5) {
     }
   }, children)));
 }
-function QRScanner(_ref6) {
-  var onScanned = _ref6.onScanned,
-    inv = _ref6.inv;
+function QRScanner(_ref7) {
+  var onScanned = _ref7.onScanned,
+    inv = _ref7.inv;
   var vr = useRef(null),
     sr = useRef(null),
     cv = useRef(null),
@@ -13945,10 +14294,10 @@ function QRScanner(_ref6) {
   }, {
     borderBottomWidth: 3,
     borderRightWidth: 3
-  }]].map(function (_ref7, i) {
-    var _ref8 = _slicedToArray(_ref7, 2),
-      pos = _ref8[0],
-      brd = _ref8[1];
+  }]].map(function (_ref8, i) {
+    var _ref9 = _slicedToArray(_ref8, 2),
+      pos = _ref9[0],
+      brd = _ref9[1];
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       style: _objectSpread(_objectSpread(_objectSpread({
@@ -14093,10 +14442,10 @@ function normXLKey(k) {
 }
 function xlVal(row, keys) {
   var map = {};
-  Object.entries(row || {}).forEach(function (_ref9) {
-    var _ref0 = _slicedToArray(_ref9, 2),
-      k = _ref0[0],
-      v = _ref0[1];
+  Object.entries(row || {}).forEach(function (_ref0) {
+    var _ref1 = _slicedToArray(_ref0, 2),
+      k = _ref1[0],
+      v = _ref1[1];
     map[normXLKey(k)] = v;
   });
   var _iterator = _createForOfIteratorHelper(keys),
@@ -14165,11 +14514,11 @@ function mergeInvItems(existing, incoming, mode) {
     skipped: skipped
   };
 }
-function invMergeToast(_ref1) {
-  var added = _ref1.added,
-    skipped = _ref1.skipped,
-    mode = _ref1.mode,
-    total = _ref1.total;
+function invMergeToast(_ref10) {
+  var added = _ref10.added,
+    skipped = _ref10.skipped,
+    mode = _ref10.mode,
+    total = _ref10.total;
   var dup = skipped > 0 ? skipped + " duplicate(s) skipped" : null;
   if (mode === "replace") {
     if (skipped > 0 && added === 0) {
@@ -14254,135 +14603,135 @@ function codeForExcelRow(excelRow, idByRow) {
 function parseDrawingRels(relsXml) {
   var relMap = {};
   relsXml.replace(/<(?:Relationship|[^>]*:Relationship)[^>]*>/g, function (tag) {
-    var _ref10, _ref11;
-    var id = (_ref10 = tag.match(/\bId="([^"]+)"/) || tag.match(/\bid="([^"]+)"/)) === null || _ref10 === void 0 ? void 0 : _ref10[1];
-    var tgt = (_ref11 = tag.match(/\bTarget="([^"]+)"/) || tag.match(/\btarget="([^"]+)"/)) === null || _ref11 === void 0 ? void 0 : _ref11[1];
+    var _ref11, _ref12;
+    var id = (_ref11 = tag.match(/\bId="([^"]+)"/) || tag.match(/\bid="([^"]+)"/)) === null || _ref11 === void 0 ? void 0 : _ref11[1];
+    var tgt = (_ref12 = tag.match(/\bTarget="([^"]+)"/) || tag.match(/\btarget="([^"]+)"/)) === null || _ref12 === void 0 ? void 0 : _ref12[1];
     if (id && tgt) relMap[id] = "xl/" + tgt.replace(/^\.\.\//, "");
     return tag;
   });
   return relMap;
 }
-function mediaDataUrl(_x19, _x20) {
+function mediaDataUrl(_x32, _x33) {
   return _mediaDataUrl.apply(this, arguments);
 }
 function _mediaDataUrl() {
-  _mediaDataUrl = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29(zip, mediaPath) {
+  _mediaDataUrl = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee34(zip, mediaPath) {
     var ext, mime, b64;
-    return _regenerator().w(function (_context29) {
-      while (1) switch (_context29.n) {
+    return _regenerator().w(function (_context34) {
+      while (1) switch (_context34.n) {
         case 0:
           if (!(!mediaPath || !zip.files[mediaPath])) {
-            _context29.n = 1;
+            _context34.n = 1;
             break;
           }
-          return _context29.a(2, "");
+          return _context34.a(2, "");
         case 1:
           ext = (mediaPath.split(".").pop() || "jpg").toLowerCase().split("?")[0];
           mime = ext === "png" ? "image/png" : ext === "gif" ? "image/gif" : ext === "webp" ? "image/webp" : "image/jpeg";
-          _context29.n = 2;
+          _context34.n = 2;
           return zip.file(mediaPath).async("base64");
         case 2:
-          b64 = _context29.v;
-          return _context29.a(2, "data:" + mime + ";base64," + b64);
+          b64 = _context34.v;
+          return _context34.a(2, "data:" + mime + ";base64," + b64);
       }
-    }, _callee29);
+    }, _callee34);
   }));
   return _mediaDataUrl.apply(this, arguments);
 }
-function extractXLImages(_x21, _x22) {
+function extractXLImages(_x34, _x35) {
   return _extractXLImages.apply(this, arguments);
 }
 function _extractXLImages() {
-  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30(arrayBuffer, idByRow) {
-    var zip, imgs, drawingPaths, _iterator4, _step4, dp, xml, relsPath, relMap, re, m, code, mediaPath, dataUrl, _t16, _t17, _t18;
-    return _regenerator().w(function (_context30) {
-      while (1) switch (_context30.p = _context30.n) {
+  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(arrayBuffer, idByRow) {
+    var zip, imgs, drawingPaths, _iterator4, _step4, dp, xml, relsPath, relMap, re, m, code, mediaPath, dataUrl, _t20, _t21, _t22;
+    return _regenerator().w(function (_context35) {
+      while (1) switch (_context35.p = _context35.n) {
         case 0:
           if (!(!window.JSZip || !idByRow || !Object.keys(idByRow).length)) {
-            _context30.n = 1;
+            _context35.n = 1;
             break;
           }
-          return _context30.a(2, {});
+          return _context35.a(2, {});
         case 1:
-          _context30.p = 1;
-          _context30.n = 2;
+          _context35.p = 1;
+          _context35.n = 2;
           return window.JSZip.loadAsync(arrayBuffer);
         case 2:
-          zip = _context30.v;
+          zip = _context35.v;
           imgs = {};
           drawingPaths = Object.keys(zip.files).filter(function (n) {
             return /xl\/drawings\/drawing\d+\.xml$/i.test(n);
           });
           _iterator4 = _createForOfIteratorHelper(drawingPaths);
-          _context30.p = 3;
+          _context35.p = 3;
           _iterator4.s();
         case 4:
           if ((_step4 = _iterator4.n()).done) {
-            _context30.n = 12;
+            _context35.n = 12;
             break;
           }
           dp = _step4.value;
-          _context30.n = 5;
+          _context35.n = 5;
           return zip.file(dp).async("string");
         case 5:
-          xml = _context30.v;
+          xml = _context35.v;
           relsPath = dp.replace("drawings/", "drawings/_rels/").replace(/\.xml$/i, ".xml.rels");
           if (zip.files[relsPath]) {
-            _context30.n = 6;
+            _context35.n = 6;
             break;
           }
-          return _context30.a(3, 11);
+          return _context35.a(3, 11);
         case 6:
-          _t16 = parseDrawingRels;
-          _context30.n = 7;
+          _t20 = parseDrawingRels;
+          _context35.n = 7;
           return zip.file(relsPath).async("string");
         case 7:
-          relMap = _t16(_context30.v);
+          relMap = _t20(_context35.v);
           re = /<xdr:row>(\d+)<\/xdr:row>[\s\S]*?r:(?:embed|link)="([^"]+)"/g;
           m = void 0;
         case 8:
           if (!(m = re.exec(xml))) {
-            _context30.n = 11;
+            _context35.n = 11;
             break;
           }
           code = codeForExcelRow(parseInt(m[1], 10) + 1, idByRow);
           mediaPath = relMap[m[2]];
           if (!(!code || !mediaPath || imgs[code])) {
-            _context30.n = 9;
+            _context35.n = 9;
             break;
           }
-          return _context30.a(3, 8);
+          return _context35.a(3, 8);
         case 9:
-          _context30.n = 10;
+          _context35.n = 10;
           return mediaDataUrl(zip, mediaPath);
         case 10:
-          dataUrl = _context30.v;
+          dataUrl = _context35.v;
           if (dataUrl) imgs[code] = dataUrl;
-          _context30.n = 8;
+          _context35.n = 8;
           break;
         case 11:
-          _context30.n = 4;
+          _context35.n = 4;
           break;
         case 12:
-          _context30.n = 14;
+          _context35.n = 14;
           break;
         case 13:
-          _context30.p = 13;
-          _t17 = _context30.v;
-          _iterator4.e(_t17);
+          _context35.p = 13;
+          _t21 = _context35.v;
+          _iterator4.e(_t21);
         case 14:
-          _context30.p = 14;
+          _context35.p = 14;
           _iterator4.f();
-          return _context30.f(14);
+          return _context35.f(14);
         case 15:
-          return _context30.a(2, imgs);
+          return _context35.a(2, imgs);
         case 16:
-          _context30.p = 16;
-          _t18 = _context30.v;
-          console.warn("Image extract", _t18);
-          return _context30.a(2, {});
+          _context35.p = 16;
+          _t22 = _context35.v;
+          console.warn("Image extract", _t22);
+          return _context35.a(2, {});
       }
-    }, _callee30, null, [[3, 13, 14, 15], [1, 16]]);
+    }, _callee35, null, [[3, 13, 14, 15], [1, 16]]);
   }));
   return _extractXLImages.apply(this, arguments);
 }
@@ -14414,10 +14763,10 @@ function rowToItem(row, excelRow) {
   var salePrice = xlNum(xlVal(row, ["Sale Price"]));
   var roundOff = xlNum(xlVal(row, ["Round Off Final", "Round Off"]));
   var xlRaw = {};
-  Object.entries(row || {}).forEach(function (_ref12) {
-    var _ref13 = _slicedToArray(_ref12, 2),
-      k = _ref13[0],
-      v = _ref13[1];
+  Object.entries(row || {}).forEach(function (_ref13) {
+    var _ref14 = _slicedToArray(_ref13, 2),
+      k = _ref14[0],
+      v = _ref14[1];
     if (v != null && String(v).trim() !== "") xlRaw[String(k).trim()] = v;
   });
   var stones = stoneShape || clarity || pcs || cts ? [{
@@ -14536,12 +14885,12 @@ function parseXL(file, onDone, onError) {
       }
       var r = new FileReader();
       r.onload = /*#__PURE__*/function () {
-        var _ref14 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(e) {
-          var buf, wb, items, idByRow, _iterator2, _step2, sn, _ws, parsed, ws, headers, imgMap, imgN, _t, _t2;
-          return _regenerator().w(function (_context) {
-            while (1) switch (_context.p = _context.n) {
+        var _ref15 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(e) {
+          var buf, wb, items, idByRow, _iterator2, _step2, sn, _ws, parsed, ws, headers, imgMap, _t, _t2;
+          return _regenerator().w(function (_context2) {
+            while (1) switch (_context2.p = _context2.n) {
               case 0:
-                _context.p = 0;
+                _context2.p = 0;
                 buf = e.target.result;
                 wb = X.read(new Uint8Array(buf), {
                   type: "array"
@@ -14549,20 +14898,20 @@ function parseXL(file, onDone, onError) {
                 items = [];
                 idByRow = {};
                 _iterator2 = _createForOfIteratorHelper(wb.SheetNames);
-                _context.p = 1;
+                _context2.p = 1;
                 _iterator2.s();
               case 2:
                 if ((_step2 = _iterator2.n()).done) {
-                  _context.n = 5;
+                  _context2.n = 5;
                   break;
                 }
                 sn = _step2.value;
                 _ws = wb.Sheets[sn];
                 if (_ws) {
-                  _context.n = 3;
+                  _context2.n = 3;
                   break;
                 }
-                return _context.a(3, 4);
+                return _context2.a(3, 4);
               case 3:
                 parsed = parseSheetRows(X, _ws);
                 if (parsed.items.length >= items.length) {
@@ -14570,22 +14919,22 @@ function parseXL(file, onDone, onError) {
                   idByRow = parsed.idByRow;
                 }
               case 4:
-                _context.n = 2;
+                _context2.n = 2;
                 break;
               case 5:
-                _context.n = 7;
+                _context2.n = 7;
                 break;
               case 6:
-                _context.p = 6;
-                _t = _context.v;
+                _context2.p = 6;
+                _t = _context2.v;
                 _iterator2.e(_t);
               case 7:
-                _context.p = 7;
+                _context2.p = 7;
                 _iterator2.f();
-                return _context.f(7);
+                return _context2.f(7);
               case 8:
                 if (items.length) {
-                  _context.n = 9;
+                  _context2.n = 9;
                   break;
                 }
                 ws = wb.Sheets[wb.SheetNames[0]];
@@ -14593,34 +14942,32 @@ function parseXL(file, onDone, onError) {
                   defval: ""
                 })[0] || {}) : [];
                 onError(INV_FAIL + " — 0 items found. Columns seen: " + headers.slice(0, 12).join(", ") + ". Need Unique Code + Round Off Final (or Sale Price).");
-                return _context.a(2);
+                return _context2.a(2);
               case 9:
-                _context.n = 10;
+                _context2.n = 10;
                 return extractXLImages(buf, idByRow);
               case 10:
-                imgMap = _context.v;
+                imgMap = _context2.v;
                 items = attachItemImages(items, imgMap);
-                _context.n = 11;
+                _context2.n = 11;
                 return prefetchInvImages(items.map(function (i) {
                   return i.id;
                 }));
               case 11:
-                imgN = Object.keys(imgMap).length;
-                if (imgN) toast.success("Product photos imported", imgN + " image(s) linked to inventory items");else if (String(file.name || "").toLowerCase().endsWith(".xlsx")) toast.info("No embedded photos found", "Use an Excel file with product pictures (e.g. JCK Price List), not a scan/export sheet.");
                 onDone(items);
-                _context.n = 13;
+                _context2.n = 13;
                 break;
               case 12:
-                _context.p = 12;
-                _t2 = _context.v;
+                _context2.p = 12;
+                _t2 = _context2.v;
                 onError(INV_FAIL + " — " + _t2.message);
               case 13:
-                return _context.a(2);
+                return _context2.a(2);
             }
-          }, _callee, null, [[1, 6, 7, 8], [0, 12]]);
+          }, _callee2, null, [[1, 6, 7, 8], [0, 12]]);
         }));
-        return function (_x23) {
-          return _ref14.apply(this, arguments);
+        return function (_x36) {
+          return _ref15.apply(this, arguments);
         };
       }();
       r.onerror = function () {
@@ -14630,9 +14977,9 @@ function parseXL(file, onDone, onError) {
     });
   });
 }
-function Login(_ref15) {
-  var onLogin = _ref15.onLogin,
-    users = _ref15.users;
+function Login(_ref16) {
+  var onLogin = _ref16.onLogin,
+    users = _ref16.users;
   var _useState13 = useState(""),
     _useState14 = _slicedToArray(_useState13, 2),
     u = _useState14[0],
@@ -14693,50 +15040,50 @@ function Login(_ref15) {
     }, 320);
   };
   var go = /*#__PURE__*/function () {
-    var _ref16 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+    var _ref17 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
       var usr, saved, ok;
-      return _regenerator().w(function (_context2) {
-        while (1) switch (_context2.n) {
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.n) {
           case 0:
             usr = users.find(function (x) {
               return x.un === u.toLowerCase() && x.pw === p;
             });
             if (usr) {
-              _context2.n = 1;
+              _context3.n = 1;
               break;
             }
             se("Invalid username or password");
-            return _context2.a(2);
+            return _context3.a(2);
           case 1:
             saved = localStorage.getItem(BIO_USER);
             if (!(bio && saved !== usr.un)) {
-              _context2.n = 3;
+              _context3.n = 3;
               break;
             }
-            _context2.n = 2;
+            _context3.n = 2;
             return registerBio(usr.un);
           case 2:
-            _context2.n = 5;
+            _context3.n = 5;
             break;
           case 3:
             if (!(bio && !saved)) {
-              _context2.n = 5;
+              _context3.n = 5;
               break;
             }
-            _context2.n = 4;
+            _context3.n = 4;
             return registerBio(usr.un);
           case 4:
-            ok = _context2.v;
+            ok = _context3.v;
             if (ok) toast.success("Face ID enabled", "Use Face ID next time you sign in.");
           case 5:
             onLogin(usr);
           case 6:
-            return _context2.a(2);
+            return _context3.a(2);
         }
-      }, _callee2);
+      }, _callee3);
     }));
     return function go() {
-      return _ref16.apply(this, arguments);
+      return _ref17.apply(this, arguments);
     };
   }();
   var doBio = function doBio() {
@@ -14954,14 +15301,14 @@ function Login(_ref15) {
     }
   }, "nilay/nilay123 \xB7 jimit/jimit123 \xB7 naresh/naresh123")));
 }
-function EventHub(_ref17) {
-  var user = _ref17.user,
-    events = _ref17.events,
-    onEnter = _ref17.onEnter,
-    onCreate = _ref17.onCreate,
-    onManage = _ref17.onManage,
-    onDelete = _ref17.onDelete,
-    onLogout = _ref17.onLogout;
+function EventHub(_ref18) {
+  var user = _ref18.user,
+    events = _ref18.events,
+    onEnter = _ref18.onEnter,
+    onCreate = _ref18.onCreate,
+    onManage = _ref18.onManage,
+    onDelete = _ref18.onDelete,
+    onLogout = _ref18.onLogout;
   var _useState23 = useState(false),
     _useState24 = _slicedToArray(_useState23, 2),
     sc = _useState24[0],
@@ -14996,17 +15343,17 @@ function EventHub(_ref17) {
   var create = function create() {
     if (!form.name.trim()) return;
     var fin = /*#__PURE__*/function () {
-      var _ref18 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(inv, fileName, fileObj) {
-        var merged, baseInv, base;
-        return _regenerator().w(function (_context3) {
-          while (1) switch (_context3.n) {
+      var _ref19 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(inv, fileName, fileObj) {
+        var merged, baseInv, base, imgN;
+        return _regenerator().w(function (_context4) {
+          while (1) switch (_context4.n) {
             case 0:
               if (!(fileObj && !inv.length)) {
-                _context3.n = 1;
+                _context4.n = 1;
                 break;
               }
               smsg(INV_FAIL + " — 0 items found. Check Unique Code and Round Off Final columns.");
-              return _context3.a(2);
+              return _context4.a(2);
             case 1:
               merged = mergeInvItems([], inv, "add");
               baseInv = merged.inv;
@@ -15035,12 +15382,26 @@ function EventHub(_ref17) {
                 by: user.name
               });
               if (!(fileObj && baseInv.length)) {
-                _context3.n = 2;
+                _context4.n = 6;
                 break;
               }
-              _context3.n = 2;
-              return queueInventoryFileForDrive(base.id, fileObj);
+              _context4.n = 2;
+              return ensureImagesFromInvFile(fileObj, baseInv);
             case 2:
+              imgN = _context4.v;
+              _context4.n = 3;
+              return idbSaveInvFile(base.id, fileObj);
+            case 3:
+              _context4.n = 4;
+              return prefetchInvImages(baseInv.map(function (i) {
+                return i.id;
+              }));
+            case 4:
+              _context4.n = 5;
+              return queueInventoryFileForDrive(base.id, fileObj);
+            case 5:
+              if (imgN) toast.success("Sheet imported", baseInv.length + " items · " + imgN + " photo(s) from Excel");else if (/\.xlsx?$/i.test(fileObj.name || "")) toast.info("Data imported", baseInv.length + " items — use a Price List .xlsx with embedded photos for images");
+            case 6:
               onCreate(base);
               ssc(false);
               sf({
@@ -15052,32 +15413,32 @@ function EventHub(_ref17) {
               });
               sxl(null);
               smsg("");
-            case 3:
-              return _context3.a(2);
+            case 7:
+              return _context4.a(2);
           }
-        }, _callee3);
+        }, _callee4);
       }));
-      return function fin(_x24, _x25, _x26) {
-        return _ref18.apply(this, arguments);
+      return function fin(_x37, _x38, _x39) {
+        return _ref19.apply(this, arguments);
       };
     }();
     if (xlf) {
       sl(true);
       parseXL(xlf, /*#__PURE__*/function () {
-        var _ref19 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(inv) {
-          return _regenerator().w(function (_context4) {
-            while (1) switch (_context4.n) {
+        var _ref20 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(inv) {
+          return _regenerator().w(function (_context5) {
+            while (1) switch (_context5.n) {
               case 0:
                 sl(false);
-                _context4.n = 1;
+                _context5.n = 1;
                 return fin(inv, xlf.name, xlf);
               case 1:
-                return _context4.a(2);
+                return _context5.a(2);
             }
-          }, _callee4);
+          }, _callee5);
         }));
-        return function (_x27) {
-          return _ref19.apply(this, arguments);
+        return function (_x40) {
+          return _ref20.apply(this, arguments);
         };
       }(), function (err) {
         sl(false);
@@ -15544,13 +15905,13 @@ function EventHub(_ref17) {
     onClick: create
   }, loading ? "Parsing..." : "✓ Create Event")));
 }
-function ManageEvent(_ref20) {
+function ManageEvent(_ref21) {
   var _COLORS$find;
-  var ev = _ref20.ev,
-    onClose = _ref20.onClose,
-    onUpdate = _ref20.onUpdate,
-    onDelete = _ref20.onDelete,
-    user = _ref20.user;
+  var ev = _ref21.ev,
+    onClose = _ref21.onClose,
+    onUpdate = _ref21.onUpdate,
+    onDelete = _ref21.onDelete,
+    user = _ref21.user;
   var _useState33 = useState("details"),
     _useState34 = _slicedToArray(_useState33, 2),
     tab = _useState34[0],
@@ -15927,71 +16288,8 @@ function ManageEvent(_ref20) {
     onChange: function onChange(e) {
       var f = e.target.files[0];
       if (!f) return;
-      parseXL(f, /*#__PURE__*/function () {
-        var _ref21 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(items) {
-          var _mergeInvItems, inv, added, skipped, updated;
-          return _regenerator().w(function (_context5) {
-            while (1) switch (_context5.n) {
-              case 0:
-                if (items.length) {
-                  _context5.n = 1;
-                  break;
-                }
-                toast.error(INV_FAIL, "0 items found — check Unique Code and Round Off Final columns.");
-                e.target.value = "";
-                return _context5.a(2);
-              case 1:
-                _mergeInvItems = mergeInvItems(ev.inv || [], items, mode), inv = _mergeInvItems.inv, added = _mergeInvItems.added, skipped = _mergeInvItems.skipped;
-                if (!(mode === "add" && added === 0 && skipped > 0)) {
-                  _context5.n = 2;
-                  break;
-                }
-                invMergeToast({
-                  added: added,
-                  skipped: skipped,
-                  mode: mode,
-                  total: (ev.inv || []).length
-                });
-                e.target.value = "";
-                return _context5.a(2);
-              case 2:
-                updated = _objectSpread(_objectSpread({}, ev), {}, {
-                  inv: inv,
-                  invHistory: appendInvHistory(ev, {
-                    fileName: f.name,
-                    mode: mode,
-                    added: added,
-                    skipped: skipped,
-                    total: inv.length,
-                    by: (user === null || user === void 0 ? void 0 : user.name) || "Admin"
-                  })
-                });
-                _context5.n = 3;
-                return queueInventoryFileForDrive(ev.id, f);
-              case 3:
-                _context5.n = 4;
-                return prefetchInvImages(inv.map(function (i) {
-                  return i.id;
-                }));
-              case 4:
-                onUpdate(updated);
-                invMergeToast({
-                  added: added,
-                  skipped: skipped,
-                  mode: mode,
-                  total: inv.length
-                });
-                e.target.value = "";
-              case 5:
-                return _context5.a(2);
-            }
-          }, _callee5);
-        }));
-        return function (_x28) {
-          return _ref21.apply(this, arguments);
-        };
-      }(), function (err) {
-        toast.error(INV_FAIL, String(err).replace(INV_FAIL + " — ", ""));
+      handleInvFileInput(ev, f, mode, (user === null || user === void 0 ? void 0 : user.name) || "Admin", function (updated) {
+        if (updated) onUpdate(updated);
         e.target.value = "";
       });
     },
@@ -16006,7 +16304,7 @@ function ManageEvent(_ref20) {
       lineHeight: 1.5,
       marginTop: 6
     }
-  }, "Duplicate Unique Codes are never added twice. You will see how many duplicates were skipped after each upload.")));
+  }, "All product data and embedded photos are imported from the sheet. Duplicate Unique Codes are skipped \u2014 you will see a summary after each upload.")));
 }
 function SaleSuccess(_ref22) {
   var sale = _ref22.sale,
@@ -20585,6 +20883,10 @@ function InventoryTab(p) {
   var sauditLoc = p.saLoc;
   var sauditScanned = p.saScanned;
   var imgTick = p.imgTick || 0;
+  var _useState77 = useState("add"),
+    _useState78 = _slicedToArray(_useState77, 2),
+    upMode = _useState78[0],
+    setUpMode = _useState78[1];
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
@@ -20795,7 +21097,56 @@ function InventoryTab(p) {
     style: {
       padding: "13px 12px 40px"
     }
+  }, pr.mU && /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread({}, S.card({
+      margin: 0,
+      marginBottom: 12,
+      border: "2px solid " + G
+    }))
   }, /*#__PURE__*/React.createElement("div", {
+    style: S.sh
+  }, "\uD83D\uDCCA UPLOAD INVENTORY SHEET"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: T3,
+      marginBottom: 8,
+      lineHeight: 1.45
+    }
+  }, "Every upload imports all product data and embedded photos from your Excel file for this event."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 8
+    }
+  }, [{
+    id: "add",
+    l: "Add new"
+  }, {
+    id: "replace",
+    l: "Replace all"
+  }].map(function (m) {
+    return /*#__PURE__*/React.createElement("button", {
+      key: m.id,
+      onClick: function onClick() {
+        return setUpMode(m.id);
+      },
+      style: S.pill(upMode === m.id)
+    }, m.l);
+  })), /*#__PURE__*/React.createElement("input", {
+    type: "file",
+    accept: ".xlsx,.xls,.csv",
+    onChange: function onChange(e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      handleInvFileInput(ev, f, upMode, (user === null || user === void 0 ? void 0 : user.name) || "Admin", function (updated) {
+        if (updated) onUpdateEvent(updated);
+        e.target.value = "";
+      });
+    },
+    style: _objectSpread(_objectSpread({}, S.inp()), {}, {
+      cursor: "pointer"
+    })
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       color: T2,
@@ -20940,7 +21291,7 @@ function InventoryTab(p) {
       color: T3,
       marginTop: 4
     }
-  }, "Upload Excel from Manage Event \u2192 Upload tab")), _toConsumableArray(ev.invHistory || []).reverse().map(function (h) {
+  }, "Upload Excel above or from Event Hub \u2192 Manage Event \u2192 Upload")), _toConsumableArray(ev.invHistory || []).reverse().map(function (h) {
     return /*#__PURE__*/React.createElement("div", {
       key: h.id,
       style: _objectSpread({}, S.cc({
@@ -23318,22 +23669,22 @@ function CloudStoragePanel(_ref47) {
     allEvents = _ref47.allEvents,
     appUsers = _ref47.appUsers,
     onSynced = _ref47.onSynced;
-  var _useState77 = useState(false),
-    _useState78 = _slicedToArray(_useState77, 2),
-    busy = _useState78[0],
-    setBusy = _useState78[1];
-  var _useState79 = useState(getCloudMeta()),
+  var _useState79 = useState(false),
     _useState80 = _slicedToArray(_useState79, 2),
-    meta = _useState80[0],
-    setMeta = _useState80[1];
-  var _useState81 = useState(""),
+    busy = _useState80[0],
+    setBusy = _useState80[1];
+  var _useState81 = useState(getCloudMeta()),
     _useState82 = _slicedToArray(_useState81, 2),
-    lastErr = _useState82[0],
-    setLastErr = _useState82[1];
-  var _useState83 = useState(getCloudPingInfo()),
+    meta = _useState82[0],
+    setMeta = _useState82[1];
+  var _useState83 = useState(""),
     _useState84 = _slicedToArray(_useState83, 2),
-    ping = _useState84[0],
-    setPing = _useState84[1];
+    lastErr = _useState84[0],
+    setLastErr = _useState84[1];
+  var _useState85 = useState(getCloudPingInfo()),
+    _useState86 = _slicedToArray(_useState85, 2),
+    ping = _useState86[0],
+    setPing = _useState86[1];
   var online = isCloudOnline();
   useEffect(function () {
     cloudFetchData(true).then(function (d) {
@@ -23497,14 +23848,14 @@ function CurrencyManager(_ref49) {
     scur = _ref49.scur,
     pr = _ref49.pr,
     onRatesChanged = _ref49.onRatesChanged;
-  var _useState85 = useState(false),
-    _useState86 = _slicedToArray(_useState85, 2),
-    editMode = _useState86[0],
-    setEditMode = _useState86[1];
-  var _useState87 = useState({}),
+  var _useState87 = useState(false),
     _useState88 = _slicedToArray(_useState87, 2),
-    editRates = _useState88[0],
-    setEditRates = _useState88[1];
+    editMode = _useState88[0],
+    setEditMode = _useState88[1];
+  var _useState89 = useState({}),
+    _useState90 = _slicedToArray(_useState89, 2),
+    editRates = _useState90[0],
+    setEditRates = _useState90[1];
   var getCurr = function getCurr() {
     try {
       return JSON.parse(localStorage.getItem("vj_curr_rates") || "null") || DEFAULT_CURR;
@@ -24032,52 +24383,52 @@ function SalesTab(p) {
   var sinvm = p.sinvm;
   var fc = p.fc;
   var onAddLead = p.onAddLead;
-  var _useState89 = useState(false),
-    _useState90 = _slicedToArray(_useState89, 2),
-    showNewSale = _useState90[0],
-    sShowNewSale = _useState90[1];
-  var _useState91 = useState({
+  var _useState91 = useState(false),
+    _useState92 = _slicedToArray(_useState91, 2),
+    showNewSale = _useState92[0],
+    sShowNewSale = _useState92[1];
+  var _useState93 = useState({
       name: "",
       phone: "",
       email: "",
       company: "",
       source: "Walk-in"
     }),
-    _useState92 = _slicedToArray(_useState91, 2),
-    nsCust = _useState92[0],
-    snsCust = _useState92[1];
-  var _useState93 = useState([]),
     _useState94 = _slicedToArray(_useState93, 2),
-    nsItems = _useState94[0],
-    snsItems = _useState94[1]; // [{...item, overridePrice: null}]
-  var _useState95 = useState("NEFT"),
+    nsCust = _useState94[0],
+    snsCust = _useState94[1];
+  var _useState95 = useState([]),
     _useState96 = _slicedToArray(_useState95, 2),
-    nsPayment = _useState96[0],
-    snsPayment = _useState96[1];
-  var _useState97 = useState(""),
+    nsItems = _useState96[0],
+    snsItems = _useState96[1]; // [{...item, overridePrice: null}]
+  var _useState97 = useState("NEFT"),
     _useState98 = _slicedToArray(_useState97, 2),
-    nsDisc = _useState98[0],
-    snsDisc = _useState98[1]; // overall discount %
+    nsPayment = _useState98[0],
+    snsPayment = _useState98[1];
   var _useState99 = useState(""),
     _useState100 = _slicedToArray(_useState99, 2),
-    nsMarkup = _useState100[0],
-    snsMarkup = _useState100[1]; // overall markup %
-  var _useState101 = useState("pct"),
+    nsDisc = _useState100[0],
+    snsDisc = _useState100[1]; // overall discount %
+  var _useState101 = useState(""),
     _useState102 = _slicedToArray(_useState101, 2),
-    nsCCType = _useState102[0],
-    snsCCType = _useState102[1]; // cc surcharge type
-  var _useState103 = useState(""),
+    nsMarkup = _useState102[0],
+    snsMarkup = _useState102[1]; // overall markup %
+  var _useState103 = useState("pct"),
     _useState104 = _slicedToArray(_useState103, 2),
-    nsCCVal = _useState104[0],
-    snsCCVal = _useState104[1]; // cc surcharge value
+    nsCCType = _useState104[0],
+    snsCCType = _useState104[1]; // cc surcharge type
   var _useState105 = useState(""),
     _useState106 = _slicedToArray(_useState105, 2),
-    nsSearch = _useState106[0],
-    snsSearch = _useState106[1];
-  var _useState107 = useState(null),
+    nsCCVal = _useState106[0],
+    snsCCVal = _useState106[1]; // cc surcharge value
+  var _useState107 = useState(""),
     _useState108 = _slicedToArray(_useState107, 2),
-    nsMatchedCust = _useState108[0],
-    snsMatchedCust = _useState108[1];
+    nsSearch = _useState108[0],
+    snsSearch = _useState108[1];
+  var _useState109 = useState(null),
+    _useState110 = _slicedToArray(_useState109, 2),
+    nsMatchedCust = _useState110[0],
+    snsMatchedCust = _useState110[1];
   var setNC = function setNC(k, v) {
     return snsCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
@@ -25011,26 +25362,26 @@ function HistoryTab(p) {
     pr = p.pr,
     user = p.user,
     sinvm = p.sinvm;
-  var _useState109 = useState(""),
-    _useState110 = _slicedToArray(_useState109, 2),
-    search = _useState110[0],
-    setSearch = _useState110[1];
-  var _useState111 = useState("All"),
+  var _useState111 = useState(""),
     _useState112 = _slicedToArray(_useState111, 2),
-    staffF = _useState112[0],
-    setStaffF = _useState112[1];
+    search = _useState112[0],
+    setSearch = _useState112[1];
   var _useState113 = useState("All"),
     _useState114 = _slicedToArray(_useState113, 2),
-    pmF = _useState114[0],
-    setPmF = _useState114[1];
-  var _useState115 = useState("list"),
+    staffF = _useState114[0],
+    setStaffF = _useState114[1];
+  var _useState115 = useState("All"),
     _useState116 = _slicedToArray(_useState115, 2),
-    view = _useState116[0],
-    setView = _useState116[1]; // list | analytics
-  var _useState117 = useState(null),
+    pmF = _useState116[0],
+    setPmF = _useState116[1];
+  var _useState117 = useState("list"),
     _useState118 = _slicedToArray(_useState117, 2),
-    selCust = _useState118[0],
-    setSelCust = _useState118[1];
+    view = _useState118[0],
+    setView = _useState118[1]; // list | analytics
+  var _useState119 = useState(null),
+    _useState120 = _slicedToArray(_useState119, 2),
+    selCust = _useState120[0],
+    setSelCust = _useState120[1];
   var stf = ["All"].concat(_toConsumableArray(_toConsumableArray(new Set(sales.map(function (s) {
     return s.staff;
   }))).sort()));
@@ -25816,19 +26167,19 @@ function CustomersTab(p) {
     cur = p.cur,
     pr = p.pr,
     syncUp = p.syncUp;
-  var _useState119 = useState(false),
-    _useState120 = _slicedToArray(_useState119, 2),
-    showForm = _useState120[0],
-    sShowForm = _useState120[1];
-  var _useState121 = useState(""),
+  var _useState121 = useState(false),
     _useState122 = _slicedToArray(_useState121, 2),
-    search = _useState122[0],
-    setSearch = _useState122[1];
-  var _useState123 = useState(null),
+    showForm = _useState122[0],
+    sShowForm = _useState122[1];
+  var _useState123 = useState(""),
     _useState124 = _slicedToArray(_useState123, 2),
-    selected = _useState124[0],
-    setSelected = _useState124[1];
-  var _useState125 = useState({
+    search = _useState124[0],
+    setSearch = _useState124[1];
+  var _useState125 = useState(null),
+    _useState126 = _slicedToArray(_useState125, 2),
+    selected = _useState126[0],
+    setSelected = _useState126[1];
+  var _useState127 = useState({
       name: "",
       phone: "",
       email: "",
@@ -25837,9 +26188,9 @@ function CustomersTab(p) {
       status: "Warm",
       source: "Walk-in"
     }),
-    _useState126 = _slicedToArray(_useState125, 2),
-    form = _useState126[0],
-    setForm = _useState126[1];
+    _useState128 = _slicedToArray(_useState127, 2),
+    form = _useState128[0],
+    setForm = _useState128[1];
   var filtered = leads.filter(function (l) {
     if (!search) return true;
     var q = search.toLowerCase();
@@ -26467,174 +26818,174 @@ function EventERP(_ref70) {
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents);
-  var _useState127 = useState("lookup"),
-    _useState128 = _slicedToArray(_useState127, 2),
-    tab = _useState128[0],
-    st = _useState128[1];
-  var _useState129 = useState(ev.inv),
+  var _useState129 = useState("lookup"),
     _useState130 = _slicedToArray(_useState129, 2),
-    inv = _useState130[0],
-    si = _useState130[1];
-  var _useState131 = useState(ev.sales),
+    tab = _useState130[0],
+    st = _useState130[1];
+  var _useState131 = useState(ev.inv),
     _useState132 = _slicedToArray(_useState131, 2),
-    sales = _useState132[0],
-    ssl = _useState132[1];
-  var _useState133 = useState(ev.leads || []),
+    inv = _useState132[0],
+    si = _useState132[1];
+  var _useState133 = useState(ev.sales),
     _useState134 = _slicedToArray(_useState133, 2),
-    leads = _useState134[0],
-    sld = _useState134[1];
-  var _useState135 = useState("USD"),
+    sales = _useState134[0],
+    ssl = _useState134[1];
+  var _useState135 = useState(ev.leads || []),
     _useState136 = _slicedToArray(_useState135, 2),
-    cur = _useState136[0],
-    scur = _useState136[1];
-  var _useState137 = useState(""),
+    leads = _useState136[0],
+    sld = _useState136[1];
+  var _useState137 = useState("USD"),
     _useState138 = _slicedToArray(_useState137, 2),
-    jc = _useState138[0],
-    sjc = _useState138[1];
-  var _useState139 = useState(null),
+    cur = _useState138[0],
+    scur = _useState138[1];
+  var _useState139 = useState(""),
     _useState140 = _slicedToArray(_useState139, 2),
-    det = _useState140[0],
-    sdet = _useState140[1];
-  var _useState141 = useState("single"),
+    jc = _useState140[0],
+    sjc = _useState140[1];
+  var _useState141 = useState(null),
     _useState142 = _slicedToArray(_useState141, 2),
-    mlTab = _useState142[0],
-    smlTab = _useState142[1];
-  var _useState143 = useState(""),
+    det = _useState142[0],
+    sdet = _useState142[1];
+  var _useState143 = useState("single"),
     _useState144 = _slicedToArray(_useState143, 2),
-    mlInput = _useState144[0],
-    smlInput = _useState144[1];
-  var _useState145 = useState([]),
+    mlTab = _useState144[0],
+    smlTab = _useState144[1];
+  var _useState145 = useState(""),
     _useState146 = _slicedToArray(_useState145, 2),
-    mlItems = _useState146[0],
-    smlItems = _useState146[1];
-  var _useState147 = useState(""),
+    mlInput = _useState146[0],
+    smlInput = _useState146[1];
+  var _useState147 = useState([]),
     _useState148 = _slicedToArray(_useState147, 2),
-    mlDisc = _useState148[0],
-    smlDisc = _useState148[1];
+    mlItems = _useState148[0],
+    smlItems = _useState148[1];
   var _useState149 = useState(""),
     _useState150 = _slicedToArray(_useState149, 2),
-    mlDiscAmt = _useState150[0],
-    smlDiscAmt = _useState150[1];
+    mlDisc = _useState150[0],
+    smlDisc = _useState150[1];
   var _useState151 = useState(""),
     _useState152 = _slicedToArray(_useState151, 2),
-    mlMarkup = _useState152[0],
-    smlMarkup = _useState152[1];
-  var _useState153 = useState([]),
+    mlDiscAmt = _useState152[0],
+    smlDiscAmt = _useState152[1];
+  var _useState153 = useState(""),
     _useState154 = _slicedToArray(_useState153, 2),
-    mlNF = _useState154[0],
-    smlNF = _useState154[1];
-  var _useState155 = useState(false),
+    mlMarkup = _useState154[0],
+    smlMarkup = _useState154[1];
+  var _useState155 = useState([]),
     _useState156 = _slicedToArray(_useState155, 2),
-    mlScan = _useState156[0],
-    smlScan = _useState156[1];
+    mlNF = _useState156[0],
+    smlNF = _useState156[1];
   var _useState157 = useState(false),
     _useState158 = _slicedToArray(_useState157, 2),
-    showFilter = _useState158[0],
-    sShowFilter = _useState158[1];
-  var _useState159 = useState("All"),
+    mlScan = _useState158[0],
+    smlScan = _useState158[1];
+  var _useState159 = useState(false),
     _useState160 = _slicedToArray(_useState159, 2),
-    fCat = _useState160[0],
-    sfCat = _useState160[1];
+    showFilter = _useState160[0],
+    sShowFilter = _useState160[1];
   var _useState161 = useState("All"),
     _useState162 = _slicedToArray(_useState161, 2),
-    fCol = _useState162[0],
-    sfCol = _useState162[1];
+    fCat = _useState162[0],
+    sfCat = _useState162[1];
   var _useState163 = useState("All"),
     _useState164 = _slicedToArray(_useState163, 2),
-    fMetal = _useState164[0],
-    sfMetal = _useState164[1];
+    fCol = _useState164[0],
+    sfCol = _useState164[1];
   var _useState165 = useState("All"),
     _useState166 = _slicedToArray(_useState165, 2),
-    fSt = _useState166[0],
-    sfSt = _useState166[1];
+    fMetal = _useState166[0],
+    sfMetal = _useState166[1];
   var _useState167 = useState("All"),
     _useState168 = _slicedToArray(_useState167, 2),
-    fShape = _useState168[0],
-    sfShape = _useState168[1];
-  var _useState169 = useState(""),
+    fSt = _useState168[0],
+    sfSt = _useState168[1];
+  var _useState169 = useState("All"),
     _useState170 = _slicedToArray(_useState169, 2),
-    fMinTc = _useState170[0],
-    sfMinTc = _useState170[1];
+    fShape = _useState170[0],
+    sfShape = _useState170[1];
   var _useState171 = useState(""),
     _useState172 = _slicedToArray(_useState171, 2),
-    fMaxTc = _useState172[0],
-    sfMaxTc = _useState172[1];
+    fMinTc = _useState172[0],
+    sfMinTc = _useState172[1];
   var _useState173 = useState(""),
     _useState174 = _slicedToArray(_useState173, 2),
-    fMinGw = _useState174[0],
-    sfMinGw = _useState174[1];
+    fMaxTc = _useState174[0],
+    sfMaxTc = _useState174[1];
   var _useState175 = useState(""),
     _useState176 = _slicedToArray(_useState175, 2),
-    fMaxGw = _useState176[0],
-    sfMaxGw = _useState176[1];
+    fMinGw = _useState176[0],
+    sfMinGw = _useState176[1];
   var _useState177 = useState(""),
     _useState178 = _slicedToArray(_useState177, 2),
-    fMinNw = _useState178[0],
-    sfMinNw = _useState178[1];
+    fMaxGw = _useState178[0],
+    sfMaxGw = _useState178[1];
   var _useState179 = useState(""),
     _useState180 = _slicedToArray(_useState179, 2),
-    fMaxNw = _useState180[0],
-    sfMaxNw = _useState180[1];
+    fMinNw = _useState180[0],
+    sfMinNw = _useState180[1];
   var _useState181 = useState(""),
     _useState182 = _slicedToArray(_useState181, 2),
-    fMinFp = _useState182[0],
-    sfMinFp = _useState182[1];
+    fMaxNw = _useState182[0],
+    sfMaxNw = _useState182[1];
   var _useState183 = useState(""),
     _useState184 = _slicedToArray(_useState183, 2),
-    fMaxFp = _useState184[0],
-    sfMaxFp = _useState184[1];
-  var _useState185 = useState(false),
+    fMinFp = _useState184[0],
+    sfMinFp = _useState184[1];
+  var _useState185 = useState(""),
     _useState186 = _slicedToArray(_useState185, 2),
-    scan = _useState186[0],
-    sscan = _useState186[1];
-  var _useState187 = useState(null),
+    fMaxFp = _useState186[0],
+    sfMaxFp = _useState186[1];
+  var _useState187 = useState(false),
     _useState188 = _slicedToArray(_useState187, 2),
-    invm = _useState188[0],
-    sinvm = _useState188[1];
-  var _useState189 = useState(false),
+    scan = _useState188[0],
+    sscan = _useState188[1];
+  var _useState189 = useState(null),
     _useState190 = _slicedToArray(_useState189, 2),
-    showSwitch = _useState190[0],
-    ssw = _useState190[1];
+    invm = _useState190[0],
+    sinvm = _useState190[1];
   var _useState191 = useState(false),
     _useState192 = _slicedToArray(_useState191, 2),
-    showUser = _useState192[0],
-    ssu = _useState192[1];
-  var _useState193 = useState("stock"),
+    showSwitch = _useState192[0],
+    ssw = _useState192[1];
+  var _useState193 = useState(false),
     _useState194 = _slicedToArray(_useState193, 2),
-    invTab = _useState194[0],
-    sivTab = _useState194[1];
-  var _useState195 = useState(""),
+    showUser = _useState194[0],
+    ssu = _useState194[1];
+  var _useState195 = useState("stock"),
     _useState196 = _slicedToArray(_useState195, 2),
-    isq = _useState196[0],
-    sisq = _useState196[1];
-  var _useState197 = useState("All"),
+    invTab = _useState196[0],
+    sivTab = _useState196[1];
+  var _useState197 = useState(""),
     _useState198 = _slicedToArray(_useState197, 2),
-    ist = _useState198[0],
-    sist = _useState198[1];
+    isq = _useState198[0],
+    sisq = _useState198[1];
   var _useState199 = useState("All"),
     _useState200 = _slicedToArray(_useState199, 2),
-    icat = _useState200[0],
-    sicat = _useState200[1];
-  var _useState201 = useState("Exhibition"),
+    ist = _useState200[0],
+    sist = _useState200[1];
+  var _useState201 = useState("All"),
     _useState202 = _slicedToArray(_useState201, 2),
-    auditLoc = _useState202[0],
-    saLoc = _useState202[1];
-  var _useState203 = useState([]),
+    icat = _useState202[0],
+    sicat = _useState202[1];
+  var _useState203 = useState("Exhibition"),
     _useState204 = _slicedToArray(_useState203, 2),
-    auditScanned = _useState204[0],
-    saScanned = _useState204[1];
-  var _useState205 = useState(ev.audits || []),
+    auditLoc = _useState204[0],
+    saLoc = _useState204[1];
+  var _useState205 = useState([]),
     _useState206 = _slicedToArray(_useState205, 2),
-    audits = _useState206[0],
-    sAudits = _useState206[1];
-  var _useState207 = useState(ev.lookupHistory || []),
+    auditScanned = _useState206[0],
+    saScanned = _useState206[1];
+  var _useState207 = useState(ev.audits || []),
     _useState208 = _slicedToArray(_useState207, 2),
-    lookupHistory = _useState208[0],
-    sLookupHistory = _useState208[1];
-  var _useState209 = useState(0),
+    audits = _useState208[0],
+    sAudits = _useState208[1];
+  var _useState209 = useState(ev.lookupHistory || []),
     _useState210 = _slicedToArray(_useState209, 2),
-    imgTick = _useState210[0],
-    sImgTick = _useState210[1];
+    lookupHistory = _useState210[0],
+    sLookupHistory = _useState210[1];
+  var _useState211 = useState(0),
+    _useState212 = _slicedToArray(_useState211, 2),
+    imgTick = _useState212[0],
+    sImgTick = _useState212[1];
   useEffect(function () {
     var nextInv = ev.inv || [];
     si(nextInv);
@@ -26651,14 +27002,14 @@ function EventERP(_ref70) {
       });
     });
   }, [ev.id, ev.localUpdatedAt, ev.syncedAt]);
-  var _useState211 = useState("All"),
-    _useState212 = _slicedToArray(_useState211, 2),
-    hstaff = _useState212[0],
-    shs = _useState212[1];
-  var _useState213 = useState("overview"),
+  var _useState213 = useState("All"),
     _useState214 = _slicedToArray(_useState213, 2),
-    atab = _useState214[0],
-    sat = _useState214[1];
+    hstaff = _useState214[0],
+    shs = _useState214[1];
+  var _useState215 = useState("overview"),
+    _useState216 = _slicedToArray(_useState215, 2),
+    atab = _useState216[0],
+    sat = _useState216[1];
   var syncUp = function syncUp(ni, ns, nl, na, nlh) {
     return onUpdateEvent(_objectSpread(_objectSpread({}, ev), {}, {
       inv: ni || inv,
@@ -27773,26 +28124,26 @@ function EventERP(_ref70) {
   })))));
 }
 function App() {
-  var _useState215 = useState(null),
-    _useState216 = _slicedToArray(_useState215, 2),
-    user = _useState216[0],
-    su = _useState216[1];
-  var _useState217 = useState([]),
+  var _useState217 = useState(null),
     _useState218 = _slicedToArray(_useState217, 2),
-    events = _useState218[0],
-    sevents = _useState218[1];
-  var _useState219 = useState(loadUsers),
+    user = _useState218[0],
+    su = _useState218[1];
+  var _useState219 = useState([]),
     _useState220 = _slicedToArray(_useState219, 2),
-    appUsers = _useState220[0],
-    sappUsers = _useState220[1];
-  var _useState221 = useState(false),
+    events = _useState220[0],
+    sevents = _useState220[1];
+  var _useState221 = useState(loadUsers),
     _useState222 = _slicedToArray(_useState221, 2),
-    dataReady = _useState222[0],
-    setDataReady = _useState222[1];
+    appUsers = _useState222[0],
+    sappUsers = _useState222[1];
   var _useState223 = useState(false),
     _useState224 = _slicedToArray(_useState223, 2),
-    cloudReady = _useState224[0],
-    setCloudReady = _useState224[1];
+    dataReady = _useState224[0],
+    setDataReady = _useState224[1];
+  var _useState225 = useState(false),
+    _useState226 = _slicedToArray(_useState225, 2),
+    cloudReady = _useState226[0],
+    setCloudReady = _useState226[1];
   var dark = useDark();
   var cloudSyncRef = useRef(null);
   var autoSyncRef = useRef(null);
@@ -27852,7 +28203,7 @@ function App() {
         }
       }, _callee7);
     }));
-    return function runCloudSave(_x29, _x30, _x31) {
+    return function runCloudSave(_x41, _x42, _x43) {
       return _ref71.apply(this, arguments);
     };
   }();
@@ -28101,14 +28452,14 @@ function App() {
       if (style.parentNode) style.parentNode.removeChild(style);
     };
   }, []);
-  var _useState225 = useState(null),
-    _useState226 = _slicedToArray(_useState225, 2),
-    activeEv = _useState226[0],
-    sae = _useState226[1];
   var _useState227 = useState(null),
     _useState228 = _slicedToArray(_useState227, 2),
-    manageEv = _useState228[0],
-    smev = _useState228[1];
+    activeEv = _useState228[0],
+    sae = _useState228[1];
+  var _useState229 = useState(null),
+    _useState230 = _slicedToArray(_useState229, 2),
+    manageEv = _useState230[0],
+    smev = _useState230[1];
   var upEv = function upEv(ev) {
     return sevents(function (p) {
       var next = ev ? p.map(function (e) {
@@ -28256,7 +28607,7 @@ function App() {
         }
       }, _callee10);
     }));
-    return function handleLogin(_x32) {
+    return function handleLogin(_x44) {
       return _ref79.apply(this, arguments);
     };
   }();

@@ -48,6 +48,7 @@ module.exports = async function handler(req, res) {
         events: data.events || [],
         users: data.users || null,
         currency: data.currency || null,
+        deletedEventIds: data.deletedEventIds || [],
       };
       if (req.query && req.query.debug === "1") {
         payload.driveStatus = await getDriveStatus();

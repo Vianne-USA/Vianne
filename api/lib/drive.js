@@ -197,14 +197,38 @@ async function downloadBinary(fileId) {
   return buf;
 }
 
+function invHistKeyServer(h) {
+  return (h && h.id) || ((h && h.fileName) || "") + "|" + ((h && h.date) || "");
+}
+
+async function resolveEventFolderId(eventId) {
+  const prev = await loadMasterData();
+  let ev = (prev?.events || []).find((e) => e && e.id === eventId);
+  if (!ev) throw new Error("Event not found: " + eventId);
+  ev = await hydrateEventFromFolder(ev);
+  if (!ev.driveFolderId) throw new Error("Event has no Drive folder");
+  return { ev, folderId: ev.driveFolderId };
+}
+
+async function listInventorySpreadsheets(folderId) {
+  const q =
+    "'" +
+    folderId +
+    "' in parents and trashed=false and mimeType!='application/vnd.google-apps.folder' and mimeType!='application/json' and (mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' or mimeType='application/vnd.ms-excel' or name contains '.xlsx' or name contains '.xls')";
+  const r = await drive(
+    "/files?q=" +
+      encodeURIComponent(q) +
+      "&fields=files(id,name,mimeType,modifiedTime)&orderBy=modifiedTime desc&pageSize=20"
+  );
+  return (r.files || []).filter(
+    (f) => f && f.name && f.name !== "event-data.json" && !f.name.endsWith(".json")
+  );
+}
+
 async function downloadInventoryFileForEvent(eventId, fileId) {
   if (!isConfigured()) throw new Error("Google Drive not configured on server");
   if (!eventId || !fileId) throw new Error("eventId and fileId required");
-  const prev = await loadMasterData();
-  const ev = (prev?.events || []).find((e) => e && e.id === eventId);
-  if (!ev) throw new Error("Event not found: " + eventId);
-  const folderId = ev.driveFolderId;
-  if (!folderId) throw new Error("Event has no Drive folder");
+  const { folderId } = await resolveEventFolderId(eventId);
   const hit = await findFileById(fileId);
   if (!hit || !hit.id) throw new Error("Inventory file not found");
   if (hit.trashed) throw new Error("Inventory file was deleted");
@@ -213,6 +237,14 @@ async function downloadInventoryFileForEvent(eventId, fileId) {
     throw new Error("Inventory file does not belong to this event");
   }
   return downloadBinary(fileId);
+}
+
+async function downloadLatestInventoryForEvent(eventId) {
+  if (!isConfigured()) throw new Error("Google Drive not configured on server");
+  const { folderId } = await resolveEventFolderId(eventId);
+  const files = await listInventorySpreadsheets(folderId);
+  if (!files.length) throw new Error("No inventory spreadsheet found in event folder");
+  return downloadBinary(files[0].id);
 }
 
 async function findFileById(fileId) {
@@ -512,11 +544,34 @@ async function syncEventFolder(ev, root, inventoryFiles) {
     syncedAt: new Date().toISOString(),
   };
   const filesForEvent = (inventoryFiles || []).filter((f) => f.eventId === ev.id);
-  const withFiles =
+  let withFiles =
     filesForEvent.length > 0
       ? await uploadInventoryFilesToFolder(payload, folderId, filesForEvent)
       : payload;
   const existing = await findFile("event-data.json", folderId);
+  if (existing) {
+    try {
+      const prev = await downloadJson(existing.id);
+      if (prev && Array.isArray(prev.invHistory) && Array.isArray(withFiles.invHistory)) {
+        const prevByKey = new Map(prev.invHistory.map((h) => [invHistKeyServer(h), h]));
+        withFiles = {
+          ...withFiles,
+          invHistory: withFiles.invHistory.map((h) => {
+            const p = prevByKey.get(invHistKeyServer(h));
+            if (!p) return h;
+            return {
+              ...h,
+              driveFileId: h.driveFileId || p.driveFileId,
+              driveFileName: h.driveFileName || p.driveFileName,
+              driveSyncedAt: h.driveSyncedAt || p.driveSyncedAt,
+            };
+          }),
+        };
+      }
+    } catch (e) {
+      console.warn("Preserve invHistory drive ids", ev.name, e.message);
+    }
+  }
   const file = await uploadJson(
     "event-data.json",
     withFiles,
@@ -733,6 +788,7 @@ module.exports = {
   saveMasterData,
   uploadInventoryFileForEvent,
   downloadInventoryFileForEvent,
+  downloadLatestInventoryForEvent,
   uploadReceiptToDrive,
   driveErrorMessage,
   getDriveStatus,

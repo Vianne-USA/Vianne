@@ -2,6 +2,7 @@ const {
   isDriveConfigured,
   uploadInventoryFileForEvent,
   downloadInventoryFileForEvent,
+  downloadLatestInventoryForEvent,
   driveErrorMessage,
 } = require("./lib/sync-store");
 
@@ -32,10 +33,16 @@ module.exports = async function handler(req, res) {
     try {
       const eventId = req.query?.eventId;
       const fileId = req.query?.fileId;
-      if (!eventId || !fileId) {
-        return res.status(400).json({ ok: false, error: "eventId and fileId required" });
+      const latest = req.query?.latest === "1" || req.query?.latest === "true";
+      if (!eventId) {
+        return res.status(400).json({ ok: false, error: "eventId required" });
       }
-      const buffer = await downloadInventoryFileForEvent(eventId, fileId);
+      if (!latest && !fileId) {
+        return res.status(400).json({ ok: false, error: "fileId or latest=1 required" });
+      }
+      const buffer = latest
+        ? await downloadLatestInventoryForEvent(eventId)
+        : await downloadInventoryFileForEvent(eventId, fileId);
       res.setHeader(
         "Content-Type",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

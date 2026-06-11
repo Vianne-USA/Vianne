@@ -37,6 +37,76 @@ function buildIdByRowFromInv(inv){
   });
   return idByRow;
 }
+function ensureXLSXAsync(){
+  return new Promise(res=>ensureXLSX(()=>res()));
+}
+async function parseIdByRowFromBuffer(buf){
+  await ensureXLSXAsync();
+  const X=window.XLSX;
+  if(!X||!buf)return {};
+  try{
+    const wb=X.read(new Uint8Array(buf),{type:"array"});
+    let idByRow={};
+    for(const sn of wb.SheetNames){
+      const ws=wb.Sheets[sn];
+      if(!ws)continue;
+      const parsed=parseSheetRows(X,ws);
+      if(Object.keys(parsed.idByRow).length>=Object.keys(idByRow).length)idByRow=parsed.idByRow;
+    }
+    return idByRow;
+  }catch(e){return {};}
+}
+function arrayBufferToBase64(buf){
+  const bytes=new Uint8Array(buf);
+  let bin="";
+  const step=0x8000;
+  for(let i=0;i<bytes.length;i+=step)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+step));
+  return btoa(bin);
+}
+async function idbSaveInvBuffer(eventId,fileName,buf){
+  if(!eventId||!buf||!fileName)return;
+  try{
+    const db=await idbOpen();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(IDB_INV_FILE_STORE,"readwrite");
+      tx.objectStore(IDB_INV_FILE_STORE).put({
+        id:String(eventId)+":"+Date.now(),
+        eventId:String(eventId),
+        fileName,
+        uploadedAt:new Date().toISOString(),
+        mimeType:mimeForFileName(fileName),
+        contentBase64:arrayBufferToBase64(buf),
+      });
+      tx.oncomplete=()=>res();
+      tx.onerror=()=>rej(tx.error);
+    });
+  }catch(e){console.warn("Inventory buffer save failed",e);}
+}
+async function extractImagesFromBuffer(buf,inv,fileName){
+  if(!buf)return 0;
+  await ensureJSZipAsync();
+  let idByRow=buildIdByRowFromInv(inv);
+  if(!Object.keys(idByRow).length)idByRow=await parseIdByRowFromBuffer(buf);
+  if(!Object.keys(idByRow).length)return 0;
+  const imgMap=await extractXLImages(buf,idByRow);
+  const n=Object.keys(imgMap).length;
+  if(n)attachItemImages(inv,imgMap);
+  return n;
+}
+async function fetchEventInvBuffer(ev){
+  await cloudFetchData();
+  const latest=[...(ev.invHistory||[])].reverse().find(h=>h&&/\.xlsx?$/i.test(h.fileName||""));
+  const urls=[];
+  if(latest&&latest.driveFileId)urls.push("/api/inventory-file?eventId="+encodeURIComponent(ev.id)+"&fileId="+encodeURIComponent(latest.driveFileId));
+  if(ev.driveFolderId)urls.push("/api/inventory-file?eventId="+encodeURIComponent(ev.id)+"&latest=1");
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{cache:"no-store"});
+      if(r.ok)return{buf:await r.arrayBuffer(),fileName:latest?.fileName||"inventory.xlsx"};
+    }catch(e){console.warn("Fetch inventory sheet",e);}
+  }
+  return null;
+}
 async function prefetchInvImages(ids){
   const list=[...new Set((ids||[]).map(id=>String(id||"").toUpperCase()).filter(Boolean))];
   if(!list.length)return 0;
@@ -55,6 +125,7 @@ function countInvImages(inv){
 async function ensureEventInvImages(ev){
   const invList=ev?.inv||[];
   const ids=invList.map(i=>i.id);
+  if(!ids.length)return 0;
   let loaded=await prefetchInvImages(ids);
   let missing=ids.filter(id=>!resolveItemImage(id,invItem(invList,id)));
   if(missing.length){
@@ -65,20 +136,16 @@ async function ensureEventInvImages(ev){
       missing=ids.filter(id=>!resolveItemImage(id,invItem(invList,id)));
     }
   }
-  if(!missing.length||!isCloudOnline())return loaded;
-  const latest=[...(ev.invHistory||[])].reverse().find(h=>h&&h.driveFileId&&/\.xlsx?$/i.test(h.fileName||""));
-  if(!latest)return loaded;
-  try{
-    await ensureJSZipAsync();
-    const r=await fetch("/api/inventory-file?eventId="+encodeURIComponent(ev.id)+"&fileId="+encodeURIComponent(latest.driveFileId),{cache:"no-store"});
-    if(!r.ok)return loaded;
-    const buf=await r.arrayBuffer();
-    const idByRow=buildIdByRowFromInv(invList);
-    if(!Object.keys(idByRow).length)return loaded;
-    const imgMap=await extractXLImages(buf,idByRow);
-    const n=Object.keys(imgMap).length;
-    if(n){attachItemImages(invList,imgMap);loaded+=n;notifyImagesChanged();}
-  }catch(e){console.warn("Drive image refresh",e);}
+  if(!missing.length)return loaded;
+  const remote=await fetchEventInvBuffer(ev);
+  if(remote&&remote.buf){
+    const n=await extractImagesFromBuffer(remote.buf,invList,remote.fileName);
+    if(n){
+      loaded+=n;
+      notifyImagesChanged();
+      if(ev.id)await idbSaveInvBuffer(ev.id,remote.fileName,remote.buf);
+    }
+  }
   return loaded;
 }
 async function applyInventoryUpload(ev,file,items,mode,by){
@@ -379,18 +446,12 @@ async function idbGetLatestInvFile(eventId){
 }
 async function extractImagesFromInvBase64(contentBase64,inv){
   if(!contentBase64)return 0;
-  await ensureJSZipAsync();
   try{
     const bin=atob(contentBase64);
     const buf=new ArrayBuffer(bin.length);
     const view=new Uint8Array(buf);
     for(let i=0;i<bin.length;i++)view[i]=bin.charCodeAt(i);
-    const idByRow=buildIdByRowFromInv(inv);
-    if(!Object.keys(idByRow).length)return 0;
-    const imgMap=await extractXLImages(buf,idByRow);
-    const n=Object.keys(imgMap).length;
-    if(n)attachItemImages(inv,imgMap);
-    return n;
+    return await extractImagesFromBuffer(buf,inv,"inventory.xlsx");
   }catch(e){console.warn("Image extract from stored file",e);return 0;}
 }
 async function ensureImagesFromInvFile(file,inv){
@@ -519,7 +580,17 @@ function mergeEventPair(local,cloud){
   const pickLocal=localT>cloudT||(localT===cloudT&&localInv>=cloudInv);
   const meta=pickLocal?{...cloud,...local}:{...local,...cloud};
   const invHistKey=h=>(h&&h.id)||((h&&h.fileName)||"")+"|"+((h&&h.date)||"");
-  const invHistory=[...new Map([...(local.invHistory||[]),...(cloud.invHistory||[])].map(h=>[invHistKey(h),h])).values()];
+  const mergeHist=(a,b)=>{
+    if(!a)return b;
+    if(!b)return a;
+    return{...a,...b,driveFileId:b.driveFileId||a.driveFileId,driveFileName:b.driveFileName||a.driveFileName,driveSyncedAt:b.driveSyncedAt||a.driveSyncedAt};
+  };
+  const histMap=new Map();
+  [...(cloud.invHistory||[]),...(local.invHistory||[])].forEach(h=>{
+    const k=invHistKey(h);
+    histMap.set(k,mergeHist(histMap.get(k),h));
+  });
+  const invHistory=[...histMap.values()];
   return{
     ...meta,
     inv:localInv>=cloudInv?(local.inv||[]):(cloud.inv||[]),
@@ -768,11 +839,7 @@ async function cloudSave(events,users,deletedEvents){
     return d;
   };
   try{
-    if(inventoryFiles.length){
-      const failed=await cloudUploadInventoryFiles(inventoryFiles);
-      if(failed.length)_pendingInvFiles.push(...failed);
-    }
-    const d=await trySave([]);
+    const d=await trySave(inventoryFiles);
     _cloudOnline=true;
     if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
     return d;
@@ -4484,7 +4551,7 @@ function CustomersTab(p){
   );
 }
 
-function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEvent,onBack,onLogout,onCloudSync}){
+function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEvent,onBack,onLogout,onCloudSync,cloudReady}){
   const pr=gp(user.role, user.perms);
   const users=allUsers;
   const accessibleEvents=filterEventsForUser(user,allEvents);
@@ -4538,8 +4605,11 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
     sAudits(ev.audits||[]);
     sLookupHistory(ev.lookupHistory||[]);
     sdet(d=>d?invItem(nextInv,d):null);
-    ensureEventInvImages(ev).then(n=>{if(n)sImgTick(x=>x+1);});
   },[ev.id,ev.localUpdatedAt,ev.syncedAt]);
+  useEffect(()=>{
+    if(cloudReady===false)return;
+    ensureEventInvImages(ev).then(n=>{if(n)sImgTick(x=>x+1);});
+  },[cloudReady,ev.id,ev.syncedAt,ev.localUpdatedAt,(ev.inv||[]).length,(ev.invHistory||[]).map(h=>h.driveFileId).join(",")]);
   const [hstaff,shs]=useState("All");
   const [atab,sat]=useState("overview");
   const syncUp=(ni,ns,nl,na,nlh)=>onUpdateEvent({...ev,inv:ni||inv,sales:ns||sales,leads:nl||leads,audits:na||audits,lookupHistory:nlh!==undefined?nlh:lookupHistory});
@@ -4902,6 +4972,7 @@ export default function App(){
       ev={events.find(e=>e.id===activeEv.id)||activeEv}
       user={user} allUsers={appUsers} onUsersChange={updateUsers}
       allEvents={events}
+      cloudReady={cloudReady}
       onSwitch={ev=>{if(!userHasEventAccess(user,ev.id))return;sae(ev);}}
       onUpdateEvent={ev=>{upEv(ev);sae(ev);}}
       onBack={()=>sae(null)}

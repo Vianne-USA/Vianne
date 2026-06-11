@@ -332,6 +332,18 @@ function applyDeletedFilter(events,extraIds){
   if(!ids.size)return events||[];
   return (events||[]).filter(e=>e&&!ids.has(e.id));
 }
+function eventsAheadOfCloud(localEvents,cloudEvents){
+  const cloudById=new Map((cloudEvents||[]).map(e=>[e.id,e]));
+  const local=localEvents||[];
+  const cloud=cloudEvents||[];
+  if(local.length!==cloud.length)return true;
+  return local.some(e=>{
+    if(!e||!e.id)return false;
+    const c=cloudById.get(e.id);
+    if(!c)return true;
+    return eventTime(e)>eventTime(c);
+  });
+}
 function mergeDeletedRecords(a,b){
   const byId=new Map();
   [...(a||[]),...(b||[])].forEach(d=>{if(d&&d.id)byId.set(d.id,d);});
@@ -1926,7 +1938,7 @@ function SingleLookup(p){
                   <input style={{...S.inp({marginBottom:4}),borderColor:G}} placeholder="Search code, collection, metal, category..." value={jc} onChange={ev=>sjc(ev.target.value)}/>
                   <div style={{fontSize:10,color:T4,marginBottom:7}}>Type to search all {inv.length} items</div>
                   <div style={{background:"#edf7f0",border:"1px solid rgba(30,92,69,0.2)",borderRadius:8,padding:"7px 11px",display:"flex",alignItems:"center",gap:7}}>
-                    <span style={{fontSize:12}}>{isCloudOnline()?"☁":"💾"}</span><span style={{fontSize:11,color:G,fontWeight:600}}>{isCloudOnline()?"Company cloud sync on":"Saved locally only"}</span>
+                    <span style={{fontSize:12}}>{isCloudOnline()?"☁":"💾"}</span><span style={{fontSize:11,color:G,fontWeight:600}}>{isCloudOnline()?"Auto-sync on — saves every few seconds":"Saved locally only"}</span>
                   </div>
                 </div>
 
@@ -3126,7 +3138,7 @@ function CloudStoragePanel({pr,allEvents,appUsers,onSynced}){
         Events and inventory sync through <strong>Google Drive</strong> (Shared Drive) so every user and device sees the same data.
       </div>
       <div style={{fontSize:10,color:online&&driveOk?"#27ae60":AM,fontWeight:600,marginBottom:8}}>
-        {online&&driveOk?(driveReadOk?"✓ Google Drive sync active — changes share to all devices":"✓ Drive connected — tap Sync below to push your data"):"⚠ Google Drive not connected — data stays on this device only"}
+        {online&&driveOk?(driveReadOk?"✓ Auto-sync active — changes save to Drive every few seconds":"✓ Drive connected — auto-sync starting…"):"⚠ Google Drive not connected — data stays on this device only"}
       </div>
       {lastErr&&<div style={{fontSize:10,color:RE,background:REBG,borderRadius:8,padding:"8px 10px",marginBottom:8,lineHeight:1.45}}>{lastErr}</div>}
       {(!online||!driveOk)&&<div style={{fontSize:10,color:T2,background:CRD,borderRadius:8,padding:"10px 12px",marginBottom:10,lineHeight:1.5}}>
@@ -3142,7 +3154,8 @@ function CloudStoragePanel({pr,allEvents,appUsers,onSynced}){
         {ds.hasCurrency?" · currency saved":" · currency pending"}
         {(ds.invHistoryTotal||0)>0&&<> · Excel files {ds.invHistoryOnDrive||0}/{ds.invHistoryTotal}</>}
       </div>}
-      <button style={S.btn({padding:"10px",fontSize:12})} disabled={busy} onClick={syncNow}>{busy?"Syncing…":"↻ Sync all devices now"}</button>
+      <button style={S.bOut({padding:"10px",fontSize:12,width:"100%"})} disabled={busy} onClick={syncNow}>{busy?"Syncing…":"↻ Force sync now"}</button>
+      <div style={{fontSize:9,color:T4,marginTop:6,textAlign:"center"}}>Auto-sync runs in the background — use this only if another device looks out of date.</div>
     </div>
   );
 }
@@ -4161,8 +4174,11 @@ export default function App(){
   const [cloudReady,setCloudReady]=useState(false);
   const dark=useDark();
   const cloudSyncRef=useRef(null);
+  const autoSyncRef=useRef(null);
   const pendingDeletesRef=useRef([]);
   const pendingCloudSaveRef=useRef(false);
+  const localDirtyRef=useRef(false);
+  const cloudSyncBusyRef=useRef(false);
   const eventsRef=useRef([]);
   const appUsersRef=useRef([]);
   useEffect(()=>{eventsRef.current=events;},[events]);
@@ -4170,19 +4186,46 @@ export default function App(){
   const runCloudSave=async(snap,usersSnap,deleted,{silent=true}={})=>{
     const r=await flushCloudSync(snap||eventsRef.current,usersSnap||appUsersRef.current,deleted||[],{silent});
     if(r.ok){
+      localDirtyRef.current=false;
+      pendingCloudSaveRef.current=false;
       if(r.synced&&r.synced.length)sevents(p=>{const m=mergeEvents(p,r.synced);eventsRef.current=m;return m;});
       if(Array.isArray(r.users)&&r.users.length)sappUsers(p=>{const m=mergeUserDefaults(r.users);appUsersRef.current=m;saveUsers(m);return m;});
       if(r.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(r.currency));Object.assign(CURR,r.currency);}catch(e){}}
+    }else{
+      pendingCloudSaveRef.current=true;
     }
     return r;
   };
-  const scheduleCloudSave=(delay=800,snapshot,{silent=true,notify=false}={})=>{
-    if(!cloudReady||!isCloudOnline()){
-      pendingCloudSaveRef.current=true;
-      return;
+  const runAutoSyncCycle=async({silent=true}={})=>{
+    if(!dataReady||!cloudReady||cloudSyncBusyRef.current)return;
+    cloudSyncBusyRef.current=true;
+    try{
+      const d=await cloudFetchData();
+      if(!d||!d.configured)return;
+      applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
+      const needsPush=localDirtyRef.current||pendingCloudSaveRef.current||pendingDeletesRef.current.length>0||eventsAheadOfCloud(eventsRef.current,d.events||[]);
+      if(needsPush){
+        const deleted=pendingDeletesRef.current.splice(0);
+        const r=await runCloudSave(eventsRef.current,appUsersRef.current,deleted,{silent});
+        if(!r.ok&&deleted.length)pendingDeletesRef.current.unshift(...deleted);
+      }
+    }finally{
+      cloudSyncBusyRef.current=false;
     }
+  };
+  const scheduleCloudSave=(delay=400,snapshot,{silent=true,notify=false}={})=>{
+    localDirtyRef.current=true;
     if(cloudSyncRef.current)clearTimeout(cloudSyncRef.current);
     cloudSyncRef.current=setTimeout(async()=>{
+      if(!cloudReady){
+        pendingCloudSaveRef.current=true;
+        return;
+      }
+      if(!isCloudOnline())await cloudFetchData();
+      if(!isCloudOnline()){
+        pendingCloudSaveRef.current=true;
+        return;
+      }
       const deleted=pendingDeletesRef.current.splice(0);
       const r=await runCloudSave(snapshot||eventsRef.current,appUsersRef.current,deleted,{silent:!notify});
       if(!r.ok&&deleted.length)pendingDeletesRef.current.unshift(...deleted);
@@ -4218,32 +4261,27 @@ export default function App(){
     if(u)su(u);
   },[dataReady,appUsers,user]);
   useEffect(()=>{
-    if(!dataReady||!cloudReady||!isCloudOnline())return;
-    runCloudSave(eventsRef.current,appUsersRef.current,[],{silent:true});
-    if(pendingCloudSaveRef.current){
-      pendingCloudSaveRef.current=false;
-      scheduleCloudSave(800,eventsRef.current,{silent:true});
+    if(!dataReady||!cloudReady)return;
+    runAutoSyncCycle({silent:true});
+    if(pendingCloudSaveRef.current||localDirtyRef.current){
+      scheduleCloudSave(0,eventsRef.current,{silent:true});
     }
   },[cloudReady,dataReady]);
   useEffect(()=>{
     if(!dataReady)return;
     saveEvents(events);
-    scheduleCloudSave();
-    return()=>{if(cloudSyncRef.current)clearTimeout(cloudSyncRef.current);};
-  },[events,appUsers,cloudReady,dataReady]);
+  },[events,dataReady]);
   useEffect(()=>{
-    if(!cloudReady||!isCloudOnline())return;
-    const pull=async()=>{
-      const d=await cloudFetchData();
-      if(!d||!d.configured)return;
-      applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
-    };
-    pull();
-    const id=setInterval(pull,8000);
-    const onVis=()=>{if(document.visibilityState==="visible")pull();};
+    if(!cloudReady||!dataReady)return;
+    runAutoSyncCycle({silent:true});
+    autoSyncRef.current=setInterval(()=>runAutoSyncCycle({silent:true}),5000);
+    const onVis=()=>{if(document.visibilityState==="visible")runAutoSyncCycle({silent:true});};
     document.addEventListener("visibilitychange",onVis);
-    return()=>{clearInterval(id);document.removeEventListener("visibilitychange",onVis);};
-  },[cloudReady]);
+    return()=>{
+      if(autoSyncRef.current)clearInterval(autoSyncRef.current);
+      document.removeEventListener("visibilitychange",onVis);
+    };
+  },[cloudReady,dataReady]);
   useEffect(()=>{saveUsers(appUsers);},[appUsers]);
   useEffect(()=>{
     if(!user)return;
@@ -4264,7 +4302,10 @@ export default function App(){
     const next=ev?p.map(e=>e.id===ev.id?{...ev,localUpdatedAt:new Date().toISOString()}:e):p;
     eventsRef.current=next;
     saveEvents(next);
-    if(ev)scheduleCloudSave(800,next,{silent:true,notify:!!((ev.inv||[]).length||(ev.invHistory||[]).length)});
+    if(ev){
+      localDirtyRef.current=true;
+      scheduleCloudSave(400,next,{silent:true,notify:!!((ev.inv||[]).length||(ev.invHistory||[]).length||(ev.sales||[]).length||(ev.leads||[]).length)});
+    }
     return next;
   });
   const updateUsers=next=>{
@@ -4274,6 +4315,7 @@ export default function App(){
       prot.forEach(p=>{if(!out.find(u=>u.id===p.id))out=[...out,p];});
       appUsersRef.current=out;
       saveUsers(out);
+      localDirtyRef.current=true;
       setTimeout(()=>scheduleCloudSave(400,eventsRef.current,{silent:false,notify:true}),50);
       return out;
     });

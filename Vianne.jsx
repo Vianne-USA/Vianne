@@ -138,6 +138,22 @@ const PA={
 
 const f$=n=>"$"+Number(n||0).toFixed(2);
 const uid=p=>(p||"X")+Date.now().toString(36).slice(-4).toUpperCase();
+function receiptNumberPrefix(eventName){return String(eventName||"Event").trim();}
+function maxReceiptSeq(eventName,sales){
+  const prefix=receiptNumberPrefix(eventName);
+  const esc=prefix.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  const re=new RegExp("^"+esc+"\\s+(\\d+)$","i");
+  let max=0;
+  (sales||[]).forEach(s=>{
+    const m=String(s.id||"").match(re);
+    if(m){const n=parseInt(m[1],10);if(!isNaN(n)&&n>max)max=n;}
+  });
+  return max;
+}
+function nextReceiptNumber(eventName,sales,offset=0){
+  const prefix=receiptNumberPrefix(eventName);
+  return prefix+" "+(maxReceiptSeq(eventName,sales)+1+offset);
+}
 const dstr=()=>new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
 const tstr=()=>new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
 const USERS=[{id:1,name:"Nilay",un:"nilay",pw:"nilay123",role:"Admin"},{id:2,name:"Jimit",un:"jimit",pw:"jimit123",role:"Manager"},{id:3,name:"Ruchit",un:"ruchit",pw:"ruchit123",role:"Admin"},{id:4,name:"Naresh",un:"naresh",pw:"naresh123",role:"Staff"},{id:5,name:"Naman",un:"naman",pw:"naman123",role:"Admin"},{id:6,name:"Dhruvit",un:"dhruvit",pw:"dhruvit123",role:"Admin"}];
@@ -1157,7 +1173,7 @@ function SaleSuccess({sale,item,fc,cur,onDone,onPrint}){
   );
 }
 
-function ItemCard({item,user,inv,leads,cur,preCustName,onSell,onBack,onAddLead}){
+function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,onBack,onAddLead}){
   const pr=gp(user.role,user.perms);
   const [mode,sm]=useState(null),[saleResult,setSaleResult]=useState(null),[f,sf]=useState({cu:preCustName||"",ph:"",email:"",company:"",source:"Walk-in",pm:"NEFT",disc:0,remark:"",cc_type:"pct",cc_val:""});
   const [matchedCust,setMatchedCust]=useState(null);
@@ -1196,7 +1212,7 @@ function ItemCard({item,user,inv,leads,cur,preCustName,onSell,onBack,onAddLead})
       custId=uid("LD");
       const newCust={id:custId,name:f.cu.trim(),phone:f.ph.trim(),email:f.email.trim(),company:f.company.trim(),notes:"",status:"Warm",source:f.source||"Walk-in",contact:f.email.trim(),created:dstr()};
       onAddLead(newCust,"add");
-    }const _s={id:uid("INV"),custId:custId||"",custName:f.cu.trim(),phone:f.ph.trim(),email:f.email.trim(),company:f.company.trim(),itemId:item.id,itemName:item.cat+" · "+item.col+" · "+item.metal,metal:item.metal,col:item.col,sz:item.sz,gw:item.gw,nw:item.nw,tc:item.tc,sp:item.sp,style:item.style,price:subtotal,disc:f.disc,cgst:0,sgst:0,ccType:f.cc_type,ccVal:f.cc_val,ccAmt:ccAmt,total:tot,currency:cur||"USD",margin,date:dstr(),time:tstr(),payment:f.pm,staff:user.name,st:mode==="d"?"pending":"completed",gt:"",remark:f.remark};setSaleResult(_s);onSell(_s);};
+    }const _s={id:nextReceiptNumber(eventName,sales),custId:custId||"",custName:f.cu.trim(),phone:f.ph.trim(),email:f.email.trim(),company:f.company.trim(),itemId:item.id,itemName:item.cat+" · "+item.col+" · "+item.metal,metal:item.metal,col:item.col,sz:item.sz,gw:item.gw,nw:item.nw,tc:item.tc,sp:item.sp,style:item.style,price:subtotal,disc:f.disc,cgst:0,sgst:0,ccType:f.cc_type,ccVal:f.cc_val,ccAmt:ccAmt,total:tot,currency:cur||"USD",margin,date:dstr(),time:tstr(),payment:f.pm,staff:user.name,st:mode==="d"?"pending":"completed",gt:"",remark:f.remark};setSaleResult(_s);onSell(_s);};
   const similar=inv.filter(i=>i.id!==item.id&&(i.col===item.col||i.cat===item.cat)&&i.st==="available").slice(0,3);
   if(saleResult)return(<SaleSuccess sale={saleResult} item={item} fc={fc} cur={cur} onDone={()=>{setSaleResult(null);onBack();}} onPrint={()=>{setSaleResult(null);sm(saleResult);}}/>);
   if(mode) return(
@@ -2105,7 +2121,7 @@ function SingleLookup(p){
                 {/* Item detail inline */}
                 {det&&(
                   <div style={{marginTop:12}}>
-                    <ItemCard item={det} user={user} inv={inv} leads={leads} cur={cur} preCustName={custName} onSell={s=>{doSell(s);sCustName("");}} onBack={()=>sdet(null)} onAddLead={onAddLead}/>
+                    <ItemCard item={det} user={user} inv={inv} leads={leads} cur={cur} preCustName={custName} eventName={ev.name} sales={sales} onSell={s=>{doSell(s);sCustName("");}} onBack={()=>sdet(null)} onAddLead={onAddLead}/>
                   </div>
                 )}
               </div>
@@ -3443,7 +3459,7 @@ function SalesTab(p){
       custId=uid("LD");
       onAddLead({id:custId,name:nsCust.name.trim(),phone:nsCust.phone.trim(),email:nsCust.email.trim(),company:nsCust.company.trim(),notes:"",status:"Warm",source:nsCust.source||"Walk-in",contact:nsCust.email.trim(),created:dstr()},"add");
     }
-    const bId=uid("B");
+    const bId=nextReceiptNumber(ev.name,sales);
     const totalItems=nsItems.length;
     const newSales=nsItems.map((item,i)=>{
       const basePrice=item.overridePrice!==null&&item.overridePrice!==""?parseFloat(item.overridePrice)||item.fp:item.fp;
@@ -3453,7 +3469,7 @@ function SalesTab(p){
       const ccAmt=nsPayment==="Credit Card"&&nsCCVal?(nsCCType==="pct"?Math.round(adjPrice*(parseFloat(nsCCVal)||0)/100*100)/100:Math.round((parseFloat(nsCCVal)||0)*100)/100):0;
       const itemTotal=Math.round((adjPrice+ccAmt)*100)/100;
       return{
-        id:i===0?bId:uid("INV"),
+        id:nextReceiptNumber(ev.name,sales,i),
         custId:custId,custName:nsCust.name.trim(),phone:nsCust.phone.trim(),
         itemId:item.id,itemName:item.cat+" · "+item.col+" · "+item.metal,
         metal:item.metal,col:item.col,sz:item.sz,gw:item.gw,nw:item.nw,tc:item.tc,
@@ -3634,7 +3650,7 @@ function SalesTab(p){
                         <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G,marginLeft:8}}>{fc(s.total,cur)}</div>
                       </div>
                       <div style={{fontSize:11,color:T2,marginTop:1}}>{s.custName}</div>
-                      <div style={{fontSize:10,color:T3}}>{s.staff} · {s.payment} · {s.date}</div>
+                      <div style={{fontSize:10,color:T3}}>{s.id} · {s.staff} · {s.payment} · {s.date}</div>
                       <div style={{display:"flex",gap:5,alignItems:"center",marginTop:3}}>
                         <Bdg t={s.st==="delivered"?"gr":s.st==="pending"?"a":"bl"} ch={s.st} sm/>
                         
@@ -3672,6 +3688,7 @@ function HistoryTab(p){
     if(search){
       const q=search.toLowerCase();
       return(s.custName&&s.custName.toLowerCase().includes(q))||
+             (s.id&&s.id.toLowerCase().includes(q))||
              (s.itemId&&s.itemId.toLowerCase().includes(q))||
              (s.col&&s.col.toLowerCase().includes(q))||
              (s.payment&&s.payment.toLowerCase().includes(q));
@@ -4157,7 +4174,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const mlFinal=Math.max(0,Math.round((mlSubtotal-mlAdj)*100)/100);
   const mlTotal=Math.round(mlFinal*1.03*100)/100;
   const resolveCodes=()=>{const codes=mlInput.replace(/\n/g,",").split(",").map(function(s){return s.trim();}).map(s=>s.trim().toUpperCase()).filter(Boolean);const found=[],nf=[];codes.forEach(code=>{const item=inv.find(i=>i.id===code);if(item&&!found.find(f=>f.id===item.id))found.push(item);else if(!item)nf.push(code);});smlItems(found);smlNF(nf);smlDisc("");smlDiscAmt("");smlMarkup("");};
-  const sellMulti=(custName,phone,custId)=>{const bId=uid("B");mlItems.forEach((item,i)=>{const ip=Math.round((item.fp*(mlFinal/Math.max(mlSubtotal,1)))*100)/100;doSell({id:i===0?bId:uid("INV"),custId:custId||"",custName:custName,phone:phone||"",itemId:item.id,itemName:item.cat+" · "+item.col+" · "+item.metal,metal:item.metal,col:item.col,sz:item.sz,gw:item.gw,nw:item.nw,tc:item.tc,sp:item.sp,style:item.style,price:ip,disc:mlDisc?Number(mlDisc):0,cgst:0,sgst:0,total:Math.round(ip*(1+(mlMarkup?Number(mlMarkup)/100:0))*100)/100,currency:cur,margin:0,date:dstr(),time:tstr(),payment:"NEFT",staff:user.name,st:"completed",gt:"",remark:mlItems.length>1?"[Batch "+bId+(i>0?" #"+(i+1):"")+"] ":""});});smlItems([]);smlInput("");st("sales");toast.success("Sale confirmed",""+mlItems.length+" items · "+custName);};
+  const sellMulti=(custName,phone,custId)=>{const batchNo=nextReceiptNumber(ev.name,sales);mlItems.forEach((item,i)=>{const ip=Math.round((item.fp*(mlFinal/Math.max(mlSubtotal,1)))*100)/100;doSell({id:nextReceiptNumber(ev.name,sales,i),custId:custId||"",custName:custName,phone:phone||"",itemId:item.id,itemName:item.cat+" · "+item.col+" · "+item.metal,metal:item.metal,col:item.col,sz:item.sz,gw:item.gw,nw:item.nw,tc:item.tc,sp:item.sp,style:item.style,price:ip,disc:mlDisc?Number(mlDisc):0,cgst:0,sgst:0,total:Math.round(ip*(1+(mlMarkup?Number(mlMarkup)/100:0))*100)/100,currency:cur,margin:0,date:dstr(),time:tstr(),payment:"NEFT",staff:user.name,st:"completed",gt:"",remark:mlItems.length>1?"[Batch "+batchNo+(i>0?" #"+(i+1):"")+"] ":""});});smlItems([]);smlInput("");st("sales");toast.success("Sale confirmed",""+mlItems.length+" items · "+custName);};
   // Filter options derived from inventory
   const allCats=["All",...new Set(inv.map(i=>i.cat).filter(Boolean))].sort();
   const allCols=["All",...new Set(inv.map(i=>i.col).filter(Boolean))].sort();

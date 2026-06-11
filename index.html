@@ -10947,6 +10947,28 @@ var f$ = function f$(n) {
 var uid = function uid(p) {
   return (p || "X") + Date.now().toString(36).slice(-4).toUpperCase();
 };
+function receiptNumberPrefix(eventName) {
+  return String(eventName || "Event").trim();
+}
+function maxReceiptSeq(eventName, sales) {
+  var prefix = receiptNumberPrefix(eventName);
+  var esc = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  var re = new RegExp("^" + esc + "\\s+(\\d+)$", "i");
+  var max = 0;
+  (sales || []).forEach(function (s) {
+    var m = String(s.id || "").match(re);
+    if (m) {
+      var n = parseInt(m[1], 10);
+      if (!isNaN(n) && n > max) max = n;
+    }
+  });
+  return max;
+}
+function nextReceiptNumber(eventName, sales) {
+  var offset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+  var prefix = receiptNumberPrefix(eventName);
+  return prefix + " " + (maxReceiptSeq(eventName, sales) + 1 + offset);
+}
 var dstr = function dstr() {
   return new Date().toLocaleDateString("en-US", {
     month: "short",
@@ -15671,6 +15693,8 @@ function ItemCard(_ref19) {
     leads = _ref19.leads,
     cur = _ref19.cur,
     preCustName = _ref19.preCustName,
+    eventName = _ref19.eventName,
+    sales = _ref19.sales,
     onSell = _ref19.onSell,
     onBack = _ref19.onBack,
     onAddLead = _ref19.onAddLead;
@@ -15775,7 +15799,7 @@ function ItemCard(_ref19) {
       onAddLead(newCust, "add");
     }
     var _s = {
-      id: uid("INV"),
+      id: nextReceiptNumber(eventName, sales),
       custId: custId || "",
       custName: f.cu.trim(),
       phone: f.ph.trim(),
@@ -18959,6 +18983,8 @@ function SingleLookup(p) {
     leads: leads,
     cur: cur,
     preCustName: custName,
+    eventName: ev.name,
+    sales: sales,
     onSell: function onSell(s) {
       doSell(s);
       sCustName("");
@@ -23465,7 +23491,7 @@ function SalesTab(p) {
         created: dstr()
       }, "add");
     }
-    var bId = uid("B");
+    var bId = nextReceiptNumber(ev.name, sales);
     var totalItems = nsItems.length;
     var newSales = nsItems.map(function (item, i) {
       var basePrice = item.overridePrice !== null && item.overridePrice !== "" ? parseFloat(item.overridePrice) || item.fp : item.fp;
@@ -23475,7 +23501,7 @@ function SalesTab(p) {
       var ccAmt = nsPayment === "Credit Card" && nsCCVal ? nsCCType === "pct" ? Math.round(adjPrice * (parseFloat(nsCCVal) || 0) / 100 * 100) / 100 : Math.round((parseFloat(nsCCVal) || 0) * 100) / 100 : 0;
       var itemTotal = Math.round((adjPrice + ccAmt) * 100) / 100;
       return {
-        id: i === 0 ? bId : uid("INV"),
+        id: nextReceiptNumber(ev.name, sales, i),
         custId: custId,
         custName: nsCust.name.trim(),
         phone: nsCust.phone.trim(),
@@ -24217,7 +24243,7 @@ function SalesTab(p) {
         fontSize: 10,
         color: T3
       }
-    }, s.staff, " \xB7 ", s.payment, " \xB7 ", s.date), /*#__PURE__*/React.createElement("div", {
+    }, s.id, " \xB7 ", s.staff, " \xB7 ", s.payment, " \xB7 ", s.date), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: 5,
@@ -24338,7 +24364,7 @@ function HistoryTab(p) {
     if (pmF !== "All" && s.payment !== pmF) return false;
     if (search) {
       var q = search.toLowerCase();
-      return s.custName && s.custName.toLowerCase().includes(q) || s.itemId && s.itemId.toLowerCase().includes(q) || s.col && s.col.toLowerCase().includes(q) || s.payment && s.payment.toLowerCase().includes(q);
+      return s.custName && s.custName.toLowerCase().includes(q) || s.id && s.id.toLowerCase().includes(q) || s.itemId && s.itemId.toLowerCase().includes(q) || s.col && s.col.toLowerCase().includes(q) || s.payment && s.payment.toLowerCase().includes(q);
     }
     return true;
   });
@@ -26010,11 +26036,11 @@ function EventERP(_ref66) {
     smlMarkup("");
   };
   var sellMulti = function sellMulti(custName, phone, custId) {
-    var bId = uid("B");
+    var batchNo = nextReceiptNumber(ev.name, sales);
     mlItems.forEach(function (item, i) {
       var ip = Math.round(item.fp * (mlFinal / Math.max(mlSubtotal, 1)) * 100) / 100;
       doSell({
-        id: i === 0 ? bId : uid("INV"),
+        id: nextReceiptNumber(ev.name, sales, i),
         custId: custId || "",
         custName: custName,
         phone: phone || "",
@@ -26041,7 +26067,7 @@ function EventERP(_ref66) {
         staff: user.name,
         st: "completed",
         gt: "",
-        remark: mlItems.length > 1 ? "[Batch " + bId + (i > 0 ? " #" + (i + 1) : "") + "] " : ""
+        remark: mlItems.length > 1 ? "[Batch " + batchNo + (i > 0 ? " #" + (i + 1) : "") + "] " : ""
       });
     });
     smlItems([]);

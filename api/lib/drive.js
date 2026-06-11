@@ -287,11 +287,16 @@ async function loadMasterData() {
     };
   }
   const data = await downloadJson(master.id);
-  const events = Array.isArray(data.events) ? data.events : [];
+  const deletedEventIds = Array.isArray(data.deletedEventIds) ? data.deletedEventIds : [];
+  const deletedIds = new Set(deletedEventIds);
+  const events = Array.isArray(data.events)
+    ? data.events.filter((e) => e && !deletedIds.has(e.id))
+    : [];
   const hydrated = await Promise.all(events.map((ev) => hydrateEventFromFolder(ev)));
   return {
     ...data,
     events: hydrated,
+    deletedEventIds,
     masterFileId: master.id,
     version: data.version || 0,
   };
@@ -446,9 +451,18 @@ async function saveMasterData(payload) {
   }
 
   const prev = await loadMasterData();
+  const prevDeleted = new Set(
+    Array.isArray(prev?.deletedEventIds) ? prev.deletedEventIds : []
+  );
+  deleted.forEach((d) => {
+    if (d && d.id) prevDeleted.add(d.id);
+  });
+  const deletedEventIds = [...prevDeleted];
+  const deletedAll = deletedEventIds.map((id) => ({ id }));
+
   const eventsIn = applyDeletedEvents(
     mergeEvents(prev?.events || [], Array.isArray(payload.events) ? payload.events : []),
-    deleted
+    deletedAll
   );
   const inventoryFiles = Array.isArray(payload.inventoryFiles) ? payload.inventoryFiles : [];
   const syncedEvents = [];
@@ -468,6 +482,7 @@ async function saveMasterData(payload) {
     events: syncedEvents.map(slimEventForMaster),
     users: payload.users || (prev && prev.users) || null,
     currency: payload.currency || (prev && prev.currency) || null,
+    deletedEventIds,
   };
 
   const masterHit = await findFile(MASTER_NAME, root);
@@ -478,7 +493,86 @@ async function saveMasterData(payload) {
     (masterHit && masterHit.id) || (prev && prev.masterFileId)
   );
 
-  return { version, updatedAt: master.updatedAt, masterFileId: file.id, events: syncedEvents };
+  return {
+    version,
+    updatedAt: master.updatedAt,
+    masterFileId: file.id,
+    events: syncedEvents,
+    users: master.users,
+    currency: master.currency,
+    deletedEventIds,
+  };
+}
+
+async function uploadInventoryFileForEvent(eventId, file) {
+  if (!isConfigured()) throw new Error("Google Drive not configured on server");
+  if (!eventId || !file || !file.contentBase64) {
+    throw new Error("eventId and file content required");
+  }
+  const root = rootFolderId();
+  const prev = await loadMasterData();
+  let ev = (prev?.events || []).find((e) => e && e.id === eventId);
+  if (!ev) throw new Error("Event not found: " + eventId);
+  ev = await hydrateEventFromFolder(ev);
+
+  let folderId = ev.driveFolderId;
+  if (folderId) {
+    try {
+      await drive("/files/" + folderId + "?fields=id,trashed");
+    } catch (e) {
+      folderId = null;
+    }
+  }
+  if (!folderId) {
+    const folder = await createFolder((ev.name || ev.id || "Event").trim(), root);
+    folderId = folder.id;
+  }
+
+  const withFiles = await uploadInventoryFilesToFolder(
+    { ...ev, driveFolderId: folderId },
+    folderId,
+    [file]
+  );
+  const existing = await findFile("event-data.json", folderId);
+  const uploaded = await uploadJson(
+    "event-data.json",
+    withFiles,
+    folderId,
+    existing && existing.id
+  );
+
+  const events = (prev?.events || []).map((e) =>
+    e && e.id === eventId ? slimEventForMaster(withFiles) : e
+  );
+  const version = (prev && prev.version ? prev.version : 0) + 1;
+  const master = {
+    version,
+    updatedAt: new Date().toISOString(),
+    events,
+    users: (prev && prev.users) || null,
+    currency: (prev && prev.currency) || null,
+  };
+  const masterHit = await findFile(MASTER_NAME, root);
+  const masterFile = await uploadJson(
+    MASTER_NAME,
+    master,
+    root,
+    (masterHit && masterHit.id) || (prev && prev.masterFileId)
+  );
+
+  const hit = (withFiles.invHistory || []).find(
+    (h) => h && h.fileName === file.fileName && h.driveFileId
+  );
+  return {
+    eventId,
+    driveFolderId: folderId,
+    driveFileId: uploaded.id,
+    invFileId: hit && hit.driveFileId,
+    invFileName: hit && hit.driveFileName,
+    version,
+    updatedAt: master.updatedAt,
+    masterFileId: masterFile.id,
+  };
 }
 
 async function getDriveStatus() {
@@ -493,13 +587,31 @@ async function getDriveStatus() {
     const root = rootFolderId();
     await drive("/files/" + root + "?fields=id,name,driveId");
     const data = await loadMasterData();
+    const events = data?.events || [];
+    let totalItems = 0;
+    let invHistoryTotal = 0;
+    let invHistoryOnDrive = 0;
+    events.forEach((ev) => {
+      totalItems += (ev.inv || []).length;
+      (ev.invHistory || []).forEach((h) => {
+        invHistoryTotal += 1;
+        if (h && h.driveFileId) invHistoryOnDrive += 1;
+      });
+    });
     return {
       configured: true,
       folderId: root,
       version: data?.version || 0,
-      eventCount: (data?.events || []).length,
+      eventCount: events.length,
+      totalItems,
       masterFileId: data?.masterFileId || null,
       updatedAt: data?.updatedAt || null,
+      hasUsers: Array.isArray(data?.users) && data.users.length > 0,
+      userCount: Array.isArray(data?.users) ? data.users.length : 0,
+      hasCurrency: !!data?.currency,
+      eventFolders: events.filter((e) => e && e.driveFolderId).length,
+      invHistoryTotal,
+      invHistoryOnDrive,
     };
   } catch (e) {
     return {
@@ -514,6 +626,7 @@ module.exports = {
   isConfigured,
   loadMasterData,
   saveMasterData,
+  uploadInventoryFileForEvent,
   driveErrorMessage,
   getDriveStatus,
 };

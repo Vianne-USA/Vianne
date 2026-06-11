@@ -68,6 +68,8 @@ module.exports = async function handler(req, res) {
         syncApiVersion: 6,
         store: "drive",
         drive: true,
+        users: result.users || body.users || null,
+        currency: result.currency || body.currency || null,
         ...result,
       });
     }

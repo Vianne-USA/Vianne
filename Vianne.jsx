@@ -221,7 +221,7 @@ async function loadEventsAsync(){
   let local=loadEvents();
   const idb=await idbGetEvents();
   if(idb&&idb.length)local=mergeEvents(local,idb);
-  return local;
+  return applyDeletedFilter(local);
 }
 function eventTime(ev){
   const t=(ev&& (ev.syncedAt||ev.updatedAt||ev.localUpdatedAt))||"";
@@ -299,6 +299,44 @@ function saveUsers(users){
 
 // ── Vianne Jewels Google Drive (company cloud via Vercel API) ─────────────
 const CLOUD_META_KEY="vj_cloud_meta";
+const DELETED_KEY="vj_deleted_events";
+function getPendingDeletedRecords(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(DELETED_KEY)||"[]");
+    return Array.isArray(raw)?raw.filter(d=>d&&d.id):[];
+  }catch(e){return [];}
+}
+function addDeletedEvent(ev){
+  if(!ev||!ev.id)return;
+  try{
+    const list=getPendingDeletedRecords();
+    if(!list.find(d=>d.id===ev.id))list.push({id:ev.id,name:ev.name||ev.id,driveFolderId:ev.driveFolderId||null,deletedAt:new Date().toISOString()});
+    localStorage.setItem(DELETED_KEY,JSON.stringify(list));
+  }catch(e){}
+}
+function clearDeletedEvents(ids){
+  if(!ids||!ids.length)return;
+  try{
+    const drop=new Set(ids);
+    const next=getPendingDeletedRecords().filter(d=>!drop.has(d.id));
+    localStorage.setItem(DELETED_KEY,JSON.stringify(next));
+  }catch(e){}
+}
+function loadDeletedIds(extra){
+  const ids=new Set(getPendingDeletedRecords().map(d=>d.id));
+  (extra||[]).forEach(id=>{if(id)ids.add(id);});
+  return ids;
+}
+function applyDeletedFilter(events,extraIds){
+  const ids=loadDeletedIds(extraIds);
+  if(!ids.size)return events||[];
+  return (events||[]).filter(e=>e&&!ids.has(e.id));
+}
+function mergeDeletedRecords(a,b){
+  const byId=new Map();
+  [...(a||[]),...(b||[])].forEach(d=>{if(d&&d.id)byId.set(d.id,d);});
+  return [...byId.values()];
+}
 const DRIVE_ROOT_NAME="Vianne Jewels Data";
 let _cloudOnline=false;
 let _lastCloudPing=null;
@@ -330,12 +368,38 @@ function takePendingInvFiles(){
   if(!_pendingInvFiles.length)return [];
   return _pendingInvFiles.splice(0,_pendingInvFiles.length);
 }
+let _markCloudDirty=null;
+function setMarkCloudDirty(fn){_markCloudDirty=fn;}
+function markCloudDirty(opts={}){if(_markCloudDirty)_markCloudDirty(opts);}
+function getCloudCurrency(){
+  try{
+    const raw=JSON.parse(localStorage.getItem("vj_curr_rates")||"null");
+    if(raw&&typeof raw==="object")return raw;
+  }catch(e){}
+  return Object.assign({},CURR);
+}
+async function cloudUploadInventoryFiles(files){
+  const failed=[];
+  for(const f of files){
+    if(!f||!f.contentBase64||!f.eventId)continue;
+    try{
+      const r=await fetch("/api/inventory-file",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(f)});
+      const d=await r.json();
+      if(!r.ok||!d.ok)throw new Error(d.error||"Upload failed");
+    }catch(e){
+      console.warn("Inventory file upload",f.fileName,e);
+      failed.push(f);
+    }
+  }
+  return failed;
+}
 function isCloudOnline(){return _cloudOnline;}
 function getCloudMeta(){try{return JSON.parse(localStorage.getItem(CLOUD_META_KEY)||"{}");}catch(e){return {};}}
 function setCloudMeta(m){try{localStorage.setItem(CLOUD_META_KEY,JSON.stringify(m));}catch(e){}}
-async function cloudFetchData(){
+async function cloudFetchData(withDebug){
   try{
-    const r=await fetch("/api/data",{method:"GET",cache:"no-store"});
+    const url=withDebug?"/api/data?debug=1":"/api/data";
+    const r=await fetch(url,{method:"GET",cache:"no-store"});
     const d=await r.json();
     if(!r.ok||!d.configured){_cloudOnline=false;_lastCloudPing=d;return null;}
     _cloudOnline=true;
@@ -351,7 +415,8 @@ function applyCloudPull(d,sevents,sappUsers,refs){
   const hasCloudData=(d.events||[]).length>0||(Array.isArray(d.users)&&d.users.length>0);
   if(!hasCloudData&&cloudVer<=localMeta.version)return false;
   sevents(prev=>{
-    const merged=mergeEvents(prev,d.events||[]);
+    const extra=Array.isArray(d.deletedEventIds)?d.deletedEventIds:[];
+    const merged=applyDeletedFilter(mergeEvents(prev,d.events||[]),extra);
     saveEvents(merged);
     if(refs&&refs.eventsRef)refs.eventsRef.current=merged;
     return merged;
@@ -381,8 +446,7 @@ let _lastCloudError="";
 function getLastCloudError(){return _lastCloudError;}
 async function cloudSave(events,users,deletedEvents){
   if(!_cloudOnline){const ping=await cloudFetchData();if(!ping)return null;}
-  let currency=null;
-  try{currency=JSON.parse(localStorage.getItem("vj_curr_rates")||"null");}catch(e){}
+  const currency=getCloudCurrency();
   let inventoryFiles=takePendingInvFiles();
   const trySave=async(files)=>{
     const body={events,users,currency,deletedEvents:deletedEvents||[],inventoryFiles:files||[]};
@@ -397,13 +461,11 @@ async function cloudSave(events,users,deletedEvents){
     return d;
   };
   try{
-    let d;
-    const bodyBytes=(files)=>{try{return JSON.stringify({events,users,currency,deletedEvents:deletedEvents||[],inventoryFiles:files||[]}).length;}catch(e){return 0;}};
-    if(inventoryFiles.length&&bodyBytes(inventoryFiles)>4200000){
-      _pendingInvFiles.unshift(...inventoryFiles);
-      inventoryFiles=[];
+    if(inventoryFiles.length){
+      const failed=await cloudUploadInventoryFiles(inventoryFiles);
+      if(failed.length)_pendingInvFiles.push(...failed);
     }
-    d=await trySave(inventoryFiles);
+    const d=await trySave([]);
     _cloudOnline=true;
     if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
     return d;
@@ -429,16 +491,22 @@ async function flushCloudSync(events,users,deletedEvents,{silent=false,successMs
     if(!silent)toast.warn("Cloud not connected","Data saved on this device only until Google Drive Shared Drive is configured.");
     return{ok:false};
   }
-  const merged=mergeEvents(events,ping.events||[]);
+  const tombstones=getPendingDeletedRecords();
+  const allDeleted=mergeDeletedRecords(deletedEvents,tombstones);
+  const deletedIds=loadDeletedIds(ping.deletedEventIds);
+  allDeleted.forEach(d=>{if(d&&d.id)deletedIds.add(d.id);});
+  const cloudFiltered=(ping.events||[]).filter(e=>e&&!deletedIds.has(e.id));
+  const merged=mergeEvents(events,cloudFiltered);
   const payload=eventsForCloudPayload(merged);
-  const result=await cloudSave(payload,users,deletedEvents||[]);
+  const result=await cloudSave(payload,users,allDeleted);
   if(result===null){
     const errMsg=getLastCloudError()||"Could not save to company cloud.";
     if(!silent&&(events||[]).length)toast.error("Cloud sync failed",errMsg);
     return{ok:false,error:errMsg};
   }
+  clearDeletedEvents(allDeleted.map(d=>d.id));
   if(!silent&&successMsg)toast.success(successMsg,"Saved to Google Drive — visible to all permitted users.");
-  return{ok:true,synced:result.events||[],users:result.users||null,version:result.version||0};
+  return{ok:true,synced:result.events||[],users:result.users||users||null,currency:result.currency||null,version:result.version||0};
 }
 const S={
   btn:o=>({background:G,color:CR,border:"none",borderRadius:10,padding:"13px 18px",fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:600,cursor:"pointer",width:"100%",...o}),
@@ -3022,14 +3090,15 @@ function CloudStoragePanel({pr,allEvents,appUsers,onSynced}){
   const [lastErr,setLastErr]=useState("");
   const [ping,setPing]=useState(getCloudPingInfo());
   const online=isCloudOnline();
-  useEffect(()=>{cloudFetchData().then(d=>{if(d)setPing(d);});},[]);
+  useEffect(()=>{cloudFetchData(true).then(d=>{if(d)setPing(d);});},[]);
   const driveOk=ping&&ping.drive&&ping.store==="drive";
   const driveReadOk=ping&&ping.driveRead==="ok";
+  const ds=ping&&ping.driveStatus;
   const syncNow=async()=>{
     setBusy(true);
     setLastErr("");
     try{
-      const d=await cloudFetchData();
+      const d=await cloudFetchData(true);
       if(!d||!d.configured){toast.warn("Cloud not ready","Set up Google Drive Shared Drive (see instructions below).");return;}
       setPing(d);
       const localFromStore=await loadEventsAsync();
@@ -3068,18 +3137,23 @@ function CloudStoragePanel({pr,allEvents,appUsers,onSynced}){
         4. Redeploy → come back here → tap Sync below
       </div>}
       {meta.updatedAt&&<div style={{fontSize:10,color:T3,marginBottom:8}}>Last cloud save: {new Date(meta.updatedAt).toLocaleString()}</div>}
+      {ds&&!ds.error&&<div style={{fontSize:10,color:T3,marginBottom:8,lineHeight:1.5}}>
+        Drive: {ds.eventCount||0} events · {ds.totalItems||0} items · {ds.userCount||0} users
+        {ds.hasCurrency?" · currency saved":" · currency pending"}
+        {(ds.invHistoryTotal||0)>0&&<> · Excel files {ds.invHistoryOnDrive||0}/{ds.invHistoryTotal}</>}
+      </div>}
       <button style={S.btn({padding:"10px",fontSize:12})} disabled={busy} onClick={syncNow}>{busy?"Syncing…":"↻ Sync all devices now"}</button>
     </div>
   );
 }
 
-function CurrencyManager({cur,scur,pr}){
+function CurrencyManager({cur,scur,pr,onRatesChanged}){
   const [editMode,setEditMode]=useState(false);
   const [editRates,setEditRates]=useState({});
   const getCurr=()=>{try{return JSON.parse(localStorage.getItem("vj_curr_rates")||"null")||DEFAULT_CURR;}catch(e){return DEFAULT_CURR;}};
   const startEdit=()=>{const r={};Object.entries(getCurr()).forEach(([k,v])=>{r[k]=v.r;});setEditRates(r);setEditMode(true);};
-  const saveRates=()=>{const u={};Object.entries(getCurr()).forEach(([k,v])=>{u[k]={s:v.s,r:parseFloat(editRates[k])||v.r,name:v.name};});localStorage.setItem("vj_curr_rates",JSON.stringify(u));Object.assign(CURR,u);setEditMode(false);};
-  const resetRates=()=>{localStorage.removeItem("vj_curr_rates");Object.assign(CURR,DEFAULT_CURR);setEditMode(false);};
+  const saveRates=()=>{const u={};Object.entries(getCurr()).forEach(([k,v])=>{u[k]={s:v.s,r:parseFloat(editRates[k])||v.r,name:v.name};});localStorage.setItem("vj_curr_rates",JSON.stringify(u));Object.assign(CURR,u);setEditMode(false);markCloudDirty({delay:400,notify:true});if(onRatesChanged)onRatesChanged();};
+  const resetRates=()=>{localStorage.removeItem("vj_curr_rates");Object.assign(CURR,DEFAULT_CURR);setEditMode(false);markCloudDirty({delay:400,notify:true});if(onRatesChanged)onRatesChanged();};
   const rates=editMode?getCurr():getCurr();
   return(
     <div style={{...S.card({margin:0,marginBottom:12})}}>
@@ -4098,6 +4172,7 @@ export default function App(){
     if(r.ok){
       if(r.synced&&r.synced.length)sevents(p=>{const m=mergeEvents(p,r.synced);eventsRef.current=m;return m;});
       if(Array.isArray(r.users)&&r.users.length)sappUsers(p=>{const m=mergeUserDefaults(r.users);appUsersRef.current=m;saveUsers(m);return m;});
+      if(r.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(r.currency));Object.assign(CURR,r.currency);}catch(e){}}
     }
     return r;
   };
@@ -4131,6 +4206,10 @@ export default function App(){
       setCloudReady(true);
     })();
   },[dataReady]);
+  useEffect(()=>{
+    setMarkCloudDirty((opts={})=>scheduleCloudSave(opts.delay||400,eventsRef.current,{silent:opts.silent!==false,notify:!!opts.notify}));
+    return()=>setMarkCloudDirty(null);
+  },[cloudReady,dataReady]);
   useEffect(()=>{
     if(!dataReady||user)return;
     const s=readSession();
@@ -4199,7 +4278,18 @@ export default function App(){
       return out;
     });
   };
-  const delEv=id=>{const ev=events.find(e=>e.id===id);if(ev)pendingDeletesRef.current.push({id:ev.id,name:ev.name,driveFolderId:ev.driveFolderId});sevents(p=>p.filter(e=>e.id!==id));};
+  const delEv=id=>{
+    const ev=events.find(e=>e.id===id);
+    if(!ev)return;
+    const record={id:ev.id,name:ev.name,driveFolderId:ev.driveFolderId};
+    addDeletedEvent(record);
+    pendingDeletesRef.current.push(record);
+    const next=events.filter(e=>e.id!==id);
+    eventsRef.current=next;
+    saveEvents(next);
+    sevents(next);
+    scheduleCloudSave(0,next,{silent:false,notify:true});
+  };
   const createEv=ev=>{
     sevents(p=>{
       const next=[{...ev,localUpdatedAt:new Date().toISOString()},...p];

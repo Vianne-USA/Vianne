@@ -2,6 +2,7 @@ const {
   isConfigured: isDriveConfigured,
   loadMasterData,
   saveMasterData,
+  uploadInventoryFileForEvent,
   driveErrorMessage,
   getDriveStatus,
 } = require("./drive");
@@ -65,6 +66,7 @@ module.exports = {
   isDriveConfigured,
   loadSyncData,
   saveSyncData,
+  uploadInventoryFileForEvent,
   driveErrorMessage,
   getDriveStatus,
 };

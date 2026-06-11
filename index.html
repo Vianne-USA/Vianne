@@ -12327,7 +12327,7 @@ function _loadEventsAsync() {
         case 1:
           idb = _context15.v;
           if (idb && idb.length) local = mergeEvents(local, idb);
-          return _context15.a(2, local);
+          return _context15.a(2, applyDeletedFilter(local));
       }
     }, _callee15);
   }));
@@ -12439,6 +12439,65 @@ function saveUsers(users) {
 
 // ── Vianne Jewels Google Drive (company cloud via Vercel API) ─────────────
 var CLOUD_META_KEY = "vj_cloud_meta";
+var DELETED_KEY = "vj_deleted_events";
+function getPendingDeletedRecords() {
+  try {
+    var raw = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
+    return Array.isArray(raw) ? raw.filter(function (d) {
+      return d && d.id;
+    }) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function addDeletedEvent(ev) {
+  if (!ev || !ev.id) return;
+  try {
+    var list = getPendingDeletedRecords();
+    if (!list.find(function (d) {
+      return d.id === ev.id;
+    })) list.push({
+      id: ev.id,
+      name: ev.name || ev.id,
+      driveFolderId: ev.driveFolderId || null,
+      deletedAt: new Date().toISOString()
+    });
+    localStorage.setItem(DELETED_KEY, JSON.stringify(list));
+  } catch (e) {}
+}
+function clearDeletedEvents(ids) {
+  if (!ids || !ids.length) return;
+  try {
+    var drop = new Set(ids);
+    var next = getPendingDeletedRecords().filter(function (d) {
+      return !drop.has(d.id);
+    });
+    localStorage.setItem(DELETED_KEY, JSON.stringify(next));
+  } catch (e) {}
+}
+function loadDeletedIds(extra) {
+  var ids = new Set(getPendingDeletedRecords().map(function (d) {
+    return d.id;
+  }));
+  (extra || []).forEach(function (id) {
+    if (id) ids.add(id);
+  });
+  return ids;
+}
+function applyDeletedFilter(events, extraIds) {
+  var ids = loadDeletedIds(extraIds);
+  if (!ids.size) return events || [];
+  return (events || []).filter(function (e) {
+    return e && !ids.has(e.id);
+  });
+}
+function mergeDeletedRecords(a, b) {
+  var byId = new Map();
+  [].concat(_toConsumableArray(a || []), _toConsumableArray(b || [])).forEach(function (d) {
+    if (d && d.id) byId.set(d.id, d);
+  });
+  return _toConsumableArray(byId.values());
+}
 var DRIVE_ROOT_NAME = "Vianne Jewels Data";
 var _cloudOnline = false;
 var _lastCloudPing = null;
@@ -12511,6 +12570,95 @@ function takePendingInvFiles() {
   if (!_pendingInvFiles.length) return [];
   return _pendingInvFiles.splice(0, _pendingInvFiles.length);
 }
+var _markCloudDirty = null;
+function setMarkCloudDirty(fn) {
+  _markCloudDirty = fn;
+}
+function markCloudDirty() {
+  var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  if (_markCloudDirty) _markCloudDirty(opts);
+}
+function getCloudCurrency() {
+  try {
+    var raw = JSON.parse(localStorage.getItem("vj_curr_rates") || "null");
+    if (raw && _typeof(raw) === "object") return raw;
+  } catch (e) {}
+  return Object.assign({}, CURR);
+}
+function cloudUploadInventoryFiles(_x8) {
+  return _cloudUploadInventoryFiles.apply(this, arguments);
+}
+function _cloudUploadInventoryFiles() {
+  _cloudUploadInventoryFiles = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17(files) {
+    var failed, _iterator3, _step3, f, r, d, _t9, _t0;
+    return _regenerator().w(function (_context17) {
+      while (1) switch (_context17.p = _context17.n) {
+        case 0:
+          failed = [];
+          _iterator3 = _createForOfIteratorHelper(files);
+          _context17.p = 1;
+          _iterator3.s();
+        case 2:
+          if ((_step3 = _iterator3.n()).done) {
+            _context17.n = 9;
+            break;
+          }
+          f = _step3.value;
+          if (!(!f || !f.contentBase64 || !f.eventId)) {
+            _context17.n = 3;
+            break;
+          }
+          return _context17.a(3, 8);
+        case 3:
+          _context17.p = 3;
+          _context17.n = 4;
+          return fetch("/api/inventory-file", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(f)
+          });
+        case 4:
+          r = _context17.v;
+          _context17.n = 5;
+          return r.json();
+        case 5:
+          d = _context17.v;
+          if (!(!r.ok || !d.ok)) {
+            _context17.n = 6;
+            break;
+          }
+          throw new Error(d.error || "Upload failed");
+        case 6:
+          _context17.n = 8;
+          break;
+        case 7:
+          _context17.p = 7;
+          _t9 = _context17.v;
+          console.warn("Inventory file upload", f.fileName, _t9);
+          failed.push(f);
+        case 8:
+          _context17.n = 2;
+          break;
+        case 9:
+          _context17.n = 11;
+          break;
+        case 10:
+          _context17.p = 10;
+          _t0 = _context17.v;
+          _iterator3.e(_t0);
+        case 11:
+          _context17.p = 11;
+          _iterator3.f();
+          return _context17.f(11);
+        case 12:
+          return _context17.a(2, failed);
+      }
+    }, _callee17, null, [[3, 7], [1, 10, 11, 12]]);
+  }));
+  return _cloudUploadInventoryFiles.apply(this, arguments);
+}
 function isCloudOnline() {
   return _cloudOnline;
 }
@@ -12526,45 +12674,46 @@ function setCloudMeta(m) {
     localStorage.setItem(CLOUD_META_KEY, JSON.stringify(m));
   } catch (e) {}
 }
-function cloudFetchData() {
+function cloudFetchData(_x9) {
   return _cloudFetchData.apply(this, arguments);
 }
 function _cloudFetchData() {
-  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17() {
-    var r, d, _t9;
-    return _regenerator().w(function (_context17) {
-      while (1) switch (_context17.p = _context17.n) {
+  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee18(withDebug) {
+    var url, r, d, _t1;
+    return _regenerator().w(function (_context18) {
+      while (1) switch (_context18.p = _context18.n) {
         case 0:
-          _context17.p = 0;
-          _context17.n = 1;
-          return fetch("/api/data", {
+          _context18.p = 0;
+          url = withDebug ? "/api/data?debug=1" : "/api/data";
+          _context18.n = 1;
+          return fetch(url, {
             method: "GET",
             cache: "no-store"
           });
         case 1:
-          r = _context17.v;
-          _context17.n = 2;
+          r = _context18.v;
+          _context18.n = 2;
           return r.json();
         case 2:
-          d = _context17.v;
+          d = _context18.v;
           if (!(!r.ok || !d.configured)) {
-            _context17.n = 3;
+            _context18.n = 3;
             break;
           }
           _cloudOnline = false;
           _lastCloudPing = d;
-          return _context17.a(2, null);
+          return _context18.a(2, null);
         case 3:
           _cloudOnline = true;
           _lastCloudPing = d;
-          return _context17.a(2, d);
+          return _context18.a(2, d);
         case 4:
-          _context17.p = 4;
-          _t9 = _context17.v;
+          _context18.p = 4;
+          _t1 = _context18.v;
           _cloudOnline = false;
-          return _context17.a(2, null);
+          return _context18.a(2, null);
       }
-    }, _callee17, null, [[0, 4]]);
+    }, _callee18, null, [[0, 4]]);
   }));
   return _cloudFetchData.apply(this, arguments);
 }
@@ -12578,7 +12727,8 @@ function applyCloudPull(d, sevents, sappUsers, refs) {
   var hasCloudData = (d.events || []).length > 0 || Array.isArray(d.users) && d.users.length > 0;
   if (!hasCloudData && cloudVer <= localMeta.version) return false;
   sevents(function (prev) {
-    var merged = mergeEvents(prev, d.events || []);
+    var extra = Array.isArray(d.deletedEventIds) ? d.deletedEventIds : [];
+    var merged = applyDeletedFilter(mergeEvents(prev, d.events || []), extra);
     saveEvents(merged);
     if (refs && refs.eventsRef) refs.eventsRef.current = merged;
     return merged;
@@ -12607,20 +12757,20 @@ function cloudLoad() {
   return _cloudLoad.apply(this, arguments);
 }
 function _cloudLoad() {
-  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee18() {
+  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee19() {
     var d;
-    return _regenerator().w(function (_context18) {
-      while (1) switch (_context18.n) {
+    return _regenerator().w(function (_context19) {
+      while (1) switch (_context19.n) {
         case 0:
-          _context18.n = 1;
+          _context19.n = 1;
           return cloudFetchData();
         case 1:
-          d = _context18.v;
+          d = _context19.v;
           if (d) {
-            _context18.n = 2;
+            _context19.n = 2;
             break;
           }
-          return _context18.a(2, null);
+          return _context19.a(2, null);
         case 2:
           if (Array.isArray(d.events) && d.events.length) {
             saveEvents(mergeEvents(loadEvents(), d.events));
@@ -12638,9 +12788,9 @@ function _cloudLoad() {
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context18.a(2, d);
+          return _context19.a(2, d);
       }
-    }, _callee18);
+    }, _callee19);
   }));
   return _cloudLoad.apply(this, arguments);
 }
@@ -12648,39 +12798,36 @@ var _lastCloudError = "";
 function getLastCloudError() {
   return _lastCloudError;
 }
-function cloudSave(_x8, _x9, _x0) {
+function cloudSave(_x0, _x1, _x10) {
   return _cloudSave.apply(this, arguments);
 }
 function _cloudSave() {
-  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20(events, users, deletedEvents) {
-    var ping, currency, inventoryFiles, trySave, d, bodyBytes, _t0;
-    return _regenerator().w(function (_context20) {
-      while (1) switch (_context20.p = _context20.n) {
+  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee21(events, users, deletedEvents) {
+    var ping, currency, inventoryFiles, trySave, failed, d, _t10;
+    return _regenerator().w(function (_context21) {
+      while (1) switch (_context21.p = _context21.n) {
         case 0:
           if (_cloudOnline) {
-            _context20.n = 2;
+            _context21.n = 2;
             break;
           }
-          _context20.n = 1;
+          _context21.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context20.v;
+          ping = _context21.v;
           if (ping) {
-            _context20.n = 2;
+            _context21.n = 2;
             break;
           }
-          return _context20.a(2, null);
+          return _context21.a(2, null);
         case 2:
-          currency = null;
-          try {
-            currency = JSON.parse(localStorage.getItem("vj_curr_rates") || "null");
-          } catch (e) {}
+          currency = getCloudCurrency();
           inventoryFiles = takePendingInvFiles();
           trySave = /*#__PURE__*/function () {
-            var _ref76 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee19(files) {
+            var _ref76 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20(files) {
               var body, r, d, msg;
-              return _regenerator().w(function (_context19) {
-                while (1) switch (_context19.n) {
+              return _regenerator().w(function (_context20) {
+                while (1) switch (_context20.n) {
                   case 0:
                     body = {
                       events: events,
@@ -12689,7 +12836,7 @@ function _cloudSave() {
                       deletedEvents: deletedEvents || [],
                       inventoryFiles: files || []
                     };
-                    _context19.n = 1;
+                    _context20.n = 1;
                     return fetch("/api/data", {
                       method: "POST",
                       headers: {
@@ -12698,13 +12845,13 @@ function _cloudSave() {
                       body: JSON.stringify(body)
                     });
                   case 1:
-                    r = _context19.v;
-                    _context19.n = 2;
+                    r = _context20.v;
+                    _context20.n = 2;
                     return r.json();
                   case 2:
-                    d = _context19.v;
+                    d = _context20.v;
                     if (!(!r.ok || !d.ok)) {
-                      _context19.n = 3;
+                      _context20.n = 3;
                       break;
                     }
                     msg = d.error || "Save failed";
@@ -12712,50 +12859,43 @@ function _cloudSave() {
                     throw new Error(msg);
                   case 3:
                     _lastCloudError = "";
-                    return _context19.a(2, d);
+                    return _context20.a(2, d);
                 }
-              }, _callee19);
+              }, _callee20);
             }));
-            return function trySave(_x24) {
+            return function trySave(_x26) {
               return _ref76.apply(this, arguments);
             };
           }();
-          _context20.p = 3;
-          bodyBytes = function bodyBytes(files) {
-            try {
-              return JSON.stringify({
-                events: events,
-                users: users,
-                currency: currency,
-                deletedEvents: deletedEvents || [],
-                inventoryFiles: files || []
-              }).length;
-            } catch (e) {
-              return 0;
-            }
-          };
-          if (inventoryFiles.length && bodyBytes(inventoryFiles) > 4200000) {
-            _pendingInvFiles.unshift.apply(_pendingInvFiles, _toConsumableArray(inventoryFiles));
-            inventoryFiles = [];
+          _context21.p = 3;
+          if (!inventoryFiles.length) {
+            _context21.n = 5;
+            break;
           }
-          _context20.n = 4;
-          return trySave(inventoryFiles);
+          _context21.n = 4;
+          return cloudUploadInventoryFiles(inventoryFiles);
         case 4:
-          d = _context20.v;
+          failed = _context21.v;
+          if (failed.length) _pendingInvFiles.push.apply(_pendingInvFiles, _toConsumableArray(failed));
+        case 5:
+          _context21.n = 6;
+          return trySave([]);
+        case 6:
+          d = _context21.v;
           _cloudOnline = true;
           if (d.version) setCloudMeta({
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context20.a(2, d);
-        case 5:
-          _context20.p = 5;
-          _t0 = _context20.v;
+          return _context21.a(2, d);
+        case 7:
+          _context21.p = 7;
+          _t10 = _context21.v;
           if (inventoryFiles.length) _pendingInvFiles.unshift.apply(_pendingInvFiles, _toConsumableArray(inventoryFiles));
-          console.warn("Cloud save", _t0);
-          return _context20.a(2, null);
+          console.warn("Cloud save", _t10);
+          return _context21.a(2, null);
       }
-    }, _callee20, null, [[3, 5]]);
+    }, _callee21, null, [[3, 7]]);
   }));
   return _cloudSave.apply(this, arguments);
 }
@@ -12771,65 +12911,82 @@ function eventsForCloudPayload(events) {
     });
   });
 }
-function flushCloudSync(_x1, _x10, _x11) {
+function flushCloudSync(_x11, _x12, _x13) {
   return _flushCloudSync.apply(this, arguments);
 }
 function _flushCloudSync() {
-  _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee21(events, users, deletedEvents) {
+  _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee22(events, users, deletedEvents) {
     var _ref77,
       _ref77$silent,
       silent,
       _ref77$successMsg,
       successMsg,
       ping,
+      tombstones,
+      allDeleted,
+      deletedIds,
+      cloudFiltered,
       merged,
       payload,
       result,
       errMsg,
-      _args21 = arguments;
-    return _regenerator().w(function (_context21) {
-      while (1) switch (_context21.n) {
+      _args22 = arguments;
+    return _regenerator().w(function (_context22) {
+      while (1) switch (_context22.n) {
         case 0:
-          _ref77 = _args21.length > 3 && _args21[3] !== undefined ? _args21[3] : {}, _ref77$silent = _ref77.silent, silent = _ref77$silent === void 0 ? false : _ref77$silent, _ref77$successMsg = _ref77.successMsg, successMsg = _ref77$successMsg === void 0 ? "Shared with all users & devices" : _ref77$successMsg;
-          _context21.n = 1;
+          _ref77 = _args22.length > 3 && _args22[3] !== undefined ? _args22[3] : {}, _ref77$silent = _ref77.silent, silent = _ref77$silent === void 0 ? false : _ref77$silent, _ref77$successMsg = _ref77.successMsg, successMsg = _ref77$successMsg === void 0 ? "Shared with all users & devices" : _ref77$successMsg;
+          _context22.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context21.v;
+          ping = _context22.v;
           if (!(!ping || !ping.configured)) {
-            _context21.n = 2;
+            _context22.n = 2;
             break;
           }
           if (!silent) toast.warn("Cloud not connected", "Data saved on this device only until Google Drive Shared Drive is configured.");
-          return _context21.a(2, {
+          return _context22.a(2, {
             ok: false
           });
         case 2:
-          merged = mergeEvents(events, ping.events || []);
+          tombstones = getPendingDeletedRecords();
+          allDeleted = mergeDeletedRecords(deletedEvents, tombstones);
+          deletedIds = loadDeletedIds(ping.deletedEventIds);
+          allDeleted.forEach(function (d) {
+            if (d && d.id) deletedIds.add(d.id);
+          });
+          cloudFiltered = (ping.events || []).filter(function (e) {
+            return e && !deletedIds.has(e.id);
+          });
+          merged = mergeEvents(events, cloudFiltered);
           payload = eventsForCloudPayload(merged);
-          _context21.n = 3;
-          return cloudSave(payload, users, deletedEvents || []);
+          _context22.n = 3;
+          return cloudSave(payload, users, allDeleted);
         case 3:
-          result = _context21.v;
+          result = _context22.v;
           if (!(result === null)) {
-            _context21.n = 4;
+            _context22.n = 4;
             break;
           }
           errMsg = getLastCloudError() || "Could not save to company cloud.";
           if (!silent && (events || []).length) toast.error("Cloud sync failed", errMsg);
-          return _context21.a(2, {
+          return _context22.a(2, {
             ok: false,
             error: errMsg
           });
         case 4:
+          clearDeletedEvents(allDeleted.map(function (d) {
+            return d.id;
+          }));
           if (!silent && successMsg) toast.success(successMsg, "Saved to Google Drive — visible to all permitted users.");
-          return _context21.a(2, {
+          return _context22.a(2, {
             ok: true,
             synced: result.events || [],
-            users: result.users || null,
+            users: result.users || users || null,
+            currency: result.currency || null,
             version: result.version || 0
           });
       }
-    }, _callee21);
+    }, _callee22);
   }));
   return _flushCloudSync.apply(this, arguments);
 }
@@ -13550,53 +13707,53 @@ function codeForExcelRow(excelRow, idByRow) {
   }
   return null;
 }
-function extractXLImages(_x12, _x13) {
+function extractXLImages(_x14, _x15) {
   return _extractXLImages.apply(this, arguments);
 }
 function _extractXLImages() {
-  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee22(arrayBuffer, idByRow) {
-    var zip, imgs, drawingPaths, _iterator3, _step3, _loop3, _t1, _t10;
-    return _regenerator().w(function (_context23) {
-      while (1) switch (_context23.p = _context23.n) {
+  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee23(arrayBuffer, idByRow) {
+    var zip, imgs, drawingPaths, _iterator4, _step4, _loop3, _t11, _t12;
+    return _regenerator().w(function (_context24) {
+      while (1) switch (_context24.p = _context24.n) {
         case 0:
           if (!(!window.JSZip || !idByRow)) {
-            _context23.n = 1;
+            _context24.n = 1;
             break;
           }
-          return _context23.a(2, {});
+          return _context24.a(2, {});
         case 1:
-          _context23.p = 1;
-          _context23.n = 2;
+          _context24.p = 1;
+          _context24.n = 2;
           return window.JSZip.loadAsync(arrayBuffer);
         case 2:
-          zip = _context23.v;
+          zip = _context24.v;
           imgs = {};
           drawingPaths = Object.keys(zip.files).filter(function (n) {
             return /xl\/drawings\/drawing\d+\.xml$/.test(n);
           });
-          _iterator3 = _createForOfIteratorHelper(drawingPaths);
-          _context23.p = 3;
+          _iterator4 = _createForOfIteratorHelper(drawingPaths);
+          _context24.p = 3;
           _loop3 = /*#__PURE__*/_regenerator().m(function _loop3() {
             var dp, xml, relsPath, relsXml, relMap, re, m, code, mediaPath, ext, mime, b64;
-            return _regenerator().w(function (_context22) {
-              while (1) switch (_context22.n) {
+            return _regenerator().w(function (_context23) {
+              while (1) switch (_context23.n) {
                 case 0:
-                  dp = _step3.value;
-                  _context22.n = 1;
+                  dp = _step4.value;
+                  _context23.n = 1;
                   return zip.file(dp).async("string");
                 case 1:
-                  xml = _context22.v;
+                  xml = _context23.v;
                   relsPath = dp.replace("drawings/", "drawings/_rels/").replace(".xml", ".xml.rels");
                   if (zip.files[relsPath]) {
-                    _context22.n = 2;
+                    _context23.n = 2;
                     break;
                   }
-                  return _context22.a(2, 1);
+                  return _context23.a(2, 1);
                 case 2:
-                  _context22.n = 3;
+                  _context23.n = 3;
                   return zip.file(relsPath).async("string");
                 case 3:
-                  relsXml = _context22.v;
+                  relsXml = _context23.v;
                   relMap = {};
                   relsXml.replace(/Id="([^"]+)"[^>]*Target="([^"]+)"/g, function (_, id, tgt) {
                     relMap[id] = "xl/" + tgt.replace(/^\.\.\//, "");
@@ -13604,67 +13761,67 @@ function _extractXLImages() {
                   re = /<xdr:row>(\d+)<\/xdr:row>[\s\S]*?r:embed="([^"]+)"/g;
                 case 4:
                   if (!(m = re.exec(xml))) {
-                    _context22.n = 7;
+                    _context23.n = 7;
                     break;
                   }
                   code = codeForExcelRow(parseInt(m[1], 10) + 1, idByRow);
                   mediaPath = relMap[m[2]];
                   if (!(!code || !mediaPath || imgs[code])) {
-                    _context22.n = 5;
+                    _context23.n = 5;
                     break;
                   }
-                  return _context22.a(3, 4);
+                  return _context23.a(3, 4);
                 case 5:
                   ext = (mediaPath.split(".").pop() || "jpg").toLowerCase();
                   mime = ext === "png" ? "image/png" : ext === "gif" ? "image/gif" : "image/jpeg";
-                  _context22.n = 6;
+                  _context23.n = 6;
                   return zip.file(mediaPath).async("base64");
                 case 6:
-                  b64 = _context22.v;
+                  b64 = _context23.v;
                   imgs[code] = "data:" + mime + ";base64," + b64;
-                  _context22.n = 4;
+                  _context23.n = 4;
                   break;
                 case 7:
-                  return _context22.a(2);
+                  return _context23.a(2);
               }
             }, _loop3);
           });
-          _iterator3.s();
+          _iterator4.s();
         case 4:
-          if ((_step3 = _iterator3.n()).done) {
-            _context23.n = 7;
+          if ((_step4 = _iterator4.n()).done) {
+            _context24.n = 7;
             break;
           }
-          return _context23.d(_regeneratorValues(_loop3()), 5);
+          return _context24.d(_regeneratorValues(_loop3()), 5);
         case 5:
-          if (!_context23.v) {
-            _context23.n = 6;
+          if (!_context24.v) {
+            _context24.n = 6;
             break;
           }
-          return _context23.a(3, 6);
+          return _context24.a(3, 6);
         case 6:
-          _context23.n = 4;
+          _context24.n = 4;
           break;
         case 7:
-          _context23.n = 9;
+          _context24.n = 9;
           break;
         case 8:
-          _context23.p = 8;
-          _t1 = _context23.v;
-          _iterator3.e(_t1);
+          _context24.p = 8;
+          _t11 = _context24.v;
+          _iterator4.e(_t11);
         case 9:
-          _context23.p = 9;
-          _iterator3.f();
-          return _context23.f(9);
+          _context24.p = 9;
+          _iterator4.f();
+          return _context24.f(9);
         case 10:
-          return _context23.a(2, imgs);
+          return _context24.a(2, imgs);
         case 11:
-          _context23.p = 11;
-          _t10 = _context23.v;
-          console.warn("Image extract", _t10);
-          return _context23.a(2, {});
+          _context24.p = 11;
+          _t12 = _context24.v;
+          console.warn("Image extract", _t12);
+          return _context24.a(2, {});
       }
-    }, _callee22, null, [[3, 8, 9, 10], [1, 11]]);
+    }, _callee23, null, [[3, 8, 9, 10], [1, 11]]);
   }));
   return _extractXLImages.apply(this, arguments);
 }
@@ -13893,7 +14050,7 @@ function parseXL(file, onDone, onError) {
             }
           }, _callee, null, [[1, 6, 7, 8], [0, 11]]);
         }));
-        return function (_x14) {
+        return function (_x16) {
           return _ref10.apply(this, arguments);
         };
       }();
@@ -14333,7 +14490,7 @@ function EventHub(_ref13) {
           }
         }, _callee3);
       }));
-      return function fin(_x15, _x16, _x17) {
+      return function fin(_x17, _x18, _x19) {
         return _ref14.apply(this, arguments);
       };
     }();
@@ -14352,7 +14509,7 @@ function EventHub(_ref13) {
             }
           }, _callee4);
         }));
-        return function (_x18) {
+        return function (_x20) {
           return _ref15.apply(this, arguments);
         };
       }(), function (err) {
@@ -15264,7 +15421,7 @@ function ManageEvent(_ref16) {
             }
           }, _callee5);
         }));
-        return function (_x19) {
+        return function (_x21) {
           return _ref17.apply(this, arguments);
         };
       }(), function (err) {
@@ -22310,12 +22467,13 @@ function CloudStoragePanel(_ref44) {
     setPing = _useState80[1];
   var online = isCloudOnline();
   useEffect(function () {
-    cloudFetchData().then(function (d) {
+    cloudFetchData(true).then(function (d) {
       if (d) setPing(d);
     });
   }, []);
   var driveOk = ping && ping.drive && ping.store === "drive";
   var driveReadOk = ping && ping.driveRead === "ok";
+  var ds = ping && ping.driveStatus;
   var syncNow = /*#__PURE__*/function () {
     var _ref45 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
       var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
@@ -22326,7 +22484,7 @@ function CloudStoragePanel(_ref44) {
             setLastErr("");
             _context6.p = 1;
             _context6.n = 2;
-            return cloudFetchData();
+            return cloudFetchData(true);
           case 2:
             d = _context6.v;
             if (!(!d || !d.configured)) {
@@ -22441,7 +22599,14 @@ function CloudStoragePanel(_ref44) {
       color: T3,
       marginBottom: 8
     }
-  }, "Last cloud save: ", new Date(meta.updatedAt).toLocaleString()), /*#__PURE__*/React.createElement("button", {
+  }, "Last cloud save: ", new Date(meta.updatedAt).toLocaleString()), ds && !ds.error && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: T3,
+      marginBottom: 8,
+      lineHeight: 1.5
+    }
+  }, "Drive: ", ds.eventCount || 0, " events \xB7 ", ds.totalItems || 0, " items \xB7 ", ds.userCount || 0, " users", ds.hasCurrency ? " · currency saved" : " · currency pending", (ds.invHistoryTotal || 0) > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, " \xB7 Excel files ", ds.invHistoryOnDrive || 0, "/", ds.invHistoryTotal)), /*#__PURE__*/React.createElement("button", {
     style: S.btn({
       padding: "10px",
       fontSize: 12
@@ -22453,7 +22618,8 @@ function CloudStoragePanel(_ref44) {
 function CurrencyManager(_ref46) {
   var cur = _ref46.cur,
     scur = _ref46.scur,
-    pr = _ref46.pr;
+    pr = _ref46.pr,
+    onRatesChanged = _ref46.onRatesChanged;
   var _useState81 = useState(false),
     _useState82 = _slicedToArray(_useState81, 2),
     editMode = _useState82[0],
@@ -22495,11 +22661,21 @@ function CurrencyManager(_ref46) {
     localStorage.setItem("vj_curr_rates", JSON.stringify(u));
     Object.assign(CURR, u);
     setEditMode(false);
+    markCloudDirty({
+      delay: 400,
+      notify: true
+    });
+    if (onRatesChanged) onRatesChanged();
   };
   var resetRates = function resetRates() {
     localStorage.removeItem("vj_curr_rates");
     Object.assign(CURR, DEFAULT_CURR);
     setEditMode(false);
+    markCloudDirty({
+      delay: 400,
+      notify: true
+    });
+    if (onRatesChanged) onRatesChanged();
   };
   var rates = editMode ? getCurr() : getCurr();
   return /*#__PURE__*/React.createElement("div", {
@@ -26719,12 +26895,18 @@ function App() {
                 saveUsers(m);
                 return m;
               });
+              if (r.currency) {
+                try {
+                  localStorage.setItem("vj_curr_rates", JSON.stringify(r.currency));
+                  Object.assign(CURR, r.currency);
+                } catch (e) {}
+              }
             }
             return _context7.a(2, r);
         }
       }, _callee7);
     }));
-    return function runCloudSave(_x20, _x21, _x22) {
+    return function runCloudSave(_x22, _x23, _x24) {
       return _ref68.apply(this, arguments);
     };
   }();
@@ -26804,6 +26986,18 @@ function App() {
       }, _callee0);
     }))();
   }, [dataReady]);
+  useEffect(function () {
+    setMarkCloudDirty(function () {
+      var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      return scheduleCloudSave(opts.delay || 400, eventsRef.current, {
+        silent: opts.silent !== false,
+        notify: !!opts.notify
+      });
+    });
+    return function () {
+      return setMarkCloudDirty(null);
+    };
+  }, [cloudReady, dataReady]);
   useEffect(function () {
     if (!dataReady || user) return;
     var s = readSession();
@@ -26948,15 +27142,23 @@ function App() {
     var ev = events.find(function (e) {
       return e.id === id;
     });
-    if (ev) pendingDeletesRef.current.push({
+    if (!ev) return;
+    var record = {
       id: ev.id,
       name: ev.name,
       driveFolderId: ev.driveFolderId
+    };
+    addDeletedEvent(record);
+    pendingDeletesRef.current.push(record);
+    var next = events.filter(function (e) {
+      return e.id !== id;
     });
-    sevents(function (p) {
-      return p.filter(function (e) {
-        return e.id !== id;
-      });
+    eventsRef.current = next;
+    saveEvents(next);
+    sevents(next);
+    scheduleCloudSave(0, next, {
+      silent: false,
+      notify: true
     });
   };
   var createEv = function createEv(ev) {
@@ -27075,7 +27277,7 @@ function App() {
         }
       }, _callee10);
     }));
-    return function handleLogin(_x23) {
+    return function handleLogin(_x25) {
       return _ref75.apply(this, arguments);
     };
   }();

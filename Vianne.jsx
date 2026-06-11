@@ -535,7 +535,7 @@ function Bdg({t,ch,sm}){const m={g:{bg:"rgba(30,92,69,0.1)",c:G,b:"1px solid rgb
 function Logo({h=36}){
   return <img src="assets/vianne-logo.png" alt="Vianne" style={{height:h,width:"auto",display:"block",flexShrink:0,objectFit:"contain"}}/>;
 }
-function Sheet({onClose,title,children}){return(<div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:400,display:"flex",alignItems:"flex-end",justifyContent:"center",padding:"0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)"}}><div onClick={e=>e.stopPropagation()} style={{background:CRD,borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,maxHeight:"93dvh",overflowY:"auto"}}><div style={{padding:"14px 16px 12px",borderBottom:"1px solid "+CRD2,position:"sticky",top:0,background:CRD,zIndex:1}}><div style={{width:36,height:3.5,background:CRD2,borderRadius:2,margin:"0 auto 12px"}}/><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>{title}</div><button onClick={onClose} style={{background:"none",border:"none",fontSize:22,color:T3,cursor:"pointer"}}>✕</button></div></div><div style={{padding:"14px 16px calc(36px + env(safe-area-inset-bottom,0px))"}}>{children}</div></div></div>);}
+function Sheet({onClose,title,children}){return(<div className="v-sheet-overlay" onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:400,padding:"0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)"}}><div className="v-sheet-panel" onClick={e=>e.stopPropagation()} style={{background:CRD}}><div style={{padding:"14px 16px 12px",borderBottom:"1px solid "+CRD2,position:"sticky",top:0,background:CRD,zIndex:1}}><div style={{width:36,height:3.5,background:CRD2,borderRadius:2,margin:"0 auto 12px"}} className="v-sheet-handle"/><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>{title}</div><button onClick={onClose} style={{background:"none",border:"none",fontSize:22,color:T3,cursor:"pointer"}}>✕</button></div></div><div style={{padding:"14px 16px calc(36px + env(safe-area-inset-bottom,0px))"}}>{children}</div></div></div>);}
 function QRScanner({onScanned,inv}){
   const vr=useRef(null),sr=useRef(null),cv=useRef(null),raf=useRef(null);
   const [err,se]=useState(""),[manual,sm]=useState(""),[scanning,ssc]=useState(false),[lastCode,slc]=useState("");
@@ -879,7 +879,7 @@ function Login({onLogin,users}){
   const isIOS=/iPhone|iPad/.test(navigator.userAgent);
   const hasBio=!!localStorage.getItem(BIO_KEY);
   return(<div ref={scrollRef} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:GD,overflowY:"auto",WebkitOverflowScrolling:"touch",overscrollBehavior:"contain",padding:"calc(12px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
-    <div style={{width:"100%",maxWidth:380,margin:"0 auto",background:CRD,borderRadius:22,padding:"32px 24px 28px",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
+    <div className="v-login-card" style={{background:CRD,borderRadius:22,padding:"32px 24px 28px",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
       <div style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:24}}><Logo h={52}/><div style={{paddingTop:2}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:G,letterSpacing:"0.14em",textTransform:"uppercase",lineHeight:1.1}}>VIANNE JEWELS</div><div style={{fontSize:9,color:T4,letterSpacing:"0.12em",textTransform:"uppercase",marginTop:4,lineHeight:1.5}}>THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div>
       <div style={{fontSize:12,fontWeight:700,color:T1,letterSpacing:"0.18em",textAlign:"center",marginBottom:18,textTransform:"uppercase"}}>SIGN IN TO CONTINUE</div>
       {bio&&<><button type="button" onClick={doBio} style={{width:"100%",background:G,color:CR,border:"none",borderRadius:11,padding:"13px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:9,marginBottom:12}}><span style={{fontSize:18}}>{isIOS?"🔒":"🫆"}</span>{isIOS?(hasBio?"Sign in with Face ID":"Face ID / Touch ID"):"Fingerprint / Face Unlock"}</button>{!hasBio&&<div style={{fontSize:10,color:T4,textAlign:"center",marginBottom:10}}>Sign in with password once to enable Face ID</div>}<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{flex:1,height:1,background:CRD2}}/><span style={{fontSize:11,color:T4,fontWeight:600}}>OR</span><div style={{flex:1,height:1,background:CRD2}}/></div></>}
@@ -902,7 +902,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
       <div style={{display:"flex",alignItems:"flex-start",gap:10}}><Logo h={34}/><div style={{paddingTop:1}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>
       <div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:26,height:26,background:GO,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:G}}>{user.name[0]}</div><span style={{color:CR,fontSize:11,fontWeight:600}}>{user.name}</span><button onClick={onLogout} style={{background:"rgba(255,255,255,0.12)",border:"none",borderRadius:7,color:CR,padding:"5px 9px",cursor:"pointer",fontSize:11,fontWeight:600}}>🚪 Sign Out</button></div>
     </div>
-    <div style={{padding:"16px 14px",paddingLeft:"calc(14px + env(safe-area-inset-left,0px))",paddingRight:"calc(14px + env(safe-area-inset-right,0px))",maxWidth:430,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
+    <div className="v-content">
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9,marginBottom:16}}>
         {[{l:"Events",v:visibleEvents.length},...(pr.vA?[{l:"Total Sales",v:visibleEvents.reduce((s,e)=>s+e.sales.length,0)},{l:"Revenue",v:"$"+Math.round(visibleEvents.reduce((s,e)=>s+e.sales.reduce((ss,x)=>ss+x.total,0),0)/1000)+"k"}]:[])].map(x=>(
           <div key={x.l} style={{background:WH,borderRadius:11,padding:"12px 8px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.08)"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:3,textTransform:"uppercase"}}>{x.l}</div></div>
@@ -912,6 +912,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
         <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>Your Events</div>
         {pr.mU&&<button onClick={()=>ssc(true)} style={{background:GO,color:G,border:"none",borderRadius:8,padding:"8px 13px",fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,cursor:"pointer"}}>+ New Event</button>}
       </div>
+      <div className="v-events-list">
       {visibleEvents.map(ev=>(
         <div key={ev.id} style={{background:WH,borderRadius:13,marginBottom:12,boxShadow:"0 3px 14px rgba(0,0,0,0.12)",overflow:"hidden"}}>
           <div style={{background:ev.color||G,padding:"13px 15px"}}>
@@ -933,6 +934,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
           </div>
         </div>
       ))}
+      </div>
       {visibleEvents.length===0&&<div style={{textAlign:"center",padding:40,color:T3,fontSize:14}}>{events.length===0?"No events yet. Create your first event.":"No events assigned to your account. Ask an admin for access."}</div>}
     </div>
     {sc&&<Sheet onClose={()=>{ssc(false);smsg("");}} title="Create New Event">
@@ -1903,7 +1905,7 @@ function SingleLookup(p){
   var fMaxFp=p.fMaxFp;
   var sfMaxFp=p.sfMaxFp;
   return(
-    <div style={{padding:"13px 12px 20px"}}>
+    <div className="v-page-pad">
 
                 {/* Inline Scanner */}
                 {scan&&(
@@ -1989,7 +1991,7 @@ function SingleLookup(p){
 
                 {/* Search/filter results list */}
                 {lkShowResults&&lkResults.length>0&&(
-                  <div style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2,marginBottom:12}}>
+                  <div className="v-results-grid" style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2,marginBottom:12}}>
                     {lkResults.slice(0,20).map((item,i,arr)=>(
                       <div key={item.id} onClick={()=>{sdet(item);sjc("");}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer"}}>
                         <div style={{width:42,height:42,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -2372,7 +2374,7 @@ function InventoryTab(p){
             <div style={{display:"flex",gap:5,marginBottom:9}}>{["All","available","reserved","sold"].map(s=><button key={s} style={S.pill(ist===s,{fontSize:10,textTransform:"capitalize"})} onClick={()=>sist(s)}>{s}</button>)}</div>
             {deadStock.length>0&&<div style={{background:AMBG,border:"1px solid rgba(200,150,58,0.3)",borderRadius:9,padding:"8px 11px",marginBottom:9}}><div style={{fontSize:10,fontWeight:700,color:AM}}>⚠ Dead Stock: {deadStock.map(i=>i.id).slice(0,5).join(", ")}{deadStock.length>5?" +more":""}</div></div>}
             <div style={{fontSize:10,color:T3,marginBottom:7}}>{fi.length} items · {fc(fi.filter(i=>i.st==="available").reduce((s,i)=>s+i.fp,0),cur)} value · full inventory list</div>
-            <div style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2,maxHeight:"55vh",overflowY:"auto"}}>
+            <div className="v-inv-grid" style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2,maxHeight:"55vh",overflowY:"auto"}}>
               {fi.map((item,i,arr)=>(
                 <div key={item.id+"-"+i} onClick={()=>{sdet(item);st("lookup");}} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer",background:WH}}>
                   <div style={{width:40,height:40,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -4111,10 +4113,10 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const lkShowResults = lkQ.length > 0 || activeFilters > 0;
 
   return(
-    <div style={{width:"100%",minHeight:"100dvh",background:GD,display:"flex",flexDirection:"column",boxSizing:"border-box"}}>
-    <div style={{width:"100%",maxWidth:430,margin:"0 auto",flex:1,minHeight:"100dvh",display:"flex",flexDirection:"column",background:GD,fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
-      <div style={{background:G,padding:"calc(9px + env(safe-area-inset-top,0px)) calc(13px + env(safe-area-inset-right,0px)) 9px calc(13px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,gap:6}}>
-        <div style={{display:"flex",alignItems:"flex-start",gap:7}}><button onClick={onBack} style={{background:"none",border:"none",color:GO,cursor:"pointer",fontSize:16,padding:"4px 3px 0 0",flexShrink:0}}>‹</button><Logo h={30}/><div style={{paddingTop:1,minWidth:0}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:7,color:GO,textTransform:"uppercase",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ev.name}</div></div></div>
+    <div style={{width:"100%",minHeight:"100dvh",background:GD,display:"flex",flexDirection:"column",boxSizing:"border-box",alignItems:"center"}}>
+    <div className="v-erp-shell" style={{background:GD}}>
+      <div className="v-erp-header" style={{background:G,padding:"calc(9px + env(safe-area-inset-top,0px)) calc(13px + env(safe-area-inset-right,0px)) 9px calc(13px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,gap:6}}>
+        <div style={{display:"flex",alignItems:"flex-start",gap:7,minWidth:0,flex:1}}><button onClick={onBack} style={{background:"none",border:"none",color:GO,cursor:"pointer",fontSize:16,padding:"4px 3px 0 0",flexShrink:0}}>‹</button><Logo h={30}/><div style={{paddingTop:1,minWidth:0,flex:1}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div className="v-erp-ev-name" style={{fontSize:7,color:GO,textTransform:"uppercase"}}>{ev.name}</div></div></div>
         <div style={{display:"flex",alignItems:"center",gap:5}}>
           <select value={cur} onChange={ev=>scur(ev.target.value)} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",color:CR,borderRadius:5,padding:"2px 5px",fontSize:9,fontWeight:600,cursor:"pointer"}}>{Object.keys(CURR).map(k=><option key={k} style={{color:T1}}>{k}</option>)}</select>
           <button onClick={()=>ssw(true)} style={{background:GO,border:"none",borderRadius:5,color:G,padding:"4px 7px",cursor:"pointer",fontSize:9,fontWeight:700}}>⇄</button>
@@ -4124,10 +4126,10 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
           </div>
         </div>
       </div>
-      <div style={{background:G,display:"flex",overflowX:"auto",scrollbarWidth:"none",borderBottom:"1px solid rgba(201,168,76,0.25)",flexShrink:0}}>
-        {TABS.map(t=><button key={t.id} onClick={()=>st(t.id)} style={{flexShrink:0,background:"none",border:"none",borderBottom:tab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:tab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:10,fontWeight:tab===t.id?700:500,padding:"9px 10px",cursor:"pointer",whiteSpace:"nowrap"}}>{t.ic} {t.l}</button>)}
+      <div className="v-tabbar">
+        {TABS.map(t=><button key={t.id} onClick={()=>st(t.id)} style={{flexShrink:0,flex:1,background:"none",border:"none",borderBottom:tab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:tab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:10,fontWeight:tab===t.id?700:500,padding:"9px 10px",cursor:"pointer",whiteSpace:"nowrap"}}>{t.ic} {t.l}</button>)}
       </div>
-      <div style={{flex:1,background:CRD,overflowY:"auto"}}>
+      <div className="v-erp-scroll">
         {tab==="lookup"&&<LookupTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,onAddLead:onAddLead}}/>}
 
         {tab==="sales"&&<SalesTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,onAddLead:onAddLead}}/>}

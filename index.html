@@ -26,7 +26,53 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 input,select,textarea{-webkit-appearance:none;appearance:none}
 img,svg,video{max-width:100%;height:auto;display:block}
 ::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-thumb{background:rgba(30,92,69,0.3);border-radius:2px}</style>
+::-webkit-scrollbar-thumb{background:rgba(30,92,69,0.3);border-radius:2px}
+.v-content{width:100%;margin:0 auto;padding:16px 14px;padding-left:calc(14px + env(safe-area-inset-left,0px));padding-right:calc(14px + env(safe-area-inset-right,0px));box-sizing:border-box}
+.v-erp-shell{width:100%;max-width:100%;margin:0 auto;flex:1;min-height:100dvh;display:flex;flex-direction:column;box-sizing:border-box;font-family:Lato,sans-serif}
+.v-erp-scroll{flex:1;background:#F5EDE0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.v-tabbar{background:#1E5C45;display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;border-bottom:1px solid rgba(201,168,76,0.25);flex-shrink:0}
+.v-tabbar::-webkit-scrollbar{display:none}
+.v-page-pad{padding:13px 12px 40px}
+.v-events-list{display:block}
+.v-results-grid,.v-inv-grid{display:block}
+.v-login-card{width:100%;max-width:380px;margin:0 auto}
+.v-sheet-overlay{display:flex;align-items:flex-end;justify-content:center}
+.v-sheet-panel{width:100%;max-width:430px;max-height:93dvh;overflow-y:auto;border-radius:20px 20px 0 0}
+.v-erp-ev-name{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v-hub-header,.v-erp-header{width:100%}
+@media (min-width:640px){
+  .v-content{max-width:720px;padding:18px 20px;padding-left:calc(20px + env(safe-area-inset-left,0px));padding-right:calc(20px + env(safe-area-inset-right,0px))}
+  .v-erp-shell{max-width:720px}
+  .v-page-pad{padding:16px 18px 44px}
+  .v-login-card{max-width:420px}
+  .v-sheet-overlay{align-items:center;padding:24px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+  .v-sheet-panel{max-width:560px;border-radius:20px!important;max-height:85vh}
+  .v-sheet-handle{display:none}
+  .v-erp-ev-name{max-width:240px}
+  .v-events-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .v-events-list>div{margin-bottom:0!important}
+  .v-results-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;background:transparent!important;border:none!important;margin-bottom:12px!important}
+  .v-results-grid>div{border:1px solid #E8DCCB!important;border-radius:12px!important;background:#fff!important;margin:0!important}
+  .v-inv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;background:transparent!important;border:none!important;max-height:none!important;overflow:visible!important}
+  .v-inv-grid>div{border:1px solid #E8DCCB!important;border-radius:12px!important;background:#fff!important;margin:0!important}
+}
+@media (min-width:1024px){
+  .v-content{max-width:1200px;padding:22px 28px;padding-left:calc(28px + env(safe-area-inset-left,0px));padding-right:calc(28px + env(safe-area-inset-right,0px))}
+  .v-erp-shell{max-width:1200px}
+  .v-page-pad{padding:20px 28px 52px}
+  .v-login-card{max-width:460px}
+  .v-sheet-panel{max-width:640px}
+  .v-erp-ev-name{max-width:none}
+  .v-tabbar{justify-content:center;gap:2px;padding:0 16px}
+  .v-tabbar button{flex:0 1 auto!important;padding:10px 18px!important;font-size:11px!important}
+  .v-events-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+  .v-results-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .v-inv-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (min-width:1280px){
+  .v-results-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .v-inv-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}</style>
 </head><body>
 <div id="root"></div>
 <script>/** @license React v17.0.2
@@ -13179,28 +13225,22 @@ function Sheet(_ref3) {
     title = _ref3.title,
     children = _ref3.children;
   return /*#__PURE__*/React.createElement("div", {
+    className: "v-sheet-overlay",
     onClick: onClose,
     style: {
       position: "fixed",
       inset: 0,
       background: "rgba(0,0,0,0.6)",
       zIndex: 400,
-      display: "flex",
-      alignItems: "flex-end",
-      justifyContent: "center",
       padding: "0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)"
     }
   }, /*#__PURE__*/React.createElement("div", {
+    className: "v-sheet-panel",
     onClick: function onClick(e) {
       return e.stopPropagation();
     },
     style: {
-      background: CRD,
-      borderRadius: "20px 20px 0 0",
-      width: "100%",
-      maxWidth: 430,
-      maxHeight: "93dvh",
-      overflowY: "auto"
+      background: CRD
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -13218,7 +13258,8 @@ function Sheet(_ref3) {
       background: CRD2,
       borderRadius: 2,
       margin: "0 auto 12px"
-    }
+    },
+    className: "v-sheet-handle"
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
@@ -14208,10 +14249,8 @@ function Login(_ref11) {
       boxSizing: "border-box"
     }
   }, /*#__PURE__*/React.createElement("div", {
+    className: "v-login-card",
     style: {
-      width: "100%",
-      maxWidth: 380,
-      margin: "0 auto",
       background: CRD,
       borderRadius: 22,
       padding: "32px 24px 28px",
@@ -14616,15 +14655,7 @@ function EventHub(_ref13) {
       fontWeight: 600
     }
   }, "\uD83D\uDEAA Sign Out"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: "16px 14px",
-      paddingLeft: "calc(14px + env(safe-area-inset-left,0px))",
-      paddingRight: "calc(14px + env(safe-area-inset-right,0px))",
-      maxWidth: 430,
-      margin: "0 auto",
-      width: "100%",
-      boxSizing: "border-box"
-    }
+    className: "v-content"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
@@ -14702,7 +14733,9 @@ function EventHub(_ref13) {
       fontWeight: 700,
       cursor: "pointer"
     }
-  }, "+ New Event")), visibleEvents.map(function (ev) {
+  }, "+ New Event")), /*#__PURE__*/React.createElement("div", {
+    className: "v-events-list"
+  }, visibleEvents.map(function (ev) {
     return /*#__PURE__*/React.createElement("div", {
       key: ev.id,
       style: {
@@ -14827,7 +14860,7 @@ function EventHub(_ref13) {
         cursor: "pointer"
       }
     }, "Manage"))));
-  }), visibleEvents.length === 0 && /*#__PURE__*/React.createElement("div", {
+  })), visibleEvents.length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       padding: 40,
@@ -18193,9 +18226,7 @@ function SingleLookup(p) {
   var photoSearch = p.photoSearch; var sPhotoSearch = p.sPhotoSearch;
   var onAddLead = p.onAddLead;
   return /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: "13px 12px 20px"
-    }
+    className: "v-page-pad"
   }, scan && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 12
@@ -18637,6 +18668,7 @@ function SingleLookup(p) {
       fontSize: 12
     })
   }, "Reset Filters")), lkShowResults && lkResults.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "v-results-grid",
     style: {
       background: WH,
       borderRadius: 12,
@@ -19915,6 +19947,7 @@ function InventoryTab(p) {
   }).reduce(function (s, i) {
     return s + i.fp;
   }, 0), cur), " value \xB7 full inventory list"), /*#__PURE__*/React.createElement("div", {
+    className: "v-inv-grid",
     style: {
       background: WH,
       borderRadius: 12,
@@ -26032,22 +26065,16 @@ function EventERP(_ref67) {
       background: GD,
       display: "flex",
       flexDirection: "column",
-      boxSizing: "border-box"
+      boxSizing: "border-box",
+      alignItems: "center"
     }
   }, /*#__PURE__*/React.createElement("div", {
+    className: "v-erp-shell",
     style: {
-      width: "100%",
-      maxWidth: 430,
-      margin: "0 auto",
-      flex: 1,
-      minHeight: "100dvh",
-      display: "flex",
-      flexDirection: "column",
-      background: GD,
-      fontFamily: "Lato,sans-serif",
-      boxSizing: "border-box"
+      background: GD
     }
   }, /*#__PURE__*/React.createElement("div", {
+    className: "v-erp-header",
     style: {
       background: G,
       padding: "calc(9px + env(safe-area-inset-top,0px)) calc(13px + env(safe-area-inset-right,0px)) 9px calc(13px + env(safe-area-inset-left,0px))",
@@ -26061,7 +26088,9 @@ function EventERP(_ref67) {
     style: {
       display: "flex",
       alignItems: "flex-start",
-      gap: 7
+      gap: 7,
+      minWidth: 0,
+      flex: 1
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: onBack,
@@ -26079,7 +26108,8 @@ function EventERP(_ref67) {
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       paddingTop: 1,
-      minWidth: 0
+      minWidth: 0,
+      flex: 1
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -26091,14 +26121,11 @@ function EventERP(_ref67) {
       textTransform: "uppercase"
     }
   }, "VIANNE JEWELS"), /*#__PURE__*/React.createElement("div", {
+    className: "v-erp-ev-name",
     style: {
       fontSize: 7,
       color: GO,
-      textTransform: "uppercase",
-      maxWidth: 120,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap"
+      textTransform: "uppercase"
     }
   }, ev.name))), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -26207,14 +26234,7 @@ function EventERP(_ref67) {
       fontWeight: 600
     }
   }, "\uD83D\uDEAA Sign Out"))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: G,
-      display: "flex",
-      overflowX: "auto",
-      scrollbarWidth: "none",
-      borderBottom: "1px solid rgba(201,168,76,0.25)",
-      flexShrink: 0
-    }
+    className: "v-tabbar"
   }, TABS.map(function (t) {
     return /*#__PURE__*/React.createElement("button", {
       key: t.id,
@@ -26223,6 +26243,7 @@ function EventERP(_ref67) {
       },
       style: {
         flexShrink: 0,
+        flex: 1,
         background: "none",
         border: "none",
         borderBottom: tab === t.id ? "2.5px solid " + GO : "2.5px solid transparent",
@@ -26236,11 +26257,7 @@ function EventERP(_ref67) {
       }
     }, t.ic, " ", t.l);
   })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      background: CRD,
-      overflowY: "auto"
-    }
+    className: "v-erp-scroll"
   }, tab === "lookup" && /*#__PURE__*/React.createElement(LookupTab, {
     ev: ev,
     inv: inv,

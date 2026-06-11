@@ -1,5 +1,5 @@
 import{useState,useRef,useEffect}from"react";
-const getImg=(item)=>{if(!item)return "";if(item.img)return item.img;return resolveItemImage(item.id);};
+const getImg=(item)=>{if(!item)return "";return resolveItemImage(item.id);};
 function resolveItemImage(id){
   const k=String(id||"").toUpperCase();
   if(!k)return "";
@@ -8,10 +8,14 @@ function resolveItemImage(id){
   return "";
 }
 function attachItemImages(items,imgMap){
-  return items.map(it=>{
-    const img=(imgMap&&imgMap[it.id])||resolveItemImage(it.id)||"";
-    return img?{...it,img}:it;
-  });
+  if(imgMap&&Object.keys(imgMap).length)idbSaveImages(imgMap);
+  return items;
+}
+function ItemThumb({item,size=40,style={}}){
+  const src=getImg(item);
+  const box={width:size,height:size,borderRadius:size>36?10:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center",...style};
+  if(src)return <img src={src} alt="" loading="lazy" decoding="async" style={{width:size,height:size,objectFit:"cover",display:"block"}}/>;
+  return <div style={box}><span style={{fontSize:Math.round(size*0.5)}}>{item?.em||"💎"}</span></div>;
 }
 const INV_FAIL="Inventory adding failed";
 const G="#1E5C45",GD="#163D2E",GO="#C9A84C",CR="#F5EDE0",WH="#FFFFFF",CRD="#F5EDE0",CRD2="#E8DCCB",INP="#FBF5E8";
@@ -197,14 +201,73 @@ function loadEvents(){
 }
 const IDB_NAME="vianne_v1";
 const IDB_STORE="events";
+const IDB_IMG_STORE="images";
 function idbOpen(){
   return new Promise((resolve,reject)=>{
     if(typeof indexedDB==="undefined"){reject(new Error("no idb"));return;}
-    const req=indexedDB.open(IDB_NAME,1);
-    req.onupgradeneeded=e=>{e.target.result.createObjectStore(IDB_STORE,{keyPath:"id"});};
+    const req=indexedDB.open(IDB_NAME,2);
+    req.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains(IDB_STORE))db.createObjectStore(IDB_STORE,{keyPath:"id"});
+      if(!db.objectStoreNames.contains(IDB_IMG_STORE))db.createObjectStore(IDB_IMG_STORE,{keyPath:"id"});
+    };
     req.onsuccess=()=>resolve(req.result);
     req.onerror=()=>reject(req.error);
   });
+}
+async function idbSaveImages(imgMap){
+  if(!imgMap||!Object.keys(imgMap).length)return;
+  try{
+    const db=await idbOpen();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(IDB_IMG_STORE,"readwrite");
+      const st=tx.objectStore(IDB_IMG_STORE);
+      Object.entries(imgMap).forEach(([id,src])=>{
+        if(id&&src)st.put({id:String(id).toUpperCase(),src});
+      });
+      tx.oncomplete=()=>res();
+      tx.onerror=()=>rej(tx.error);
+    });
+    if(!window.VJ_IMG)window.VJ_IMG={};
+    Object.entries(imgMap).forEach(([id,src])=>{window.VJ_IMG[String(id).toUpperCase()]=src;});
+  }catch(e){console.warn("Image save failed",e);}
+}
+async function idbLoadImagesForIds(ids){
+  const need=[...new Set((ids||[]).map(id=>String(id||"").toUpperCase()).filter(id=>id&&!(window.VJ_IMG&&window.VJ_IMG[id])))];
+  if(!need.length)return 0;
+  try{
+    const db=await idbOpen();
+    let loaded=0;
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(IDB_IMG_STORE,"readonly");
+      const st=tx.objectStore(IDB_IMG_STORE);
+      let pending=need.length;
+      if(!window.VJ_IMG)window.VJ_IMG={};
+      need.forEach(id=>{
+        const r=st.get(id);
+        r.onsuccess=()=>{
+          if(r.result&&r.result.src){window.VJ_IMG[id]=r.result.src;loaded++;}
+          if(--pending===0)res();
+        };
+        r.onerror=()=>{if(--pending===0)res();};
+      });
+      tx.onerror=()=>rej(tx.error);
+    });
+    return loaded;
+  }catch(e){return 0;}
+}
+async function idbLoadAllImages(){
+  try{
+    const db=await idbOpen();
+    const all=await new Promise((res,rej)=>{
+      const r=db.transaction(IDB_IMG_STORE,"readonly").objectStore(IDB_IMG_STORE).getAll();
+      r.onsuccess=()=>res(r.result||[]);
+      r.onerror=()=>rej(r.error);
+    });
+    if(!window.VJ_IMG)window.VJ_IMG={};
+    all.forEach(row=>{if(row&&row.id&&row.src)window.VJ_IMG[row.id]=row.src;});
+    return all.length;
+  }catch(e){return 0;}
 }
 async function idbGetEvents(){
   try{
@@ -229,9 +292,23 @@ async function idbSaveEvents(evts){
     });
   }catch(e){console.warn("IndexedDB save failed",e);}
 }
+function slimEventsForStorage(evts){
+  return(evts||[]).map(ev=>({
+    ...ev,
+    inv:(ev.inv||[]).map(it=>{
+      if(!it||!it.img)return it;
+      const{img,...rest}=it;
+      return rest;
+    }),
+  }));
+}
 function saveEvents(evts){
-  try{localStorage.setItem(EVENTS_KEY,JSON.stringify(evts));}catch(e){console.warn("Could not save events to browser storage",e);}
-  idbSaveEvents(evts);
+  const slim=slimEventsForStorage(evts);
+  try{localStorage.setItem(EVENTS_KEY,JSON.stringify(slim));}catch(e){
+    console.warn("Could not save events to browser storage",e);
+    try{localStorage.removeItem(EVENTS_KEY);}catch(_){}
+  }
+  idbSaveEvents(slim);
 }
 async function loadEventsAsync(){
   let local=loadEvents();
@@ -368,6 +445,7 @@ function mergeDeletedRecords(a,b){
 const DRIVE_ROOT_NAME="Vianne Jewels Data";
 let _cloudOnline=false;
 let _lastCloudPing=null;
+let _lastCloudVersion=0;
 const _pendingInvFiles=[];
 function fileToBase64(file){
   return new Promise((resolve,reject)=>{
@@ -1305,7 +1383,9 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
           <div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:CR}}>{item.id}</div><div style={{fontSize:10,color:"rgba(245,237,224,0.6)",marginTop:1}}>Style: {item.style}</div></div>
           <span style={{background:"rgba(255,255,255,0.15)",color:CR,border:"1px solid rgba(255,255,255,0.2)",borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:700}}>{item.cat}</span>
         </div>
-        <div style={{background:"rgba(0,0,0,0.2)",borderRadius:10,height:140,display:"flex",alignItems:"center",justifyContent:"center",fontSize:64,marginBottom:12}}>{item.em}</div>
+        <div style={{background:"rgba(0,0,0,0.2)",borderRadius:10,height:140,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:12}}>
+          {getImg(item)?<img src={getImg(item)} alt="" loading="lazy" decoding="async" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:64}}>{item.em}</span>}
+        </div>
         <div style={{fontSize:9,color:"rgba(245,237,224,0.5)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:3}}>FINAL SALE PRICE</div>
         <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:pr.sF?4:10}}>
           <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:36,fontWeight:700,color:CR,lineHeight:1}}>{fc(dp,cur)}</span>
@@ -1360,7 +1440,7 @@ function buildReceiptPrintHtml(sale){
   if(ccAmt>0)rows+='<div class="row"><span>CC Surcharge'+(s.ccType==="pct"?" ("+receiptEsc(s.ccVal)+"%)":"")+'</span><span>'+fmt(ccAmt)+'</span></div>';
   rows+='<div class="row grand"><span>GRAND TOTAL</span><span>'+fmt(tot)+'</span></div>';
   const remarks=s.remark?'<div class="remarks"><div class="remarks-lbl">REMARKS</div><div>'+receiptEsc(s.remark)+'</div></div>':"";
-  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt '+receiptEsc(s.id)+'</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{margin:14mm}*{box-sizing:border-box}body{margin:0;padding:24px;background:#fff;color:#1E5C45;font-family:Lato,sans-serif}.page{position:relative;max-width:640px;margin:0 auto;padding:28px 32px 24px;overflow:hidden}.wm{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);width:300px;height:300px;background:url("'+logo+'") center/contain no-repeat;opacity:0.07;pointer-events:none;z-index:0}.content{position:relative;z-index:1}.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.brand{display:flex;align-items:flex-start;gap:12px;min-width:0}.brand img{width:52px;height:auto;flex-shrink:0}.brand-name{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;letter-spacing:0.08em;line-height:1.05}.brand-tag{font-size:8px;color:#C9A84C;letter-spacing:0.14em;text-transform:uppercase;line-height:1.45;margin-top:5px}.meta{text-align:right;font-size:11px;line-height:1.55;color:#1E5C45;flex-shrink:0}.meta-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}.cust{background:#F5EDE0;border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;line-height:1.45}.cust strong{font-size:14px;font-weight:700;display:block;margin-bottom:2px}.item{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border:1px solid #E8DCCB;border-radius:10px;padding:12px 14px;margin-bottom:16px;background:#fff;font-size:11px;line-height:1.45}.item-desc{flex:1;min-width:0;font-weight:600;color:#1E5C45}.item-price{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:700;white-space:nowrap}.rule{height:2px;background:#1E5C45;margin:8px 0 10px}.row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:#3D5C4A}.row.disc{color:#C8963A}.row.grand{font-size:16px;font-weight:700;color:#1E5C45;padding-top:8px;margin-top:4px;border-top:2px solid #1E5C45}.remarks{margin-top:14px;font-size:10px;color:#7A8C7E;line-height:1.45}.remarks-lbl{font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#B0A88A;margin-bottom:3px}.foot-rule{height:3px;background:#1E5C45;margin:22px 0 12px}.footer{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9px;color:#7A8C7E;line-height:1.45}.sign{text-align:right;color:#1E5C45;font-size:10px;line-height:1.5}.sign strong{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:0.06em}@media print{body{padding:0}.page{padding:18px 22px}}</style></head><body><div class="page"><div class="wm"></div><div class="content"><div class="hdr"><div class="brand"><img src="'+logo+'" alt="Vianne"/><div><div class="brand-name">VIANNE JEWELS</div><div class="brand-tag">THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div><div class="meta"><div class="meta-title">RECEIPT</div><div>'+receiptEsc(s.id)+'</div><div>'+receiptEsc(s.date)+' '+receiptEsc(s.time)+'</div><div>'+receiptEsc(s.staff)+' | '+receiptEsc(s.payment)+'</div></div></div><div class="cust"><strong>'+receiptEsc(s.custName)+'</strong>'+(s.phone?receiptEsc(s.phone):"")+'</div><div class="item"><div class="item-desc">'+line+'</div><div class="item-price">'+fmt(sub)+'</div></div><div class="rule"></div>'+rows+remarks+'<div class="foot-rule"></div><div class="footer"><div>Disputes subject to Mumbai jurisdiction.</div><div class="sign"><strong>VIANNE JEWELS</strong><br/>Auth. Signatory</div></div></div></div></body></html>';
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt '+receiptEsc(s.id)+'</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{margin:14mm;size:auto}*{box-sizing:border-box}body{margin:0;padding:24px;background:#fff;color:#1E5C45;font-family:Lato,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{position:relative;max-width:640px;margin:0 auto;padding:28px 32px 24px;overflow:hidden}.wm{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);width:300px;height:300px;background:url("'+logo+'") center/contain no-repeat;opacity:0.07;pointer-events:none;z-index:0}.content{position:relative;z-index:1}.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.brand{display:flex;align-items:flex-start;gap:12px;min-width:0}.brand img{width:52px;height:auto;flex-shrink:0}.brand-name{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;letter-spacing:0.08em;line-height:1.05}.brand-tag{font-size:8px;color:#C9A84C;letter-spacing:0.14em;text-transform:uppercase;line-height:1.45;margin-top:5px}.meta{text-align:right;font-size:11px;line-height:1.55;color:#1E5C45;flex-shrink:0}.meta-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}.cust{background:#F5EDE0;border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;line-height:1.45}.cust strong{font-size:14px;font-weight:700;display:block;margin-bottom:2px}.item-line{font-size:11px;font-weight:600;color:#1E5C45;line-height:1.5;margin-bottom:14px}.item-line .price{font-family:"Cormorant Garamond",serif;font-weight:700;font-size:13px;white-space:nowrap}.rule{height:2px;background:#1E5C45;margin:8px 0 10px}.row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:#3D5C4A}.row.disc{color:#C8963A}.row.grand{font-size:16px;font-weight:700;color:#1E5C45;padding-top:8px;margin-top:4px;border-top:2px solid #1E5C45}.remarks{margin-top:14px;font-size:10px;color:#7A8C7E;line-height:1.45}.remarks-lbl{font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#B0A88A;margin-bottom:3px}.foot-rule{height:3px;background:#1E5C45;margin:22px 0 12px}.footer{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9px;color:#7A8C7E;line-height:1.45}.sign{text-align:right;color:#1E5C45;font-size:10px;line-height:1.5}.sign strong{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:0.06em}@media print{html,body{height:auto}body{padding:0;margin:0}.page{padding:18px 22px}}</style></head><body><div class="page"><div class="wm"></div><div class="content"><div class="hdr"><div class="brand"><img src="'+logo+'" alt="Vianne"/><div><div class="brand-name">VIANNE JEWELS</div><div class="brand-tag">THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div><div class="meta"><div class="meta-title">RECEIPT</div><div>'+receiptEsc(s.id)+'</div><div>'+receiptEsc(s.date)+' '+receiptEsc(s.time)+'</div><div>'+receiptEsc(s.staff)+' | '+receiptEsc(s.payment)+'</div></div></div><div class="cust"><strong>'+receiptEsc(s.custName)+'</strong>'+(s.phone?'<div style="margin-top:2px">'+receiptEsc(s.phone)+'</div>':"")+'</div><div class="item-line">'+line+' <span class="price">'+fmt(sub)+'</span></div><div class="rule"></div>'+rows+remarks+'<div class="foot-rule"></div><div class="footer"><div>Disputes subject to Mumbai jurisdiction.</div><div class="sign"><strong>VIANNE JEWELS</strong><br/>Auth. Signatory</div></div></div></div></body></html>';
 }
 function printReceipt(sale,eventMeta){
   const html=buildReceiptPrintHtml(sale);
@@ -1402,9 +1482,9 @@ function ReceiptPreview({sale}){
           <div style={{fontWeight:700,fontSize:13,color:G}}>{sale.custName}</div>
           {sale.phone&&<div style={{fontSize:11,color:T3,marginTop:2}}>{sale.phone}</div>}
         </div>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,border:"1px solid "+CRD2,borderRadius:10,padding:"11px 12px",marginBottom:14,background:WH}}>
-          <div style={{fontSize:11,fontWeight:600,color:G,lineHeight:1.45,flex:1,minWidth:0}}>{line}</div>
-          <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:17,fontWeight:700,color:G,flexShrink:0}}>{fmt(sub)}</div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:14,fontSize:11,fontWeight:600,color:G,lineHeight:1.5}}>
+          <div style={{flex:1,minWidth:0}}>{line}</div>
+          <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,flexShrink:0}}>{fmt(sub)}</div>
         </div>
         <div style={{height:2,background:G,margin:"6px 0 8px"}}/>
         <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:T2,marginBottom:4}}><span>Subtotal</span><span>{fmt(sub)}</span></div>
@@ -2103,7 +2183,7 @@ function SingleLookup(p){
                     {lkResults.slice(0,20).map((item,i,arr)=>(
                       <div key={item.id} onClick={()=>{sdet(item);sjc("");}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer"}}>
                         <div style={{width:42,height:42,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                          {getImg(item)?<img src={getImg(item)} alt="" style={{width:42,height:42,objectFit:"cover"}}/>:<span style={{fontSize:22}}>{item.em}</span>}
+                          <ItemThumb item={item} size={42}/>
                         </div>
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{fontWeight:700,fontSize:13,color:T1}}>{item.id}</div>
@@ -2127,7 +2207,7 @@ function SingleLookup(p){
                     {[...inv].sort((a,b)=>b.searches-a.searches).slice(0,6).map((item,i,arr)=>(
                       <div key={item.id} onClick={()=>sdet(item)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer"}}>
                         <div style={{width:36,height:36,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                          {getImg(item)?<img src={getImg(item)} alt="" style={{width:36,height:36,objectFit:"cover"}}/>:<span style={{fontSize:18}}>{item.em}</span>}
+                          <ItemThumb item={item} size={36}/>
                         </div>
                         <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700,color:T1}}>{item.id}</div><div style={{fontSize:10,color:T3}}>{item.col} · {item.searches}🔍</div></div>
                         <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
@@ -2247,7 +2327,7 @@ function MultiLookup(p){
                       {mlItems.map((item,i)=>(
                         <div key={item.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderBottom:i<mlItems.length-1?"1px solid "+CRD2:"none"}}>
                           <div style={{width:38,height:38,borderRadius:7,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                            {getImg(item)?<img src={getImg(item)} alt="" style={{width:38,height:38,objectFit:"cover"}}/>:<span style={{fontSize:20}}>{item.em}</span>}
+                            <ItemThumb item={item} size={38}/>
                           </div>
                           <div style={{flex:1}}><div style={{fontWeight:700,fontSize:12,color:T1}}>{item.id}</div><div style={{fontSize:10,color:T3}}>{item.cat} · {item.metal}</div></div>
                           <div style={{textAlign:"right"}}>
@@ -2486,7 +2566,7 @@ function InventoryTab(p){
               {fi.map((item,i,arr)=>(
                 <div key={item.id+"-"+i} onClick={()=>{sdet(item);st("lookup");}} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer",background:WH}}>
                   <div style={{width:40,height:40,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    {getImg(item)?<img src={getImg(item)} alt="" style={{width:40,height:40,objectFit:"cover"}}/>:<span style={{fontSize:20}}>{item.em}</span>}
+                    <ItemThumb item={item} size={40}/>
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontWeight:700,fontSize:12,color:T1}}>{item.id}</div><Bdg t={item.st==="available"?"g":item.st==="reserved"?"a":"r"} ch={item.st}/></div>
@@ -4162,11 +4242,13 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const [auditLoc,saLoc]=useState("Exhibition");
   const [auditScanned,saScanned]=useState([]);
   const [audits,sAudits]=useState(ev.audits||[]);
+  const [imgTick,sImgTick]=useState(0);
   useEffect(()=>{
     si(ev.inv||[]);
     ssl(ev.sales||[]);
     sld(ev.leads||[]);
     sAudits(ev.audits||[]);
+    idbLoadImagesForIds((ev.inv||[]).map(i=>i.id)).then(n=>{if(n)sImgTick(x=>x+1);});
   },[ev.id,ev.localUpdatedAt,ev.syncedAt]);
   const [hstaff,shs]=useState("All");
   const [atab,sat]=useState("overview");
@@ -4313,12 +4395,17 @@ export default function App(){
     try{
       const d=await cloudFetchData();
       if(!d||!d.configured)return;
-      applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
+      const cloudVer=d.version||0;
       const needsPush=localDirtyRef.current||pendingCloudSaveRef.current||pendingDeletesRef.current.length>0||eventsAheadOfCloud(eventsRef.current,d.events||[]);
+      if(cloudVer!==_lastCloudVersion){
+        applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
+        _lastCloudVersion=cloudVer;
+      }
       if(needsPush){
         const deleted=pendingDeletesRef.current.splice(0);
         const r=await runCloudSave(eventsRef.current,appUsersRef.current,deleted,{silent});
         if(!r.ok&&deleted.length)pendingDeletesRef.current.unshift(...deleted);
+        else if(r.ok&&r.version)_lastCloudVersion=r.version;
       }
     }finally{
       cloudSyncBusyRef.current=false;
@@ -4356,6 +4443,7 @@ export default function App(){
       const d=await cloudFetchData();
       if(d&&d.configured){
         applyCloudPull(d,sevents,sappUsers,{eventsRef,appUsersRef});
+        _lastCloudVersion=d.version||0;
       }
       setCloudReady(true);
     })();
@@ -4380,12 +4468,13 @@ export default function App(){
   },[cloudReady,dataReady]);
   useEffect(()=>{
     if(!dataReady)return;
-    saveEvents(events);
+    const t=setTimeout(()=>saveEvents(events),600);
+    return()=>clearTimeout(t);
   },[events,dataReady]);
   useEffect(()=>{
     if(!cloudReady||!dataReady)return;
     runAutoSyncCycle({silent:true});
-    autoSyncRef.current=setInterval(()=>runAutoSyncCycle({silent:true}),5000);
+    autoSyncRef.current=setInterval(()=>runAutoSyncCycle({silent:true}),15000);
     const onVis=()=>{if(document.visibilityState==="visible")runAutoSyncCycle({silent:true});};
     document.addEventListener("visibilitychange",onVis);
     return()=>{
@@ -4463,42 +4552,11 @@ export default function App(){
   const logout=()=>{clearSession();su(null);sae(null);};
   useEffect(()=>{ensureXLSX(()=>{});},[]);
 
-  // Patch images into events once VJ_IMG is available
+  // Load product images from IndexedDB (persisted from Excel imports)
   useEffect(()=>{
-    if(document.getElementById("vj-img-loader"))return;
-    const s=document.createElement("script");
-    s.id="vj-img-loader";
-    s.src="assets/vj-images.js";
-    s.onload=()=>{if(window.IMGS&&!window.VJ_IMG)window.VJ_IMG=window.IMGS;};
-    s.onerror=()=>{};
-    document.head.appendChild(s);
-  },[]);
-  useEffect(()=>{
-    const patch=()=>{
-      if(!window.VJ_IMG&&!window.IMGS)return;
-      if(!window.VJ_IMG&&window.IMGS)window.VJ_IMG=window.IMGS;
-      sevents(prev=>{
-        let anyChanged=false;
-        const next=prev.map(ev=>{
-          let evChanged=false;
-          const inv=(ev.inv||[]).map(item=>{
-            if(item.img)return item;
-            const img=resolveItemImage(item.id);
-            if(!img)return item;
-            evChanged=true;
-            return{...item,img};
-          });
-          if(evChanged)anyChanged=true;
-          return evChanged?{...ev,inv}:ev;
-        });
-        return anyChanged?next:prev;
-      });
-    };
-    patch();
-    const t1=setTimeout(patch,1000);
-    const t2=setTimeout(patch,3000);
-    return()=>{clearTimeout(t1);clearTimeout(t2);};
-  },[]);
+    if(!dataReady)return;
+    idbLoadAllImages();
+  },[dataReady]);
   if(!dataReady||!cloudReady)return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",background:GD,fontFamily:"Lato,sans-serif",color:G}}>Loading Vianne data…</div>);
   const handleLogin=async u=>{
     const d=await cloudFetchData();

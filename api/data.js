@@ -1,10 +1,9 @@
 const {
   isSyncConfigured,
-  isBlobConfigured,
   isDriveConfigured,
   loadSyncData,
   saveSyncData,
-  driveErrorMessage,
+  getDriveStatus,
 } = require("./lib/sync-store");
 
 function cors(res) {
@@ -28,7 +27,7 @@ module.exports = async function handler(req, res) {
       ok: false,
       configured: false,
       error:
-        "Cloud sync not configured. In Vercel: create a Blob store (recommended) OR set GOOGLE_SERVICE_ACCOUNT_JSON + GOOGLE_DRIVE_FOLDER_ID on a Shared Drive.",
+        "Google Drive sync not configured. Set GOOGLE_SERVICE_ACCOUNT_JSON + GOOGLE_DRIVE_FOLDER_ID in Vercel (folder must be inside a Google Workspace Shared Drive).",
     });
   }
 
@@ -39,16 +38,11 @@ module.exports = async function handler(req, res) {
       const payload = {
         ok: true,
         configured: true,
-        syncApiVersion: 5,
-        blob: isBlobConfigured(),
+        syncApiVersion: 6,
+        store: "drive",
         drive: isDriveConfigured(),
-        blobEnv: {
-          storeId: !!process.env.BLOB_STORE_ID,
-          rwToken: !!process.env.BLOB_READ_WRITE_TOKEN,
-          oidc: !!process.env.VERCEL_OIDC_TOKEN,
-        },
-        blobRead: (data.events || []).length > 0 || (data.version || 0) > 0 ? "ok" : "empty",
-        store: data.store || null,
+        driveRead:
+          (data.events || []).length > 0 || (data.version || 0) > 0 ? "ok" : "empty",
         version: data.version || 0,
         updatedAt: data.updatedAt || null,
         events: data.events || [],
@@ -56,7 +50,7 @@ module.exports = async function handler(req, res) {
         currency: data.currency || null,
       };
       if (req.query && req.query.debug === "1") {
-        payload.debug = await debugBlobRead();
+        payload.driveStatus = await getDriveStatus();
       }
       return res.status(200).json(payload);
     }
@@ -71,8 +65,9 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({
         ok: true,
         configured: true,
-        blob: isBlobConfigured(),
-        drive: isDriveConfigured(),
+        syncApiVersion: 6,
+        store: "drive",
+        drive: true,
         ...result,
       });
     }

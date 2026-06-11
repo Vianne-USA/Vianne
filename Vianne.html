@@ -12799,7 +12799,7 @@ function _flushCloudSync() {
             _context21.n = 2;
             break;
           }
-          if (!silent) toast.warn("Cloud not connected", "Data saved on this device only until cloud sync is ready.");
+          if (!silent) toast.warn("Cloud not connected", "Data saved on this device only until Google Drive Shared Drive is configured.");
           return _context21.a(2, {
             ok: false
           });
@@ -12821,7 +12821,7 @@ function _flushCloudSync() {
             error: errMsg
           });
         case 4:
-          if (!silent && successMsg) toast.success(successMsg, "Saved to company cloud — visible to all permitted users.");
+          if (!silent && successMsg) toast.success(successMsg, "Saved to Google Drive — visible to all permitted users.");
           return _context21.a(2, {
             ok: true,
             synced: result.events || [],
@@ -22314,7 +22314,8 @@ function CloudStoragePanel(_ref44) {
       if (d) setPing(d);
     });
   }, []);
-  var blobOk = ping && ping.blob;
+  var driveOk = ping && ping.drive && ping.store === "drive";
+  var driveReadOk = ping && ping.driveRead === "ok";
   var syncNow = /*#__PURE__*/function () {
     var _ref45 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
       var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
@@ -22332,7 +22333,7 @@ function CloudStoragePanel(_ref44) {
               _context6.n = 3;
               break;
             }
-            toast.warn("Cloud not ready", "Set up Vercel Blob storage (see instructions below).");
+            toast.warn("Cloud not ready", "Set up Google Drive Shared Drive (see instructions below).");
             return _context6.a(2);
           case 3:
             setPing(d);
@@ -22359,12 +22360,12 @@ function CloudStoragePanel(_ref44) {
               break;
             }
             setLastErr(r.error || getLastCloudError());
-            toast.error("Cloud sync failed", r.error || getLastCloudError() || "Could not save to company cloud.");
+            toast.error("Cloud sync failed", r.error || getLastCloudError() || "Could not save to Google Drive.");
             return _context6.a(2);
           case 6:
             setMeta(getCloudMeta());
             if (onSynced) onSynced(merged, users);
-            toast.success("All devices updated", "Other users will see changes within ~15 seconds. You stay signed in.");
+            toast.success("All devices updated", "Saved to Google Drive — other users see changes within ~8 seconds.");
             _context6.n = 8;
             break;
           case 7:
@@ -22407,14 +22408,14 @@ function CloudStoragePanel(_ref44) {
       lineHeight: 1.55,
       marginBottom: 10
     }
-  }, "Events and inventory sync through ", /*#__PURE__*/React.createElement("strong", null, "Vercel Blob"), " so every user and device sees the same data. Google Drive (optional) stores Excel backups when Shared Drive is configured."), /*#__PURE__*/React.createElement("div", {
+  }, "Events and inventory sync through ", /*#__PURE__*/React.createElement("strong", null, "Google Drive"), " (Shared Drive) so every user and device sees the same data."), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
-      color: online ? "#27ae60" : AM,
+      color: online && driveOk ? "#27ae60" : AM,
       fontWeight: 600,
       marginBottom: 8
     }
-  }, online ? blobOk ? "✓ Blob sync active — changes share to all devices" : "⚠ Cloud reachable but Blob not active — redeploy after connecting Blob store" : "⚠ Cloud not connected — data stays on this device only"), lastErr && /*#__PURE__*/React.createElement("div", {
+  }, online && driveOk ? driveReadOk ? "✓ Google Drive sync active — changes share to all devices" : "✓ Drive connected — tap Sync below to push your data" : "⚠ Google Drive not connected — data stays on this device only"), lastErr && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
       color: RE,
@@ -22424,7 +22425,7 @@ function CloudStoragePanel(_ref44) {
       marginBottom: 8,
       lineHeight: 1.45
     }
-  }, lastErr), !online && /*#__PURE__*/React.createElement("div", {
+  }, lastErr), (!online || !driveOk) && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
       color: T2,
@@ -22434,7 +22435,7 @@ function CloudStoragePanel(_ref44) {
       marginBottom: 10,
       lineHeight: 1.5
     }
-  }, /*#__PURE__*/React.createElement("strong", null, "One-time fix (Naman / admin):"), /*#__PURE__*/React.createElement("br", null), "1. Vercel \u2192 your project \u2192 ", /*#__PURE__*/React.createElement("strong", null, "Storage"), " \u2192 Create ", /*#__PURE__*/React.createElement("strong", null, "Blob"), " store \u2192 Connect to project", /*#__PURE__*/React.createElement("br", null), "2. Redeploy (push any commit or Redeploy in Vercel)", /*#__PURE__*/React.createElement("br", null), "3. Come back here \u2192 tap Sync below"), meta.updatedAt && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("strong", null, "One-time setup (admin):"), /*#__PURE__*/React.createElement("br", null), "1. Google Workspace \u2192 create a ", /*#__PURE__*/React.createElement("strong", null, "Shared Drive"), " (e.g. Vianne Data)", /*#__PURE__*/React.createElement("br", null), "2. Add folder \u2192 share Shared Drive with service account email (Content manager)", /*#__PURE__*/React.createElement("br", null), "3. Vercel \u2192 Environment Variables \u2192 ", /*#__PURE__*/React.createElement("strong", null, "GOOGLE_DRIVE_FOLDER_ID"), " = folder ID", /*#__PURE__*/React.createElement("br", null), "4. Redeploy \u2192 come back here \u2192 tap Sync below"), meta.updatedAt && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
       color: T3,

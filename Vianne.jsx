@@ -426,7 +426,7 @@ function eventsForCloudPayload(events){
 async function flushCloudSync(events,users,deletedEvents,{silent=false,successMsg="Shared with all users & devices"}={}){
   const ping=await cloudFetchData();
   if(!ping||!ping.configured){
-    if(!silent)toast.warn("Cloud not connected","Data saved on this device only until cloud sync is ready.");
+    if(!silent)toast.warn("Cloud not connected","Data saved on this device only until Google Drive Shared Drive is configured.");
     return{ok:false};
   }
   const merged=mergeEvents(events,ping.events||[]);
@@ -437,7 +437,7 @@ async function flushCloudSync(events,users,deletedEvents,{silent=false,successMs
     if(!silent&&(events||[]).length)toast.error("Cloud sync failed",errMsg);
     return{ok:false,error:errMsg};
   }
-  if(!silent&&successMsg)toast.success(successMsg,"Saved to company cloud — visible to all permitted users.");
+  if(!silent&&successMsg)toast.success(successMsg,"Saved to Google Drive — visible to all permitted users.");
   return{ok:true,synced:result.events||[],users:result.users||null,version:result.version||0};
 }
 const S={
@@ -3023,13 +3023,14 @@ function CloudStoragePanel({pr,allEvents,appUsers,onSynced}){
   const [ping,setPing]=useState(getCloudPingInfo());
   const online=isCloudOnline();
   useEffect(()=>{cloudFetchData().then(d=>{if(d)setPing(d);});},[]);
-  const blobOk=ping&&ping.blob;
+  const driveOk=ping&&ping.drive&&ping.store==="drive";
+  const driveReadOk=ping&&ping.driveRead==="ok";
   const syncNow=async()=>{
     setBusy(true);
     setLastErr("");
     try{
       const d=await cloudFetchData();
-      if(!d||!d.configured){toast.warn("Cloud not ready","Set up Vercel Blob storage (see instructions below).");return;}
+      if(!d||!d.configured){toast.warn("Cloud not ready","Set up Google Drive Shared Drive (see instructions below).");return;}
       setPing(d);
       const localFromStore=await loadEventsAsync();
       const local=(allEvents&&allEvents.length)?allEvents:localFromStore;
@@ -3041,10 +3042,10 @@ function CloudStoragePanel({pr,allEvents,appUsers,onSynced}){
         saveUsers(cloudUsers);
       }
       const r=await flushCloudSync(merged,users,[],{silent:true});
-      if(!r.ok){setLastErr(r.error||getLastCloudError());toast.error("Cloud sync failed",r.error||getLastCloudError()||"Could not save to company cloud.");return;}
+      if(!r.ok){setLastErr(r.error||getLastCloudError());toast.error("Cloud sync failed",r.error||getLastCloudError()||"Could not save to Google Drive.");return;}
       setMeta(getCloudMeta());
       if(onSynced)onSynced(merged,users);
-      toast.success("All devices updated","Other users will see changes within ~15 seconds. You stay signed in.");
+      toast.success("All devices updated","Saved to Google Drive — other users see changes within ~8 seconds.");
     }catch(e){setLastErr(e.message||"");toast.warn("Sync failed",e.message||"");}
     finally{setBusy(false);}
   };
@@ -3053,18 +3054,18 @@ function CloudStoragePanel({pr,allEvents,appUsers,onSynced}){
     <div style={{...S.card({margin:0,marginBottom:12})}}>
       <div style={{fontWeight:700,fontSize:10,color:T2,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:12}}>☁ COMPANY CLOUD SYNC</div>
       <div style={{fontSize:11,color:T2,lineHeight:1.55,marginBottom:10}}>
-        Events and inventory sync through <strong>Vercel Blob</strong> so every user and device sees the same data.
-        Google Drive (optional) stores Excel backups when Shared Drive is configured.
+        Events and inventory sync through <strong>Google Drive</strong> (Shared Drive) so every user and device sees the same data.
       </div>
-      <div style={{fontSize:10,color:online?"#27ae60":AM,fontWeight:600,marginBottom:8}}>
-        {online?(blobOk?"✓ Blob sync active — changes share to all devices":"⚠ Cloud reachable but Blob not active — redeploy after connecting Blob store"):"⚠ Cloud not connected — data stays on this device only"}
+      <div style={{fontSize:10,color:online&&driveOk?"#27ae60":AM,fontWeight:600,marginBottom:8}}>
+        {online&&driveOk?(driveReadOk?"✓ Google Drive sync active — changes share to all devices":"✓ Drive connected — tap Sync below to push your data"):"⚠ Google Drive not connected — data stays on this device only"}
       </div>
       {lastErr&&<div style={{fontSize:10,color:RE,background:REBG,borderRadius:8,padding:"8px 10px",marginBottom:8,lineHeight:1.45}}>{lastErr}</div>}
-      {!online&&<div style={{fontSize:10,color:T2,background:CRD,borderRadius:8,padding:"10px 12px",marginBottom:10,lineHeight:1.5}}>
-        <strong>One-time fix (Naman / admin):</strong><br/>
-        1. Vercel → your project → <strong>Storage</strong> → Create <strong>Blob</strong> store → Connect to project<br/>
-        2. Redeploy (push any commit or Redeploy in Vercel)<br/>
-        3. Come back here → tap Sync below
+      {(!online||!driveOk)&&<div style={{fontSize:10,color:T2,background:CRD,borderRadius:8,padding:"10px 12px",marginBottom:10,lineHeight:1.5}}>
+        <strong>One-time setup (admin):</strong><br/>
+        1. Google Workspace → create a <strong>Shared Drive</strong> (e.g. Vianne Data)<br/>
+        2. Add folder → share Shared Drive with service account email (Content manager)<br/>
+        3. Vercel → Environment Variables → <strong>GOOGLE_DRIVE_FOLDER_ID</strong> = folder ID<br/>
+        4. Redeploy → come back here → tap Sync below
       </div>}
       {meta.updatedAt&&<div style={{fontSize:10,color:T3,marginBottom:8}}>Last cloud save: {new Date(meta.updatedAt).toLocaleString()}</div>}
       <button style={S.btn({padding:"10px",fontSize:12})} disabled={busy} onClick={syncNow}>{busy?"Syncing…":"↻ Sync all devices now"}</button>

@@ -3,104 +3,60 @@ const {
   loadMasterData,
   saveMasterData,
   driveErrorMessage,
+  getDriveStatus,
 } = require("./drive");
-const { isBlobConfigured, loadFromBlob, saveToBlob, debugBlobRead } = require("./blob-store");
 
 function isSyncConfigured() {
-  return isBlobConfigured() || isDriveConfigured();
+  return isDriveConfigured();
 }
 
-function pickNewer(a, b) {
-  if (!a) return b || null;
-  if (!b) return a || null;
-  const ta = a.updatedAt ? Date.parse(a.updatedAt) : 0;
-  const tb = b.updatedAt ? Date.parse(b.updatedAt) : 0;
-  if (ta === tb) {
-    const ac = (a.events || []).length;
-    const bc = (b.events || []).length;
-    return bc > ac ? b : a;
-  }
-  return tb > ta ? b : a;
+function isBlobConfigured() {
+  return false;
 }
 
 async function loadSyncData() {
-  if (isBlobConfigured()) {
-    const blob = await loadFromBlob();
-    if (blob) return blob;
+  if (!isDriveConfigured()) {
     return {
       version: 0,
       updatedAt: null,
       events: [],
       users: null,
       currency: null,
-      store: "blob",
+      store: null,
     };
   }
-  let drive = null;
-  if (isDriveConfigured()) {
-    try {
-      drive = await loadMasterData();
-      if (drive) drive.store = "drive";
-    } catch (e) {
-      console.warn("drive load", e.message);
+  try {
+    const drive = await loadMasterData();
+    if (drive) {
+      drive.store = "drive";
+      return drive;
     }
+  } catch (e) {
+    console.warn("drive load", e.message);
   }
-  if (drive) return drive;
   return {
     version: 0,
     updatedAt: null,
     events: [],
     users: null,
     currency: null,
+    store: "drive",
   };
 }
 
 async function saveSyncData(payload) {
-  const errors = [];
-  let blobResult = null;
-  let driveResult = null;
-
-  const tryBlob = async () => {
-    try {
-      return await saveToBlob(payload);
-    } catch (e) {
-      errors.push("Blob: " + (e && e.message ? e.message : e));
-      return null;
-    }
-  };
-
-  if (isBlobConfigured() || process.env.VERCEL === "1") {
-    blobResult = await tryBlob();
-  }
-
-  if (blobResult) {
-    return blobResult;
-  }
-
-  if (isDriveConfigured()) {
-    try {
-      driveResult = await saveMasterData(payload);
-      driveResult.store = "drive";
-    } catch (e) {
-      errors.push("Drive: " + driveErrorMessage(e));
-    }
-  }
-
-  if (driveResult) {
-    return driveResult;
-  }
-
-  if (!isBlobConfigured() && !isDriveConfigured()) {
+  if (!isDriveConfigured()) {
     throw new Error(
-      "Cloud storage not configured. In Vercel → Storage → create a Blob store and connect it to this project, then redeploy."
+      "Google Drive not configured. Set GOOGLE_SERVICE_ACCOUNT_JSON and GOOGLE_DRIVE_FOLDER_ID in Vercel (folder must be inside a Shared Drive)."
     );
   }
-
-  const blobHint =
-    "Fix: Vercel → Storage → Blob → Connect to project → Redeploy (Production). Drive-only writes need a Shared Drive folder.";
-  throw new Error(
-    (errors.length ? errors.join(" · ") + " · " : "") + blobHint
-  );
+  try {
+    const driveResult = await saveMasterData(payload);
+    driveResult.store = "drive";
+    return driveResult;
+  } catch (e) {
+    throw new Error(driveErrorMessage(e));
+  }
 }
 
 module.exports = {
@@ -110,4 +66,5 @@ module.exports = {
   loadSyncData,
   saveSyncData,
   driveErrorMessage,
+  getDriveStatus,
 };

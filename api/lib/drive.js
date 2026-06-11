@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { mergeEvents, applyDeletedEvents } = require("./merge-events");
 
 const MASTER_NAME = "vianne-master.json";
 const SCOPES = "https://www.googleapis.com/auth/drive";
@@ -444,7 +445,11 @@ async function saveMasterData(payload) {
     }
   }
 
-  const eventsIn = Array.isArray(payload.events) ? payload.events : [];
+  const prev = await loadMasterData();
+  const eventsIn = applyDeletedEvents(
+    mergeEvents(prev?.events || [], Array.isArray(payload.events) ? payload.events : []),
+    deleted
+  );
   const inventoryFiles = Array.isArray(payload.inventoryFiles) ? payload.inventoryFiles : [];
   const syncedEvents = [];
   for (const ev of eventsIn) {
@@ -456,7 +461,6 @@ async function saveMasterData(payload) {
     }
   }
 
-  const prev = await loadMasterData();
   const version = (prev && prev.version ? prev.version : 0) + 1;
   const master = {
     version,
@@ -477,9 +481,39 @@ async function saveMasterData(payload) {
   return { version, updatedAt: master.updatedAt, masterFileId: file.id, events: syncedEvents };
 }
 
+async function getDriveStatus() {
+  if (!isConfigured()) {
+    return {
+      configured: false,
+      hasServiceAccount: !!credentials(),
+      hasFolderId: !!rootFolderId(),
+    };
+  }
+  try {
+    const root = rootFolderId();
+    await drive("/files/" + root + "?fields=id,name,driveId");
+    const data = await loadMasterData();
+    return {
+      configured: true,
+      folderId: root,
+      version: data?.version || 0,
+      eventCount: (data?.events || []).length,
+      masterFileId: data?.masterFileId || null,
+      updatedAt: data?.updatedAt || null,
+    };
+  } catch (e) {
+    return {
+      configured: true,
+      folderId: rootFolderId(),
+      error: driveErrorMessage(e),
+    };
+  }
+}
+
 module.exports = {
   isConfigured,
   loadMasterData,
   saveMasterData,
   driveErrorMessage,
+  getDriveStatus,
 };

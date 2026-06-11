@@ -31,7 +31,29 @@ Vercel (live webapp)
   - Output Directory: `.`
   - Install Command: *(empty)*
 
-### 4. First push from Ruchit's Mac
+### 4. Google Drive sync (all devices — required)
+
+Cloud sync uses **Google Drive only** (no Vercel Blob). The folder **must** be inside a **Google Workspace Shared Drive** (not My Drive).
+
+**Google Workspace (one-time):**
+1. [Google Drive](https://drive.google.com) → **Shared drives** → **New** → name it e.g. `Vianne Data`
+2. Inside it, create a folder e.g. `Vianne Jewels`
+3. Open the folder → copy the ID from the URL: `.../folders/FOLDER_ID_HERE`
+4. **Manage members** → add the service account email from `GOOGLE_SERVICE_ACCOUNT_JSON` (`client_email`) as **Content manager**
+
+**Vercel env vars (Production):**
+| Variable | Value |
+|----------|--------|
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | Full JSON from Google Cloud service account |
+| `GOOGLE_DRIVE_FOLDER_ID` | Folder ID from step 3 |
+
+Optional: remove `BLOB_STORE_ID` / Blob env vars — not used anymore.
+
+**Verify:** open `https://vianne-lac.vercel.app/api/data` — should show `"syncApiVersion": 6`, `"store": "drive"`, `"drive": true`.
+
+Debug: `https://vianne-lac.vercel.app/api/data?debug=1` — check `driveStatus`.
+
+### 5. First push from Ruchit's Mac
 ```bash
 cd /Users/rj/Downloads/VIANNE/Vianne
 gh auth setup-git
@@ -99,7 +121,8 @@ gh api repos/Vianne-USA/Vianne --jq .permissions.push   # must be true
 | `Permission denied 403` | Naman adds RUCHITJIYANI as **Write** |
 | Vercel looks for `public/` | Output Directory = `.` in Vercel settings |
 | Wrong folder on Mac | Use `/Users/rj/Downloads/VIANNE/Vianne` (not ~/Downloads/Vianne) |
-| `fatal: origin does not exist` | `git remote add origin https://github.com/Vianne-USA/Vianne.git` |
+| Cloud sync empty / Shared Drive error | Move folder to a **Shared Drive**, share with service account, update `GOOGLE_DRIVE_FOLDER_ID`, redeploy |
+| `syncApiVersion` not 6 on `/api/data` | Redeploy latest commit from `main` (not an old Redeploy) |
 
 ## Files in git
 

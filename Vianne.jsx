@@ -1,17 +1,82 @@
 import{useState,useRef,useEffect}from"react";
-const getImg=(item)=>{if(!item)return "";return resolveItemImage(item.id);};
-function resolveItemImage(id){
+const _imgListeners=[];
+function notifyImagesChanged(){_imgListeners.forEach(fn=>{try{fn();}catch(e){}});}
+function isUsableImgSrc(src){const s=String(src||"").trim();return s&&(s.startsWith("data:image/")||/^https?:\/\//i.test(s));}
+const getImg=(item)=>{if(!item)return "";return resolveItemImage(item.id,item);};
+function resolveItemImage(id,item){
   const k=String(id||"").toUpperCase();
-  if(!k)return "";
-  if(window.VJ_IMG&&window.VJ_IMG[k])return window.VJ_IMG[k];
-  if(window.IMGS&&window.IMGS[k])return window.IMGS[k];
+  if(k&&window.VJ_IMG&&window.VJ_IMG[k])return window.VJ_IMG[k];
+  if(k&&window.IMGS&&window.IMGS[k])return window.IMGS[k];
+  if(item&&isUsableImgSrc(item.img))return item.img;
   return "";
 }
+function collectUrlImages(items){
+  const m={};
+  (items||[]).forEach(it=>{
+    const u=String(it?.img||"").trim();
+    if(it?.id&&/^https?:\/\//i.test(u))m[String(it.id).toUpperCase()]=u;
+  });
+  return m;
+}
 function attachItemImages(items,imgMap){
-  if(imgMap&&Object.keys(imgMap).length)idbSaveImages(imgMap);
+  const merged={...collectUrlImages(items),...(imgMap||{})};
+  if(Object.keys(merged).length)idbSaveImages(merged);
   return items;
 }
+function invItem(inv,itemOrId){
+  if(!itemOrId)return null;
+  const id=typeof itemOrId==="string"?itemOrId:itemOrId.id;
+  if(!id)return typeof itemOrId==="object"?itemOrId:null;
+  const k=String(id).toUpperCase();
+  return (inv||[]).find(i=>String(i.id).toUpperCase()===k)||(typeof itemOrId==="object"?itemOrId:null);
+}
+function buildIdByRowFromInv(inv){
+  const idByRow={};
+  (inv||[]).forEach(it=>{
+    if(it&&it.excelRow&&it.id)idByRow[it.excelRow]=String(it.id).toUpperCase();
+  });
+  return idByRow;
+}
+async function prefetchInvImages(ids){
+  const list=[...new Set((ids||[]).map(id=>String(id||"").toUpperCase()).filter(Boolean))];
+  if(!list.length)return 0;
+  const before=list.filter(id=>!resolveItemImage(id)).length;
+  await idbLoadImagesForIds(list);
+  const after=list.filter(id=>!resolveItemImage(id)).length;
+  if(before>after)notifyImagesChanged();
+  return before-after;
+}
+function ensureJSZipAsync(){
+  return new Promise(res=>ensureJSZip(()=>res()));
+}
+async function ensureEventInvImages(ev){
+  const invList=ev?.inv||[];
+  const ids=invList.map(i=>i.id);
+  let loaded=await prefetchInvImages(ids);
+  const missing=ids.filter(id=>!resolveItemImage(id,invItem(invList,id)));
+  if(!missing.length||!isCloudOnline())return loaded;
+  const latest=[...(ev.invHistory||[])].reverse().find(h=>h&&h.driveFileId&&/\.xlsx?$/i.test(h.fileName||""));
+  if(!latest)return loaded;
+  try{
+    await ensureJSZipAsync();
+    const r=await fetch("/api/inventory-file?eventId="+encodeURIComponent(ev.id)+"&fileId="+encodeURIComponent(latest.driveFileId),{cache:"no-store"});
+    if(!r.ok)return loaded;
+    const buf=await r.arrayBuffer();
+    const idByRow=buildIdByRowFromInv(invList);
+    if(!Object.keys(idByRow).length)return loaded;
+    const imgMap=await extractXLImages(buf,idByRow);
+    const n=Object.keys(imgMap).length;
+    if(n){attachItemImages(invList,imgMap);loaded+=n;notifyImagesChanged();}
+  }catch(e){console.warn("Drive image refresh",e);}
+  return loaded;
+}
 function ItemThumb({item,size=40,style={}}){
+  const [,setImgRev]=useState(0);
+  useEffect(()=>{
+    const fn=()=>setImgRev(x=>x+1);
+    _imgListeners.push(fn);
+    return()=>{const i=_imgListeners.indexOf(fn);if(i>=0)_imgListeners.splice(i,1);};
+  },[]);
   const src=getImg(item);
   const box={width:size,height:size,borderRadius:size>36?10:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center",...style};
   if(src)return <img src={src} alt="" loading="lazy" decoding="async" style={{width:size,height:size,objectFit:"cover",display:"block"}}/>;
@@ -230,6 +295,7 @@ async function idbSaveImages(imgMap){
     });
     if(!window.VJ_IMG)window.VJ_IMG={};
     Object.entries(imgMap).forEach(([id,src])=>{window.VJ_IMG[String(id).toUpperCase()]=src;});
+    notifyImagesChanged();
   }catch(e){console.warn("Image save failed",e);}
 }
 async function idbLoadImagesForIds(ids){
@@ -253,6 +319,7 @@ async function idbLoadImagesForIds(ids){
       });
       tx.onerror=()=>rej(tx.error);
     });
+    if(loaded)notifyImagesChanged();
     return loaded;
   }catch(e){return 0;}
 }
@@ -265,8 +332,10 @@ async function idbLoadAllImages(){
       r.onerror=()=>rej(r.error);
     });
     if(!window.VJ_IMG)window.VJ_IMG={};
-    all.forEach(row=>{if(row&&row.id&&row.src)window.VJ_IMG[row.id]=row.src;});
-    return all.length;
+    let loaded=0;
+    all.forEach(row=>{if(row&&row.id&&row.src){window.VJ_IMG[row.id]=row.src;loaded++;}});
+    if(loaded)notifyImagesChanged();
+    return loaded;
   }catch(e){return 0;}
 }
 async function idbGetEvents(){
@@ -296,7 +365,7 @@ function slimEventsForStorage(evts){
   return(evts||[]).map(ev=>({
     ...ev,
     inv:(ev.inv||[]).map(it=>{
-      if(!it||!it.img)return it;
+      if(!it||!it.img||/^https?:\/\//i.test(it.img))return it;
       const{img,...rest}=it;
       return rest;
     }),
@@ -834,41 +903,59 @@ function appendInvHistory(ev,meta){
 
 function ensureJSZip(cb){
   if(window.JSZip){cb();return;}
-  if(document.getElementById("vj-jszip")){setTimeout(()=>cb(),500);return;}
+  const wait=(n=0)=>{
+    if(window.JSZip){cb();return;}
+    if(n>40){toast.warn("Product images skipped","Image library still loading — wait a moment and re-upload your Excel file.");cb();return;}
+    setTimeout(()=>wait(n+1),250);
+  };
+  if(document.getElementById("vj-jszip")){wait();return;}
   const s=document.createElement("script");
   s.id="vj-jszip";
   s.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
   s.onload=()=>cb();
-  s.onerror=()=>cb();
+  s.onerror=()=>{toast.warn("Product images skipped","Could not load image extractor — check network and refresh.");cb();};
   document.head.appendChild(s);
 }
 function codeForExcelRow(excelRow,idByRow){
   for(let r=excelRow;r>=1;r--){if(idByRow[r])return idByRow[r];}
   return null;
 }
+function parseDrawingRels(relsXml){
+  const relMap={};
+  relsXml.replace(/<(?:Relationship|[^>]*:Relationship)[^>]*>/g,tag=>{
+    const id=(tag.match(/\bId="([^"]+)"/)||tag.match(/\bid="([^"]+)"/))?.[1];
+    const tgt=(tag.match(/\bTarget="([^"]+)"/)||tag.match(/\btarget="([^"]+)"/))?.[1];
+    if(id&&tgt)relMap[id]="xl/"+tgt.replace(/^\.\.\//,"");
+    return tag;
+  });
+  return relMap;
+}
+async function mediaDataUrl(zip,mediaPath){
+  if(!mediaPath||!zip.files[mediaPath])return "";
+  const ext=(mediaPath.split(".").pop()||"jpg").toLowerCase().split("?")[0];
+  const mime=ext==="png"?"image/png":ext==="gif"?"image/gif":ext==="webp"?"image/webp":"image/jpeg";
+  const b64=await zip.file(mediaPath).async("base64");
+  return "data:"+mime+";base64,"+b64;
+}
 async function extractXLImages(arrayBuffer,idByRow){
-  if(!window.JSZip||!idByRow)return {};
+  if(!window.JSZip||!idByRow||!Object.keys(idByRow).length)return {};
   try{
     const zip=await window.JSZip.loadAsync(arrayBuffer);
     const imgs={};
-    const drawingPaths=Object.keys(zip.files).filter(n=>/xl\/drawings\/drawing\d+\.xml$/.test(n));
+    const drawingPaths=Object.keys(zip.files).filter(n=>/xl\/drawings\/drawing\d+\.xml$/i.test(n));
     for(const dp of drawingPaths){
       const xml=await zip.file(dp).async("string");
-      const relsPath=dp.replace("drawings/","drawings/_rels/").replace(".xml",".xml.rels");
+      const relsPath=dp.replace("drawings/","drawings/_rels/").replace(/\.xml$/i,".xml.rels");
       if(!zip.files[relsPath])continue;
-      const relsXml=await zip.file(relsPath).async("string");
-      const relMap={};
-      relsXml.replace(/Id="([^"]+)"[^>]*Target="([^"]+)"/g,(_,id,tgt)=>{relMap[id]="xl/"+tgt.replace(/^\.\.\//,"");});
-      const re=/<xdr:row>(\d+)<\/xdr:row>[\s\S]*?r:embed="([^"]+)"/g;
+      const relMap=parseDrawingRels(await zip.file(relsPath).async("string"));
+      const re=/<xdr:row>(\d+)<\/xdr:row>[\s\S]*?r:(?:embed|link)="([^"]+)"/g;
       let m;
       while((m=re.exec(xml))){
         const code=codeForExcelRow(parseInt(m[1],10)+1,idByRow);
         const mediaPath=relMap[m[2]];
         if(!code||!mediaPath||imgs[code])continue;
-        const ext=(mediaPath.split(".").pop()||"jpg").toLowerCase();
-        const mime=ext==="png"?"image/png":ext==="gif"?"image/gif":"image/jpeg";
-        const b64=await zip.file(mediaPath).async("base64");
-        imgs[code]="data:"+mime+";base64,"+b64;
+        const dataUrl=await mediaDataUrl(zip,mediaPath);
+        if(dataUrl)imgs[code]=dataUrl;
       }
     }
     return imgs;
@@ -897,6 +984,7 @@ function rowToItem(row,excelRow){
   const xlRaw={};
   Object.entries(row||{}).forEach(([k,v])=>{if(v!=null&&String(v).trim()!=="")xlRaw[String(k).trim()]=v;});
   const stones=(stoneShape||clarity||pcs||cts)?[{sh:stoneShape,cl:clarity,pc:pcs,ct:cts,tct:cts||xlNum(xlVal(row,["Total CTS"]))}]:[];
+  const imgUrl=String(xlVal(row,["Image URL","Image Link","Image","Photo URL","Photo","Picture","Img","Product Image","Product Photo"])||"").trim();
   const emo={Bracelets:"💎",Earrings:"✨",Necklaces:"📿",Rings:"💍",Pendants:"⭐",Bangles:"🔮",Brooch:"📌",Jewellery:"💎",Jewelry:"💎","Men's":"💎"};
   return{
     id,style:String(xlVal(row,["Style Code","Style","Style No"])||""),
@@ -913,7 +1001,7 @@ function rowToItem(row,excelRow){
     fp,salePrice,roundOff,design,stoneShape,clarity,ktCol:metal,xl:xlRaw,excelRow,
     em:emo[design]||"💎",st:"available",
     loc:String(xlVal(row,["Location","Loc"])||"Exhibition"),
-    views:0,searches:0,stones,img:""
+    views:0,searches:0,stones,img:/^https?:\/\//i.test(imgUrl)?imgUrl:""
   };
 }
 function parseSheetRows(X,ws){
@@ -962,6 +1050,10 @@ function parseXL(file,onDone,onError){
         }
         const imgMap=await extractXLImages(buf,idByRow);
         items=attachItemImages(items,imgMap);
+        await prefetchInvImages(items.map(i=>i.id));
+        const imgN=Object.keys(imgMap).length;
+        if(imgN)toast.success("Product photos imported",imgN+" image(s) linked to inventory items");
+        else if(String(file.name||"").toLowerCase().endsWith(".xlsx"))toast.info("No embedded photos found","Use an Excel file with product pictures (e.g. JCK Price List), not a scan/export sheet.");
         onDone(items);
       }catch(err){onError(INV_FAIL+" — "+err.message);}
     };
@@ -1208,7 +1300,7 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
           <div style={{display:"flex",gap:8,marginBottom:11}}>{[{id:"add",l:"Add new"},{id:"replace",l:"Replace all"}].map(m=>(
             <button key={m.id} onClick={()=>smode(m.id)} style={S.pill(mode===m.id)}>{m.l}</button>
           ))}</div>
-          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,async items=>{if(!items.length){toast.error(INV_FAIL,"0 items found — check Unique Code and Round Off Final columns.");e.target.value="";return;}const{inv,added,skipped}=mergeInvItems(ev.inv||[],items,mode);if(mode==="add"&&added===0&&skipped>0){invMergeToast({added,skipped,mode,total:(ev.inv||[]).length});e.target.value="";return;}const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added,skipped,total:inv.length,by:user?.name||"Admin"})};await queueInventoryFileForDrive(ev.id,f);onUpdate(updated);invMergeToast({added,skipped,mode,total:inv.length});e.target.value="";},err=>{toast.error(INV_FAIL,String(err).replace(INV_FAIL+" — ",""));e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
+          <input type="file" accept=".xlsx,.xls,.csv" onChange={e=>{const f=e.target.files[0];if(!f)return;parseXL(f,async items=>{if(!items.length){toast.error(INV_FAIL,"0 items found — check Unique Code and Round Off Final columns.");e.target.value="";return;}const{inv,added,skipped}=mergeInvItems(ev.inv||[],items,mode);if(mode==="add"&&added===0&&skipped>0){invMergeToast({added,skipped,mode,total:(ev.inv||[]).length});e.target.value="";return;}const updated={...ev,inv,invHistory:appendInvHistory(ev,{fileName:f.name,mode,added,skipped,total:inv.length,by:user?.name||"Admin"})};await queueInventoryFileForDrive(ev.id,f);await prefetchInvImages(inv.map(i=>i.id));onUpdate(updated);invMergeToast({added,skipped,mode,total:inv.length});e.target.value="";},err=>{toast.error(INV_FAIL,String(err).replace(INV_FAIL+" — ",""));e.target.value="";});}} style={{...S.inp(),cursor:"pointer",marginBottom:8}}/>
           <div style={{fontSize:11,color:T3,lineHeight:1.5,marginTop:6}}>Duplicate Unique Codes are never added twice. You will see how many duplicates were skipped after each upload.</div>
         </div>
       )}
@@ -1265,6 +1357,12 @@ function SaleSuccess({sale,item,fc,cur,onDone,onPrint}){
 
 function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,onBack,onAddLead,imgTick}){
   const pr=gp(user.role,user.perms);
+  const [,setImgRev]=useState(0);
+  useEffect(()=>{
+    const fn=()=>setImgRev(x=>x+1);
+    _imgListeners.push(fn);
+    return()=>{const i=_imgListeners.indexOf(fn);if(i>=0)_imgListeners.splice(i,1);};
+  },[]);
   const [mode,sm]=useState(null),[saleResult,setSaleResult]=useState(null),[f,sf]=useState({cu:preCustName||"",ph:"",email:"",company:"",source:"Walk-in",pm:"NEFT",disc:0,remark:"",cc_type:"pct",cc_val:""});
   const [matchedCust,setMatchedCust]=useState(null);
   const set=(k,v)=>{
@@ -4307,12 +4405,14 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const [lookupHistory,sLookupHistory]=useState(ev.lookupHistory||[]);
   const [imgTick,sImgTick]=useState(0);
   useEffect(()=>{
-    si(ev.inv||[]);
+    const nextInv=ev.inv||[];
+    si(nextInv);
     ssl(ev.sales||[]);
     sld(ev.leads||[]);
     sAudits(ev.audits||[]);
     sLookupHistory(ev.lookupHistory||[]);
-    idbLoadImagesForIds((ev.inv||[]).map(i=>i.id)).then(n=>{if(n)sImgTick(x=>x+1);});
+    sdet(d=>d?invItem(nextInv,d):null);
+    ensureEventInvImages(ev).then(n=>{if(n)sImgTick(x=>x+1);});
   },[ev.id,ev.localUpdatedAt,ev.syncedAt]);
   const [hstaff,shs]=useState("All");
   const [atab,sat]=useState("overview");
@@ -4331,11 +4431,12 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
     return ni;
   };
   const openItem=(item,type,query)=>{
-    if(!item)return;
-    recordLookup(item,type||"view",query||jc.trim());
-    const similarIds=inv.filter(i=>i.id!==item.id&&(i.col===item.col||i.cat===item.cat)).slice(0,3).map(i=>i.id);
-    idbLoadImagesForIds([item.id,...similarIds]).then(n=>{if(n)sImgTick(x=>x+1);});
-    sdet(item);
+    const full=invItem(inv,item);
+    if(!full)return;
+    recordLookup(full,type||"view",query||jc.trim());
+    const similarIds=inv.filter(i=>i.id!==full.id&&(i.col===full.col||i.cat===full.cat)).slice(0,3).map(i=>i.id);
+    prefetchInvImages([full.id,...similarIds]).then(n=>{if(n)sImgTick(x=>x+1);});
+    sdet(full);
   };
   const doSell=sale=>{const ni=inv.map(i=>i.id===sale.itemId?{...i,st:"sold"}:i);const ns=[sale,...sales];si(ni);ssl(ns);sdet(null);sinvm(sale);syncUp(ni,ns,null,null);};
   const onAddLead=(cust,action)=>{
@@ -4386,6 +4487,11 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const lkQ = jc.trim();
   const lkResults = applyFilters(inv, lkQ || null);
   const lkShowResults = lkQ.length > 0 || activeFilters > 0;
+  const detItem = det ? invItem(inv, det) : null;
+  useEffect(()=>{
+    const ids=lkResults.slice(0,25).map(i=>i.id);
+    if(ids.length)prefetchInvImages(ids).then(n=>{if(n)sImgTick(x=>x+1);});
+  },[lkQ,lkResults.length,inv.length,ev.id,activeFilters]);
 
   return(
     <div style={{width:"100%",minHeight:"100dvh",background:GD,display:"flex",flexDirection:"column",boxSizing:"border-box",alignItems:"center"}}>
@@ -4405,7 +4511,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
         {TABS.map(t=><button key={t.id} onClick={()=>st(t.id)} style={{flexShrink:0,flex:1,background:"none",border:"none",borderBottom:tab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:tab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:10,fontWeight:tab===t.id?700:500,padding:"9px 10px",cursor:"pointer",whiteSpace:"nowrap"}}>{t.ic} {t.l}</button>)}
       </div>
       <div className="v-erp-scroll">
-        {tab==="lookup"&&<LookupTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,onAddLead:onAddLead,openItem:openItem,lookupHistory:lookupHistory,imgTick:imgTick}}/>}
+        {tab==="lookup"&&<LookupTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:detItem,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,onAddLead:onAddLead,openItem:openItem,lookupHistory:lookupHistory,imgTick:imgTick}}/>}
 
         {tab==="sales"&&<SalesTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,onAddLead:onAddLead}}/>}
 
@@ -4634,12 +4740,12 @@ export default function App(){
     setTimeout(()=>scheduleCloudSave(400,eventsRef.current,{silent:false,notify:true}),100);
   };
   const logout=()=>{clearSession();su(null);sae(null);};
-  useEffect(()=>{ensureXLSX(()=>{});},[]);
+  useEffect(()=>{ensureXLSX(()=>{});ensureJSZip(()=>{});},[]);
 
   // Load product images from IndexedDB (persisted from Excel imports)
   useEffect(()=>{
     if(!dataReady)return;
-    idbLoadAllImages();
+    idbLoadAllImages().then(n=>{if(n)notifyImagesChanged();});
   },[dataReady]);
   if(!dataReady||!cloudReady)return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",background:GD,fontFamily:"Lato,sans-serif",color:G}}>Loading Vianne data…</div>);
   const handleLogin=async u=>{
@@ -4682,7 +4788,7 @@ export default function App(){
     <div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:dark?"#0f0f0f":"#163D2E"}}>
       <ToastContainer/>
       <EventHub user={user} events={events} onEnter={ev=>{if(!userHasEventAccess(user,ev.id)){toast.warn("No access","Ask an admin to assign this event to your account.");return;}sae(ev);}} onCreate={createEv} onManage={ev=>smev(ev)} onDelete={delEv} onLogout={logout}/>
-      {manageEv&&<ManageEvent ev={events.find(e=>e.id===manageEv.id)||manageEv} user={user} onClose={()=>smev(null)} onUpdate={ev=>{upEv(ev);smev(ev);}} onDelete={id=>{delEv(id);smev(null);}}/>}
+      {manageEv&&<ManageEvent ev={events.find(e=>e.id===manageEv.id)||manageEv} user={user} onClose={()=>smev(null)} onUpdate={ev=>{upEv(ev);smev(ev);if(activeEv&&activeEv.id===ev.id)sae(ev);}} onDelete={id=>{delEv(id);smev(null);if(activeEv&&activeEv.id===id)sae(null);}}/>}
     </div>
   );
 }

@@ -182,6 +182,43 @@ async function downloadJson(fileId) {
   return res.json();
 }
 
+async function downloadBinary(fileId) {
+  const token = await accessToken();
+  const res = await fetch(
+    "https://www.googleapis.com/drive/v3/files/" +
+      fileId +
+      "?" +
+      DRIVE_FLAGS +
+      "&alt=media",
+    { headers: { Authorization: "Bearer " + token } }
+  );
+  if (!res.ok) throw new Error((await res.text()).slice(0, 200));
+  const buf = Buffer.from(await res.arrayBuffer());
+  return buf;
+}
+
+async function downloadInventoryFileForEvent(eventId, fileId) {
+  if (!isConfigured()) throw new Error("Google Drive not configured on server");
+  if (!eventId || !fileId) throw new Error("eventId and fileId required");
+  const prev = await loadMasterData();
+  const ev = (prev?.events || []).find((e) => e && e.id === eventId);
+  if (!ev) throw new Error("Event not found: " + eventId);
+  const folderId = ev.driveFolderId;
+  if (!folderId) throw new Error("Event has no Drive folder");
+  const hit = await findFileById(fileId);
+  if (!hit || !hit.id) throw new Error("Inventory file not found");
+  if (hit.trashed) throw new Error("Inventory file was deleted");
+  const parents = hit.parents || [];
+  if (!parents.includes(folderId)) {
+    throw new Error("Inventory file does not belong to this event");
+  }
+  return downloadBinary(fileId);
+}
+
+async function findFileById(fileId) {
+  return drive("/files/" + fileId + "?fields=id,name,parents,trashed,mimeType");
+}
+
 async function uploadJson(name, data, parentId, existingId) {
   const meta = existingId
     ? { name, mimeType: "application/json" }
@@ -695,6 +732,7 @@ module.exports = {
   loadMasterData,
   saveMasterData,
   uploadInventoryFileForEvent,
+  downloadInventoryFileForEvent,
   uploadReceiptToDrive,
   driveErrorMessage,
   getDriveStatus,

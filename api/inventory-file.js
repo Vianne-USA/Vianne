@@ -1,12 +1,13 @@
 const {
   isDriveConfigured,
   uploadInventoryFileForEvent,
+  downloadInventoryFileForEvent,
   driveErrorMessage,
 } = require("./lib/sync-store");
 
 function cors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
@@ -25,6 +26,29 @@ module.exports = async function handler(req, res) {
       ok: false,
       error: "Google Drive sync not configured.",
     });
+  }
+
+  if (req.method === "GET") {
+    try {
+      const eventId = req.query?.eventId;
+      const fileId = req.query?.fileId;
+      if (!eventId || !fileId) {
+        return res.status(400).json({ ok: false, error: "eventId and fileId required" });
+      }
+      const buffer = await downloadInventoryFileForEvent(eventId, fileId);
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader("Cache-Control", "private, max-age=300");
+      return res.status(200).send(buffer);
+    } catch (err) {
+      console.error("api/inventory-file GET error:", err);
+      return res.status(500).json({
+        ok: false,
+        error: driveErrorMessage(err),
+      });
+    }
   }
 
   if (req.method !== "POST") {

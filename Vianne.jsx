@@ -1,7 +1,8 @@
 import{useState,useRef,useEffect}from"react";
 const _imgListeners=[];
 function notifyImagesChanged(){_imgListeners.forEach(fn=>{try{fn();}catch(e){}});}
-function isUsableImgSrc(src){const s=String(src||"").trim();return s&&(s.startsWith("data:image/")||/^https?:\/\//i.test(s));}
+function isUsableImgSrc(src){const s=String(src||"").trim();return s&&(s.startsWith("data:image/")||s.startsWith("blob:")||s.startsWith("/api/product-images")||/^https?:\/\//i.test(s));}
+function driveImgUrl(eventId,id){return"/api/product-images?eventId="+encodeURIComponent(eventId)+"&id="+encodeURIComponent(String(id||"").toUpperCase());}
 const getImg=(item)=>{if(!item)return "";return resolveItemImage(item.id,item);};
 function resolveItemImage(id,item){
   const k=String(id||"").toUpperCase();
@@ -18,9 +19,12 @@ function collectUrlImages(items){
   });
   return m;
 }
-function attachItemImages(items,imgMap){
+function attachItemImages(items,imgMap,eventId){
   const merged={...collectUrlImages(items),...(imgMap||{})};
-  if(Object.keys(merged).length)idbSaveImages(merged);
+  if(Object.keys(merged).length){
+    idbSaveImages(merged);
+    if(eventId)syncImagesToDrive(eventId,merged);
+  }
   return items;
 }
 function invItem(inv,itemOrId){
@@ -82,7 +86,7 @@ async function idbSaveInvBuffer(eventId,fileName,buf){
     });
   }catch(e){console.warn("Inventory buffer save failed",e);}
 }
-async function extractImagesFromBuffer(buf,inv,fileName){
+async function extractImagesFromBuffer(buf,inv,fileName,eventId){
   if(!buf)return 0;
   await ensureJSZipAsync();
   let idByRow=buildIdByRowFromInv(inv);
@@ -90,7 +94,42 @@ async function extractImagesFromBuffer(buf,inv,fileName){
   if(!Object.keys(idByRow).length)return 0;
   const imgMap=await extractXLImages(buf,idByRow);
   const n=Object.keys(imgMap).length;
-  if(n)attachItemImages(inv,imgMap);
+  if(n)attachItemImages(inv,imgMap,eventId);
+  return n;
+}
+async function syncImagesToDrive(eventId,imgMap){
+  if(!eventId||!imgMap||!Object.keys(imgMap).length)return 0;
+  await cloudFetchData();
+  if(!isCloudOnline())return 0;
+  const entries=Object.entries(imgMap).filter(([,src])=>String(src||"").startsWith("data:image/"));
+  if(!entries.length)return 0;
+  const BATCH=6;
+  let synced=0;
+  for(let i=0;i<entries.length;i+=BATCH){
+    const chunk=entries.slice(i,i+BATCH).map(([id,src])=>({
+      id:String(id).toUpperCase(),
+      data:String(src).replace(/^data:image\/\w+;base64,/,""),
+    }));
+    try{
+      const r=await fetch("/api/product-images",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({eventId,images:chunk})});
+      const d=await r.json();
+      if(r.ok&&d.ok)synced+=d.uploaded||chunk.length;
+    }catch(e){console.warn("Drive image sync",e);}
+    await new Promise(res=>setTimeout(res,40));
+  }
+  return synced;
+}
+function applyDriveImageUrls(eventId,ids){
+  if(!eventId||!ids?.length)return 0;
+  if(!window.VJ_IMG)window.VJ_IMG={};
+  let n=0;
+  ids.forEach(id=>{
+    const k=String(id).toUpperCase();
+    if(!k||resolveItemImage(k))return;
+    window.VJ_IMG[k]=driveImgUrl(eventId,k);
+    n++;
+  });
+  if(n)notifyImagesChanged();
   return n;
 }
 async function fetchEventInvBuffer(ev){
@@ -131,19 +170,23 @@ async function ensureEventInvImages(ev){
   if(missing.length){
     const stored=await idbGetLatestInvFile(ev.id);
     if(stored){
-      const n=await extractImagesFromInvBase64(stored.contentBase64,invList);
+      const n=await extractImagesFromInvBase64(stored.contentBase64,invList,ev.id);
       if(n){loaded+=n;notifyImagesChanged();}
       missing=ids.filter(id=>!resolveItemImage(id,invItem(invList,id)));
     }
   }
+  if(missing.length){
+    loaded+=applyDriveImageUrls(ev.id,missing);
+    missing=ids.filter(id=>!resolveItemImage(id,invItem(invList,id)));
+  }
   if(!missing.length)return loaded;
   const remote=await fetchEventInvBuffer(ev);
   if(remote&&remote.buf){
-    const n=await extractImagesFromBuffer(remote.buf,invList,remote.fileName);
+    const n=await extractImagesFromBuffer(remote.buf,invList,remote.fileName,ev.id);
     if(n){
       loaded+=n;
       notifyImagesChanged();
-      if(ev.id)await idbSaveInvBuffer(ev.id,remote.fileName,remote.buf);
+      if(ev.id&&remote.buf.byteLength<12*1024*1024)await idbSaveInvBuffer(ev.id,remote.fileName,remote.buf);
     }
   }
   return loaded;
@@ -168,9 +211,9 @@ async function applyInventoryUpload(ev,file,items,mode,by){
   let imgN=0;
   if(file){
     await idbSaveInvFile(ev.id,file);
-    imgN=await ensureImagesFromInvFile(file,inv);
+    imgN=await ensureImagesFromInvFile(file,inv,ev.id);
     await prefetchInvImages(inv.map(i=>i.id));
-    await queueInventoryFileForDrive(ev.id,file);
+    if(file.size<=12*1024*1024)await queueInventoryFileForDrive(ev.id,file);
   }
   const photos=countInvImages(inv);
   return{ok:true,updated,added:addedN,skipped,total:inv.length,imgN,photos};
@@ -185,7 +228,7 @@ function handleInvFileInput(ev,file,mode,by,onDone){
       return;
     }
     invMergeToast({added:result.added,skipped:result.skipped,mode,total:result.total});
-    if(result.imgN)toast.success("Sheet imported",result.total+" items · "+result.imgN+" photo(s) from Excel");
+    if(result.imgN)toast.success("Sheet imported",result.total+" items · "+result.imgN+" photo(s) — syncing to cloud for all devices");
     else if(/\.xlsx?$/i.test(file.name||""))toast.info("Data imported, no embedded photos",result.total+" items loaded — use a Price List .xlsx with pictures for photos");
     onDone&&onDone(result.updated);
   },err=>{
@@ -195,14 +238,16 @@ function handleInvFileInput(ev,file,mode,by,onDone){
 }
 function ItemThumb({item,size=40,style={}}){
   const [,setImgRev]=useState(0);
+  const [broken,setBroken]=useState(false);
   useEffect(()=>{
-    const fn=()=>setImgRev(x=>x+1);
+    const fn=()=>{setBroken(false);setImgRev(x=>x+1);};
     _imgListeners.push(fn);
     return()=>{const i=_imgListeners.indexOf(fn);if(i>=0)_imgListeners.splice(i,1);};
   },[]);
-  const src=getImg(item);
+  useEffect(()=>{setBroken(false);},[item?.id]);
+  const src=broken?"":getImg(item);
   const box={width:size,height:size,borderRadius:size>36?10:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center",...style};
-  if(src)return <img src={src} alt="" loading="lazy" decoding="async" style={{width:size,height:size,objectFit:"cover",display:"block"}}/>;
+  if(src)return <img src={src} alt="" loading="lazy" decoding="async" onError={()=>setBroken(true)} style={{width:size,height:size,objectFit:"cover",display:"block"}}/>;
   return <div style={box}><span style={{fontSize:Math.round(size*0.5)}}>{item?.em||"💎"}</span></div>;
 }
 const INV_FAIL="Inventory adding failed";
@@ -410,6 +455,7 @@ function idbOpen(){
 }
 async function idbSaveInvFile(eventId,file){
   if(!eventId||!file)return;
+  if(file.size>12*1024*1024){console.warn("Skip local xlsx cache — file too large for phone storage");return;}
   try{
     const contentBase64=await fileToBase64(file);
     if(!contentBase64)return;
@@ -444,39 +490,46 @@ async function idbGetLatestInvFile(eventId){
     return hits[0];
   }catch(e){return null;}
 }
-async function extractImagesFromInvBase64(contentBase64,inv){
+async function extractImagesFromInvBase64(contentBase64,inv,eventId){
   if(!contentBase64)return 0;
   try{
     const bin=atob(contentBase64);
     const buf=new ArrayBuffer(bin.length);
     const view=new Uint8Array(buf);
     for(let i=0;i<bin.length;i++)view[i]=bin.charCodeAt(i);
-    return await extractImagesFromBuffer(buf,inv,"inventory.xlsx");
+    return await extractImagesFromBuffer(buf,inv,"inventory.xlsx",eventId);
   }catch(e){console.warn("Image extract from stored file",e);return 0;}
 }
-async function ensureImagesFromInvFile(file,inv){
+async function ensureImagesFromInvFile(file,inv,eventId){
   if(!file||!/\.xlsx?$/i.test(file.name||""))return 0;
   try{
     const contentBase64=await fileToBase64(file);
-    return await extractImagesFromInvBase64(contentBase64,inv);
+    return await extractImagesFromInvBase64(contentBase64,inv,eventId);
   }catch(e){return 0;}
 }
 async function idbSaveImages(imgMap){
   if(!imgMap||!Object.keys(imgMap).length)return;
+  const entries=Object.entries(imgMap).filter(([id,src])=>id&&src);
+  if(!entries.length)return;
+  if(!window.VJ_IMG)window.VJ_IMG={};
+  entries.forEach(([id,src])=>{window.VJ_IMG[String(id).toUpperCase()]=src;});
+  notifyImagesChanged();
+  const BATCH=20;
   try{
     const db=await idbOpen();
-    await new Promise((res,rej)=>{
-      const tx=db.transaction(IDB_IMG_STORE,"readwrite");
-      const st=tx.objectStore(IDB_IMG_STORE);
-      Object.entries(imgMap).forEach(([id,src])=>{
-        if(id&&src)st.put({id:String(id).toUpperCase(),src});
-      });
-      tx.oncomplete=()=>res();
-      tx.onerror=()=>rej(tx.error);
-    });
-    if(!window.VJ_IMG)window.VJ_IMG={};
-    Object.entries(imgMap).forEach(([id,src])=>{window.VJ_IMG[String(id).toUpperCase()]=src;});
-    notifyImagesChanged();
+    for(let i=0;i<entries.length;i+=BATCH){
+      const slice=entries.slice(i,i+BATCH);
+      try{
+        await new Promise((res,rej)=>{
+          const tx=db.transaction(IDB_IMG_STORE,"readwrite");
+          const st=tx.objectStore(IDB_IMG_STORE);
+          slice.forEach(([id,src])=>st.put({id:String(id).toUpperCase(),src}));
+          tx.oncomplete=()=>res();
+          tx.onerror=()=>rej(tx.error);
+        });
+      }catch(e){console.warn("Image batch save",e);}
+      await new Promise(r=>setTimeout(r,0));
+    }
   }catch(e){console.warn("Image save failed",e);}
 }
 async function idbLoadImagesForIds(ids){
@@ -1278,7 +1331,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const pr=gp(user.role,user.perms);
   const visibleEvents=filterEventsForUser(user,events);
   useEffect(()=>{if(sc)ensureXLSX(()=>{});},[sc]);
-  const create=()=>{if(!form.name.trim())return;const fin=async(inv,fileName,fileObj)=>{if(fileObj&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const merged=mergeInvItems([],inv,"add");const baseInv=merged.inv;if(merged.skipped>0)toast.warn("Duplicates skipped",merged.skipped+" duplicate(s) skipped in upload · "+baseInv.length+" item(s) in new event");const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv:baseInv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(baseInv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||fileObj?.name||"inventory.xlsx",mode:"initial",added:baseInv.length,skipped:merged.skipped,total:baseInv.length,by:user.name});if(fileObj&&baseInv.length){const imgN=await ensureImagesFromInvFile(fileObj,baseInv);await idbSaveInvFile(base.id,fileObj);await prefetchInvImages(baseInv.map(i=>i.id));await queueInventoryFileForDrive(base.id,fileObj);if(imgN)toast.success("Sheet imported",baseInv.length+" items · "+imgN+" photo(s) from Excel");else if(/\.xlsx?$/i.test(fileObj.name||""))toast.info("Data imported",baseInv.length+" items — use a Price List .xlsx with embedded photos for images");}onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,async inv=>{sl(false);await fin(inv,xlf.name,xlf);},err=>{sl(false);smsg(err);});}else fin([],null,null);};
+  const create=()=>{if(!form.name.trim())return;const fin=async(inv,fileName,fileObj)=>{if(fileObj&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const merged=mergeInvItems([],inv,"add");const baseInv=merged.inv;if(merged.skipped>0)toast.warn("Duplicates skipped",merged.skipped+" duplicate(s) skipped in upload · "+baseInv.length+" item(s) in new event");const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv:baseInv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(baseInv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||fileObj?.name||"inventory.xlsx",mode:"initial",added:baseInv.length,skipped:merged.skipped,total:baseInv.length,by:user.name});if(fileObj&&baseInv.length){const imgN=await ensureImagesFromInvFile(fileObj,baseInv,base.id);await idbSaveInvFile(base.id,fileObj);await prefetchInvImages(baseInv.map(i=>i.id));if(fileObj.size<=12*1024*1024)await queueInventoryFileForDrive(base.id,fileObj);if(imgN)toast.success("Sheet imported",baseInv.length+" items · "+imgN+" photo(s) — syncing to cloud for all devices");else if(/\.xlsx?$/i.test(fileObj.name||""))toast.info("Data imported",baseInv.length+" items — use a Price List .xlsx with embedded photos for images");}onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,async inv=>{sl(false);await fin(inv,xlf.name,xlf);},err=>{sl(false);smsg(err);});}else fin([],null,null);};
   return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div style={{background:G,padding:"calc(13px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 13px calc(16px + env(safe-area-inset-left,0px))",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
       <div style={{display:"flex",alignItems:"flex-start",gap:10}}><Logo h={34}/><div style={{paddingTop:1}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:CR,letterSpacing:"0.1em",textTransform:"uppercase"}}>VIANNE JEWELS</div><div style={{fontSize:8,color:GO,letterSpacing:"0.1em",textTransform:"uppercase"}}>Event Manager</div></div></div>

@@ -10457,6 +10457,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 });</script>
 <script>var _excluded = ["img"],
   _excluded2 = ["img"];
+function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n2 = 0, F = function F() {}; return { s: F, n: function n() { return _n2 >= r.length ? { done: !0 } : { done: !1, value: r[_n2++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
 function _objectWithoutProperties(e, t) { if (null == e) return {}; var o, r, i = _objectWithoutPropertiesLoose(e, t); if (Object.getOwnPropertySymbols) { var n = Object.getOwnPropertySymbols(e); for (r = 0; r < n.length; r++) o = n[r], -1 === t.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]); } return i; }
 function _objectWithoutPropertiesLoose(r, e) { if (null == r) return {}; var t = {}; for (var n in r) if ({}.hasOwnProperty.call(r, n)) { if (-1 !== e.indexOf(n)) continue; t[n] = r[n]; } return t; }
@@ -10494,7 +10495,10 @@ function notifyImagesChanged() {
 }
 function isUsableImgSrc(src) {
   var s = String(src || "").trim();
-  return s && (s.startsWith("data:image/") || /^https?:\/\//i.test(s));
+  return s && (s.startsWith("data:image/") || s.startsWith("blob:") || s.startsWith("/api/product-images") || /^https?:\/\//i.test(s));
+}
+function driveImgUrl(eventId, id) {
+  return "/api/product-images?eventId=" + encodeURIComponent(eventId) + "&id=" + encodeURIComponent(String(id || "").toUpperCase());
 }
 var getImg = function getImg(item) {
   if (!item) return "";
@@ -10515,9 +10519,12 @@ function collectUrlImages(items) {
   });
   return m;
 }
-function attachItemImages(items, imgMap) {
+function attachItemImages(items, imgMap, eventId) {
   var merged = _objectSpread(_objectSpread({}, collectUrlImages(items)), imgMap || {});
-  if (Object.keys(merged).length) idbSaveImages(merged);
+  if (Object.keys(merged).length) {
+    idbSaveImages(merged);
+    if (eventId) syncImagesToDrive(eventId, merged);
+  }
   return items;
 }
 function invItem(inv, itemOrId) {
@@ -10669,11 +10676,11 @@ function _idbSaveInvBuffer() {
   }));
   return _idbSaveInvBuffer.apply(this, arguments);
 }
-function extractImagesFromBuffer(_x5, _x6, _x7) {
+function extractImagesFromBuffer(_x5, _x6, _x7, _x8) {
   return _extractImagesFromBuffer.apply(this, arguments);
 }
 function _extractImagesFromBuffer() {
-  _extractImagesFromBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee13(buf, inv, fileName) {
+  _extractImagesFromBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee13(buf, inv, fileName, eventId) {
     var idByRow, imgMap, n;
     return _regenerator().w(function (_context13) {
       while (1) switch (_context13.n) {
@@ -10708,23 +10715,129 @@ function _extractImagesFromBuffer() {
         case 6:
           imgMap = _context13.v;
           n = Object.keys(imgMap).length;
-          if (n) attachItemImages(inv, imgMap);
+          if (n) attachItemImages(inv, imgMap, eventId);
           return _context13.a(2, n);
       }
     }, _callee13);
   }));
   return _extractImagesFromBuffer.apply(this, arguments);
 }
-function fetchEventInvBuffer(_x8) {
-  return _fetchEventInvBuffer.apply(this, arguments);
+function syncImagesToDrive(_x9, _x0) {
+  return _syncImagesToDrive.apply(this, arguments);
 }
-function _fetchEventInvBuffer() {
-  _fetchEventInvBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee14(ev) {
-    var latest, urls, _i2, _urls, url, r, _t7, _t8, _t9;
+function _syncImagesToDrive() {
+  _syncImagesToDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee14(eventId, imgMap) {
+    var entries, BATCH, synced, i, chunk, r, d, _t7;
     return _regenerator().w(function (_context14) {
       while (1) switch (_context14.p = _context14.n) {
         case 0:
-          _context14.n = 1;
+          if (!(!eventId || !imgMap || !Object.keys(imgMap).length)) {
+            _context14.n = 1;
+            break;
+          }
+          return _context14.a(2, 0);
+        case 1:
+          _context14.n = 2;
+          return cloudFetchData();
+        case 2:
+          if (isCloudOnline()) {
+            _context14.n = 3;
+            break;
+          }
+          return _context14.a(2, 0);
+        case 3:
+          entries = Object.entries(imgMap).filter(function (_ref80) {
+            var _ref81 = _slicedToArray(_ref80, 2),
+              src = _ref81[1];
+            return String(src || "").startsWith("data:image/");
+          });
+          if (entries.length) {
+            _context14.n = 4;
+            break;
+          }
+          return _context14.a(2, 0);
+        case 4:
+          BATCH = 6;
+          synced = 0;
+          i = 0;
+        case 5:
+          if (!(i < entries.length)) {
+            _context14.n = 12;
+            break;
+          }
+          chunk = entries.slice(i, i + BATCH).map(function (_ref82) {
+            var _ref83 = _slicedToArray(_ref82, 2),
+              id = _ref83[0],
+              src = _ref83[1];
+            return {
+              id: String(id).toUpperCase(),
+              data: String(src).replace(/^data:image\/\w+;base64,/, "")
+            };
+          });
+          _context14.p = 6;
+          _context14.n = 7;
+          return fetch("/api/product-images", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              eventId: eventId,
+              images: chunk
+            })
+          });
+        case 7:
+          r = _context14.v;
+          _context14.n = 8;
+          return r.json();
+        case 8:
+          d = _context14.v;
+          if (r.ok && d.ok) synced += d.uploaded || chunk.length;
+          _context14.n = 10;
+          break;
+        case 9:
+          _context14.p = 9;
+          _t7 = _context14.v;
+          console.warn("Drive image sync", _t7);
+        case 10:
+          _context14.n = 11;
+          return new Promise(function (res) {
+            return setTimeout(res, 40);
+          });
+        case 11:
+          i += BATCH;
+          _context14.n = 5;
+          break;
+        case 12:
+          return _context14.a(2, synced);
+      }
+    }, _callee14, null, [[6, 9]]);
+  }));
+  return _syncImagesToDrive.apply(this, arguments);
+}
+function applyDriveImageUrls(eventId, ids) {
+  if (!eventId || !(ids !== null && ids !== void 0 && ids.length)) return 0;
+  if (!window.VJ_IMG) window.VJ_IMG = {};
+  var n = 0;
+  ids.forEach(function (id) {
+    var k = String(id).toUpperCase();
+    if (!k || resolveItemImage(k)) return;
+    window.VJ_IMG[k] = driveImgUrl(eventId, k);
+    n++;
+  });
+  if (n) notifyImagesChanged();
+  return n;
+}
+function fetchEventInvBuffer(_x1) {
+  return _fetchEventInvBuffer.apply(this, arguments);
+}
+function _fetchEventInvBuffer() {
+  _fetchEventInvBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee15(ev) {
+    var latest, urls, _i2, _urls, url, r, _t8, _t9, _t0;
+    return _regenerator().w(function (_context15) {
+      while (1) switch (_context15.p = _context15.n) {
+        case 0:
+          _context15.n = 1;
           return cloudFetchData();
         case 1:
           latest = _toConsumableArray(ev.invHistory || []).reverse().find(function (h) {
@@ -10736,79 +10849,79 @@ function _fetchEventInvBuffer() {
           _i2 = 0, _urls = urls;
         case 2:
           if (!(_i2 < _urls.length)) {
-            _context14.n = 9;
+            _context15.n = 9;
             break;
           }
           url = _urls[_i2];
-          _context14.p = 3;
-          _context14.n = 4;
+          _context15.p = 3;
+          _context15.n = 4;
           return fetch(url, {
             cache: "no-store"
           });
         case 4:
-          r = _context14.v;
+          r = _context15.v;
           if (!r.ok) {
-            _context14.n = 6;
+            _context15.n = 6;
             break;
           }
-          _context14.n = 5;
+          _context15.n = 5;
           return r.arrayBuffer();
         case 5:
-          _t7 = _context14.v;
-          _t8 = (latest === null || latest === void 0 ? void 0 : latest.fileName) || "inventory.xlsx";
-          return _context14.a(2, {
-            buf: _t7,
-            fileName: _t8
+          _t8 = _context15.v;
+          _t9 = (latest === null || latest === void 0 ? void 0 : latest.fileName) || "inventory.xlsx";
+          return _context15.a(2, {
+            buf: _t8,
+            fileName: _t9
           });
         case 6:
-          _context14.n = 8;
+          _context15.n = 8;
           break;
         case 7:
-          _context14.p = 7;
-          _t9 = _context14.v;
-          console.warn("Fetch inventory sheet", _t9);
+          _context15.p = 7;
+          _t0 = _context15.v;
+          console.warn("Fetch inventory sheet", _t0);
         case 8:
           _i2++;
-          _context14.n = 2;
+          _context15.n = 2;
           break;
         case 9:
-          return _context14.a(2, null);
+          return _context15.a(2, null);
       }
-    }, _callee14, null, [[3, 7]]);
+    }, _callee15, null, [[3, 7]]);
   }));
   return _fetchEventInvBuffer.apply(this, arguments);
 }
-function prefetchInvImages(_x9) {
+function prefetchInvImages(_x10) {
   return _prefetchInvImages.apply(this, arguments);
 }
 function _prefetchInvImages() {
-  _prefetchInvImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee15(ids) {
+  _prefetchInvImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee16(ids) {
     var list, before, after;
-    return _regenerator().w(function (_context15) {
-      while (1) switch (_context15.n) {
+    return _regenerator().w(function (_context16) {
+      while (1) switch (_context16.n) {
         case 0:
           list = _toConsumableArray(new Set((ids || []).map(function (id) {
             return String(id || "").toUpperCase();
           }).filter(Boolean)));
           if (list.length) {
-            _context15.n = 1;
+            _context16.n = 1;
             break;
           }
-          return _context15.a(2, 0);
+          return _context16.a(2, 0);
         case 1:
           before = list.filter(function (id) {
             return !resolveItemImage(id);
           }).length;
-          _context15.n = 2;
+          _context16.n = 2;
           return idbLoadImagesForIds(list);
         case 2:
           after = list.filter(function (id) {
             return !resolveItemImage(id);
           }).length;
           if (before > after) notifyImagesChanged();
-          return _context15.a(2, before - after);
+          return _context16.a(2, before - after);
       }
-    }, _callee15);
+    }, _callee16);
   }));
   return _prefetchInvImages.apply(this, arguments);
 }
@@ -10824,48 +10937,48 @@ function countInvImages(inv) {
     return (it === null || it === void 0 ? void 0 : it.id) && resolveItemImage(it.id, it);
   }).length;
 }
-function ensureEventInvImages(_x0) {
+function ensureEventInvImages(_x11) {
   return _ensureEventInvImages.apply(this, arguments);
 }
 function _ensureEventInvImages() {
-  _ensureEventInvImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee16(ev) {
+  _ensureEventInvImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17(ev) {
     var invList, ids, loaded, missing, stored, n, remote, _n;
-    return _regenerator().w(function (_context16) {
-      while (1) switch (_context16.n) {
+    return _regenerator().w(function (_context17) {
+      while (1) switch (_context17.n) {
         case 0:
           invList = (ev === null || ev === void 0 ? void 0 : ev.inv) || [];
           ids = invList.map(function (i) {
             return i.id;
           });
           if (ids.length) {
-            _context16.n = 1;
+            _context17.n = 1;
             break;
           }
-          return _context16.a(2, 0);
+          return _context17.a(2, 0);
         case 1:
-          _context16.n = 2;
+          _context17.n = 2;
           return prefetchInvImages(ids);
         case 2:
-          loaded = _context16.v;
+          loaded = _context17.v;
           missing = ids.filter(function (id) {
             return !resolveItemImage(id, invItem(invList, id));
           });
           if (!missing.length) {
-            _context16.n = 5;
+            _context17.n = 5;
             break;
           }
-          _context16.n = 3;
+          _context17.n = 3;
           return idbGetLatestInvFile(ev.id);
         case 3:
-          stored = _context16.v;
+          stored = _context17.v;
           if (!stored) {
-            _context16.n = 5;
+            _context17.n = 5;
             break;
           }
-          _context16.n = 4;
-          return extractImagesFromInvBase64(stored.contentBase64, invList);
+          _context17.n = 4;
+          return extractImagesFromInvBase64(stored.contentBase64, invList, ev.id);
         case 4:
-          n = _context16.v;
+          n = _context17.v;
           if (n) {
             loaded += n;
             notifyImagesChanged();
@@ -10875,58 +10988,64 @@ function _ensureEventInvImages() {
           });
         case 5:
           if (missing.length) {
-            _context16.n = 6;
+            loaded += applyDriveImageUrls(ev.id, missing);
+            missing = ids.filter(function (id) {
+              return !resolveItemImage(id, invItem(invList, id));
+            });
+          }
+          if (missing.length) {
+            _context17.n = 6;
             break;
           }
-          return _context16.a(2, loaded);
+          return _context17.a(2, loaded);
         case 6:
-          _context16.n = 7;
+          _context17.n = 7;
           return fetchEventInvBuffer(ev);
         case 7:
-          remote = _context16.v;
+          remote = _context17.v;
           if (!(remote && remote.buf)) {
-            _context16.n = 9;
+            _context17.n = 9;
             break;
           }
-          _context16.n = 8;
-          return extractImagesFromBuffer(remote.buf, invList, remote.fileName);
+          _context17.n = 8;
+          return extractImagesFromBuffer(remote.buf, invList, remote.fileName, ev.id);
         case 8:
-          _n = _context16.v;
+          _n = _context17.v;
           if (!_n) {
-            _context16.n = 9;
+            _context17.n = 9;
             break;
           }
           loaded += _n;
           notifyImagesChanged();
-          if (!ev.id) {
-            _context16.n = 9;
+          if (!(ev.id && remote.buf.byteLength < 12 * 1024 * 1024)) {
+            _context17.n = 9;
             break;
           }
-          _context16.n = 9;
+          _context17.n = 9;
           return idbSaveInvBuffer(ev.id, remote.fileName, remote.buf);
         case 9:
-          return _context16.a(2, loaded);
+          return _context17.a(2, loaded);
       }
-    }, _callee16);
+    }, _callee17);
   }));
   return _ensureEventInvImages.apply(this, arguments);
 }
-function applyInventoryUpload(_x1, _x10, _x11, _x12, _x13) {
+function applyInventoryUpload(_x12, _x13, _x14, _x15, _x16) {
   return _applyInventoryUpload.apply(this, arguments);
 }
 function _applyInventoryUpload() {
-  _applyInventoryUpload = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17(ev, file, items, mode, by) {
+  _applyInventoryUpload = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee18(ev, file, items, mode, by) {
     var incoming, _mergeInvItems, inv, added, skipped, addedN, updated, imgN, photos;
-    return _regenerator().w(function (_context17) {
-      while (1) switch (_context17.n) {
+    return _regenerator().w(function (_context18) {
+      while (1) switch (_context18.n) {
         case 0:
           incoming = Array.isArray(items) ? items : [];
           _mergeInvItems = mergeInvItems(ev.inv || [], incoming, mode), inv = _mergeInvItems.inv, added = _mergeInvItems.added, skipped = _mergeInvItems.skipped;
           if (!(mode === "add" && added === 0 && skipped > 0)) {
-            _context17.n = 1;
+            _context18.n = 1;
             break;
           }
-          return _context17.a(2, {
+          return _context18.a(2, {
             ok: false,
             added: added,
             skipped: skipped,
@@ -10947,26 +11066,30 @@ function _applyInventoryUpload() {
           });
           imgN = 0;
           if (!file) {
-            _context17.n = 5;
+            _context18.n = 5;
             break;
           }
-          _context17.n = 2;
+          _context18.n = 2;
           return idbSaveInvFile(ev.id, file);
         case 2:
-          _context17.n = 3;
-          return ensureImagesFromInvFile(file, inv);
+          _context18.n = 3;
+          return ensureImagesFromInvFile(file, inv, ev.id);
         case 3:
-          imgN = _context17.v;
-          _context17.n = 4;
+          imgN = _context18.v;
+          _context18.n = 4;
           return prefetchInvImages(inv.map(function (i) {
             return i.id;
           }));
         case 4:
-          _context17.n = 5;
+          if (!(file.size <= 12 * 1024 * 1024)) {
+            _context18.n = 5;
+            break;
+          }
+          _context18.n = 5;
           return queueInventoryFileForDrive(ev.id, file);
         case 5:
           photos = countInvImages(inv);
-          return _context17.a(2, {
+          return _context18.a(2, {
             ok: true,
             updated: updated,
             added: addedN,
@@ -10976,7 +11099,7 @@ function _applyInventoryUpload() {
             photos: photos
           });
       }
-    }, _callee17);
+    }, _callee18);
   }));
   return _applyInventoryUpload.apply(this, arguments);
 }
@@ -11011,14 +11134,14 @@ function handleInvFileInput(ev, file, mode, by, onDone) {
               mode: mode,
               total: result.total
             });
-            if (result.imgN) toast.success("Sheet imported", result.total + " items · " + result.imgN + " photo(s) from Excel");else if (/\.xlsx?$/i.test(file.name || "")) toast.info("Data imported, no embedded photos", result.total + " items loaded — use a Price List .xlsx with pictures for photos");
+            if (result.imgN) toast.success("Sheet imported", result.total + " items · " + result.imgN + " photo(s) — syncing to cloud for all devices");else if (/\.xlsx?$/i.test(file.name || "")) toast.info("Data imported, no embedded photos", result.total + " items loaded — use a Price List .xlsx with pictures for photos");
             onDone && onDone(result.updated);
           case 3:
             return _context.a(2);
         }
       }, _callee);
     }));
-    return function (_x14) {
+    return function (_x17) {
       return _ref.apply(this, arguments);
     };
   }(), function (err) {
@@ -11035,9 +11158,14 @@ function ItemThumb(_ref2) {
   var _useState = useState(0),
     _useState2 = _slicedToArray(_useState, 2),
     setImgRev = _useState2[1];
+  var _useState3 = useState(false),
+    _useState4 = _slicedToArray(_useState3, 2),
+    broken = _useState4[0],
+    setBroken = _useState4[1];
   useEffect(function () {
     var fn = function fn() {
-      return setImgRev(function (x) {
+      setBroken(false);
+      setImgRev(function (x) {
         return x + 1;
       });
     };
@@ -11047,7 +11175,10 @@ function ItemThumb(_ref2) {
       if (i >= 0) _imgListeners.splice(i, 1);
     };
   }, []);
-  var src = getImg(item);
+  useEffect(function () {
+    setBroken(false);
+  }, [item === null || item === void 0 ? void 0 : item.id]);
+  var src = broken ? "" : getImg(item);
   var box = _objectSpread({
     width: size,
     height: size,
@@ -11064,6 +11195,9 @@ function ItemThumb(_ref2) {
     alt: "",
     loading: "lazy",
     decoding: "async",
+    onError: function onError() {
+      return setBroken(true);
+    },
     style: {
       width: size,
       height: size,
@@ -11188,10 +11322,10 @@ var toast = {
   }
 };
 function ToastContainer() {
-  var _useState3 = useState([]),
-    _useState4 = _slicedToArray(_useState3, 2),
-    toasts = _useState4[0],
-    setToasts = _useState4[1];
+  var _useState5 = useState([]),
+    _useState6 = _slicedToArray(_useState5, 2),
+    toasts = _useState6[0],
+    setToasts = _useState6[1];
   useEffect(function () {
     var fn = function fn(t) {
       setToasts(function (p) {
@@ -11322,23 +11456,23 @@ var b64uDec = function b64uDec(str) {
   for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
   return out;
 };
-function registerBio(_x15) {
+function registerBio(_x18) {
   return _registerBio.apply(this, arguments);
 }
 function _registerBio() {
-  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee18(username) {
-    var cred, _t0;
-    return _regenerator().w(function (_context18) {
-      while (1) switch (_context18.p = _context18.n) {
+  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee19(username) {
+    var cred, _t1;
+    return _regenerator().w(function (_context19) {
+      while (1) switch (_context19.p = _context19.n) {
         case 0:
           if (window.PublicKeyCredential) {
-            _context18.n = 1;
+            _context19.n = 1;
             break;
           }
-          return _context18.a(2, false);
+          return _context19.a(2, false);
         case 1:
-          _context18.p = 1;
-          _context18.n = 2;
+          _context19.p = 1;
+          _context19.n = 2;
           return navigator.credentials.create({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -11367,45 +11501,45 @@ function _registerBio() {
             }
           });
         case 2:
-          cred = _context18.v;
+          cred = _context19.v;
           if (cred) {
-            _context18.n = 3;
+            _context19.n = 3;
             break;
           }
-          return _context18.a(2, false);
+          return _context19.a(2, false);
         case 3:
           localStorage.setItem(BIO_KEY, b64u(cred.rawId));
           localStorage.setItem(BIO_USER, username.toLowerCase());
-          return _context18.a(2, true);
+          return _context19.a(2, true);
         case 4:
-          _context18.p = 4;
-          _t0 = _context18.v;
-          return _context18.a(2, false);
+          _context19.p = 4;
+          _t1 = _context19.v;
+          return _context19.a(2, false);
       }
-    }, _callee18, null, [[1, 4]]);
+    }, _callee19, null, [[1, 4]]);
   }));
   return _registerBio.apply(this, arguments);
 }
-function loginBio(_x16, _x17, _x18) {
+function loginBio(_x19, _x20, _x21) {
   return _loginBio.apply(this, arguments);
 } // ── Dark Mode system ──────────────────────────────────────────────────────
 function _loginBio() {
-  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee19(onLogin, onFail, users) {
-    var id, un, cred, usr, _t1;
-    return _regenerator().w(function (_context19) {
-      while (1) switch (_context19.p = _context19.n) {
+  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20(onLogin, onFail, users) {
+    var id, un, cred, usr, _t10;
+    return _regenerator().w(function (_context20) {
+      while (1) switch (_context20.p = _context20.n) {
         case 0:
           id = localStorage.getItem(BIO_KEY);
           un = localStorage.getItem(BIO_USER);
           if (!(!id || !un)) {
-            _context19.n = 1;
+            _context20.n = 1;
             break;
           }
           onFail("Sign in with password once to enable Face ID.");
-          return _context19.a(2);
+          return _context20.a(2);
         case 1:
-          _context19.p = 1;
-          _context19.n = 2;
+          _context20.p = 1;
+          _context20.n = 2;
           return navigator.credentials.get({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -11420,27 +11554,27 @@ function _loginBio() {
             }
           });
         case 2:
-          cred = _context19.v;
+          cred = _context20.v;
           if (cred) {
-            _context19.n = 3;
+            _context20.n = 3;
             break;
           }
-          return _context19.a(2);
+          return _context20.a(2);
         case 3:
           usr = users.find(function (x) {
             return x.un === un;
           });
           if (usr) onLogin(usr);else onFail("Saved sign-in expired. Use password once.");
-          _context19.n = 5;
+          _context20.n = 5;
           break;
         case 4:
-          _context19.p = 4;
-          _t1 = _context19.v;
-          if (_t1.name !== "NotAllowedError") onFail(_t1.message || "Face ID failed");
+          _context20.p = 4;
+          _t10 = _context20.v;
+          if (_t10.name !== "NotAllowedError") onFail(_t10.message || "Face ID failed");
         case 5:
-          return _context19.a(2);
+          return _context20.a(2);
       }
-    }, _callee19, null, [[1, 4]]);
+    }, _callee20, null, [[1, 4]]);
   }));
   return _loginBio.apply(this, arguments);
 }
@@ -11450,10 +11584,10 @@ try {
 } catch (e) {}
 var _darkListeners = [];
 function useDark() {
-  var _useState5 = useState(_darkMode),
-    _useState6 = _slicedToArray(_useState5, 2),
-    dark = _useState6[0],
-    setDark = _useState6[1];
+  var _useState7 = useState(_darkMode),
+    _useState8 = _slicedToArray(_useState7, 2),
+    dark = _useState8[0],
+    setDark = _useState8[1];
   useEffect(function () {
     _darkListeners.push(setDark);
     return function () {
@@ -12883,37 +13017,44 @@ function idbOpen() {
     };
   });
 }
-function idbSaveInvFile(_x19, _x20) {
+function idbSaveInvFile(_x22, _x23) {
   return _idbSaveInvFile.apply(this, arguments);
 }
 function _idbSaveInvFile() {
-  _idbSaveInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20(eventId, file) {
-    var contentBase64, db, _t10;
-    return _regenerator().w(function (_context20) {
-      while (1) switch (_context20.p = _context20.n) {
+  _idbSaveInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee21(eventId, file) {
+    var contentBase64, db, _t11;
+    return _regenerator().w(function (_context21) {
+      while (1) switch (_context21.p = _context21.n) {
         case 0:
           if (!(!eventId || !file)) {
-            _context20.n = 1;
+            _context21.n = 1;
             break;
           }
-          return _context20.a(2);
+          return _context21.a(2);
         case 1:
-          _context20.p = 1;
-          _context20.n = 2;
-          return fileToBase64(file);
-        case 2:
-          contentBase64 = _context20.v;
-          if (contentBase64) {
-            _context20.n = 3;
+          if (!(file.size > 12 * 1024 * 1024)) {
+            _context21.n = 2;
             break;
           }
-          return _context20.a(2);
+          console.warn("Skip local xlsx cache — file too large for phone storage");
+          return _context21.a(2);
+        case 2:
+          _context21.p = 2;
+          _context21.n = 3;
+          return fileToBase64(file);
         case 3:
-          _context20.n = 4;
-          return idbOpen();
+          contentBase64 = _context21.v;
+          if (contentBase64) {
+            _context21.n = 4;
+            break;
+          }
+          return _context21.a(2);
         case 4:
-          db = _context20.v;
-          _context20.n = 5;
+          _context21.n = 5;
+          return idbOpen();
+        case 5:
+          db = _context21.v;
+          _context21.n = 6;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_INV_FILE_STORE, "readwrite");
             tx.objectStore(IDB_INV_FILE_STORE).put({
@@ -12931,41 +13072,41 @@ function _idbSaveInvFile() {
               return rej(tx.error);
             };
           });
-        case 5:
-          _context20.n = 7;
-          break;
         case 6:
-          _context20.p = 6;
-          _t10 = _context20.v;
-          console.warn("Inventory file save failed", _t10);
+          _context21.n = 8;
+          break;
         case 7:
-          return _context20.a(2);
+          _context21.p = 7;
+          _t11 = _context21.v;
+          console.warn("Inventory file save failed", _t11);
+        case 8:
+          return _context21.a(2);
       }
-    }, _callee20, null, [[1, 6]]);
+    }, _callee21, null, [[2, 7]]);
   }));
   return _idbSaveInvFile.apply(this, arguments);
 }
-function idbGetLatestInvFile(_x21) {
+function idbGetLatestInvFile(_x24) {
   return _idbGetLatestInvFile.apply(this, arguments);
 }
 function _idbGetLatestInvFile() {
-  _idbGetLatestInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee21(eventId) {
-    var db, all, hits, _t11;
-    return _regenerator().w(function (_context21) {
-      while (1) switch (_context21.p = _context21.n) {
+  _idbGetLatestInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee22(eventId) {
+    var db, all, hits, _t12;
+    return _regenerator().w(function (_context22) {
+      while (1) switch (_context22.p = _context22.n) {
         case 0:
           if (eventId) {
-            _context21.n = 1;
+            _context22.n = 1;
             break;
           }
-          return _context21.a(2, null);
+          return _context22.a(2, null);
         case 1:
-          _context21.p = 1;
-          _context21.n = 2;
+          _context22.p = 1;
+          _context22.n = 2;
           return idbOpen();
         case 2:
-          db = _context21.v;
-          _context21.n = 3;
+          db = _context22.v;
+          _context22.n = 3;
           return new Promise(function (res, rej) {
             var r = db.transaction(IDB_INV_FILE_STORE, "readonly").objectStore(IDB_INV_FILE_STORE).getAll();
             r.onsuccess = function () {
@@ -12976,166 +13117,214 @@ function _idbGetLatestInvFile() {
             };
           });
         case 3:
-          all = _context21.v;
+          all = _context22.v;
           hits = all.filter(function (x) {
             return x && x.eventId === String(eventId) && x.contentBase64 && /\.xlsx?$/i.test(x.fileName || "");
           });
           if (hits.length) {
-            _context21.n = 4;
+            _context22.n = 4;
             break;
           }
-          return _context21.a(2, null);
+          return _context22.a(2, null);
         case 4:
           hits.sort(function (a, b) {
             return String(b.uploadedAt).localeCompare(String(a.uploadedAt));
           });
-          return _context21.a(2, hits[0]);
+          return _context22.a(2, hits[0]);
         case 5:
-          _context21.p = 5;
-          _t11 = _context21.v;
-          return _context21.a(2, null);
+          _context22.p = 5;
+          _t12 = _context22.v;
+          return _context22.a(2, null);
       }
-    }, _callee21, null, [[1, 5]]);
+    }, _callee22, null, [[1, 5]]);
   }));
   return _idbGetLatestInvFile.apply(this, arguments);
 }
-function extractImagesFromInvBase64(_x22, _x23) {
+function extractImagesFromInvBase64(_x25, _x26, _x27) {
   return _extractImagesFromInvBase.apply(this, arguments);
 }
 function _extractImagesFromInvBase() {
-  _extractImagesFromInvBase = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee22(contentBase64, inv) {
-    var bin, buf, view, i, _t12;
-    return _regenerator().w(function (_context22) {
-      while (1) switch (_context22.p = _context22.n) {
-        case 0:
-          if (contentBase64) {
-            _context22.n = 1;
-            break;
-          }
-          return _context22.a(2, 0);
-        case 1:
-          _context22.p = 1;
-          bin = atob(contentBase64);
-          buf = new ArrayBuffer(bin.length);
-          view = new Uint8Array(buf);
-          for (i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
-          _context22.n = 2;
-          return extractImagesFromBuffer(buf, inv, "inventory.xlsx");
-        case 2:
-          return _context22.a(2, _context22.v);
-        case 3:
-          _context22.p = 3;
-          _t12 = _context22.v;
-          console.warn("Image extract from stored file", _t12);
-          return _context22.a(2, 0);
-      }
-    }, _callee22, null, [[1, 3]]);
-  }));
-  return _extractImagesFromInvBase.apply(this, arguments);
-}
-function ensureImagesFromInvFile(_x24, _x25) {
-  return _ensureImagesFromInvFile.apply(this, arguments);
-}
-function _ensureImagesFromInvFile() {
-  _ensureImagesFromInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee23(file, inv) {
-    var contentBase64, _t13;
+  _extractImagesFromInvBase = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee23(contentBase64, inv, eventId) {
+    var bin, buf, view, i, _t13;
     return _regenerator().w(function (_context23) {
       while (1) switch (_context23.p = _context23.n) {
         case 0:
-          if (!(!file || !/\.xlsx?$/i.test(file.name || ""))) {
+          if (contentBase64) {
             _context23.n = 1;
             break;
           }
           return _context23.a(2, 0);
         case 1:
           _context23.p = 1;
+          bin = atob(contentBase64);
+          buf = new ArrayBuffer(bin.length);
+          view = new Uint8Array(buf);
+          for (i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
           _context23.n = 2;
-          return fileToBase64(file);
+          return extractImagesFromBuffer(buf, inv, "inventory.xlsx", eventId);
         case 2:
-          contentBase64 = _context23.v;
-          _context23.n = 3;
-          return extractImagesFromInvBase64(contentBase64, inv);
-        case 3:
           return _context23.a(2, _context23.v);
-        case 4:
-          _context23.p = 4;
+        case 3:
+          _context23.p = 3;
           _t13 = _context23.v;
+          console.warn("Image extract from stored file", _t13);
           return _context23.a(2, 0);
       }
-    }, _callee23, null, [[1, 4]]);
+    }, _callee23, null, [[1, 3]]);
   }));
+  return _extractImagesFromInvBase.apply(this, arguments);
+}
+function ensureImagesFromInvFile(_x28, _x29, _x30) {
   return _ensureImagesFromInvFile.apply(this, arguments);
 }
-function idbSaveImages(_x26) {
-  return _idbSaveImages.apply(this, arguments);
-}
-function _idbSaveImages() {
-  _idbSaveImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee24(imgMap) {
-    var db, _t14;
+function _ensureImagesFromInvFile() {
+  _ensureImagesFromInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee24(file, inv, eventId) {
+    var contentBase64, _t14;
     return _regenerator().w(function (_context24) {
       while (1) switch (_context24.p = _context24.n) {
         case 0:
-          if (!(!imgMap || !Object.keys(imgMap).length)) {
+          if (!(!file || !/\.xlsx?$/i.test(file.name || ""))) {
             _context24.n = 1;
             break;
           }
-          return _context24.a(2);
+          return _context24.a(2, 0);
         case 1:
           _context24.p = 1;
           _context24.n = 2;
-          return idbOpen();
+          return fileToBase64(file);
         case 2:
-          db = _context24.v;
+          contentBase64 = _context24.v;
           _context24.n = 3;
-          return new Promise(function (res, rej) {
-            var tx = db.transaction(IDB_IMG_STORE, "readwrite");
-            var st = tx.objectStore(IDB_IMG_STORE);
-            Object.entries(imgMap).forEach(function (_ref80) {
-              var _ref81 = _slicedToArray(_ref80, 2),
-                id = _ref81[0],
-                src = _ref81[1];
-              if (id && src) st.put({
-                id: String(id).toUpperCase(),
-                src: src
-              });
-            });
-            tx.oncomplete = function () {
-              return res();
-            };
-            tx.onerror = function () {
-              return rej(tx.error);
-            };
-          });
+          return extractImagesFromInvBase64(contentBase64, inv, eventId);
         case 3:
-          if (!window.VJ_IMG) window.VJ_IMG = {};
-          Object.entries(imgMap).forEach(function (_ref82) {
-            var _ref83 = _slicedToArray(_ref82, 2),
-              id = _ref83[0],
-              src = _ref83[1];
-            window.VJ_IMG[String(id).toUpperCase()] = src;
-          });
-          notifyImagesChanged();
-          _context24.n = 5;
-          break;
+          return _context24.a(2, _context24.v);
         case 4:
           _context24.p = 4;
           _t14 = _context24.v;
-          console.warn("Image save failed", _t14);
-        case 5:
-          return _context24.a(2);
+          return _context24.a(2, 0);
       }
     }, _callee24, null, [[1, 4]]);
   }));
+  return _ensureImagesFromInvFile.apply(this, arguments);
+}
+function idbSaveImages(_x31) {
   return _idbSaveImages.apply(this, arguments);
 }
-function idbLoadImagesForIds(_x27) {
+function _idbSaveImages() {
+  _idbSaveImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee25(imgMap) {
+    var entries, BATCH, db, _loop3, i, _t16;
+    return _regenerator().w(function (_context26) {
+      while (1) switch (_context26.p = _context26.n) {
+        case 0:
+          if (!(!imgMap || !Object.keys(imgMap).length)) {
+            _context26.n = 1;
+            break;
+          }
+          return _context26.a(2);
+        case 1:
+          entries = Object.entries(imgMap).filter(function (_ref84) {
+            var _ref85 = _slicedToArray(_ref84, 2),
+              id = _ref85[0],
+              src = _ref85[1];
+            return id && src;
+          });
+          if (entries.length) {
+            _context26.n = 2;
+            break;
+          }
+          return _context26.a(2);
+        case 2:
+          if (!window.VJ_IMG) window.VJ_IMG = {};
+          entries.forEach(function (_ref86) {
+            var _ref87 = _slicedToArray(_ref86, 2),
+              id = _ref87[0],
+              src = _ref87[1];
+            window.VJ_IMG[String(id).toUpperCase()] = src;
+          });
+          notifyImagesChanged();
+          BATCH = 20;
+          _context26.p = 3;
+          _context26.n = 4;
+          return idbOpen();
+        case 4:
+          db = _context26.v;
+          _loop3 = /*#__PURE__*/_regenerator().m(function _loop3() {
+            var slice, _t15;
+            return _regenerator().w(function (_context25) {
+              while (1) switch (_context25.p = _context25.n) {
+                case 0:
+                  slice = entries.slice(i, i + BATCH);
+                  _context25.p = 1;
+                  _context25.n = 2;
+                  return new Promise(function (res, rej) {
+                    var tx = db.transaction(IDB_IMG_STORE, "readwrite");
+                    var st = tx.objectStore(IDB_IMG_STORE);
+                    slice.forEach(function (_ref88) {
+                      var _ref89 = _slicedToArray(_ref88, 2),
+                        id = _ref89[0],
+                        src = _ref89[1];
+                      return st.put({
+                        id: String(id).toUpperCase(),
+                        src: src
+                      });
+                    });
+                    tx.oncomplete = function () {
+                      return res();
+                    };
+                    tx.onerror = function () {
+                      return rej(tx.error);
+                    };
+                  });
+                case 2:
+                  _context25.n = 4;
+                  break;
+                case 3:
+                  _context25.p = 3;
+                  _t15 = _context25.v;
+                  console.warn("Image batch save", _t15);
+                case 4:
+                  _context25.n = 5;
+                  return new Promise(function (r) {
+                    return setTimeout(r, 0);
+                  });
+                case 5:
+                  return _context25.a(2);
+              }
+            }, _loop3, null, [[1, 3]]);
+          });
+          i = 0;
+        case 5:
+          if (!(i < entries.length)) {
+            _context26.n = 7;
+            break;
+          }
+          return _context26.d(_regeneratorValues(_loop3()), 6);
+        case 6:
+          i += BATCH;
+          _context26.n = 5;
+          break;
+        case 7:
+          _context26.n = 9;
+          break;
+        case 8:
+          _context26.p = 8;
+          _t16 = _context26.v;
+          console.warn("Image save failed", _t16);
+        case 9:
+          return _context26.a(2);
+      }
+    }, _callee25, null, [[3, 8]]);
+  }));
+  return _idbSaveImages.apply(this, arguments);
+}
+function idbLoadImagesForIds(_x32) {
   return _idbLoadImagesForIds.apply(this, arguments);
 }
 function _idbLoadImagesForIds() {
-  _idbLoadImagesForIds = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee25(ids) {
-    var need, db, loaded, _t15;
-    return _regenerator().w(function (_context25) {
-      while (1) switch (_context25.p = _context25.n) {
+  _idbLoadImagesForIds = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26(ids) {
+    var need, db, loaded, _t17;
+    return _regenerator().w(function (_context27) {
+      while (1) switch (_context27.p = _context27.n) {
         case 0:
           need = _toConsumableArray(new Set((ids || []).map(function (id) {
             return String(id || "").toUpperCase();
@@ -13143,18 +13332,18 @@ function _idbLoadImagesForIds() {
             return id && !(window.VJ_IMG && window.VJ_IMG[id]);
           })));
           if (need.length) {
-            _context25.n = 1;
+            _context27.n = 1;
             break;
           }
-          return _context25.a(2, 0);
+          return _context27.a(2, 0);
         case 1:
-          _context25.p = 1;
-          _context25.n = 2;
+          _context27.p = 1;
+          _context27.n = 2;
           return idbOpen();
         case 2:
-          db = _context25.v;
+          db = _context27.v;
           loaded = 0;
-          _context25.n = 3;
+          _context27.n = 3;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_IMG_STORE, "readonly");
             var st = tx.objectStore(IDB_IMG_STORE);
@@ -13179,13 +13368,13 @@ function _idbLoadImagesForIds() {
           });
         case 3:
           if (loaded) notifyImagesChanged();
-          return _context25.a(2, loaded);
+          return _context27.a(2, loaded);
         case 4:
-          _context25.p = 4;
-          _t15 = _context25.v;
-          return _context25.a(2, 0);
+          _context27.p = 4;
+          _t17 = _context27.v;
+          return _context27.a(2, 0);
       }
-    }, _callee25, null, [[1, 4]]);
+    }, _callee26, null, [[1, 4]]);
   }));
   return _idbLoadImagesForIds.apply(this, arguments);
 }
@@ -13193,17 +13382,17 @@ function idbLoadAllImages() {
   return _idbLoadAllImages.apply(this, arguments);
 }
 function _idbLoadAllImages() {
-  _idbLoadAllImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26() {
-    var db, all, loaded, _t16;
-    return _regenerator().w(function (_context26) {
-      while (1) switch (_context26.p = _context26.n) {
+  _idbLoadAllImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27() {
+    var db, all, loaded, _t18;
+    return _regenerator().w(function (_context28) {
+      while (1) switch (_context28.p = _context28.n) {
         case 0:
-          _context26.p = 0;
-          _context26.n = 1;
+          _context28.p = 0;
+          _context28.n = 1;
           return idbOpen();
         case 1:
-          db = _context26.v;
-          _context26.n = 2;
+          db = _context28.v;
+          _context28.n = 2;
           return new Promise(function (res, rej) {
             var r = db.transaction(IDB_IMG_STORE, "readonly").objectStore(IDB_IMG_STORE).getAll();
             r.onsuccess = function () {
@@ -13214,7 +13403,7 @@ function _idbLoadAllImages() {
             };
           });
         case 2:
-          all = _context26.v;
+          all = _context28.v;
           if (!window.VJ_IMG) window.VJ_IMG = {};
           loaded = 0;
           all.forEach(function (row) {
@@ -13224,13 +13413,13 @@ function _idbLoadAllImages() {
             }
           });
           if (loaded) notifyImagesChanged();
-          return _context26.a(2, loaded);
+          return _context28.a(2, loaded);
         case 3:
-          _context26.p = 3;
-          _t16 = _context26.v;
-          return _context26.a(2, 0);
+          _context28.p = 3;
+          _t18 = _context28.v;
+          return _context28.a(2, 0);
       }
-    }, _callee26, null, [[0, 3]]);
+    }, _callee27, null, [[0, 3]]);
   }));
   return _idbLoadAllImages.apply(this, arguments);
 }
@@ -13238,17 +13427,17 @@ function idbGetEvents() {
   return _idbGetEvents.apply(this, arguments);
 }
 function _idbGetEvents() {
-  _idbGetEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27() {
-    var db, _t17;
-    return _regenerator().w(function (_context27) {
-      while (1) switch (_context27.p = _context27.n) {
+  _idbGetEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28() {
+    var db, _t19;
+    return _regenerator().w(function (_context29) {
+      while (1) switch (_context29.p = _context29.n) {
         case 0:
-          _context27.p = 0;
-          _context27.n = 1;
+          _context29.p = 0;
+          _context29.n = 1;
           return idbOpen();
         case 1:
-          db = _context27.v;
-          _context27.n = 2;
+          db = _context29.v;
+          _context29.n = 2;
           return new Promise(function (res, rej) {
             var r = db.transaction(IDB_STORE, "readonly").objectStore(IDB_STORE).getAll();
             r.onsuccess = function () {
@@ -13259,31 +13448,31 @@ function _idbGetEvents() {
             };
           });
         case 2:
-          return _context27.a(2, _context27.v);
+          return _context29.a(2, _context29.v);
         case 3:
-          _context27.p = 3;
-          _t17 = _context27.v;
-          return _context27.a(2, null);
+          _context29.p = 3;
+          _t19 = _context29.v;
+          return _context29.a(2, null);
       }
-    }, _callee27, null, [[0, 3]]);
+    }, _callee28, null, [[0, 3]]);
   }));
   return _idbGetEvents.apply(this, arguments);
 }
-function idbSaveEvents(_x28) {
+function idbSaveEvents(_x33) {
   return _idbSaveEvents.apply(this, arguments);
 }
 function _idbSaveEvents() {
-  _idbSaveEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28(evts) {
-    var db, _t18;
-    return _regenerator().w(function (_context28) {
-      while (1) switch (_context28.p = _context28.n) {
+  _idbSaveEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29(evts) {
+    var db, _t20;
+    return _regenerator().w(function (_context30) {
+      while (1) switch (_context30.p = _context30.n) {
         case 0:
-          _context28.p = 0;
-          _context28.n = 1;
+          _context30.p = 0;
+          _context30.n = 1;
           return idbOpen();
         case 1:
-          db = _context28.v;
-          _context28.n = 2;
+          db = _context30.v;
+          _context30.n = 2;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_STORE, "readwrite");
             var st = tx.objectStore(IDB_STORE);
@@ -13299,16 +13488,16 @@ function _idbSaveEvents() {
             };
           });
         case 2:
-          _context28.n = 4;
+          _context30.n = 4;
           break;
         case 3:
-          _context28.p = 3;
-          _t18 = _context28.v;
-          console.warn("IndexedDB save failed", _t18);
+          _context30.p = 3;
+          _t20 = _context30.v;
+          console.warn("IndexedDB save failed", _t20);
         case 4:
-          return _context28.a(2);
+          return _context30.a(2);
       }
-    }, _callee28, null, [[0, 3]]);
+    }, _callee29, null, [[0, 3]]);
   }));
   return _idbSaveEvents.apply(this, arguments);
 }
@@ -13340,20 +13529,20 @@ function loadEventsAsync() {
   return _loadEventsAsync.apply(this, arguments);
 }
 function _loadEventsAsync() {
-  _loadEventsAsync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29() {
+  _loadEventsAsync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30() {
     var local, idb;
-    return _regenerator().w(function (_context29) {
-      while (1) switch (_context29.n) {
+    return _regenerator().w(function (_context31) {
+      while (1) switch (_context31.n) {
         case 0:
           local = loadEvents();
-          _context29.n = 1;
+          _context31.n = 1;
           return idbGetEvents();
         case 1:
-          idb = _context29.v;
+          idb = _context31.v;
           if (idb && idb.length) local = mergeEvents(local, idb);
-          return _context29.a(2, applyDeletedFilter(local));
+          return _context31.a(2, applyDeletedFilter(local));
       }
-    }, _callee29);
+    }, _callee30);
   }));
   return _loadEventsAsync.apply(this, arguments);
 }
@@ -13572,31 +13761,31 @@ function mimeForFileName(name) {
   if (n.endsWith(".csv")) return "text/csv";
   return "application/octet-stream";
 }
-function queueInventoryFileForDrive(_x29, _x30) {
+function queueInventoryFileForDrive(_x34, _x35) {
   return _queueInventoryFileForDrive.apply(this, arguments);
 }
 function _queueInventoryFileForDrive() {
-  _queueInventoryFileForDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30(eventId, file) {
-    var contentBase64, _t19;
-    return _regenerator().w(function (_context30) {
-      while (1) switch (_context30.p = _context30.n) {
+  _queueInventoryFileForDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee31(eventId, file) {
+    var contentBase64, _t21;
+    return _regenerator().w(function (_context32) {
+      while (1) switch (_context32.p = _context32.n) {
         case 0:
           if (!(!file || !eventId)) {
-            _context30.n = 1;
+            _context32.n = 1;
             break;
           }
-          return _context30.a(2);
+          return _context32.a(2);
         case 1:
-          _context30.p = 1;
-          _context30.n = 2;
+          _context32.p = 1;
+          _context32.n = 2;
           return fileToBase64(file);
         case 2:
-          contentBase64 = _context30.v;
+          contentBase64 = _context32.v;
           if (contentBase64) {
-            _context30.n = 3;
+            _context32.n = 3;
             break;
           }
-          return _context30.a(2);
+          return _context32.a(2);
         case 3:
           _pendingInvFiles.push({
             eventId: eventId,
@@ -13604,16 +13793,16 @@ function _queueInventoryFileForDrive() {
             contentBase64: contentBase64,
             mimeType: mimeForFileName(file.name)
           });
-          _context30.n = 5;
+          _context32.n = 5;
           break;
         case 4:
-          _context30.p = 4;
-          _t19 = _context30.v;
-          console.warn("Drive inventory queue", _t19);
+          _context32.p = 4;
+          _t21 = _context32.v;
+          console.warn("Drive inventory queue", _t21);
         case 5:
-          return _context30.a(2);
+          return _context32.a(2);
       }
-    }, _callee30, null, [[1, 4]]);
+    }, _callee31, null, [[1, 4]]);
   }));
   return _queueInventoryFileForDrive.apply(this, arguments);
 }
@@ -13636,33 +13825,33 @@ function getCloudCurrency() {
   } catch (e) {}
   return Object.assign({}, CURR);
 }
-function cloudUploadInventoryFiles(_x31) {
+function cloudUploadInventoryFiles(_x36) {
   return _cloudUploadInventoryFiles.apply(this, arguments);
 }
 function _cloudUploadInventoryFiles() {
-  _cloudUploadInventoryFiles = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee31(files) {
-    var failed, _iterator4, _step4, f, r, d, _t20, _t21;
-    return _regenerator().w(function (_context31) {
-      while (1) switch (_context31.p = _context31.n) {
+  _cloudUploadInventoryFiles = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32(files) {
+    var failed, _iterator4, _step4, f, r, d, _t22, _t23;
+    return _regenerator().w(function (_context33) {
+      while (1) switch (_context33.p = _context33.n) {
         case 0:
           failed = [];
           _iterator4 = _createForOfIteratorHelper(files);
-          _context31.p = 1;
+          _context33.p = 1;
           _iterator4.s();
         case 2:
           if ((_step4 = _iterator4.n()).done) {
-            _context31.n = 9;
+            _context33.n = 9;
             break;
           }
           f = _step4.value;
           if (!(!f || !f.contentBase64 || !f.eventId)) {
-            _context31.n = 3;
+            _context33.n = 3;
             break;
           }
-          return _context31.a(3, 8);
+          return _context33.a(3, 8);
         case 3:
-          _context31.p = 3;
-          _context31.n = 4;
+          _context33.p = 3;
+          _context33.n = 4;
           return fetch("/api/inventory-file", {
             method: "POST",
             headers: {
@@ -13671,63 +13860,63 @@ function _cloudUploadInventoryFiles() {
             body: JSON.stringify(f)
           });
         case 4:
-          r = _context31.v;
-          _context31.n = 5;
+          r = _context33.v;
+          _context33.n = 5;
           return r.json();
         case 5:
-          d = _context31.v;
+          d = _context33.v;
           if (!(!r.ok || !d.ok)) {
-            _context31.n = 6;
+            _context33.n = 6;
             break;
           }
           throw new Error(d.error || "Upload failed");
         case 6:
-          _context31.n = 8;
+          _context33.n = 8;
           break;
         case 7:
-          _context31.p = 7;
-          _t20 = _context31.v;
-          console.warn("Inventory file upload", f.fileName, _t20);
+          _context33.p = 7;
+          _t22 = _context33.v;
+          console.warn("Inventory file upload", f.fileName, _t22);
           failed.push(f);
         case 8:
-          _context31.n = 2;
+          _context33.n = 2;
           break;
         case 9:
-          _context31.n = 11;
+          _context33.n = 11;
           break;
         case 10:
-          _context31.p = 10;
-          _t21 = _context31.v;
-          _iterator4.e(_t21);
+          _context33.p = 10;
+          _t23 = _context33.v;
+          _iterator4.e(_t23);
         case 11:
-          _context31.p = 11;
+          _context33.p = 11;
           _iterator4.f();
-          return _context31.f(11);
+          return _context33.f(11);
         case 12:
-          return _context31.a(2, failed);
+          return _context33.a(2, failed);
       }
-    }, _callee31, null, [[3, 7], [1, 10, 11, 12]]);
+    }, _callee32, null, [[3, 7], [1, 10, 11, 12]]);
   }));
   return _cloudUploadInventoryFiles.apply(this, arguments);
 }
-function cloudSaveReceipt(_x32) {
+function cloudSaveReceipt(_x37) {
   return _cloudSaveReceipt.apply(this, arguments);
 }
 function _cloudSaveReceipt() {
-  _cloudSaveReceipt = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32(_ref3) {
-    var eventName, receiptId, html, r, d, _t22;
-    return _regenerator().w(function (_context32) {
-      while (1) switch (_context32.p = _context32.n) {
+  _cloudSaveReceipt = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee33(_ref3) {
+    var eventName, receiptId, html, r, d, _t24;
+    return _regenerator().w(function (_context34) {
+      while (1) switch (_context34.p = _context34.n) {
         case 0:
           eventName = _ref3.eventName, receiptId = _ref3.receiptId, html = _ref3.html;
           if (!(!isCloudOnline() || !eventName || !receiptId || !html)) {
-            _context32.n = 1;
+            _context34.n = 1;
             break;
           }
-          return _context32.a(2, null);
+          return _context34.a(2, null);
         case 1:
-          _context32.p = 1;
-          _context32.n = 2;
+          _context34.p = 1;
+          _context34.n = 2;
           return fetch("/api/invoice-file", {
             method: "POST",
             headers: {
@@ -13740,25 +13929,25 @@ function _cloudSaveReceipt() {
             })
           });
         case 2:
-          r = _context32.v;
-          _context32.n = 3;
+          r = _context34.v;
+          _context34.n = 3;
           return r.json();
         case 3:
-          d = _context32.v;
+          d = _context34.v;
           if (!(!r.ok || !d.ok)) {
-            _context32.n = 4;
+            _context34.n = 4;
             break;
           }
           throw new Error(d.error || "Receipt save failed");
         case 4:
-          return _context32.a(2, d);
+          return _context34.a(2, d);
         case 5:
-          _context32.p = 5;
-          _t22 = _context32.v;
-          console.warn("Receipt Drive save", receiptId, _t22);
-          return _context32.a(2, null);
+          _context34.p = 5;
+          _t24 = _context34.v;
+          console.warn("Receipt Drive save", receiptId, _t24);
+          return _context34.a(2, null);
       }
-    }, _callee32, null, [[1, 5]]);
+    }, _callee33, null, [[1, 5]]);
   }));
   return _cloudSaveReceipt.apply(this, arguments);
 }
@@ -13777,46 +13966,46 @@ function setCloudMeta(m) {
     localStorage.setItem(CLOUD_META_KEY, JSON.stringify(m));
   } catch (e) {}
 }
-function cloudFetchData(_x33) {
+function cloudFetchData(_x38) {
   return _cloudFetchData.apply(this, arguments);
 }
 function _cloudFetchData() {
-  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee33(withDebug) {
-    var url, r, d, _t23;
-    return _regenerator().w(function (_context33) {
-      while (1) switch (_context33.p = _context33.n) {
+  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee34(withDebug) {
+    var url, r, d, _t25;
+    return _regenerator().w(function (_context35) {
+      while (1) switch (_context35.p = _context35.n) {
         case 0:
-          _context33.p = 0;
+          _context35.p = 0;
           url = withDebug ? "/api/data?debug=1" : "/api/data";
-          _context33.n = 1;
+          _context35.n = 1;
           return fetch(url, {
             method: "GET",
             cache: "no-store"
           });
         case 1:
-          r = _context33.v;
-          _context33.n = 2;
+          r = _context35.v;
+          _context35.n = 2;
           return r.json();
         case 2:
-          d = _context33.v;
+          d = _context35.v;
           if (!(!r.ok || !d.configured)) {
-            _context33.n = 3;
+            _context35.n = 3;
             break;
           }
           _cloudOnline = false;
           _lastCloudPing = d;
-          return _context33.a(2, null);
+          return _context35.a(2, null);
         case 3:
           _cloudOnline = true;
           _lastCloudPing = d;
-          return _context33.a(2, d);
+          return _context35.a(2, d);
         case 4:
-          _context33.p = 4;
-          _t23 = _context33.v;
+          _context35.p = 4;
+          _t25 = _context35.v;
           _cloudOnline = false;
-          return _context33.a(2, null);
+          return _context35.a(2, null);
       }
-    }, _callee33, null, [[0, 4]]);
+    }, _callee34, null, [[0, 4]]);
   }));
   return _cloudFetchData.apply(this, arguments);
 }
@@ -13860,20 +14049,20 @@ function cloudLoad() {
   return _cloudLoad.apply(this, arguments);
 }
 function _cloudLoad() {
-  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee34() {
+  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35() {
     var d;
-    return _regenerator().w(function (_context34) {
-      while (1) switch (_context34.n) {
+    return _regenerator().w(function (_context36) {
+      while (1) switch (_context36.n) {
         case 0:
-          _context34.n = 1;
+          _context36.n = 1;
           return cloudFetchData();
         case 1:
-          d = _context34.v;
+          d = _context36.v;
           if (d) {
-            _context34.n = 2;
+            _context36.n = 2;
             break;
           }
-          return _context34.a(2, null);
+          return _context36.a(2, null);
         case 2:
           if (Array.isArray(d.events) && d.events.length) {
             saveEvents(mergeEvents(loadEvents(), d.events));
@@ -13891,9 +14080,9 @@ function _cloudLoad() {
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context34.a(2, d);
+          return _context36.a(2, d);
       }
-    }, _callee34);
+    }, _callee35);
   }));
   return _cloudLoad.apply(this, arguments);
 }
@@ -13901,36 +14090,36 @@ var _lastCloudError = "";
 function getLastCloudError() {
   return _lastCloudError;
 }
-function cloudSave(_x34, _x35, _x36) {
+function cloudSave(_x39, _x40, _x41) {
   return _cloudSave.apply(this, arguments);
 }
 function _cloudSave() {
-  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(events, users, deletedEvents) {
-    var ping, currency, inventoryFiles, trySave, d, _t24;
-    return _regenerator().w(function (_context36) {
-      while (1) switch (_context36.p = _context36.n) {
+  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee37(events, users, deletedEvents) {
+    var ping, currency, inventoryFiles, trySave, d, _t26;
+    return _regenerator().w(function (_context38) {
+      while (1) switch (_context38.p = _context38.n) {
         case 0:
           if (_cloudOnline) {
-            _context36.n = 2;
+            _context38.n = 2;
             break;
           }
-          _context36.n = 1;
+          _context38.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context36.v;
+          ping = _context38.v;
           if (ping) {
-            _context36.n = 2;
+            _context38.n = 2;
             break;
           }
-          return _context36.a(2, null);
+          return _context38.a(2, null);
         case 2:
           currency = getCloudCurrency();
           inventoryFiles = takePendingInvFiles();
           trySave = /*#__PURE__*/function () {
-            var _ref84 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(files) {
+            var _ref90 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(files) {
               var body, r, d, msg;
-              return _regenerator().w(function (_context35) {
-                while (1) switch (_context35.n) {
+              return _regenerator().w(function (_context37) {
+                while (1) switch (_context37.n) {
                   case 0:
                     body = {
                       events: events,
@@ -13939,7 +14128,7 @@ function _cloudSave() {
                       deletedEvents: deletedEvents || [],
                       inventoryFiles: files || []
                     };
-                    _context35.n = 1;
+                    _context37.n = 1;
                     return fetch("/api/data", {
                       method: "POST",
                       headers: {
@@ -13948,13 +14137,13 @@ function _cloudSave() {
                       body: JSON.stringify(body)
                     });
                   case 1:
-                    r = _context35.v;
-                    _context35.n = 2;
+                    r = _context37.v;
+                    _context37.n = 2;
                     return r.json();
                   case 2:
-                    d = _context35.v;
+                    d = _context37.v;
                     if (!(!r.ok || !d.ok)) {
-                      _context35.n = 3;
+                      _context37.n = 3;
                       break;
                     }
                     msg = d.error || "Save failed";
@@ -13962,33 +14151,33 @@ function _cloudSave() {
                     throw new Error(msg);
                   case 3:
                     _lastCloudError = "";
-                    return _context35.a(2, d);
+                    return _context37.a(2, d);
                 }
-              }, _callee35);
+              }, _callee36);
             }));
-            return function trySave(_x53) {
-              return _ref84.apply(this, arguments);
+            return function trySave(_x58) {
+              return _ref90.apply(this, arguments);
             };
           }();
-          _context36.p = 3;
-          _context36.n = 4;
+          _context38.p = 3;
+          _context38.n = 4;
           return trySave(inventoryFiles);
         case 4:
-          d = _context36.v;
+          d = _context38.v;
           _cloudOnline = true;
           if (d.version) setCloudMeta({
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context36.a(2, d);
+          return _context38.a(2, d);
         case 5:
-          _context36.p = 5;
-          _t24 = _context36.v;
+          _context38.p = 5;
+          _t26 = _context38.v;
           if (inventoryFiles.length) _pendingInvFiles.unshift.apply(_pendingInvFiles, _toConsumableArray(inventoryFiles));
-          console.warn("Cloud save", _t24);
-          return _context36.a(2, null);
+          console.warn("Cloud save", _t26);
+          return _context38.a(2, null);
       }
-    }, _callee36, null, [[3, 5]]);
+    }, _callee37, null, [[3, 5]]);
   }));
   return _cloudSave.apply(this, arguments);
 }
@@ -14004,15 +14193,15 @@ function eventsForCloudPayload(events) {
     });
   });
 }
-function flushCloudSync(_x37, _x38, _x39) {
+function flushCloudSync(_x42, _x43, _x44) {
   return _flushCloudSync.apply(this, arguments);
 }
 function _flushCloudSync() {
-  _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee37(events, users, deletedEvents) {
-    var _ref85,
-      _ref85$silent,
+  _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(events, users, deletedEvents) {
+    var _ref91,
+      _ref91$silent,
       silent,
-      _ref85$successMsg,
+      _ref91$successMsg,
       successMsg,
       ping,
       tombstones,
@@ -14023,21 +14212,21 @@ function _flushCloudSync() {
       payload,
       result,
       errMsg,
-      _args37 = arguments;
-    return _regenerator().w(function (_context37) {
-      while (1) switch (_context37.n) {
+      _args39 = arguments;
+    return _regenerator().w(function (_context39) {
+      while (1) switch (_context39.n) {
         case 0:
-          _ref85 = _args37.length > 3 && _args37[3] !== undefined ? _args37[3] : {}, _ref85$silent = _ref85.silent, silent = _ref85$silent === void 0 ? false : _ref85$silent, _ref85$successMsg = _ref85.successMsg, successMsg = _ref85$successMsg === void 0 ? "Shared with all users & devices" : _ref85$successMsg;
-          _context37.n = 1;
+          _ref91 = _args39.length > 3 && _args39[3] !== undefined ? _args39[3] : {}, _ref91$silent = _ref91.silent, silent = _ref91$silent === void 0 ? false : _ref91$silent, _ref91$successMsg = _ref91.successMsg, successMsg = _ref91$successMsg === void 0 ? "Shared with all users & devices" : _ref91$successMsg;
+          _context39.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context37.v;
+          ping = _context39.v;
           if (!(!ping || !ping.configured)) {
-            _context37.n = 2;
+            _context39.n = 2;
             break;
           }
           if (!silent) toast.warn("Cloud not connected", "Data saved on this device only until Google Drive Shared Drive is configured.");
-          return _context37.a(2, {
+          return _context39.a(2, {
             ok: false
           });
         case 2:
@@ -14052,17 +14241,17 @@ function _flushCloudSync() {
           });
           merged = mergeEvents(events, cloudFiltered);
           payload = eventsForCloudPayload(merged);
-          _context37.n = 3;
+          _context39.n = 3;
           return cloudSave(payload, users, allDeleted);
         case 3:
-          result = _context37.v;
+          result = _context39.v;
           if (!(result === null)) {
-            _context37.n = 4;
+            _context39.n = 4;
             break;
           }
           errMsg = getLastCloudError() || "Could not save to company cloud.";
           if (!silent && (events || []).length) toast.error("Cloud sync failed", errMsg);
-          return _context37.a(2, {
+          return _context39.a(2, {
             ok: false,
             error: errMsg
           });
@@ -14071,7 +14260,7 @@ function _flushCloudSync() {
             return d.id;
           }));
           if (!silent && successMsg) toast.success(successMsg, "Saved to Google Drive — visible to all permitted users.");
-          return _context37.a(2, {
+          return _context39.a(2, {
             ok: true,
             synced: result.events || [],
             users: result.users || users || null,
@@ -14079,7 +14268,7 @@ function _flushCloudSync() {
             version: result.version || 0
           });
       }
-    }, _callee37);
+    }, _callee38);
   }));
   return _flushCloudSync.apply(this, arguments);
 }
@@ -14328,22 +14517,22 @@ function QRScanner(_ref7) {
     sr = useRef(null),
     cv = useRef(null),
     raf = useRef(null);
-  var _useState7 = useState(""),
-    _useState8 = _slicedToArray(_useState7, 2),
-    err = _useState8[0],
-    se = _useState8[1],
-    _useState9 = useState(""),
+  var _useState9 = useState(""),
     _useState0 = _slicedToArray(_useState9, 2),
-    manual = _useState0[0],
-    sm = _useState0[1],
-    _useState1 = useState(false),
+    err = _useState0[0],
+    se = _useState0[1],
+    _useState1 = useState(""),
     _useState10 = _slicedToArray(_useState1, 2),
-    scanning = _useState10[0],
-    ssc = _useState10[1],
-    _useState11 = useState(""),
+    manual = _useState10[0],
+    sm = _useState10[1],
+    _useState11 = useState(false),
     _useState12 = _slicedToArray(_useState11, 2),
-    lastCode = _useState12[0],
-    slc = _useState12[1];
+    scanning = _useState12[0],
+    ssc = _useState12[1],
+    _useState13 = useState(""),
+    _useState14 = _slicedToArray(_useState13, 2),
+    lastCode = _useState14[0],
+    slc = _useState14[1];
   var stop = function stop() {
     if (raf.current) {
       cancelAnimationFrame(raf.current);
@@ -14820,127 +15009,127 @@ function parseDrawingRels(relsXml) {
   });
   return relMap;
 }
-function mediaDataUrl(_x40, _x41) {
+function mediaDataUrl(_x45, _x46) {
   return _mediaDataUrl.apply(this, arguments);
 }
 function _mediaDataUrl() {
-  _mediaDataUrl = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(zip, mediaPath) {
+  _mediaDataUrl = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee39(zip, mediaPath) {
     var ext, mime, b64;
-    return _regenerator().w(function (_context38) {
-      while (1) switch (_context38.n) {
+    return _regenerator().w(function (_context40) {
+      while (1) switch (_context40.n) {
         case 0:
           if (!(!mediaPath || !zip.files[mediaPath])) {
-            _context38.n = 1;
+            _context40.n = 1;
             break;
           }
-          return _context38.a(2, "");
+          return _context40.a(2, "");
         case 1:
           ext = (mediaPath.split(".").pop() || "jpg").toLowerCase().split("?")[0];
           mime = ext === "png" ? "image/png" : ext === "gif" ? "image/gif" : ext === "webp" ? "image/webp" : "image/jpeg";
-          _context38.n = 2;
+          _context40.n = 2;
           return zip.file(mediaPath).async("base64");
         case 2:
-          b64 = _context38.v;
-          return _context38.a(2, "data:" + mime + ";base64," + b64);
+          b64 = _context40.v;
+          return _context40.a(2, "data:" + mime + ";base64," + b64);
       }
-    }, _callee38);
+    }, _callee39);
   }));
   return _mediaDataUrl.apply(this, arguments);
 }
-function extractXLImages(_x42, _x43) {
+function extractXLImages(_x47, _x48) {
   return _extractXLImages.apply(this, arguments);
 }
 function _extractXLImages() {
-  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee39(arrayBuffer, idByRow) {
-    var zip, imgs, drawingPaths, _iterator5, _step5, dp, xml, relsPath, relMap, re, m, code, mediaPath, dataUrl, _t25, _t26, _t27;
-    return _regenerator().w(function (_context39) {
-      while (1) switch (_context39.p = _context39.n) {
+  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(arrayBuffer, idByRow) {
+    var zip, imgs, drawingPaths, _iterator5, _step5, dp, xml, relsPath, relMap, re, m, code, mediaPath, dataUrl, _t27, _t28, _t29;
+    return _regenerator().w(function (_context41) {
+      while (1) switch (_context41.p = _context41.n) {
         case 0:
           if (!(!window.JSZip || !idByRow || !Object.keys(idByRow).length)) {
-            _context39.n = 1;
+            _context41.n = 1;
             break;
           }
-          return _context39.a(2, {});
+          return _context41.a(2, {});
         case 1:
-          _context39.p = 1;
-          _context39.n = 2;
+          _context41.p = 1;
+          _context41.n = 2;
           return window.JSZip.loadAsync(arrayBuffer);
         case 2:
-          zip = _context39.v;
+          zip = _context41.v;
           imgs = {};
           drawingPaths = Object.keys(zip.files).filter(function (n) {
             return /xl\/drawings\/drawing\d+\.xml$/i.test(n);
           });
           _iterator5 = _createForOfIteratorHelper(drawingPaths);
-          _context39.p = 3;
+          _context41.p = 3;
           _iterator5.s();
         case 4:
           if ((_step5 = _iterator5.n()).done) {
-            _context39.n = 12;
+            _context41.n = 12;
             break;
           }
           dp = _step5.value;
-          _context39.n = 5;
+          _context41.n = 5;
           return zip.file(dp).async("string");
         case 5:
-          xml = _context39.v;
+          xml = _context41.v;
           relsPath = dp.replace("drawings/", "drawings/_rels/").replace(/\.xml$/i, ".xml.rels");
           if (zip.files[relsPath]) {
-            _context39.n = 6;
+            _context41.n = 6;
             break;
           }
-          return _context39.a(3, 11);
+          return _context41.a(3, 11);
         case 6:
-          _t25 = parseDrawingRels;
-          _context39.n = 7;
+          _t27 = parseDrawingRels;
+          _context41.n = 7;
           return zip.file(relsPath).async("string");
         case 7:
-          relMap = _t25(_context39.v);
+          relMap = _t27(_context41.v);
           re = /<xdr:row>(\d+)<\/xdr:row>[\s\S]*?r:(?:embed|link)="([^"]+)"/g;
           m = void 0;
         case 8:
           if (!(m = re.exec(xml))) {
-            _context39.n = 11;
+            _context41.n = 11;
             break;
           }
           code = codeForExcelRow(parseInt(m[1], 10) + 1, idByRow);
           mediaPath = relMap[m[2]];
           if (!(!code || !mediaPath || imgs[code])) {
-            _context39.n = 9;
+            _context41.n = 9;
             break;
           }
-          return _context39.a(3, 8);
+          return _context41.a(3, 8);
         case 9:
-          _context39.n = 10;
+          _context41.n = 10;
           return mediaDataUrl(zip, mediaPath);
         case 10:
-          dataUrl = _context39.v;
+          dataUrl = _context41.v;
           if (dataUrl) imgs[code] = dataUrl;
-          _context39.n = 8;
+          _context41.n = 8;
           break;
         case 11:
-          _context39.n = 4;
+          _context41.n = 4;
           break;
         case 12:
-          _context39.n = 14;
+          _context41.n = 14;
           break;
         case 13:
-          _context39.p = 13;
-          _t26 = _context39.v;
-          _iterator5.e(_t26);
+          _context41.p = 13;
+          _t28 = _context41.v;
+          _iterator5.e(_t28);
         case 14:
-          _context39.p = 14;
+          _context41.p = 14;
           _iterator5.f();
-          return _context39.f(14);
+          return _context41.f(14);
         case 15:
-          return _context39.a(2, imgs);
+          return _context41.a(2, imgs);
         case 16:
-          _context39.p = 16;
-          _t27 = _context39.v;
-          console.warn("Image extract", _t27);
-          return _context39.a(2, {});
+          _context41.p = 16;
+          _t29 = _context41.v;
+          console.warn("Image extract", _t29);
+          return _context41.a(2, {});
       }
-    }, _callee39, null, [[3, 13, 14, 15], [1, 16]]);
+    }, _callee40, null, [[3, 13, 14, 15], [1, 16]]);
   }));
   return _extractXLImages.apply(this, arguments);
 }
@@ -15175,7 +15364,7 @@ function parseXL(file, onDone, onError) {
             }
           }, _callee2, null, [[1, 6, 7, 8], [0, 12]]);
         }));
-        return function (_x44) {
+        return function (_x49) {
           return _ref15.apply(this, arguments);
         };
       }();
@@ -15189,26 +15378,26 @@ function parseXL(file, onDone, onError) {
 function Login(_ref16) {
   var onLogin = _ref16.onLogin,
     users = _ref16.users;
-  var _useState13 = useState(""),
-    _useState14 = _slicedToArray(_useState13, 2),
-    u = _useState14[0],
-    su = _useState14[1],
-    _useState15 = useState(""),
+  var _useState15 = useState(""),
     _useState16 = _slicedToArray(_useState15, 2),
-    p = _useState16[0],
-    sp = _useState16[1],
+    u = _useState16[0],
+    su = _useState16[1],
     _useState17 = useState(""),
     _useState18 = _slicedToArray(_useState17, 2),
-    e = _useState18[0],
-    se = _useState18[1],
-    _useState19 = useState(false),
+    p = _useState18[0],
+    sp = _useState18[1],
+    _useState19 = useState(""),
     _useState20 = _slicedToArray(_useState19, 2),
-    show = _useState20[0],
-    ssh = _useState20[1],
+    e = _useState20[0],
+    se = _useState20[1],
     _useState21 = useState(false),
     _useState22 = _slicedToArray(_useState21, 2),
-    bio = _useState22[0],
-    sbio = _useState22[1];
+    show = _useState22[0],
+    ssh = _useState22[1],
+    _useState23 = useState(false),
+    _useState24 = _slicedToArray(_useState23, 2),
+    bio = _useState24[0],
+    sbio = _useState24[1];
   var scrollRef = useRef(null);
   useEffect(function () {
     try {
@@ -15518,32 +15707,32 @@ function EventHub(_ref18) {
     onManage = _ref18.onManage,
     onDelete = _ref18.onDelete,
     onLogout = _ref18.onLogout;
-  var _useState23 = useState(false),
-    _useState24 = _slicedToArray(_useState23, 2),
-    sc = _useState24[0],
-    ssc = _useState24[1],
-    _useState25 = useState({
+  var _useState25 = useState(false),
+    _useState26 = _slicedToArray(_useState25, 2),
+    sc = _useState26[0],
+    ssc = _useState26[1],
+    _useState27 = useState({
       name: "",
       loc: "",
       start: "",
       end: "",
       color: G
     }),
-    _useState26 = _slicedToArray(_useState25, 2),
-    form = _useState26[0],
-    sf = _useState26[1],
-    _useState27 = useState(null),
     _useState28 = _slicedToArray(_useState27, 2),
-    xlf = _useState28[0],
-    sxl = _useState28[1],
-    _useState29 = useState(""),
+    form = _useState28[0],
+    sf = _useState28[1],
+    _useState29 = useState(null),
     _useState30 = _slicedToArray(_useState29, 2),
-    msg = _useState30[0],
-    smsg = _useState30[1],
-    _useState31 = useState(false),
+    xlf = _useState30[0],
+    sxl = _useState30[1],
+    _useState31 = useState(""),
     _useState32 = _slicedToArray(_useState31, 2),
-    loading = _useState32[0],
-    sl = _useState32[1];
+    msg = _useState32[0],
+    smsg = _useState32[1],
+    _useState33 = useState(false),
+    _useState34 = _slicedToArray(_useState33, 2),
+    loading = _useState34[0],
+    sl = _useState34[1];
   var pr = gp(user.role, user.perms);
   var visibleEvents = filterEventsForUser(user, events);
   useEffect(function () {
@@ -15595,7 +15784,7 @@ function EventHub(_ref18) {
                 break;
               }
               _context4.n = 2;
-              return ensureImagesFromInvFile(fileObj, baseInv);
+              return ensureImagesFromInvFile(fileObj, baseInv, base.id);
             case 2:
               imgN = _context4.v;
               _context4.n = 3;
@@ -15606,10 +15795,14 @@ function EventHub(_ref18) {
                 return i.id;
               }));
             case 4:
+              if (!(fileObj.size <= 12 * 1024 * 1024)) {
+                _context4.n = 5;
+                break;
+              }
               _context4.n = 5;
               return queueInventoryFileForDrive(base.id, fileObj);
             case 5:
-              if (imgN) toast.success("Sheet imported", baseInv.length + " items · " + imgN + " photo(s) from Excel");else if (/\.xlsx?$/i.test(fileObj.name || "")) toast.info("Data imported", baseInv.length + " items — use a Price List .xlsx with embedded photos for images");
+              if (imgN) toast.success("Sheet imported", baseInv.length + " items · " + imgN + " photo(s) — syncing to cloud for all devices");else if (/\.xlsx?$/i.test(fileObj.name || "")) toast.info("Data imported", baseInv.length + " items — use a Price List .xlsx with embedded photos for images");
             case 6:
               onCreate(base);
               ssc(false);
@@ -15627,7 +15820,7 @@ function EventHub(_ref18) {
           }
         }, _callee4);
       }));
-      return function fin(_x45, _x46, _x47) {
+      return function fin(_x50, _x51, _x52) {
         return _ref19.apply(this, arguments);
       };
     }();
@@ -15646,7 +15839,7 @@ function EventHub(_ref18) {
             }
           }, _callee5);
         }));
-        return function (_x48) {
+        return function (_x53) {
           return _ref20.apply(this, arguments);
         };
       }(), function (err) {
@@ -16121,15 +16314,15 @@ function ManageEvent(_ref21) {
     onUpdate = _ref21.onUpdate,
     onDelete = _ref21.onDelete,
     user = _ref21.user;
-  var _useState33 = useState("details"),
-    _useState34 = _slicedToArray(_useState33, 2),
-    tab = _useState34[0],
-    st = _useState34[1];
-  var _useState35 = useState("add"),
+  var _useState35 = useState("details"),
     _useState36 = _slicedToArray(_useState35, 2),
-    mode = _useState36[0],
-    smode = _useState36[1];
-  var _useState37 = useState({
+    tab = _useState36[0],
+    st = _useState36[1];
+  var _useState37 = useState("add"),
+    _useState38 = _slicedToArray(_useState37, 2),
+    mode = _useState38[0],
+    smode = _useState38[1];
+  var _useState39 = useState({
       name: ev.name || "",
       loc: ev.loc || "",
       start: ev.start || "",
@@ -16137,13 +16330,13 @@ function ManageEvent(_ref21) {
       status: ev.status || "active",
       color: ev.color || G
     }),
-    _useState38 = _slicedToArray(_useState37, 2),
-    form = _useState38[0],
-    sf = _useState38[1];
-  var _useState39 = useState(false),
     _useState40 = _slicedToArray(_useState39, 2),
-    confirmDel = _useState40[0],
-    sConfirmDel = _useState40[1];
+    form = _useState40[0],
+    sf = _useState40[1];
+  var _useState41 = useState(false),
+    _useState42 = _slicedToArray(_useState41, 2),
+    confirmDel = _useState42[0],
+    sConfirmDel = _useState42[1];
   var upd = function upd(k, v) {
     return sf(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
@@ -16522,10 +16715,10 @@ function SaleSuccess(_ref22) {
     cur = _ref22.cur,
     onDone = _ref22.onDone,
     onPrint = _ref22.onPrint;
-  var _useState41 = useState(4),
-    _useState42 = _slicedToArray(_useState41, 2),
-    count = _useState42[0],
-    setCount = _useState42[1];
+  var _useState43 = useState(4),
+    _useState44 = _slicedToArray(_useState43, 2),
+    count = _useState44[0],
+    setCount = _useState44[1];
   useEffect(function () {
     var t = setInterval(function () {
       setCount(function (p) {
@@ -16704,9 +16897,9 @@ function ItemCard(_ref23) {
     onAddLead = _ref23.onAddLead,
     imgTick = _ref23.imgTick;
   var pr = gp(user.role, user.perms);
-  var _useState43 = useState(0),
-    _useState44 = _slicedToArray(_useState43, 2),
-    setImgRev = _useState44[1];
+  var _useState45 = useState(0),
+    _useState46 = _slicedToArray(_useState45, 2),
+    setImgRev = _useState46[1];
   useEffect(function () {
     var fn = function fn() {
       return setImgRev(function (x) {
@@ -16719,15 +16912,15 @@ function ItemCard(_ref23) {
       if (i >= 0) _imgListeners.splice(i, 1);
     };
   }, []);
-  var _useState45 = useState(null),
-    _useState46 = _slicedToArray(_useState45, 2),
-    mode = _useState46[0],
-    sm = _useState46[1],
-    _useState47 = useState(null),
+  var _useState47 = useState(null),
     _useState48 = _slicedToArray(_useState47, 2),
-    saleResult = _useState48[0],
-    setSaleResult = _useState48[1],
-    _useState49 = useState({
+    mode = _useState48[0],
+    sm = _useState48[1],
+    _useState49 = useState(null),
+    _useState50 = _slicedToArray(_useState49, 2),
+    saleResult = _useState50[0],
+    setSaleResult = _useState50[1],
+    _useState51 = useState({
       cu: preCustName || "",
       ph: "",
       email: "",
@@ -16739,13 +16932,13 @@ function ItemCard(_ref23) {
       cc_type: "pct",
       cc_val: ""
     }),
-    _useState50 = _slicedToArray(_useState49, 2),
-    f = _useState50[0],
-    sf = _useState50[1];
-  var _useState51 = useState(null),
     _useState52 = _slicedToArray(_useState51, 2),
-    matchedCust = _useState52[0],
-    setMatchedCust = _useState52[1];
+    f = _useState52[0],
+    sf = _useState52[1];
+  var _useState53 = useState(null),
+    _useState54 = _slicedToArray(_useState53, 2),
+    matchedCust = _useState54[0],
+    setMatchedCust = _useState54[1];
   var set = function set(k, v) {
     sf(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
@@ -17973,23 +18166,23 @@ function UserManager(_ref32) {
     currentUser = _ref32.currentUser,
     onUsersChange = _ref32.onUsersChange,
     events = _ref32.events;
-  var _useState53 = useState(null),
-    _useState54 = _slicedToArray(_useState53, 2),
-    editPerms = _useState54[0],
-    sEP = _useState54[1];
-  var _useState55 = useState(false),
+  var _useState55 = useState(null),
     _useState56 = _slicedToArray(_useState55, 2),
-    showAdd = _useState56[0],
-    sAdd = _useState56[1];
-  var _useState57 = useState({
+    editPerms = _useState56[0],
+    sEP = _useState56[1];
+  var _useState57 = useState(false),
+    _useState58 = _slicedToArray(_useState57, 2),
+    showAdd = _useState58[0],
+    sAdd = _useState58[1];
+  var _useState59 = useState({
       name: "",
       un: "",
       pw: "",
       role: "Staff"
     }),
-    _useState58 = _slicedToArray(_useState57, 2),
-    form = _useState58[0],
-    sf = _useState58[1];
+    _useState60 = _slicedToArray(_useState59, 2),
+    form = _useState60[0],
+    sf = _useState60[1];
   var PK = [{
     k: "vP",
     l: "View Prices"
@@ -18589,30 +18782,30 @@ function PhotoSearch(_ref35) {
   var inv = _ref35.inv,
     onResult = _ref35.onResult,
     onClose = _ref35.onClose;
-  var _useState59 = useState("upload"),
-    _useState60 = _slicedToArray(_useState59, 2),
-    phase = _useState60[0],
-    setPhase = _useState60[1];
-  var _useState61 = useState(null),
+  var _useState61 = useState("upload"),
     _useState62 = _slicedToArray(_useState61, 2),
-    preview = _useState62[0],
-    setPreview = _useState62[1];
-  var _useState63 = useState([]),
+    phase = _useState62[0],
+    setPhase = _useState62[1];
+  var _useState63 = useState(null),
     _useState64 = _slicedToArray(_useState63, 2),
-    results = _useState64[0],
-    setResults = _useState64[1];
-  var _useState65 = useState(null),
+    preview = _useState64[0],
+    setPreview = _useState64[1];
+  var _useState65 = useState([]),
     _useState66 = _slicedToArray(_useState65, 2),
-    features = _useState66[0],
-    setFeatures = _useState66[1];
-  var _useState67 = useState(""),
+    results = _useState66[0],
+    setResults = _useState66[1];
+  var _useState67 = useState(null),
     _useState68 = _slicedToArray(_useState67, 2),
-    error = _useState68[0],
-    setError = _useState68[1];
-  var _useState69 = useState(false),
+    features = _useState68[0],
+    setFeatures = _useState68[1];
+  var _useState69 = useState(""),
     _useState70 = _slicedToArray(_useState69, 2),
-    analyzing = _useState70[0],
-    setAnalyzing = _useState70[1];
+    error = _useState70[0],
+    setError = _useState70[1];
+  var _useState71 = useState(false),
+    _useState72 = _slicedToArray(_useState71, 2),
+    analyzing = _useState72[0],
+    setAnalyzing = _useState72[1];
   var fileRef = useRef(null);
   var canvasRef = useRef(null);
 
@@ -20155,29 +20348,29 @@ function MultiLookup(p) {
   var sellMulti = p.sellMulti;
   var leads = p.leads;
   var onAddLead = p.onAddLead;
-  var _useState71 = useState(false),
-    _useState72 = _slicedToArray(_useState71, 2),
-    showCustForm = _useState72[0],
-    sShowCustForm = _useState72[1];
-  var _useState73 = useState({
+  var _useState73 = useState(false),
+    _useState74 = _slicedToArray(_useState73, 2),
+    showCustForm = _useState74[0],
+    sShowCustForm = _useState74[1];
+  var _useState75 = useState({
       name: "",
       phone: "",
       email: "",
       company: "",
       source: "Walk-in"
     }),
-    _useState74 = _slicedToArray(_useState73, 2),
-    mlCust = _useState74[0],
-    smlCust = _useState74[1];
+    _useState76 = _slicedToArray(_useState75, 2),
+    mlCust = _useState76[0],
+    smlCust = _useState76[1];
   var setMC = function setMC(k, v) {
     return smlCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
     });
   };
-  var _useState75 = useState(null),
-    _useState76 = _slicedToArray(_useState75, 2),
-    mlMatchedCust = _useState76[0],
-    smlMatchedCust = _useState76[1];
+  var _useState77 = useState(null),
+    _useState78 = _slicedToArray(_useState77, 2),
+    mlMatchedCust = _useState78[0],
+    smlMatchedCust = _useState78[1];
   var onMCNameChange = function onMCNameChange(v) {
     smlCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, {
@@ -21092,10 +21285,10 @@ function InventoryTab(p) {
   var sauditLoc = p.saLoc;
   var sauditScanned = p.saScanned;
   var imgTick = p.imgTick || 0;
-  var _useState77 = useState("add"),
-    _useState78 = _slicedToArray(_useState77, 2),
-    upMode = _useState78[0],
-    setUpMode = _useState78[1];
+  var _useState79 = useState("add"),
+    _useState80 = _slicedToArray(_useState79, 2),
+    upMode = _useState80[0],
+    setUpMode = _useState80[1];
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
@@ -23878,22 +24071,22 @@ function CloudStoragePanel(_ref47) {
     allEvents = _ref47.allEvents,
     appUsers = _ref47.appUsers,
     onSynced = _ref47.onSynced;
-  var _useState79 = useState(false),
-    _useState80 = _slicedToArray(_useState79, 2),
-    busy = _useState80[0],
-    setBusy = _useState80[1];
-  var _useState81 = useState(getCloudMeta()),
+  var _useState81 = useState(false),
     _useState82 = _slicedToArray(_useState81, 2),
-    meta = _useState82[0],
-    setMeta = _useState82[1];
-  var _useState83 = useState(""),
+    busy = _useState82[0],
+    setBusy = _useState82[1];
+  var _useState83 = useState(getCloudMeta()),
     _useState84 = _slicedToArray(_useState83, 2),
-    lastErr = _useState84[0],
-    setLastErr = _useState84[1];
-  var _useState85 = useState(getCloudPingInfo()),
+    meta = _useState84[0],
+    setMeta = _useState84[1];
+  var _useState85 = useState(""),
     _useState86 = _slicedToArray(_useState85, 2),
-    ping = _useState86[0],
-    setPing = _useState86[1];
+    lastErr = _useState86[0],
+    setLastErr = _useState86[1];
+  var _useState87 = useState(getCloudPingInfo()),
+    _useState88 = _slicedToArray(_useState87, 2),
+    ping = _useState88[0],
+    setPing = _useState88[1];
   var online = isCloudOnline();
   useEffect(function () {
     cloudFetchData(true).then(function (d) {
@@ -24057,14 +24250,14 @@ function CurrencyManager(_ref49) {
     scur = _ref49.scur,
     pr = _ref49.pr,
     onRatesChanged = _ref49.onRatesChanged;
-  var _useState87 = useState(false),
-    _useState88 = _slicedToArray(_useState87, 2),
-    editMode = _useState88[0],
-    setEditMode = _useState88[1];
-  var _useState89 = useState({}),
+  var _useState89 = useState(false),
     _useState90 = _slicedToArray(_useState89, 2),
-    editRates = _useState90[0],
-    setEditRates = _useState90[1];
+    editMode = _useState90[0],
+    setEditMode = _useState90[1];
+  var _useState91 = useState({}),
+    _useState92 = _slicedToArray(_useState91, 2),
+    editRates = _useState92[0],
+    setEditRates = _useState92[1];
   var getCurr = function getCurr() {
     try {
       return JSON.parse(localStorage.getItem("vj_curr_rates") || "null") || DEFAULT_CURR;
@@ -24592,52 +24785,52 @@ function SalesTab(p) {
   var sinvm = p.sinvm;
   var fc = p.fc;
   var onAddLead = p.onAddLead;
-  var _useState91 = useState(false),
-    _useState92 = _slicedToArray(_useState91, 2),
-    showNewSale = _useState92[0],
-    sShowNewSale = _useState92[1];
-  var _useState93 = useState({
+  var _useState93 = useState(false),
+    _useState94 = _slicedToArray(_useState93, 2),
+    showNewSale = _useState94[0],
+    sShowNewSale = _useState94[1];
+  var _useState95 = useState({
       name: "",
       phone: "",
       email: "",
       company: "",
       source: "Walk-in"
     }),
-    _useState94 = _slicedToArray(_useState93, 2),
-    nsCust = _useState94[0],
-    snsCust = _useState94[1];
-  var _useState95 = useState([]),
     _useState96 = _slicedToArray(_useState95, 2),
-    nsItems = _useState96[0],
-    snsItems = _useState96[1]; // [{...item, overridePrice: null}]
-  var _useState97 = useState("NEFT"),
+    nsCust = _useState96[0],
+    snsCust = _useState96[1];
+  var _useState97 = useState([]),
     _useState98 = _slicedToArray(_useState97, 2),
-    nsPayment = _useState98[0],
-    snsPayment = _useState98[1];
-  var _useState99 = useState(""),
+    nsItems = _useState98[0],
+    snsItems = _useState98[1]; // [{...item, overridePrice: null}]
+  var _useState99 = useState("NEFT"),
     _useState100 = _slicedToArray(_useState99, 2),
-    nsDisc = _useState100[0],
-    snsDisc = _useState100[1]; // overall discount %
+    nsPayment = _useState100[0],
+    snsPayment = _useState100[1];
   var _useState101 = useState(""),
     _useState102 = _slicedToArray(_useState101, 2),
-    nsMarkup = _useState102[0],
-    snsMarkup = _useState102[1]; // overall markup %
-  var _useState103 = useState("pct"),
+    nsDisc = _useState102[0],
+    snsDisc = _useState102[1]; // overall discount %
+  var _useState103 = useState(""),
     _useState104 = _slicedToArray(_useState103, 2),
-    nsCCType = _useState104[0],
-    snsCCType = _useState104[1]; // cc surcharge type
-  var _useState105 = useState(""),
+    nsMarkup = _useState104[0],
+    snsMarkup = _useState104[1]; // overall markup %
+  var _useState105 = useState("pct"),
     _useState106 = _slicedToArray(_useState105, 2),
-    nsCCVal = _useState106[0],
-    snsCCVal = _useState106[1]; // cc surcharge value
+    nsCCType = _useState106[0],
+    snsCCType = _useState106[1]; // cc surcharge type
   var _useState107 = useState(""),
     _useState108 = _slicedToArray(_useState107, 2),
-    nsSearch = _useState108[0],
-    snsSearch = _useState108[1];
-  var _useState109 = useState(null),
+    nsCCVal = _useState108[0],
+    snsCCVal = _useState108[1]; // cc surcharge value
+  var _useState109 = useState(""),
     _useState110 = _slicedToArray(_useState109, 2),
-    nsMatchedCust = _useState110[0],
-    snsMatchedCust = _useState110[1];
+    nsSearch = _useState110[0],
+    snsSearch = _useState110[1];
+  var _useState111 = useState(null),
+    _useState112 = _slicedToArray(_useState111, 2),
+    nsMatchedCust = _useState112[0],
+    snsMatchedCust = _useState112[1];
   var setNC = function setNC(k, v) {
     return snsCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
@@ -25571,26 +25764,26 @@ function HistoryTab(p) {
     pr = p.pr,
     user = p.user,
     sinvm = p.sinvm;
-  var _useState111 = useState(""),
-    _useState112 = _slicedToArray(_useState111, 2),
-    search = _useState112[0],
-    setSearch = _useState112[1];
-  var _useState113 = useState("All"),
+  var _useState113 = useState(""),
     _useState114 = _slicedToArray(_useState113, 2),
-    staffF = _useState114[0],
-    setStaffF = _useState114[1];
+    search = _useState114[0],
+    setSearch = _useState114[1];
   var _useState115 = useState("All"),
     _useState116 = _slicedToArray(_useState115, 2),
-    pmF = _useState116[0],
-    setPmF = _useState116[1];
-  var _useState117 = useState("list"),
+    staffF = _useState116[0],
+    setStaffF = _useState116[1];
+  var _useState117 = useState("All"),
     _useState118 = _slicedToArray(_useState117, 2),
-    view = _useState118[0],
-    setView = _useState118[1]; // list | analytics
-  var _useState119 = useState(null),
+    pmF = _useState118[0],
+    setPmF = _useState118[1];
+  var _useState119 = useState("list"),
     _useState120 = _slicedToArray(_useState119, 2),
-    selCust = _useState120[0],
-    setSelCust = _useState120[1];
+    view = _useState120[0],
+    setView = _useState120[1]; // list | analytics
+  var _useState121 = useState(null),
+    _useState122 = _slicedToArray(_useState121, 2),
+    selCust = _useState122[0],
+    setSelCust = _useState122[1];
   var stf = ["All"].concat(_toConsumableArray(_toConsumableArray(new Set(sales.map(function (s) {
     return s.staff;
   }))).sort()));
@@ -26376,19 +26569,19 @@ function CustomersTab(p) {
     cur = p.cur,
     pr = p.pr,
     syncUp = p.syncUp;
-  var _useState121 = useState(false),
-    _useState122 = _slicedToArray(_useState121, 2),
-    showForm = _useState122[0],
-    sShowForm = _useState122[1];
-  var _useState123 = useState(""),
+  var _useState123 = useState(false),
     _useState124 = _slicedToArray(_useState123, 2),
-    search = _useState124[0],
-    setSearch = _useState124[1];
-  var _useState125 = useState(null),
+    showForm = _useState124[0],
+    sShowForm = _useState124[1];
+  var _useState125 = useState(""),
     _useState126 = _slicedToArray(_useState125, 2),
-    selected = _useState126[0],
-    setSelected = _useState126[1];
-  var _useState127 = useState({
+    search = _useState126[0],
+    setSearch = _useState126[1];
+  var _useState127 = useState(null),
+    _useState128 = _slicedToArray(_useState127, 2),
+    selected = _useState128[0],
+    setSelected = _useState128[1];
+  var _useState129 = useState({
       name: "",
       phone: "",
       email: "",
@@ -26397,9 +26590,9 @@ function CustomersTab(p) {
       status: "Warm",
       source: "Walk-in"
     }),
-    _useState128 = _slicedToArray(_useState127, 2),
-    form = _useState128[0],
-    setForm = _useState128[1];
+    _useState130 = _slicedToArray(_useState129, 2),
+    form = _useState130[0],
+    setForm = _useState130[1];
   var filtered = leads.filter(function (l) {
     if (!search) return true;
     var q = search.toLowerCase();
@@ -27028,174 +27221,174 @@ function EventERP(_ref70) {
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents);
-  var _useState129 = useState("lookup"),
-    _useState130 = _slicedToArray(_useState129, 2),
-    tab = _useState130[0],
-    st = _useState130[1];
-  var _useState131 = useState(ev.inv),
+  var _useState131 = useState("lookup"),
     _useState132 = _slicedToArray(_useState131, 2),
-    inv = _useState132[0],
-    si = _useState132[1];
-  var _useState133 = useState(ev.sales),
+    tab = _useState132[0],
+    st = _useState132[1];
+  var _useState133 = useState(ev.inv),
     _useState134 = _slicedToArray(_useState133, 2),
-    sales = _useState134[0],
-    ssl = _useState134[1];
-  var _useState135 = useState(ev.leads || []),
+    inv = _useState134[0],
+    si = _useState134[1];
+  var _useState135 = useState(ev.sales),
     _useState136 = _slicedToArray(_useState135, 2),
-    leads = _useState136[0],
-    sld = _useState136[1];
-  var _useState137 = useState("USD"),
+    sales = _useState136[0],
+    ssl = _useState136[1];
+  var _useState137 = useState(ev.leads || []),
     _useState138 = _slicedToArray(_useState137, 2),
-    cur = _useState138[0],
-    scur = _useState138[1];
-  var _useState139 = useState(""),
+    leads = _useState138[0],
+    sld = _useState138[1];
+  var _useState139 = useState("USD"),
     _useState140 = _slicedToArray(_useState139, 2),
-    jc = _useState140[0],
-    sjc = _useState140[1];
-  var _useState141 = useState(null),
+    cur = _useState140[0],
+    scur = _useState140[1];
+  var _useState141 = useState(""),
     _useState142 = _slicedToArray(_useState141, 2),
-    det = _useState142[0],
-    sdet = _useState142[1];
-  var _useState143 = useState("single"),
+    jc = _useState142[0],
+    sjc = _useState142[1];
+  var _useState143 = useState(null),
     _useState144 = _slicedToArray(_useState143, 2),
-    mlTab = _useState144[0],
-    smlTab = _useState144[1];
-  var _useState145 = useState(""),
+    det = _useState144[0],
+    sdet = _useState144[1];
+  var _useState145 = useState("single"),
     _useState146 = _slicedToArray(_useState145, 2),
-    mlInput = _useState146[0],
-    smlInput = _useState146[1];
-  var _useState147 = useState([]),
+    mlTab = _useState146[0],
+    smlTab = _useState146[1];
+  var _useState147 = useState(""),
     _useState148 = _slicedToArray(_useState147, 2),
-    mlItems = _useState148[0],
-    smlItems = _useState148[1];
-  var _useState149 = useState(""),
+    mlInput = _useState148[0],
+    smlInput = _useState148[1];
+  var _useState149 = useState([]),
     _useState150 = _slicedToArray(_useState149, 2),
-    mlDisc = _useState150[0],
-    smlDisc = _useState150[1];
+    mlItems = _useState150[0],
+    smlItems = _useState150[1];
   var _useState151 = useState(""),
     _useState152 = _slicedToArray(_useState151, 2),
-    mlDiscAmt = _useState152[0],
-    smlDiscAmt = _useState152[1];
+    mlDisc = _useState152[0],
+    smlDisc = _useState152[1];
   var _useState153 = useState(""),
     _useState154 = _slicedToArray(_useState153, 2),
-    mlMarkup = _useState154[0],
-    smlMarkup = _useState154[1];
-  var _useState155 = useState([]),
+    mlDiscAmt = _useState154[0],
+    smlDiscAmt = _useState154[1];
+  var _useState155 = useState(""),
     _useState156 = _slicedToArray(_useState155, 2),
-    mlNF = _useState156[0],
-    smlNF = _useState156[1];
-  var _useState157 = useState(false),
+    mlMarkup = _useState156[0],
+    smlMarkup = _useState156[1];
+  var _useState157 = useState([]),
     _useState158 = _slicedToArray(_useState157, 2),
-    mlScan = _useState158[0],
-    smlScan = _useState158[1];
+    mlNF = _useState158[0],
+    smlNF = _useState158[1];
   var _useState159 = useState(false),
     _useState160 = _slicedToArray(_useState159, 2),
-    showFilter = _useState160[0],
-    sShowFilter = _useState160[1];
-  var _useState161 = useState("All"),
+    mlScan = _useState160[0],
+    smlScan = _useState160[1];
+  var _useState161 = useState(false),
     _useState162 = _slicedToArray(_useState161, 2),
-    fCat = _useState162[0],
-    sfCat = _useState162[1];
+    showFilter = _useState162[0],
+    sShowFilter = _useState162[1];
   var _useState163 = useState("All"),
     _useState164 = _slicedToArray(_useState163, 2),
-    fCol = _useState164[0],
-    sfCol = _useState164[1];
+    fCat = _useState164[0],
+    sfCat = _useState164[1];
   var _useState165 = useState("All"),
     _useState166 = _slicedToArray(_useState165, 2),
-    fMetal = _useState166[0],
-    sfMetal = _useState166[1];
+    fCol = _useState166[0],
+    sfCol = _useState166[1];
   var _useState167 = useState("All"),
     _useState168 = _slicedToArray(_useState167, 2),
-    fSt = _useState168[0],
-    sfSt = _useState168[1];
+    fMetal = _useState168[0],
+    sfMetal = _useState168[1];
   var _useState169 = useState("All"),
     _useState170 = _slicedToArray(_useState169, 2),
-    fShape = _useState170[0],
-    sfShape = _useState170[1];
-  var _useState171 = useState(""),
+    fSt = _useState170[0],
+    sfSt = _useState170[1];
+  var _useState171 = useState("All"),
     _useState172 = _slicedToArray(_useState171, 2),
-    fMinTc = _useState172[0],
-    sfMinTc = _useState172[1];
+    fShape = _useState172[0],
+    sfShape = _useState172[1];
   var _useState173 = useState(""),
     _useState174 = _slicedToArray(_useState173, 2),
-    fMaxTc = _useState174[0],
-    sfMaxTc = _useState174[1];
+    fMinTc = _useState174[0],
+    sfMinTc = _useState174[1];
   var _useState175 = useState(""),
     _useState176 = _slicedToArray(_useState175, 2),
-    fMinGw = _useState176[0],
-    sfMinGw = _useState176[1];
+    fMaxTc = _useState176[0],
+    sfMaxTc = _useState176[1];
   var _useState177 = useState(""),
     _useState178 = _slicedToArray(_useState177, 2),
-    fMaxGw = _useState178[0],
-    sfMaxGw = _useState178[1];
+    fMinGw = _useState178[0],
+    sfMinGw = _useState178[1];
   var _useState179 = useState(""),
     _useState180 = _slicedToArray(_useState179, 2),
-    fMinNw = _useState180[0],
-    sfMinNw = _useState180[1];
+    fMaxGw = _useState180[0],
+    sfMaxGw = _useState180[1];
   var _useState181 = useState(""),
     _useState182 = _slicedToArray(_useState181, 2),
-    fMaxNw = _useState182[0],
-    sfMaxNw = _useState182[1];
+    fMinNw = _useState182[0],
+    sfMinNw = _useState182[1];
   var _useState183 = useState(""),
     _useState184 = _slicedToArray(_useState183, 2),
-    fMinFp = _useState184[0],
-    sfMinFp = _useState184[1];
+    fMaxNw = _useState184[0],
+    sfMaxNw = _useState184[1];
   var _useState185 = useState(""),
     _useState186 = _slicedToArray(_useState185, 2),
-    fMaxFp = _useState186[0],
-    sfMaxFp = _useState186[1];
-  var _useState187 = useState(false),
+    fMinFp = _useState186[0],
+    sfMinFp = _useState186[1];
+  var _useState187 = useState(""),
     _useState188 = _slicedToArray(_useState187, 2),
-    scan = _useState188[0],
-    sscan = _useState188[1];
-  var _useState189 = useState(null),
+    fMaxFp = _useState188[0],
+    sfMaxFp = _useState188[1];
+  var _useState189 = useState(false),
     _useState190 = _slicedToArray(_useState189, 2),
-    invm = _useState190[0],
-    sinvm = _useState190[1];
-  var _useState191 = useState(false),
+    scan = _useState190[0],
+    sscan = _useState190[1];
+  var _useState191 = useState(null),
     _useState192 = _slicedToArray(_useState191, 2),
-    showSwitch = _useState192[0],
-    ssw = _useState192[1];
+    invm = _useState192[0],
+    sinvm = _useState192[1];
   var _useState193 = useState(false),
     _useState194 = _slicedToArray(_useState193, 2),
-    showUser = _useState194[0],
-    ssu = _useState194[1];
-  var _useState195 = useState("stock"),
+    showSwitch = _useState194[0],
+    ssw = _useState194[1];
+  var _useState195 = useState(false),
     _useState196 = _slicedToArray(_useState195, 2),
-    invTab = _useState196[0],
-    sivTab = _useState196[1];
-  var _useState197 = useState(""),
+    showUser = _useState196[0],
+    ssu = _useState196[1];
+  var _useState197 = useState("stock"),
     _useState198 = _slicedToArray(_useState197, 2),
-    isq = _useState198[0],
-    sisq = _useState198[1];
-  var _useState199 = useState("All"),
+    invTab = _useState198[0],
+    sivTab = _useState198[1];
+  var _useState199 = useState(""),
     _useState200 = _slicedToArray(_useState199, 2),
-    ist = _useState200[0],
-    sist = _useState200[1];
+    isq = _useState200[0],
+    sisq = _useState200[1];
   var _useState201 = useState("All"),
     _useState202 = _slicedToArray(_useState201, 2),
-    icat = _useState202[0],
-    sicat = _useState202[1];
-  var _useState203 = useState("Exhibition"),
+    ist = _useState202[0],
+    sist = _useState202[1];
+  var _useState203 = useState("All"),
     _useState204 = _slicedToArray(_useState203, 2),
-    auditLoc = _useState204[0],
-    saLoc = _useState204[1];
-  var _useState205 = useState([]),
+    icat = _useState204[0],
+    sicat = _useState204[1];
+  var _useState205 = useState("Exhibition"),
     _useState206 = _slicedToArray(_useState205, 2),
-    auditScanned = _useState206[0],
-    saScanned = _useState206[1];
-  var _useState207 = useState(ev.audits || []),
+    auditLoc = _useState206[0],
+    saLoc = _useState206[1];
+  var _useState207 = useState([]),
     _useState208 = _slicedToArray(_useState207, 2),
-    audits = _useState208[0],
-    sAudits = _useState208[1];
-  var _useState209 = useState(ev.lookupHistory || []),
+    auditScanned = _useState208[0],
+    saScanned = _useState208[1];
+  var _useState209 = useState(ev.audits || []),
     _useState210 = _slicedToArray(_useState209, 2),
-    lookupHistory = _useState210[0],
-    sLookupHistory = _useState210[1];
-  var _useState211 = useState(0),
+    audits = _useState210[0],
+    sAudits = _useState210[1];
+  var _useState211 = useState(ev.lookupHistory || []),
     _useState212 = _slicedToArray(_useState211, 2),
-    imgTick = _useState212[0],
-    sImgTick = _useState212[1];
+    lookupHistory = _useState212[0],
+    sLookupHistory = _useState212[1];
+  var _useState213 = useState(0),
+    _useState214 = _slicedToArray(_useState213, 2),
+    imgTick = _useState214[0],
+    sImgTick = _useState214[1];
   useEffect(function () {
     var nextInv = ev.inv || [];
     si(nextInv);
@@ -27217,14 +27410,14 @@ function EventERP(_ref70) {
   }, [cloudReady, ev.id, ev.syncedAt, ev.localUpdatedAt, (ev.inv || []).length, (ev.invHistory || []).map(function (h) {
     return h.driveFileId;
   }).join(",")]);
-  var _useState213 = useState("All"),
-    _useState214 = _slicedToArray(_useState213, 2),
-    hstaff = _useState214[0],
-    shs = _useState214[1];
-  var _useState215 = useState("overview"),
+  var _useState215 = useState("All"),
     _useState216 = _slicedToArray(_useState215, 2),
-    atab = _useState216[0],
-    sat = _useState216[1];
+    hstaff = _useState216[0],
+    shs = _useState216[1];
+  var _useState217 = useState("overview"),
+    _useState218 = _slicedToArray(_useState217, 2),
+    atab = _useState218[0],
+    sat = _useState218[1];
   var syncUp = function syncUp(ni, ns, nl, na, nlh) {
     return onUpdateEvent(_objectSpread(_objectSpread({}, ev), {}, {
       inv: ni || inv,
@@ -28339,26 +28532,26 @@ function EventERP(_ref70) {
   })))));
 }
 function App() {
-  var _useState217 = useState(null),
-    _useState218 = _slicedToArray(_useState217, 2),
-    user = _useState218[0],
-    su = _useState218[1];
-  var _useState219 = useState([]),
+  var _useState219 = useState(null),
     _useState220 = _slicedToArray(_useState219, 2),
-    events = _useState220[0],
-    sevents = _useState220[1];
-  var _useState221 = useState(loadUsers),
+    user = _useState220[0],
+    su = _useState220[1];
+  var _useState221 = useState([]),
     _useState222 = _slicedToArray(_useState221, 2),
-    appUsers = _useState222[0],
-    sappUsers = _useState222[1];
-  var _useState223 = useState(false),
+    events = _useState222[0],
+    sevents = _useState222[1];
+  var _useState223 = useState(loadUsers),
     _useState224 = _slicedToArray(_useState223, 2),
-    dataReady = _useState224[0],
-    setDataReady = _useState224[1];
+    appUsers = _useState224[0],
+    sappUsers = _useState224[1];
   var _useState225 = useState(false),
     _useState226 = _slicedToArray(_useState225, 2),
-    cloudReady = _useState226[0],
-    setCloudReady = _useState226[1];
+    dataReady = _useState226[0],
+    setDataReady = _useState226[1];
+  var _useState227 = useState(false),
+    _useState228 = _slicedToArray(_useState227, 2),
+    cloudReady = _useState228[0],
+    setCloudReady = _useState228[1];
   var dark = useDark();
   var cloudSyncRef = useRef(null);
   var autoSyncRef = useRef(null);
@@ -28418,7 +28611,7 @@ function App() {
         }
       }, _callee7);
     }));
-    return function runCloudSave(_x49, _x50, _x51) {
+    return function runCloudSave(_x54, _x55, _x56) {
       return _ref71.apply(this, arguments);
     };
   }();
@@ -28667,14 +28860,14 @@ function App() {
       if (style.parentNode) style.parentNode.removeChild(style);
     };
   }, []);
-  var _useState227 = useState(null),
-    _useState228 = _slicedToArray(_useState227, 2),
-    activeEv = _useState228[0],
-    sae = _useState228[1];
   var _useState229 = useState(null),
     _useState230 = _slicedToArray(_useState229, 2),
-    manageEv = _useState230[0],
-    smev = _useState230[1];
+    activeEv = _useState230[0],
+    sae = _useState230[1];
+  var _useState231 = useState(null),
+    _useState232 = _slicedToArray(_useState231, 2),
+    manageEv = _useState232[0],
+    smev = _useState232[1];
   var upEv = function upEv(ev) {
     return sevents(function (p) {
       var next = ev ? p.map(function (e) {
@@ -28822,7 +29015,7 @@ function App() {
         }
       }, _callee10);
     }));
-    return function handleLogin(_x52) {
+    return function handleLogin(_x57) {
       return _ref79.apply(this, arguments);
     };
   }();

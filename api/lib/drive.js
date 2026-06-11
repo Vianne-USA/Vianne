@@ -247,6 +247,122 @@ async function downloadLatestInventoryForEvent(eventId) {
   return downloadBinary(files[0].id);
 }
 
+const PRODUCT_IMAGES_FOLDER = "product-images";
+
+function safeProductImageName(productId) {
+  const safeId = String(productId || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9_-]/g, "_");
+  if (!safeId) throw new Error("Invalid product id");
+  return safeId + ".jpg";
+}
+
+async function getOrCreateProductImagesFolder(eventFolderId) {
+  return createFolder(PRODUCT_IMAGES_FOLDER, eventFolderId);
+}
+
+async function uploadBinaryUpsert(name, buffer, parentId, mimeType, existingId) {
+  const safeName = String(name || "file.bin").replace(/[\\/:*?"<>|]/g, "_");
+  const boundary = "viannebin" + Date.now();
+  const meta = existingId
+    ? JSON.stringify({ name: safeName, mimeType: mimeType || "application/octet-stream" })
+    : JSON.stringify({
+        name: safeName,
+        mimeType: mimeType || "application/octet-stream",
+        parents: [parentId],
+      });
+  const prelude =
+    "--" +
+    boundary +
+    "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" +
+    meta +
+    "\r\n--" +
+    boundary +
+    "\r\nContent-Type: " +
+    (mimeType || "application/octet-stream") +
+    "\r\n\r\n";
+  const epilogue = "\r\n--" + boundary + "--";
+  const body = Buffer.concat([
+    Buffer.from(prelude),
+    Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer),
+    Buffer.from(epilogue),
+  ]);
+  if (existingId) {
+    const url =
+      "https://www.googleapis.com/upload/drive/v3/files/" +
+      existingId +
+      "?uploadType=multipart";
+    return driveUpload(url, body, "multipart/related; boundary=" + boundary, "PATCH");
+  }
+  return driveUpload(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+    body,
+    "multipart/related; boundary=" + boundary,
+    "POST"
+  );
+}
+
+async function uploadProductImageBuffer(productId, buffer, imagesFolderId) {
+  const fileName = safeProductImageName(productId);
+  const existing = await findFile(fileName, imagesFolderId);
+  return uploadBinaryUpsert(
+    fileName,
+    buffer,
+    imagesFolderId,
+    "image/jpeg",
+    existing && existing.id
+  );
+}
+
+async function uploadProductImagesForEvent(eventId, images) {
+  if (!isConfigured()) throw new Error("Google Drive not configured on server");
+  if (!eventId || !Array.isArray(images) || !images.length) {
+    throw new Error("eventId and images required");
+  }
+  const root = rootFolderId();
+  const prev = await loadMasterData();
+  let ev = (prev?.events || []).find((e) => e && e.id === eventId);
+  if (!ev) throw new Error("Event not found: " + eventId);
+  ev = await hydrateEventFromFolder(ev);
+  let folderId = ev.driveFolderId;
+  if (folderId) {
+    try {
+      await drive("/files/" + folderId + "?fields=id,trashed");
+    } catch (e) {
+      folderId = null;
+    }
+  }
+  if (!folderId) {
+    const folder = await createFolder((ev.name || ev.id || "Event").trim(), root);
+    folderId = folder.id;
+  }
+  const imagesFolder = await getOrCreateProductImagesFolder(folderId);
+  let uploaded = 0;
+  for (const img of images) {
+    if (!img || !img.id || !img.data) continue;
+    try {
+      const buf = Buffer.from(img.data, "base64");
+      if (!buf.length) continue;
+      await uploadProductImageBuffer(img.id, buf, imagesFolder.id);
+      uploaded += 1;
+    } catch (e) {
+      console.warn("Product image upload failed", img.id, e.message);
+    }
+  }
+  return { uploaded, total: images.length, folderId: imagesFolder.id, eventFolderId: folderId };
+}
+
+async function downloadProductImageForEvent(eventId, productId) {
+  if (!isConfigured()) throw new Error("Google Drive not configured on server");
+  if (!eventId || !productId) throw new Error("eventId and product id required");
+  const { folderId } = await resolveEventFolderId(eventId);
+  const imagesFolder = await getOrCreateProductImagesFolder(folderId);
+  const fileName = safeProductImageName(productId);
+  const hit = await findFile(fileName, imagesFolder.id);
+  if (!hit || !hit.id) throw new Error("Product image not found");
+  return downloadBinary(hit.id);
+}
+
 async function findFileById(fileId) {
   return drive("/files/" + fileId + "?fields=id,name,parents,trashed,mimeType");
 }
@@ -789,6 +905,8 @@ module.exports = {
   uploadInventoryFileForEvent,
   downloadInventoryFileForEvent,
   downloadLatestInventoryForEvent,
+  uploadProductImagesForEvent,
+  downloadProductImageForEvent,
   uploadReceiptToDrive,
   driveErrorMessage,
   getDriveStatus,

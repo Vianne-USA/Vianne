@@ -421,6 +421,18 @@ async function cloudUploadInventoryFiles(files){
   }
   return failed;
 }
+async function cloudSaveReceipt({eventName,receiptId,html}){
+  if(!isCloudOnline()||!eventName||!receiptId||!html)return null;
+  try{
+    const r=await fetch("/api/invoice-file",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({eventName,receiptId,html})});
+    const d=await r.json();
+    if(!r.ok||!d.ok)throw new Error(d.error||"Receipt save failed");
+    return d;
+  }catch(e){
+    console.warn("Receipt Drive save",receiptId,e);
+    return null;
+  }
+}
 function isCloudOnline(){return _cloudOnline;}
 function getCloudMeta(){try{return JSON.parse(localStorage.getItem(CLOUD_META_KEY)||"{}");}catch(e){return {};}}
 function setCloudMeta(m){try{localStorage.setItem(CLOUD_META_KEY,JSON.stringify(m));}catch(e){}}
@@ -1350,10 +1362,16 @@ function buildReceiptPrintHtml(sale){
   const remarks=s.remark?'<div class="remarks"><div class="remarks-lbl">REMARKS</div><div>'+receiptEsc(s.remark)+'</div></div>':"";
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt '+receiptEsc(s.id)+'</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{margin:14mm}*{box-sizing:border-box}body{margin:0;padding:24px;background:#fff;color:#1E5C45;font-family:Lato,sans-serif}.page{position:relative;max-width:640px;margin:0 auto;padding:28px 32px 24px;overflow:hidden}.wm{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);width:300px;height:300px;background:url("'+logo+'") center/contain no-repeat;opacity:0.07;pointer-events:none;z-index:0}.content{position:relative;z-index:1}.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.brand{display:flex;align-items:flex-start;gap:12px;min-width:0}.brand img{width:52px;height:auto;flex-shrink:0}.brand-name{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;letter-spacing:0.08em;line-height:1.05}.brand-tag{font-size:8px;color:#C9A84C;letter-spacing:0.14em;text-transform:uppercase;line-height:1.45;margin-top:5px}.meta{text-align:right;font-size:11px;line-height:1.55;color:#1E5C45;flex-shrink:0}.meta-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}.cust{background:#F5EDE0;border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;line-height:1.45}.cust strong{font-size:14px;font-weight:700;display:block;margin-bottom:2px}.item{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border:1px solid #E8DCCB;border-radius:10px;padding:12px 14px;margin-bottom:16px;background:#fff;font-size:11px;line-height:1.45}.item-desc{flex:1;min-width:0;font-weight:600;color:#1E5C45}.item-price{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:700;white-space:nowrap}.rule{height:2px;background:#1E5C45;margin:8px 0 10px}.row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:#3D5C4A}.row.disc{color:#C8963A}.row.grand{font-size:16px;font-weight:700;color:#1E5C45;padding-top:8px;margin-top:4px;border-top:2px solid #1E5C45}.remarks{margin-top:14px;font-size:10px;color:#7A8C7E;line-height:1.45}.remarks-lbl{font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#B0A88A;margin-bottom:3px}.foot-rule{height:3px;background:#1E5C45;margin:22px 0 12px}.footer{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9px;color:#7A8C7E;line-height:1.45}.sign{text-align:right;color:#1E5C45;font-size:10px;line-height:1.5}.sign strong{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:0.06em}@media print{body{padding:0}.page{padding:18px 22px}}</style></head><body><div class="page"><div class="wm"></div><div class="content"><div class="hdr"><div class="brand"><img src="'+logo+'" alt="Vianne"/><div><div class="brand-name">VIANNE JEWELS</div><div class="brand-tag">THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div><div class="meta"><div class="meta-title">RECEIPT</div><div>'+receiptEsc(s.id)+'</div><div>'+receiptEsc(s.date)+' '+receiptEsc(s.time)+'</div><div>'+receiptEsc(s.staff)+' | '+receiptEsc(s.payment)+'</div></div></div><div class="cust"><strong>'+receiptEsc(s.custName)+'</strong>'+(s.phone?receiptEsc(s.phone):"")+'</div><div class="item"><div class="item-desc">'+line+'</div><div class="item-price">'+fmt(sub)+'</div></div><div class="rule"></div>'+rows+remarks+'<div class="foot-rule"></div><div class="footer"><div>Disputes subject to Mumbai jurisdiction.</div><div class="sign"><strong>VIANNE JEWELS</strong><br/>Auth. Signatory</div></div></div></div></body></html>';
 }
-function printReceipt(sale){
+function printReceipt(sale,eventMeta){
+  const html=buildReceiptPrintHtml(sale);
+  if(eventMeta&&eventMeta.eventName){
+    cloudSaveReceipt({eventName:eventMeta.eventName,receiptId:sale.id,html}).then(d=>{
+      if(d&&d.ok)toast.success("Receipt saved to Drive","Invoices/"+eventMeta.eventName+"/"+sale.id);
+    });
+  }
   const w=window.open("","_blank");
   if(!w){toast.error("Print blocked","Allow pop-ups to print receipts.");return;}
-  w.document.write(buildReceiptPrintHtml(sale));
+  w.document.write(html);
   w.document.close();
   setTimeout(()=>{try{w.focus();w.print();}catch(e){}},500);
 }
@@ -1403,10 +1421,10 @@ function ReceiptPreview({sale}){
     </div>
   );
 }
-function InvoiceSheet({sale,onClose}){
+function InvoiceSheet({sale,event,onClose}){
   return(<Sheet onClose={onClose} title="Receipt">
     <div style={{display:"flex",gap:8,marginBottom:13}}>
-      <button style={S.btn({flex:1,padding:"11px",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6})} onClick={()=>printReceipt(sale)}>🖨 Print Receipt</button>
+      <button style={S.btn({flex:1,padding:"11px",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6})} onClick={()=>printReceipt(sale,event?{eventName:event.name,eventId:event.id}:null)}>🖨 Print Receipt</button>
       <button style={S.bOut({padding:"11px 13px",fontSize:12})} onClick={()=>toast.info("Share","Use WhatsApp or Email to share")}>📤 Share</button>
     </div>
     <ReceiptPreview sale={sale}/>
@@ -4236,7 +4254,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
         {tab==="admin"&&<AdminTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,onCloudSync:onCloudSync,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
 
         {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item)sdet(item);else toast.warn("Item not found","Code: "+code);}}/>}
-        {invm&&<InvoiceSheet sale={invm} onClose={()=>sinvm(null)}/>}
+        {invm&&<InvoiceSheet sale={invm} event={ev} onClose={()=>sinvm(null)}/>}
         {showSwitch&&(
           <Sheet onClose={()=>ssw(false)} title="Switch Event">
             <div style={{fontSize:11,color:T3,marginBottom:14}}>Select an event to switch. Your data is saved automatically.</div>

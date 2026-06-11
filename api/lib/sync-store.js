@@ -3,6 +3,7 @@ const {
   loadMasterData,
   saveMasterData,
   uploadInventoryFileForEvent,
+  uploadReceiptToDrive,
   driveErrorMessage,
   getDriveStatus,
 } = require("./drive");
@@ -67,6 +68,7 @@ module.exports = {
   loadSyncData,
   saveSyncData,
   uploadInventoryFileForEvent,
+  uploadReceiptToDrive,
   driveErrorMessage,
   getDriveStatus,
 };

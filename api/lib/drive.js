@@ -347,6 +347,74 @@ function mimeForFileName(name) {
   return "application/octet-stream";
 }
 
+const INVOICES_FOLDER = "Invoices";
+
+function safeDriveName(name, fallback) {
+  return String(name || fallback || "file")
+    .replace(/[\\/:*?"<>|]/g, "_")
+    .trim()
+    .slice(0, 180);
+}
+
+async function uploadHtml(name, html, parentId, existingId) {
+  const safeName = safeDriveName(name, "receipt.html");
+  const meta = existingId
+    ? { name: safeName, mimeType: "text/html" }
+    : { name: safeName, mimeType: "text/html", parents: [parentId] };
+  const boundary = "viannehtml" + Date.now();
+  const body =
+    "--" +
+    boundary +
+    "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" +
+    JSON.stringify(meta) +
+    "\r\n--" +
+    boundary +
+    "\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n" +
+    String(html || "") +
+    "\r\n--" +
+    boundary +
+    "--";
+  if (existingId) {
+    const url =
+      "https://www.googleapis.com/upload/drive/v3/files/" +
+      existingId +
+      "?uploadType=multipart";
+    return driveUpload(url, body, "multipart/related; boundary=" + boundary, "PATCH");
+  }
+  return driveUpload(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+    body,
+    "multipart/related; boundary=" + boundary,
+    "POST"
+  );
+}
+
+async function uploadReceiptToDrive({ eventName, receiptId, html }) {
+  if (!isConfigured()) throw new Error("Google Drive not configured on server");
+  if (!html) throw new Error("Receipt HTML required");
+  const root = rootFolderId();
+  const invoicesRoot = await createFolder(INVOICES_FOLDER, root);
+  const eventFolder = await createFolder(
+    safeDriveName(eventName, "Event"),
+    invoicesRoot.id
+  );
+  const fileName = safeDriveName(receiptId, "receipt") + ".html";
+  const existing = await findFile(fileName, eventFolder.id);
+  const file = await uploadHtml(
+    fileName,
+    html,
+    eventFolder.id,
+    existing && existing.id
+  );
+  return {
+    driveFileId: file.id,
+    driveFileName: file.name || fileName,
+    driveFolderId: eventFolder.id,
+    invoicesFolderId: invoicesRoot.id,
+    path: INVOICES_FOLDER + "/" + safeDriveName(eventName, "Event") + "/" + fileName,
+  };
+}
+
 async function uploadInventoryFilesToFolder(ev, folderId, files) {
   if (!files || !files.length) return ev;
   const uploaded = [];
@@ -627,6 +695,7 @@ module.exports = {
   loadMasterData,
   saveMasterData,
   uploadInventoryFileForEvent,
+  uploadReceiptToDrive,
   driveErrorMessage,
   getDriveStatus,
 };

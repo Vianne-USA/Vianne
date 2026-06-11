@@ -1145,7 +1145,7 @@ function SaleSuccess({sale,item,fc,cur,onDone,onPrint}){
       <div style={{display:"flex",gap:10,width:"100%",maxWidth:320}}>
         <button onClick={onPrint}
           style={{flex:1,padding:"14px",background:"#1E5C45",color:"#F5EDE0",border:"none",borderRadius:12,fontSize:14,fontWeight:700,cursor:"pointer"}}>
-          🖨 Print Invoice
+          🖨 Print Receipt
         </button>
         <button onClick={onDone}
           style={{flex:1,padding:"14px",background:"transparent",color:"#1E5C45",border:"2px solid #1E5C45",borderRadius:12,fontSize:14,fontWeight:700,cursor:"pointer"}}>
@@ -1303,23 +1303,97 @@ function ItemCard({item,user,inv,leads,cur,preCustName,onSell,onBack,onAddLead})
     </div>
   );
 }
-function InvoiceSheet({sale,onClose}){
-  const sub=sale.price,dsc=sale.disc>0?Math.round(sub*sale.disc/100*100)/100:0,tax=sub-dsc,tot=sale.total;
-  const doPrint=()=>{const w=window.open("","_blank"),s=sale;w.document.write('<!DOCTYPE html><html><head><title>Invoice '+s.id+'</title><style>body{font-family:Arial,sans-serif;padding:28px;max-width:640px;margin:0 auto;color:#222}.hdr{display:flex;justify-content:space-between;border-bottom:3px solid #1E5C45;padding-bottom:12px;margin-bottom:12px}h1{color:#1E5C45;font-family:Georgia,serif;font-size:20px;margin:0}.bi{font-size:9px;color:#888;line-height:1.5;margin-top:3px}.mr{text-align:right;font-size:10px;color:#555;line-height:1.6}.bt{background:#F5EDE0;padding:9px 11px;border-radius:6px;margin-bottom:11px}.ibox{border:1px solid #E8DCCB;padding:9px;border-radius:6px;margin-bottom:9px}.tr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #E8DCCB;font-size:11px}.grand{font-size:14px;font-weight:700;color:#1E5C45;border-top:2px solid #1E5C45;border-bottom:none;padding-top:7px;margin-top:3px}.note{padding:8px 10px;border-radius:5px;margin-top:7px}.footer{margin-top:14px;padding-top:9px;border-top:1px solid #E8DCCB;display:flex;justify-content:space-between}@media print{body{padding:14px}}</style></head><body>');w.document.write('<div class="hdr"><div><h1>Vianne Jewels</h1><div class="bi">GSTIN: 27XXXXX1234X1ZX | HSN: 7113<br/>viannejewels@gmail.com | www.viannejewels.com<br/>EW-8012, Bharat Diamond Bourse, BKC, Mumbai 400051</div></div><div class="mr"><strong style="font-size:14px;color:#1E5C45">TAX INVOICE</strong><br/>'+s.id+'<br/>'+s.date+' '+s.time+'<br/>'+s.staff+' | '+s.payment+'</div></div>');w.document.write('<div class="bt"><strong style="font-size:13px;color:#1E5C45">'+s.custName+'</strong>'+(s.phone?'<br/><span style="font-size:9px;color:#666">'+s.phone+'</span>':'')+'</div>');w.document.write('<div class="ibox"><strong style="color:#1E5C45;font-size:11px">'+s.itemId+'</strong><div style="font-size:9px;color:#7A8C7E;margin-top:2px">'+s.itemName+'<br/>Sz:'+s.sz+' Gw:'+s.gw+'g Nw:'+s.nw+'g '+s.tc+'ct</div><div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:5px;border-top:1px dashed #E8DCCB;font-size:10px"><span style="color:#888">'+s.metal+' HSN:7113 Qty:1</span><strong>'+f$(sub)+'</strong></div></div>');w.document.write('<div class="tr"><span>Subtotal</span><span>'+f$(sub)+'</span></div>');if(s.disc>0)w.document.write('<div class="tr" style="color:#C8963A"><span>Discount('+s.disc+'%)</span><span>-'+f$(dsc)+'</span></div>');s.ccAmt>0&&w.document.write('<div class="tr"><span>CC Surcharge'+(s.ccType==="pct"?" ("+s.ccVal+"%)":"")+"</span><span>"+f$(s.ccAmt)+"</span></div>");w.document.write('<div class="tr grand"><span>GRAND TOTAL</span><span>'+f$(tot)+'</span></div>');if(s.remark)w.document.write('<div class="note" style="background:#FDF5E6"><div style="font-size:8px;color:#C8963A;font-weight:700;text-transform:uppercase">Remarks</div><div style="font-size:10px;margin-top:2px">'+s.remark+'</div></div>');w.document.write('<div class="footer"><div style="font-size:8px;color:#888"><strong style="color:#C9A84C">VIANNE JEWELS</strong><br/>Disputes subject to Mumbai jurisdiction.</div><div style="text-align:right"><div style="width:80px;border-bottom:1px solid #ccc;height:20px;margin-left:auto"></div><div style="font-size:7px;color:#aaa;margin-top:2px">Auth. Signatory</div></div></div></body></html>');w.document.close();setTimeout(()=>w.print(),400);};
-  return(<Sheet onClose={onClose} title="Tax Invoice">
-    <div style={{display:"flex",gap:8,marginBottom:13}}><button style={S.btn({flex:1,padding:"11px",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6})} onClick={doPrint}>🖨 Print Invoice</button><button style={S.bOut({padding:"11px 13px",fontSize:12})} onClick={()=>toast.info("Share","Use WhatsApp or Email to share")}>📤 Share</button></div>
-    <div style={{background:WH,borderRadius:10,padding:13,border:"1px solid "+CRD2}}>
-      <div style={{borderBottom:"3px solid "+G,paddingBottom:10,marginBottom:10,display:"flex",justifyContent:"space-between"}}><div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:G}}>Vianne Jewels</div><div style={{fontSize:8,color:"#888",marginTop:1}}>GSTIN: 27XXXXX1234X1ZX · HSN: 7113</div></div><div style={{textAlign:"right"}}><div style={{fontWeight:700,fontSize:10,color:G}}>TAX INVOICE</div><div style={{fontSize:10,color:"#555"}}>{sale.id}</div><div style={{fontSize:9,color:"#888"}}>{sale.date} · {sale.staff}</div></div></div>
-      <div style={{background:"#F5EDE0",borderRadius:5,padding:"7px 9px",marginBottom:9}}><div style={{fontWeight:700,fontSize:12,color:G}}>{sale.custName}</div>{sale.phone&&<div style={{fontSize:9,color:"#666",marginTop:1}}>{sale.phone}</div>}<div style={{fontSize:9,color:"#888",marginTop:1}}>{sale.payment}</div></div>
-      <div style={{border:"1px solid "+CRD2,borderRadius:6,padding:8,marginBottom:9}}><div style={{fontWeight:700,fontSize:11,color:G}}>{sale.itemId}</div><div style={{fontSize:9,color:"#555",marginTop:2,lineHeight:1.4}}>{sale.itemName}{sale.sz&&<span><br/>Sz:{sale.sz} · {sale.gw}g · {sale.tc}ct</span>}</div><div style={{display:"flex",justifyContent:"space-between",marginTop:6,paddingTop:5,borderTop:"1px dashed "+CRD2,fontSize:10}}><span style={{color:"#888"}}>{sale.metal} · Qty 1</span><span style={{fontWeight:700,color:G}}>{f$(sub)}</span></div></div>
-      <div style={{background:CRD,borderRadius:6,padding:"8px 9px"}}>
-        {[["Subtotal",f$(sub),false],sale.disc>0?["Disc ("+sale.disc+"%)","−"+f$(dsc),true]:null,sale.ccAmt>0?["💳 CC"+(sale.ccType==="pct"?" "+sale.ccVal+"%":""),f$(sale.ccAmt),false]:null].filter(Boolean).map(([l,v,d])=><div key={l} style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3,color:d?AM:"#666"}}><span>{l}</span><span>{v}</span></div>)}
-        <div style={{height:2,background:G,borderRadius:1,margin:"5px 0"}}/>
-        <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:14,color:G}}><span>GRAND TOTAL</span><span style={{fontFamily:"Cormorant Garamond,serif",fontSize:16}}>{f$(tot)}</span></div>
+function receiptEsc(s){
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+}
+function receiptLogoUrl(){
+  try{return new URL("assets/vianne-logo.png",window.location.href).href;}catch(e){return"assets/vianne-logo.png";}
+}
+function receiptTotals(sale){
+  const sub=sale.price||0;
+  const dsc=sale.disc>0?Math.round(sub*sale.disc/100*100)/100:0;
+  const ccAmt=sale.ccAmt||0;
+  const tot=sale.total||0;
+  const cur=sale.currency||"USD";
+  return{sub,dsc,ccAmt,tot,cur,subtotal:Math.round((sub-dsc)*100)/100};
+}
+function receiptItemLine(sale){
+  return[sale.itemId,sale.itemName].filter(Boolean).join(" · ");
+}
+function buildReceiptPrintHtml(sale){
+  const s=sale;
+  const {sub,dsc,ccAmt,tot,cur}=receiptTotals(s);
+  const logo=receiptEsc(receiptLogoUrl());
+  const line=receiptEsc(receiptItemLine(s));
+  const fmt=n=>receiptEsc(fc(n,cur));
+  let rows="";
+  rows+='<div class="row"><span>Subtotal</span><span>'+fmt(sub)+'</span></div>';
+  if(s.disc>0)rows+='<div class="row disc"><span>Discount ('+receiptEsc(s.disc)+'%)</span><span>− '+fmt(dsc)+'</span></div>';
+  if(ccAmt>0)rows+='<div class="row"><span>CC Surcharge'+(s.ccType==="pct"?" ("+receiptEsc(s.ccVal)+"%)":"")+'</span><span>'+fmt(ccAmt)+'</span></div>';
+  rows+='<div class="row grand"><span>GRAND TOTAL</span><span>'+fmt(tot)+'</span></div>';
+  const remarks=s.remark?'<div class="remarks"><div class="remarks-lbl">REMARKS</div><div>'+receiptEsc(s.remark)+'</div></div>':"";
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt '+receiptEsc(s.id)+'</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{margin:14mm}*{box-sizing:border-box}body{margin:0;padding:24px;background:#fff;color:#1E5C45;font-family:Lato,sans-serif}.page{position:relative;max-width:640px;margin:0 auto;padding:28px 32px 24px;overflow:hidden}.wm{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);width:300px;height:300px;background:url("'+logo+'") center/contain no-repeat;opacity:0.07;pointer-events:none;z-index:0}.content{position:relative;z-index:1}.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.brand{display:flex;align-items:flex-start;gap:12px;min-width:0}.brand img{width:52px;height:auto;flex-shrink:0}.brand-name{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;letter-spacing:0.08em;line-height:1.05}.brand-tag{font-size:8px;color:#C9A84C;letter-spacing:0.14em;text-transform:uppercase;line-height:1.45;margin-top:5px}.meta{text-align:right;font-size:11px;line-height:1.55;color:#1E5C45;flex-shrink:0}.meta-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}.cust{background:#F5EDE0;border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;line-height:1.45}.cust strong{font-size:14px;font-weight:700;display:block;margin-bottom:2px}.item{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border:1px solid #E8DCCB;border-radius:10px;padding:12px 14px;margin-bottom:16px;background:#fff;font-size:11px;line-height:1.45}.item-desc{flex:1;min-width:0;font-weight:600;color:#1E5C45}.item-price{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:700;white-space:nowrap}.rule{height:2px;background:#1E5C45;margin:8px 0 10px}.row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:#3D5C4A}.row.disc{color:#C8963A}.row.grand{font-size:16px;font-weight:700;color:#1E5C45;padding-top:8px;margin-top:4px;border-top:2px solid #1E5C45}.remarks{margin-top:14px;font-size:10px;color:#7A8C7E;line-height:1.45}.remarks-lbl{font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#B0A88A;margin-bottom:3px}.foot-rule{height:3px;background:#1E5C45;margin:22px 0 12px}.footer{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9px;color:#7A8C7E;line-height:1.45}.sign{text-align:right;color:#1E5C45;font-size:10px;line-height:1.5}.sign strong{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:0.06em}@media print{body{padding:0}.page{padding:18px 22px}}</style></head><body><div class="page"><div class="wm"></div><div class="content"><div class="hdr"><div class="brand"><img src="'+logo+'" alt="Vianne"/><div><div class="brand-name">VIANNE JEWELS</div><div class="brand-tag">THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div><div class="meta"><div class="meta-title">RECEIPT</div><div>'+receiptEsc(s.id)+'</div><div>'+receiptEsc(s.date)+' '+receiptEsc(s.time)+'</div><div>'+receiptEsc(s.staff)+' | '+receiptEsc(s.payment)+'</div></div></div><div class="cust"><strong>'+receiptEsc(s.custName)+'</strong>'+(s.phone?receiptEsc(s.phone):"")+'</div><div class="item"><div class="item-desc">'+line+'</div><div class="item-price">'+fmt(sub)+'</div></div><div class="rule"></div>'+rows+remarks+'<div class="foot-rule"></div><div class="footer"><div>Disputes subject to Mumbai jurisdiction.</div><div class="sign"><strong>VIANNE JEWELS</strong><br/>Auth. Signatory</div></div></div></div></body></html>';
+}
+function printReceipt(sale){
+  const w=window.open("","_blank");
+  if(!w){toast.error("Print blocked","Allow pop-ups to print receipts.");return;}
+  w.document.write(buildReceiptPrintHtml(sale));
+  w.document.close();
+  setTimeout(()=>{try{w.focus();w.print();}catch(e){}},500);
+}
+function ReceiptPreview({sale}){
+  const {sub,dsc,ccAmt,tot,cur}=receiptTotals(sale);
+  const line=receiptItemLine(sale);
+  const fmt=n=>fc(n,cur);
+  return(
+    <div style={{background:WH,borderRadius:12,padding:"18px 16px 14px",border:"1px solid "+CRD2,position:"relative",overflow:"hidden"}}>
+      <img src="assets/vianne-logo.png" alt="" style={{position:"absolute",left:"50%",top:"58%",transform:"translate(-50%,-50%)",width:220,opacity:0.07,pointerEvents:"none"}}/>
+      <div style={{position:"relative",zIndex:1}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:14,marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"flex-start",gap:10,minWidth:0}}>
+            <Logo h={44}/>
+            <div>
+              <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G,letterSpacing:"0.08em",lineHeight:1.05}}>VIANNE JEWELS</div>
+              <div style={{fontSize:7,color:GO,letterSpacing:"0.12em",textTransform:"uppercase",lineHeight:1.45,marginTop:4}}>THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div>
+            </div>
+          </div>
+          <div style={{textAlign:"right",flexShrink:0,color:G,lineHeight:1.5}}>
+            <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:24,fontWeight:700,lineHeight:1,marginBottom:4}}>RECEIPT</div>
+            <div style={{fontSize:10}}>{sale.id}</div>
+            <div style={{fontSize:10}}>{sale.date} {sale.time}</div>
+            <div style={{fontSize:10}}>{sale.staff} | {sale.payment}</div>
+          </div>
+        </div>
+        <div style={{background:CR,borderRadius:10,padding:"10px 12px",marginBottom:12}}>
+          <div style={{fontWeight:700,fontSize:13,color:G}}>{sale.custName}</div>
+          {sale.phone&&<div style={{fontSize:11,color:T3,marginTop:2}}>{sale.phone}</div>}
+        </div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,border:"1px solid "+CRD2,borderRadius:10,padding:"11px 12px",marginBottom:14,background:WH}}>
+          <div style={{fontSize:11,fontWeight:600,color:G,lineHeight:1.45,flex:1,minWidth:0}}>{line}</div>
+          <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:17,fontWeight:700,color:G,flexShrink:0}}>{fmt(sub)}</div>
+        </div>
+        <div style={{height:2,background:G,margin:"6px 0 8px"}}/>
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:T2,marginBottom:4}}><span>Subtotal</span><span>{fmt(sub)}</span></div>
+        {sale.disc>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:AM,marginBottom:4}}><span>Discount ({sale.disc}%)</span><span>− {fmt(dsc)}</span></div>}
+        {ccAmt>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:T2,marginBottom:4}}><span>CC Surcharge{sale.ccType==="pct"?" ("+sale.ccVal+"%)":""}</span><span>{fmt(ccAmt)}</span></div>}
+        <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:15,color:G,paddingTop:8,marginTop:4,borderTop:"2px solid "+G}}><span>GRAND TOTAL</span><span style={{fontFamily:"Cormorant Garamond,serif",fontSize:18}}>{fmt(tot)}</span></div>
+        {sale.remark&&<div style={{marginTop:12}}><div style={{fontSize:8,color:T4,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:3}}>REMARKS</div><div style={{fontSize:10,color:T3,lineHeight:1.45}}>{sale.remark}</div></div>}
+        <div style={{height:3,background:G,margin:"18px 0 10px"}}/>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",gap:12,fontSize:9,color:T3,lineHeight:1.45}}>
+          <div>Disputes subject to Mumbai jurisdiction.</div>
+          <div style={{textAlign:"right",color:G,fontSize:10,lineHeight:1.5}}><strong style={{fontFamily:"Cormorant Garamond,serif",fontSize:11,letterSpacing:"0.06em"}}>VIANNE JEWELS</strong><br/>Auth. Signatory</div>
+        </div>
       </div>
-      
-      {sale.remark&&<div style={{background:AMBG,borderRadius:5,padding:"7px 9px",marginTop:7}}><div style={{fontSize:8,color:AM,fontWeight:700,textTransform:"uppercase"}}>Remarks</div><div style={{fontSize:10,color:"#555",marginTop:2}}>{sale.remark}</div></div>}
     </div>
+  );
+}
+function InvoiceSheet({sale,onClose}){
+  return(<Sheet onClose={onClose} title="Receipt">
+    <div style={{display:"flex",gap:8,marginBottom:13}}>
+      <button style={S.btn({flex:1,padding:"11px",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6})} onClick={()=>printReceipt(sale)}>🖨 Print Receipt</button>
+      <button style={S.bOut({padding:"11px 13px",fontSize:12})} onClick={()=>toast.info("Share","Use WhatsApp or Email to share")}>📤 Share</button>
+    </div>
+    <ReceiptPreview sale={sale}/>
   </Sheet>);
 }
 
@@ -3570,7 +3644,7 @@ function SalesTab(p){
                     </div>
                   </div>
                   <div style={{display:"flex",gap:6}}>
-                    <button style={S.btn({flex:1,padding:"8px",fontSize:11})} onClick={()=>sinvm(s)}>🧾 Invoice</button>
+                    <button style={S.btn({flex:1,padding:"8px",fontSize:11})} onClick={()=>sinvm(s)}>🧾 Receipt</button>
                     {s.st!=="delivered"&&<button style={S.bOut({flex:1,padding:"8px",fontSize:11})} onClick={()=>{const ns=sales.map(x=>x.id===s.id?{...x,st:"delivered"}:x);ssl(ns);syncUp(null,ns,null,null);}}>✓ Delivered</button>}
                                         {pr.delSale&&<button style={{background:REBG,border:"1px solid rgba(160,48,48,0.2)",borderRadius:8,padding:"8px 10px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,color:RE,cursor:"pointer"}} onClick={()=>{{const ni2=inv.map(x=>x.id===s.itemId?{...x,st:"available"}:x);const ns2=sales.filter(x=>x.id!==s.id);si(ni2);ssl(ns2);syncUp(ni2,ns2,null,null);toast.success("Sale deleted",""+s.itemId+" restored to available");}}}>🗑 Delete</button>}
                   </div>

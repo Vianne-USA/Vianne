@@ -12884,7 +12884,7 @@ function _cloudSave() {
           currency = getCloudCurrency();
           inventoryFiles = takePendingInvFiles();
           trySave = /*#__PURE__*/function () {
-            var _ref77 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20(files) {
+            var _ref76 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20(files) {
               var body, r, d, msg;
               return _regenerator().w(function (_context20) {
                 while (1) switch (_context20.n) {
@@ -12924,7 +12924,7 @@ function _cloudSave() {
               }, _callee20);
             }));
             return function trySave(_x26) {
-              return _ref77.apply(this, arguments);
+              return _ref76.apply(this, arguments);
             };
           }();
           _context21.p = 3;
@@ -12976,10 +12976,10 @@ function flushCloudSync(_x11, _x12, _x13) {
 }
 function _flushCloudSync() {
   _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee22(events, users, deletedEvents) {
-    var _ref78,
-      _ref78$silent,
+    var _ref77,
+      _ref77$silent,
       silent,
-      _ref78$successMsg,
+      _ref77$successMsg,
       successMsg,
       ping,
       tombstones,
@@ -12994,7 +12994,7 @@ function _flushCloudSync() {
     return _regenerator().w(function (_context22) {
       while (1) switch (_context22.n) {
         case 0:
-          _ref78 = _args22.length > 3 && _args22[3] !== undefined ? _args22[3] : {}, _ref78$silent = _ref78.silent, silent = _ref78$silent === void 0 ? false : _ref78$silent, _ref78$successMsg = _ref78.successMsg, successMsg = _ref78$successMsg === void 0 ? "Shared with all users & devices" : _ref78$successMsg;
+          _ref77 = _args22.length > 3 && _args22[3] !== undefined ? _args22[3] : {}, _ref77$silent = _ref77.silent, silent = _ref77$silent === void 0 ? false : _ref77$silent, _ref77$successMsg = _ref77.successMsg, successMsg = _ref77$successMsg === void 0 ? "Shared with all users & devices" : _ref77$successMsg;
           _context22.n = 1;
           return cloudFetchData();
         case 1:
@@ -15643,7 +15643,7 @@ function SaleSuccess(_ref18) {
       fontWeight: 700,
       cursor: "pointer"
     }
-  }, "\uD83D\uDDA8 Print Invoice"), /*#__PURE__*/React.createElement("button", {
+  }, "\uD83D\uDDA8 Print Receipt"), /*#__PURE__*/React.createElement("button", {
     onClick: onDone,
     style: {
       flex: 1,
@@ -16538,34 +16538,320 @@ function ItemCard(_ref19) {
     }
   })));
 }
-function InvoiceSheet(_ref26) {
-  var sale = _ref26.sale,
-    onClose = _ref26.onClose;
-  var sub = sale.price,
-    dsc = sale.disc > 0 ? Math.round(sub * sale.disc / 100 * 100) / 100 : 0,
-    tax = sub - dsc,
-    tot = sale.total;
-  var doPrint = function doPrint() {
-    var w = window.open("", "_blank"),
-      s = sale;
-    w.document.write('<!DOCTYPE html><html><head><title>Invoice ' + s.id + '</title><style>body{font-family:Arial,sans-serif;padding:28px;max-width:640px;margin:0 auto;color:#222}.hdr{display:flex;justify-content:space-between;border-bottom:3px solid #1E5C45;padding-bottom:12px;margin-bottom:12px}h1{color:#1E5C45;font-family:Georgia,serif;font-size:20px;margin:0}.bi{font-size:9px;color:#888;line-height:1.5;margin-top:3px}.mr{text-align:right;font-size:10px;color:#555;line-height:1.6}.bt{background:#F5EDE0;padding:9px 11px;border-radius:6px;margin-bottom:11px}.ibox{border:1px solid #E8DCCB;padding:9px;border-radius:6px;margin-bottom:9px}.tr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #E8DCCB;font-size:11px}.grand{font-size:14px;font-weight:700;color:#1E5C45;border-top:2px solid #1E5C45;border-bottom:none;padding-top:7px;margin-top:3px}.note{padding:8px 10px;border-radius:5px;margin-top:7px}.footer{margin-top:14px;padding-top:9px;border-top:1px solid #E8DCCB;display:flex;justify-content:space-between}@media print{body{padding:14px}}</style></head><body>');
-    w.document.write('<div class="hdr"><div><h1>Vianne Jewels</h1><div class="bi">GSTIN: 27XXXXX1234X1ZX | HSN: 7113<br/>viannejewels@gmail.com | www.viannejewels.com<br/>EW-8012, Bharat Diamond Bourse, BKC, Mumbai 400051</div></div><div class="mr"><strong style="font-size:14px;color:#1E5C45">TAX INVOICE</strong><br/>' + s.id + '<br/>' + s.date + ' ' + s.time + '<br/>' + s.staff + ' | ' + s.payment + '</div></div>');
-    w.document.write('<div class="bt"><strong style="font-size:13px;color:#1E5C45">' + s.custName + '</strong>' + (s.phone ? '<br/><span style="font-size:9px;color:#666">' + s.phone + '</span>' : '') + '</div>');
-    w.document.write('<div class="ibox"><strong style="color:#1E5C45;font-size:11px">' + s.itemId + '</strong><div style="font-size:9px;color:#7A8C7E;margin-top:2px">' + s.itemName + '<br/>Sz:' + s.sz + ' Gw:' + s.gw + 'g Nw:' + s.nw + 'g ' + s.tc + 'ct</div><div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:5px;border-top:1px dashed #E8DCCB;font-size:10px"><span style="color:#888">' + s.metal + ' HSN:7113 Qty:1</span><strong>' + f$(sub) + '</strong></div></div>');
-    w.document.write('<div class="tr"><span>Subtotal</span><span>' + f$(sub) + '</span></div>');
-    if (s.disc > 0) w.document.write('<div class="tr" style="color:#C8963A"><span>Discount(' + s.disc + '%)</span><span>-' + f$(dsc) + '</span></div>');
-    s.ccAmt > 0 && w.document.write('<div class="tr"><span>CC Surcharge' + (s.ccType === "pct" ? " (" + s.ccVal + "%)" : "") + "</span><span>" + f$(s.ccAmt) + "</span></div>");
-    w.document.write('<div class="tr grand"><span>GRAND TOTAL</span><span>' + f$(tot) + '</span></div>');
-    if (s.remark) w.document.write('<div class="note" style="background:#FDF5E6"><div style="font-size:8px;color:#C8963A;font-weight:700;text-transform:uppercase">Remarks</div><div style="font-size:10px;margin-top:2px">' + s.remark + '</div></div>');
-    w.document.write('<div class="footer"><div style="font-size:8px;color:#888"><strong style="color:#C9A84C">VIANNE JEWELS</strong><br/>Disputes subject to Mumbai jurisdiction.</div><div style="text-align:right"><div style="width:80px;border-bottom:1px solid #ccc;height:20px;margin-left:auto"></div><div style="font-size:7px;color:#aaa;margin-top:2px">Auth. Signatory</div></div></div></body></html>');
-    w.document.close();
-    setTimeout(function () {
-      return w.print();
-    }, 400);
+function receiptEsc(s) {
+  return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+}
+function receiptLogoUrl() {
+  try {
+    return new URL("assets/vianne-logo.png", window.location.href).href;
+  } catch (e) {
+    return "assets/vianne-logo.png";
+  }
+}
+function receiptTotals(sale) {
+  var sub = sale.price || 0;
+  var dsc = sale.disc > 0 ? Math.round(sub * sale.disc / 100 * 100) / 100 : 0;
+  var ccAmt = sale.ccAmt || 0;
+  var tot = sale.total || 0;
+  var cur = sale.currency || "USD";
+  return {
+    sub: sub,
+    dsc: dsc,
+    ccAmt: ccAmt,
+    tot: tot,
+    cur: cur,
+    subtotal: Math.round((sub - dsc) * 100) / 100
   };
+}
+function receiptItemLine(sale) {
+  return [sale.itemId, sale.itemName].filter(Boolean).join(" · ");
+}
+function buildReceiptPrintHtml(sale) {
+  var s = sale;
+  var _receiptTotals = receiptTotals(s),
+    sub = _receiptTotals.sub,
+    dsc = _receiptTotals.dsc,
+    ccAmt = _receiptTotals.ccAmt,
+    tot = _receiptTotals.tot,
+    cur = _receiptTotals.cur;
+  var logo = receiptEsc(receiptLogoUrl());
+  var line = receiptEsc(receiptItemLine(s));
+  var fmt = function fmt(n) {
+    return receiptEsc(fc(n, cur));
+  };
+  var rows = "";
+  rows += '<div class="row"><span>Subtotal</span><span>' + fmt(sub) + '</span></div>';
+  if (s.disc > 0) rows += '<div class="row disc"><span>Discount (' + receiptEsc(s.disc) + '%)</span><span>− ' + fmt(dsc) + '</span></div>';
+  if (ccAmt > 0) rows += '<div class="row"><span>CC Surcharge' + (s.ccType === "pct" ? " (" + receiptEsc(s.ccVal) + "%)" : "") + '</span><span>' + fmt(ccAmt) + '</span></div>';
+  rows += '<div class="row grand"><span>GRAND TOTAL</span><span>' + fmt(tot) + '</span></div>';
+  var remarks = s.remark ? '<div class="remarks"><div class="remarks-lbl">REMARKS</div><div>' + receiptEsc(s.remark) + '</div></div>' : "";
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt ' + receiptEsc(s.id) + '</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{margin:14mm}*{box-sizing:border-box}body{margin:0;padding:24px;background:#fff;color:#1E5C45;font-family:Lato,sans-serif}.page{position:relative;max-width:640px;margin:0 auto;padding:28px 32px 24px;overflow:hidden}.wm{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);width:300px;height:300px;background:url("' + logo + '") center/contain no-repeat;opacity:0.07;pointer-events:none;z-index:0}.content{position:relative;z-index:1}.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.brand{display:flex;align-items:flex-start;gap:12px;min-width:0}.brand img{width:52px;height:auto;flex-shrink:0}.brand-name{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;letter-spacing:0.08em;line-height:1.05}.brand-tag{font-size:8px;color:#C9A84C;letter-spacing:0.14em;text-transform:uppercase;line-height:1.45;margin-top:5px}.meta{text-align:right;font-size:11px;line-height:1.55;color:#1E5C45;flex-shrink:0}.meta-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}.cust{background:#F5EDE0;border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;line-height:1.45}.cust strong{font-size:14px;font-weight:700;display:block;margin-bottom:2px}.item{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border:1px solid #E8DCCB;border-radius:10px;padding:12px 14px;margin-bottom:16px;background:#fff;font-size:11px;line-height:1.45}.item-desc{flex:1;min-width:0;font-weight:600;color:#1E5C45}.item-price{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:700;white-space:nowrap}.rule{height:2px;background:#1E5C45;margin:8px 0 10px}.row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:#3D5C4A}.row.disc{color:#C8963A}.row.grand{font-size:16px;font-weight:700;color:#1E5C45;padding-top:8px;margin-top:4px;border-top:2px solid #1E5C45}.remarks{margin-top:14px;font-size:10px;color:#7A8C7E;line-height:1.45}.remarks-lbl{font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#B0A88A;margin-bottom:3px}.foot-rule{height:3px;background:#1E5C45;margin:22px 0 12px}.footer{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9px;color:#7A8C7E;line-height:1.45}.sign{text-align:right;color:#1E5C45;font-size:10px;line-height:1.5}.sign strong{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:0.06em}@media print{body{padding:0}.page{padding:18px 22px}}</style></head><body><div class="page"><div class="wm"></div><div class="content"><div class="hdr"><div class="brand"><img src="' + logo + '" alt="Vianne"/><div><div class="brand-name">VIANNE JEWELS</div><div class="brand-tag">THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div><div class="meta"><div class="meta-title">RECEIPT</div><div>' + receiptEsc(s.id) + '</div><div>' + receiptEsc(s.date) + ' ' + receiptEsc(s.time) + '</div><div>' + receiptEsc(s.staff) + ' | ' + receiptEsc(s.payment) + '</div></div></div><div class="cust"><strong>' + receiptEsc(s.custName) + '</strong>' + (s.phone ? receiptEsc(s.phone) : "") + '</div><div class="item"><div class="item-desc">' + line + '</div><div class="item-price">' + fmt(sub) + '</div></div><div class="rule"></div>' + rows + remarks + '<div class="foot-rule"></div><div class="footer"><div>Disputes subject to Mumbai jurisdiction.</div><div class="sign"><strong>VIANNE JEWELS</strong><br/>Auth. Signatory</div></div></div></div></body></html>';
+}
+function printReceipt(sale) {
+  var w = window.open("", "_blank");
+  if (!w) {
+    toast.error("Print blocked", "Allow pop-ups to print receipts.");
+    return;
+  }
+  w.document.write(buildReceiptPrintHtml(sale));
+  w.document.close();
+  setTimeout(function () {
+    try {
+      w.focus();
+      w.print();
+    } catch (e) {}
+  }, 500);
+}
+function ReceiptPreview(_ref26) {
+  var sale = _ref26.sale;
+  var _receiptTotals2 = receiptTotals(sale),
+    sub = _receiptTotals2.sub,
+    dsc = _receiptTotals2.dsc,
+    ccAmt = _receiptTotals2.ccAmt,
+    tot = _receiptTotals2.tot,
+    cur = _receiptTotals2.cur;
+  var line = receiptItemLine(sale);
+  var fmt = function fmt(n) {
+    return fc(n, cur);
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: WH,
+      borderRadius: 12,
+      padding: "18px 16px 14px",
+      border: "1px solid " + CRD2,
+      position: "relative",
+      overflow: "hidden"
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "assets/vianne-logo.png",
+    alt: "",
+    style: {
+      position: "absolute",
+      left: "50%",
+      top: "58%",
+      transform: "translate(-50%,-50%)",
+      width: 220,
+      opacity: 0.07,
+      pointerEvents: "none"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      zIndex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      gap: 14,
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "flex-start",
+      gap: 10,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement(Logo, {
+    h: 44
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "Cormorant Garamond,serif",
+      fontSize: 18,
+      fontWeight: 700,
+      color: G,
+      letterSpacing: "0.08em",
+      lineHeight: 1.05
+    }
+  }, "VIANNE JEWELS"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 7,
+      color: GO,
+      letterSpacing: "0.12em",
+      textTransform: "uppercase",
+      lineHeight: 1.45,
+      marginTop: 4
+    }
+  }, "THE SIGNATURE OF AFFORDABLE", /*#__PURE__*/React.createElement("br", null), "SOPHISTICATION"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right",
+      flexShrink: 0,
+      color: G,
+      lineHeight: 1.5
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "Cormorant Garamond,serif",
+      fontSize: 24,
+      fontWeight: 700,
+      lineHeight: 1,
+      marginBottom: 4
+    }
+  }, "RECEIPT"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10
+    }
+  }, sale.id), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10
+    }
+  }, sale.date, " ", sale.time), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10
+    }
+  }, sale.staff, " | ", sale.payment))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: CR,
+      borderRadius: 10,
+      padding: "10px 12px",
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 13,
+      color: G
+    }
+  }, sale.custName), sale.phone && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: T3,
+      marginTop: 2
+    }
+  }, sale.phone)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      gap: 12,
+      border: "1px solid " + CRD2,
+      borderRadius: 10,
+      padding: "11px 12px",
+      marginBottom: 14,
+      background: WH
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600,
+      color: G,
+      lineHeight: 1.45,
+      flex: 1,
+      minWidth: 0
+    }
+  }, line), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "Cormorant Garamond,serif",
+      fontSize: 17,
+      fontWeight: 700,
+      color: G,
+      flexShrink: 0
+    }
+  }, fmt(sub))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 2,
+      background: G,
+      margin: "6px 0 8px"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 12,
+      color: T2,
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "Subtotal"), /*#__PURE__*/React.createElement("span", null, fmt(sub))), sale.disc > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 12,
+      color: AM,
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "Discount (", sale.disc, "%)"), /*#__PURE__*/React.createElement("span", null, "\u2212 ", fmt(dsc))), ccAmt > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 12,
+      color: T2,
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "CC Surcharge", sale.ccType === "pct" ? " (" + sale.ccVal + "%)" : ""), /*#__PURE__*/React.createElement("span", null, fmt(ccAmt))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontWeight: 700,
+      fontSize: 15,
+      color: G,
+      paddingTop: 8,
+      marginTop: 4,
+      borderTop: "2px solid " + G
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "GRAND TOTAL"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "Cormorant Garamond,serif",
+      fontSize: 18
+    }
+  }, fmt(tot))), sale.remark && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      color: T4,
+      fontWeight: 700,
+      letterSpacing: "0.12em",
+      textTransform: "uppercase",
+      marginBottom: 3
+    }
+  }, "REMARKS"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: T3,
+      lineHeight: 1.45
+    }
+  }, sale.remark)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 3,
+      background: G,
+      margin: "18px 0 10px"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+      gap: 12,
+      fontSize: 9,
+      color: T3,
+      lineHeight: 1.45
+    }
+  }, /*#__PURE__*/React.createElement("div", null, "Disputes subject to Mumbai jurisdiction."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right",
+      color: G,
+      fontSize: 10,
+      lineHeight: 1.5
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      fontFamily: "Cormorant Garamond,serif",
+      fontSize: 11,
+      letterSpacing: "0.06em"
+    }
+  }, "VIANNE JEWELS"), /*#__PURE__*/React.createElement("br", null), "Auth. Signatory"))));
+}
+function InvoiceSheet(_ref27) {
+  var sale = _ref27.sale,
+    onClose = _ref27.onClose;
   return /*#__PURE__*/React.createElement(Sheet, {
     onClose: onClose,
-    title: "Tax Invoice"
+    title: "Receipt"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
@@ -16582,8 +16868,10 @@ function InvoiceSheet(_ref26) {
       justifyContent: "center",
       gap: 6
     }),
-    onClick: doPrint
-  }, "\uD83D\uDDA8 Print Invoice"), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return printReceipt(sale);
+    }
+  }, "\uD83D\uDDA8 Print Receipt"), /*#__PURE__*/React.createElement("button", {
     style: S.bOut({
       padding: "11px 13px",
       fontSize: 12
@@ -16591,187 +16879,17 @@ function InvoiceSheet(_ref26) {
     onClick: function onClick() {
       return toast.info("Share", "Use WhatsApp or Email to share");
     }
-  }, "\uD83D\uDCE4 Share")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: WH,
-      borderRadius: 10,
-      padding: 13,
-      border: "1px solid " + CRD2
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderBottom: "3px solid " + G,
-      paddingBottom: 10,
-      marginBottom: 10,
-      display: "flex",
-      justifyContent: "space-between"
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: "Cormorant Garamond,serif",
-      fontSize: 16,
-      fontWeight: 700,
-      color: G
-    }
-  }, "Vianne Jewels"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 8,
-      color: "#888",
-      marginTop: 1
-    }
-  }, "GSTIN: 27XXXXX1234X1ZX \xB7 HSN: 7113")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: "right"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 700,
-      fontSize: 10,
-      color: G
-    }
-  }, "TAX INVOICE"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#555"
-    }
-  }, sale.id), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#888"
-    }
-  }, sale.date, " \xB7 ", sale.staff))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#F5EDE0",
-      borderRadius: 5,
-      padding: "7px 9px",
-      marginBottom: 9
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 700,
-      fontSize: 12,
-      color: G
-    }
-  }, sale.custName), sale.phone && /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#666",
-      marginTop: 1
-    }
-  }, sale.phone), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#888",
-      marginTop: 1
-    }
-  }, sale.payment)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      border: "1px solid " + CRD2,
-      borderRadius: 6,
-      padding: 8,
-      marginBottom: 9
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 700,
-      fontSize: 11,
-      color: G
-    }
-  }, sale.itemId), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#555",
-      marginTop: 2,
-      lineHeight: 1.4
-    }
-  }, sale.itemName, sale.sz && /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("br", null), "Sz:", sale.sz, " \xB7 ", sale.gw, "g \xB7 ", sale.tc, "ct")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      marginTop: 6,
-      paddingTop: 5,
-      borderTop: "1px dashed " + CRD2,
-      fontSize: 10
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: "#888"
-    }
-  }, sale.metal, " \xB7 Qty 1"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: 700,
-      color: G
-    }
-  }, f$(sub)))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: CRD,
-      borderRadius: 6,
-      padding: "8px 9px"
-    }
-  }, [["Subtotal", f$(sub), false], sale.disc > 0 ? ["Disc (" + sale.disc + "%)", "−" + f$(dsc), true] : null, sale.ccAmt > 0 ? ["💳 CC" + (sale.ccType === "pct" ? " " + sale.ccVal + "%" : ""), f$(sale.ccAmt), false] : null].filter(Boolean).map(function (_ref27) {
-    var _ref28 = _slicedToArray(_ref27, 3),
-      l = _ref28[0],
-      v = _ref28[1],
-      d = _ref28[2];
-    return /*#__PURE__*/React.createElement("div", {
-      key: l,
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        fontSize: 11,
-        marginBottom: 3,
-        color: d ? AM : "#666"
-      }
-    }, /*#__PURE__*/React.createElement("span", null, l), /*#__PURE__*/React.createElement("span", null, v));
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 2,
-      background: G,
-      borderRadius: 1,
-      margin: "5px 0"
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontWeight: 700,
-      fontSize: 14,
-      color: G
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "GRAND TOTAL"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: "Cormorant Garamond,serif",
-      fontSize: 16
-    }
-  }, f$(tot)))), sale.remark && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: AMBG,
-      borderRadius: 5,
-      padding: "7px 9px",
-      marginTop: 7
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 8,
-      color: AM,
-      fontWeight: 700,
-      textTransform: "uppercase"
-    }
-  }, "Remarks"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#555",
-      marginTop: 2
-    }
-  }, sale.remark))));
+  }, "\uD83D\uDCE4 Share")), /*#__PURE__*/React.createElement(ReceiptPreview, {
+    sale: sale
+  }));
 }
 
 // ─── USER MANAGER ────────────────────────────────────────────────────────────
-function UserManager(_ref29) {
-  var users = _ref29.users,
-    currentUser = _ref29.currentUser,
-    onUsersChange = _ref29.onUsersChange,
-    events = _ref29.events;
+function UserManager(_ref28) {
+  var users = _ref28.users,
+    currentUser = _ref28.currentUser,
+    onUsersChange = _ref28.onUsersChange,
+    events = _ref28.events;
   var _useState49 = useState(null),
     _useState50 = _slicedToArray(_useState49, 2),
     editPerms = _useState50[0],
@@ -16846,8 +16964,8 @@ function UserManager(_ref29) {
     var roleBase = RD[editPerms.role] || RD.Staff;
     var merged = _objectSpread(_objectSpread({}, roleBase), editPerms.perms || {});
     var overrides = {};
-    PK.forEach(function (_ref30) {
-      var k = _ref30.k;
+    PK.forEach(function (_ref29) {
+      var k = _ref29.k;
       if (merged[k] !== roleBase[k]) overrides[k] = merged[k];
     });
     onUsersChange(users.map(function (u) {
@@ -16924,9 +17042,9 @@ function UserManager(_ref29) {
         color: AM,
         fontWeight: 600
       }
-    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref31) {
-      var k = _ref31.k,
-        l = _ref31.l;
+    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref30) {
+      var k = _ref30.k,
+        l = _ref30.l;
       return /*#__PURE__*/React.createElement("div", {
         key: k,
         style: {
@@ -17384,10 +17502,10 @@ function UserManager(_ref29) {
     }, "\u2715")));
   }));
 }
-function PhotoSearch(_ref32) {
-  var inv = _ref32.inv,
-    onResult = _ref32.onResult,
-    onClose = _ref32.onClose;
+function PhotoSearch(_ref31) {
+  var inv = _ref31.inv,
+    onResult = _ref31.onResult,
+    onClose = _ref31.onClose;
   var _useState55 = useState("upload"),
     _useState56 = _slicedToArray(_useState55, 2),
     phase = _useState56[0],
@@ -18585,12 +18703,12 @@ function SingleLookup(p) {
     sMin: sfMinFp,
     max: fMaxFp,
     sMax: sfMaxFp
-  }].map(function (_ref33) {
-    var l = _ref33.l,
-      min = _ref33.min,
-      sMin = _ref33.sMin,
-      max = _ref33.max,
-      sMax = _ref33.sMax;
+  }].map(function (_ref32) {
+    var l = _ref32.l,
+      min = _ref32.min,
+      sMin = _ref32.sMin,
+      max = _ref32.max,
+      sMax = _ref32.sMax;
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -20075,10 +20193,10 @@ function InventoryTab(p) {
     return i.st === "available";
   }).reduce(function (s, i) {
     return s + i.fp;
-  }, 0), cur)]].map(function (_ref34) {
-    var _ref35 = _slicedToArray(_ref34, 2),
-      l = _ref35[0],
-      v = _ref35[1];
+  }, 0), cur)]].map(function (_ref33) {
+    var _ref34 = _slicedToArray(_ref33, 2),
+      l = _ref34[0],
+      v = _ref34[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -20350,9 +20468,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref36) {
-    var item = _ref36.item,
-      scannedAt = _ref36.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref35) {
+    var item = _ref35.item,
+      scannedAt = _ref35.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -20486,12 +20604,12 @@ function invBuckets(inv, keyFn) {
     return b.cnt - a.cnt;
   });
 }
-function AnalyticsBucketCard(_ref37) {
-  var title = _ref37.title,
-    data = _ref37.data,
-    cur = _ref37.cur,
-    fc = _ref37.fc,
-    maxVal = _ref37.maxVal;
+function AnalyticsBucketCard(_ref36) {
+  var title = _ref36.title,
+    data = _ref36.data,
+    cur = _ref36.cur,
+    fc = _ref36.fc,
+    maxVal = _ref36.maxVal;
   var mx = maxVal || Math.max.apply(Math, [1].concat(_toConsumableArray(data.map(function (x) {
     return x.cnt;
   }))));
@@ -20584,10 +20702,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref38) {
-    var pct = _ref38.pct,
-      col = _ref38.col,
-      h = _ref38.h;
+  var Bar = function Bar(_ref37) {
+    var pct = _ref37.pct,
+      col = _ref37.col,
+      h = _ref37.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -20647,10 +20765,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref39) {
-    var _ref40 = _slicedToArray(_ref39, 2),
-      d = _ref40[0],
-      v = _ref40[1];
+  }).map(function (_ref38) {
+    var _ref39 = _slicedToArray(_ref38, 2),
+      d = _ref39[0],
+      v = _ref39[1];
     return {
       d: d,
       v: v
@@ -21211,9 +21329,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref41) {
-    var h = _ref41.h,
-      v = _ref41.v;
+  }, hourData.map(function (_ref40) {
+    var h = _ref40.h,
+      v = _ref40.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -21804,10 +21922,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref42, i) {
-    var _ref43 = _slicedToArray(_ref42, 2),
-      src = _ref43[0],
-      cnt = _ref43[1];
+  }, "No leads yet"), srcData.map(function (_ref41, i) {
+    var _ref42 = _slicedToArray(_ref41, 2),
+      src = _ref42[0],
+      cnt = _ref42[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -22491,11 +22609,11 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref44) {
-  var pr = _ref44.pr,
-    allEvents = _ref44.allEvents,
-    appUsers = _ref44.appUsers,
-    onSynced = _ref44.onSynced;
+function CloudStoragePanel(_ref43) {
+  var pr = _ref43.pr,
+    allEvents = _ref43.allEvents,
+    appUsers = _ref43.appUsers,
+    onSynced = _ref43.onSynced;
   var _useState73 = useState(false),
     _useState74 = _slicedToArray(_useState73, 2),
     busy = _useState74[0],
@@ -22522,7 +22640,7 @@ function CloudStoragePanel(_ref44) {
   var driveReadOk = ping && ping.driveRead === "ok";
   var ds = ping && ping.driveStatus;
   var syncNow = /*#__PURE__*/function () {
-    var _ref45 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
+    var _ref44 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
       var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
       return _regenerator().w(function (_context6) {
         while (1) switch (_context6.p = _context6.n) {
@@ -22588,7 +22706,7 @@ function CloudStoragePanel(_ref44) {
       }, _callee6, null, [[1, 7, 8, 9]]);
     }));
     return function syncNow() {
-      return _ref45.apply(this, arguments);
+      return _ref44.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -22670,11 +22788,11 @@ function CloudStoragePanel(_ref44) {
     }
   }, "Auto-sync runs in the background \u2014 use this only if another device looks out of date."));
 }
-function CurrencyManager(_ref46) {
-  var cur = _ref46.cur,
-    scur = _ref46.scur,
-    pr = _ref46.pr,
-    onRatesChanged = _ref46.onRatesChanged;
+function CurrencyManager(_ref45) {
+  var cur = _ref45.cur,
+    scur = _ref45.scur,
+    pr = _ref45.pr,
+    onRatesChanged = _ref45.onRatesChanged;
   var _useState81 = useState(false),
     _useState82 = _slicedToArray(_useState81, 2),
     editMode = _useState82[0],
@@ -22692,10 +22810,10 @@ function CurrencyManager(_ref46) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref47) {
-      var _ref48 = _slicedToArray(_ref47, 2),
-        k = _ref48[0],
-        v = _ref48[1];
+    Object.entries(getCurr()).forEach(function (_ref46) {
+      var _ref47 = _slicedToArray(_ref46, 2),
+        k = _ref47[0],
+        v = _ref47[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -22703,10 +22821,10 @@ function CurrencyManager(_ref46) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref49) {
-      var _ref50 = _slicedToArray(_ref49, 2),
-        k = _ref50[0],
-        v = _ref50[1];
+    Object.entries(getCurr()).forEach(function (_ref48) {
+      var _ref49 = _slicedToArray(_ref48, 2),
+        k = _ref49[0],
+        v = _ref49[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -22776,10 +22894,10 @@ function CurrencyManager(_ref46) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref51) {
-    var _ref52 = _slicedToArray(_ref51, 2),
-      k = _ref52[0],
-      v = _ref52[1];
+  }, Object.entries(rates).map(function (_ref50) {
+    var _ref51 = _slicedToArray(_ref50, 2),
+      k = _ref51[0],
+      v = _ref51[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -22807,10 +22925,10 @@ function CurrencyManager(_ref46) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref53, i, arr) {
-    var _ref54 = _slicedToArray(_ref53, 2),
-      k = _ref54[0],
-      v = _ref54[1];
+  })), Object.entries(rates).map(function (_ref52, i, arr) {
+    var _ref53 = _slicedToArray(_ref52, 2),
+      k = _ref53[0],
+      v = _ref53[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -23015,18 +23133,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref55) {
-    var _ref56 = _slicedToArray(_ref55, 2),
-      v = _ref56[1];
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref54) {
+    var _ref55 = _slicedToArray(_ref54, 2),
+      v = _ref55[1];
     return v;
-  }).map(function (_ref57) {
-    var _ref58 = _slicedToArray(_ref57, 1),
-      k = _ref58[0];
+  }).map(function (_ref56) {
+    var _ref57 = _slicedToArray(_ref56, 1),
+      k = _ref57[0];
     return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref59) {
-    var _ref60 = _slicedToArray(_ref59, 2),
-      l = _ref60[0],
-      v = _ref60[1];
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref58) {
+    var _ref59 = _slicedToArray(_ref58, 2),
+      l = _ref59[0],
+      v = _ref59[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -23070,10 +23188,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref61) {
-    var _ref62 = _slicedToArray(_ref61, 2),
-      l = _ref62[0],
-      v = _ref62[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref60) {
+    var _ref61 = _slicedToArray(_ref60, 2),
+      l = _ref61[0],
+      v = _ref61[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -23141,10 +23259,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref63) {
-    var _ref64 = _slicedToArray(_ref63, 2),
-      l = _ref64[0],
-      v = _ref64[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref62) {
+    var _ref63 = _slicedToArray(_ref62, 2),
+      l = _ref63[0],
+      v = _ref63[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -24135,7 +24253,7 @@ function SalesTab(p) {
       onClick: function onClick() {
         return sinvm(s);
       }
-    }, "\uD83E\uDDFE Invoice"), s.st !== "delivered" && /*#__PURE__*/React.createElement("button", {
+    }, "\uD83E\uDDFE Receipt"), s.st !== "delivered" && /*#__PURE__*/React.createElement("button", {
       style: S.bOut({
         flex: 1,
         padding: "8px",
@@ -25165,10 +25283,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref65) {
-      var _ref66 = _slicedToArray(_ref65, 2),
-        ic = _ref66[0],
-        v = _ref66[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref64) {
+      var _ref65 = _slicedToArray(_ref64, 2),
+        ic = _ref65[0],
+        v = _ref65[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -25631,17 +25749,17 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref67) {
-  var ev = _ref67.ev,
-    user = _ref67.user,
-    allUsers = _ref67.allUsers,
-    onUsersChange = _ref67.onUsersChange,
-    allEvents = _ref67.allEvents,
-    onSwitch = _ref67.onSwitch,
-    onUpdateEvent = _ref67.onUpdateEvent,
-    onBack = _ref67.onBack,
-    onLogout = _ref67.onLogout,
-    onCloudSync = _ref67.onCloudSync;
+function EventERP(_ref66) {
+  var ev = _ref66.ev,
+    user = _ref66.user,
+    allUsers = _ref66.allUsers,
+    onUsersChange = _ref66.onUsersChange,
+    allEvents = _ref66.allEvents,
+    onSwitch = _ref66.onSwitch,
+    onUpdateEvent = _ref66.onUpdateEvent,
+    onBack = _ref66.onBack,
+    onLogout = _ref66.onLogout,
+    onCloudSync = _ref66.onCloudSync;
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents);
@@ -26909,16 +27027,16 @@ function App() {
     appUsersRef.current = appUsers;
   }, [appUsers]);
   var runCloudSave = /*#__PURE__*/function () {
-    var _ref68 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
-      var _ref69,
-        _ref69$silent,
+    var _ref67 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
+      var _ref68,
+        _ref68$silent,
         silent,
         r,
         _args7 = arguments;
       return _regenerator().w(function (_context7) {
         while (1) switch (_context7.n) {
           case 0:
-            _ref69 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref69$silent = _ref69.silent, silent = _ref69$silent === void 0 ? true : _ref69$silent;
+            _ref68 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref68$silent = _ref68.silent, silent = _ref68$silent === void 0 ? true : _ref68$silent;
             _context7.n = 1;
             return flushCloudSync(snap || eventsRef.current, usersSnap || appUsersRef.current, deleted || [], {
               silent: silent
@@ -26953,13 +27071,13 @@ function App() {
       }, _callee7);
     }));
     return function runCloudSave(_x22, _x23, _x24) {
-      return _ref68.apply(this, arguments);
+      return _ref67.apply(this, arguments);
     };
   }();
   var runAutoSyncCycle = /*#__PURE__*/function () {
-    var _ref70 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
-      var _ref71,
-        _ref71$silent,
+    var _ref69 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
+      var _ref70,
+        _ref70$silent,
         silent,
         d,
         needsPush,
@@ -26970,7 +27088,7 @@ function App() {
       return _regenerator().w(function (_context8) {
         while (1) switch (_context8.p = _context8.n) {
           case 0:
-            _ref71 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref71$silent = _ref71.silent, silent = _ref71$silent === void 0 ? true : _ref71$silent;
+            _ref70 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref70$silent = _ref70.silent, silent = _ref70$silent === void 0 ? true : _ref70$silent;
             if (!(!dataReady || !cloudReady || cloudSyncBusyRef.current)) {
               _context8.n = 1;
               break;
@@ -27016,17 +27134,17 @@ function App() {
       }, _callee8, null, [[2,, 6, 7]]);
     }));
     return function runAutoSyncCycle() {
-      return _ref70.apply(this, arguments);
+      return _ref69.apply(this, arguments);
     };
   }();
   var scheduleCloudSave = function scheduleCloudSave() {
     var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 400;
     var snapshot = arguments.length > 1 ? arguments[1] : undefined;
-    var _ref72 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-      _ref72$silent = _ref72.silent,
-      silent = _ref72$silent === void 0 ? true : _ref72$silent,
-      _ref72$notify = _ref72.notify,
-      notify = _ref72$notify === void 0 ? false : _ref72$notify;
+    var _ref71 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      _ref71$silent = _ref71.silent,
+      silent = _ref71$silent === void 0 ? true : _ref71$silent,
+      _ref71$notify = _ref71.notify,
+      notify = _ref71$notify === void 0 ? false : _ref71$notify;
     localDirtyRef.current = true;
     if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
     cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9() {
@@ -27360,7 +27478,7 @@ function App() {
     }
   }, "Loading Vianne data\u2026");
   var handleLogin = /*#__PURE__*/function () {
-    var _ref76 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
+    var _ref75 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
       var d;
       return _regenerator().w(function (_context10) {
         while (1) switch (_context10.n) {
@@ -27383,7 +27501,7 @@ function App() {
       }, _callee10);
     }));
     return function handleLogin(_x25) {
-      return _ref76.apply(this, arguments);
+      return _ref75.apply(this, arguments);
     };
   }();
   var handleCloudSync = function handleCloudSync(mergedEvents, mergedUsers) {

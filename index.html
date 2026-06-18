@@ -74,7 +74,7 @@ img,svg,video{max-width:100%;height:auto;display:block}
   .v-inv-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }</style>
 </head><body>
-<div id="root"></div>
+<div id="root"><div style="min-height:100dvh;display:flex;align-items:center;justify-content:center;background:#163D2E;color:#F5EDE0;font-family:Lato,sans-serif;font-size:15px">Loading Vianne…</div></div>
 <script>/** @license React v17.0.2
  * react.production.min.js
  *
@@ -10458,6 +10458,16 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 <script>var _excluded = ["img"],
   _excluded2 = ["img"];
 function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
+function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
+function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
+function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
+function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n2 = 0, F = function F() {}; return { s: F, n: function n() { return _n2 >= r.length ? { done: !0 } : { done: !1, value: r[_n2++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
 function _objectWithoutProperties(e, t) { if (null == e) return {}; var o, r, i = _objectWithoutPropertiesLoose(e, t); if (Object.getOwnPropertySymbols) { var n = Object.getOwnPropertySymbols(e); for (r = 0; r < n.length; r++) o = n[r], -1 === t.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]); } return i; }
 function _objectWithoutPropertiesLoose(r, e) { if (null == r) return {}; var t = {}; for (var n in r) if ({}.hasOwnProperty.call(r, n)) { if (-1 !== e.indexOf(n)) continue; t[n] = r[n]; } return t; }
@@ -10485,6 +10495,7 @@ var _R = React;
 var useState = _R.useState;
 var useRef = _R.useRef;
 var useEffect = _R.useEffect;
+var Component = _R.Component;
 var _imgListeners = [];
 function notifyImagesChanged() {
   _imgListeners.forEach(function (fn) {
@@ -28614,6 +28625,14 @@ function App() {
     _useState228 = _slicedToArray(_useState227, 2),
     cloudReady = _useState228[0],
     setCloudReady = _useState228[1];
+  var _useState229 = useState(null),
+    _useState230 = _slicedToArray(_useState229, 2),
+    activeEv = _useState230[0],
+    sae = _useState230[1];
+  var _useState231 = useState(null),
+    _useState232 = _slicedToArray(_useState231, 2),
+    manageEv = _useState232[0],
+    smev = _useState232[1];
   var dark = useDark();
   var cloudSyncRef = useRef(null);
   var autoSyncRef = useRef(null);
@@ -28922,14 +28941,22 @@ function App() {
       if (style.parentNode) style.parentNode.removeChild(style);
     };
   }, []);
-  var _useState229 = useState(null),
-    _useState230 = _slicedToArray(_useState229, 2),
-    activeEv = _useState230[0],
-    sae = _useState230[1];
-  var _useState231 = useState(null),
-    _useState232 = _slicedToArray(_useState231, 2),
-    manageEv = _useState232[0],
-    smev = _useState232[1];
+  useEffect(function () {
+    ensureXLSX(function () {});
+    ensureJSZip(function () {});
+  }, []);
+  useEffect(function () {
+    if (!dataReady) return;
+    idbLoadAllImages().then(function (n) {
+      if (n) notifyImagesChanged();
+    }).catch(function (e) {
+      return console.warn("IDB images", e);
+    });
+  }, [dataReady]);
+  useEffect(function () {
+    if (!user || !activeEv) return;
+    if (!userHasEventAccess(user, activeEv.id)) sae(null);
+  }, [user, activeEv]);
   var upEv = function upEv(ev) {
     return sevents(function (p) {
       var next = ev ? p.map(function (e) {
@@ -29031,18 +29058,6 @@ function App() {
     su(null);
     sae(null);
   };
-  useEffect(function () {
-    ensureXLSX(function () {});
-    ensureJSZip(function () {});
-  }, []);
-
-  // Load product images from IndexedDB (persisted from Excel imports)
-  useEffect(function () {
-    if (!dataReady) return;
-    idbLoadAllImages().then(function (n) {
-      if (n) notifyImagesChanged();
-    });
-  }, [dataReady]);
   if (!dataReady || !cloudReady) return /*#__PURE__*/React.createElement("div", {
     style: {
       minHeight: "100dvh",
@@ -29051,9 +29066,26 @@ function App() {
       justifyContent: "center",
       background: GD,
       fontFamily: "Lato,sans-serif",
-      color: G
+      color: CR
     }
-  }, "Loading Vianne data\u2026");
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: 24
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "Cormorant Garamond,serif",
+      fontSize: 22,
+      fontWeight: 700,
+      color: G,
+      marginBottom: 10
+    }
+  }, "Vianne Jewels"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 14
+    }
+  }, "Loading\u2026")));
   var handleLogin = /*#__PURE__*/function () {
     var _ref79 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
       var d;
@@ -29095,42 +29127,38 @@ function App() {
     onLogin: handleLogin,
     users: appUsers
   }));
-  if (activeEv) {
-    if (!userHasEventAccess(user, activeEv.id)) {
-      sae(null);
-    } else {
-      return /*#__PURE__*/React.createElement("div", {
-        style: {
-          width: "100%",
-          minHeight: "100dvh",
-          overflowX: "hidden",
-          background: GD
-        }
-      }, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(EventERP, {
-        key: activeEv.id,
-        ev: normalizeEvent(events.find(function (e) {
-          return e.id === activeEv.id;
-        }) || activeEv),
-        user: user,
-        allUsers: appUsers,
-        onUsersChange: updateUsers,
-        allEvents: events,
-        cloudReady: cloudReady,
-        onSwitch: function onSwitch(ev) {
-          if (!userHasEventAccess(user, ev.id)) return;
-          sae(ev);
-        },
-        onUpdateEvent: function onUpdateEvent(ev) {
-          upEv(ev);
-          sae(ev);
-        },
-        onBack: function onBack() {
-          return sae(null);
-        },
-        onLogout: logout,
-        onCloudSync: handleCloudSync
-      }));
-    }
+  if (activeEv && userHasEventAccess(user, activeEv.id)) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: "100%",
+        minHeight: "100dvh",
+        overflowX: "hidden",
+        background: GD
+      }
+    }, /*#__PURE__*/React.createElement(ToastContainer, null), /*#__PURE__*/React.createElement(EventERP, {
+      key: activeEv.id,
+      ev: normalizeEvent(events.find(function (e) {
+        return e.id === activeEv.id;
+      }) || activeEv),
+      user: user,
+      allUsers: appUsers,
+      onUsersChange: updateUsers,
+      allEvents: events,
+      cloudReady: cloudReady,
+      onSwitch: function onSwitch(ev) {
+        if (!userHasEventAccess(user, ev.id)) return;
+        sae(ev);
+      },
+      onUpdateEvent: function onUpdateEvent(ev) {
+        upEv(ev);
+        sae(ev);
+      },
+      onBack: function onBack() {
+        return sae(null);
+      },
+      onLogout: logout,
+      onCloudSync: handleCloudSync
+    }));
   }
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -29175,5 +29203,83 @@ function App() {
     }
   }));
 }
-ReactDOM.render(React.createElement(App, null), document.getElementById("root"));</script>
+var ErrorBoundary = /*#__PURE__*/function (_React$Component) {
+  "use strict";
+
+  function ErrorBoundary(p) {
+    var _this;
+    _classCallCheck(this, ErrorBoundary);
+    _this = _callSuper(this, ErrorBoundary, [p]);
+    _this.state = {
+      hasError: false
+    };
+    return _this;
+  }
+  _inherits(ErrorBoundary, _React$Component);
+  return _createClass(ErrorBoundary, [{
+    key: "componentDidCatch",
+    value: function componentDidCatch(err, info) {
+      console.error("Vianne crash", err, info);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      if (this.state.hasError) {
+        return /*#__PURE__*/React.createElement("div", {
+          style: {
+            minHeight: "100dvh",
+            background: GD,
+            padding: 24,
+            fontFamily: "Lato,sans-serif",
+            color: CR,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            gap: 14
+          }
+        }, /*#__PURE__*/React.createElement("div", {
+          style: {
+            fontFamily: "Cormorant Garamond,serif",
+            fontSize: 22,
+            fontWeight: 700,
+            color: G
+          }
+        }, "Vianne Jewels"), /*#__PURE__*/React.createElement("p", {
+          style: {
+            fontSize: 13,
+            maxWidth: 360,
+            lineHeight: 1.5
+          }
+        }, "Something went wrong. Hard refresh (Cmd+Shift+R) usually fixes it. If not, clear saved data below."), /*#__PURE__*/React.createElement("button", {
+          type: "button",
+          onClick: function onClick() {
+            try {
+              localStorage.removeItem("vj_events");
+              sessionStorage.clear();
+            } catch (e) {}
+            location.reload();
+          },
+          style: S.btn({
+            width: "auto",
+            padding: "11px 18px"
+          })
+        }, "Clear saved data & reload"));
+      }
+      return this.props.children;
+    }
+  }], [{
+    key: "getDerivedStateFromError",
+    value: function getDerivedStateFromError() {
+      return {
+        hasError: true
+      };
+    }
+  }]);
+}(React.Component);
+function VianneRoot() {
+  return /*#__PURE__*/React.createElement(ErrorBoundary, null, /*#__PURE__*/React.createElement(App, null));
+}
+ReactDOM.render(React.createElement(VianneRoot, null), document.getElementById("root"));</script>
 </body></html>

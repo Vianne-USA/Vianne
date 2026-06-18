@@ -4821,12 +4821,14 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   );
 }
 
-export default function App(){
+function App(){
   const [user,su]=useState(null);
   const [events,sevents]=useState([]);
   const [appUsers,sappUsers]=useState(loadUsers);
   const [dataReady,setDataReady]=useState(false);
   const [cloudReady,setCloudReady]=useState(false);
+  const [activeEv,sae]=useState(null);
+  const [manageEv,smev]=useState(null);
   const dark=useDark();
   const cloudSyncRef=useRef(null);
   const autoSyncRef=useRef(null);
@@ -4958,8 +4960,15 @@ export default function App(){
     document.head.appendChild(style);
     return()=>{if(style.parentNode)style.parentNode.removeChild(style);};
   },[]);
-  const [activeEv,sae]=useState(null);
-  const [manageEv,smev]=useState(null);
+  useEffect(()=>{ensureXLSX(()=>{});ensureJSZip(()=>{});},[]);
+  useEffect(()=>{
+    if(!dataReady)return;
+    idbLoadAllImages().then(n=>{if(n)notifyImagesChanged();}).catch(e=>console.warn("IDB images",e));
+  },[dataReady]);
+  useEffect(()=>{
+    if(!user||!activeEv)return;
+    if(!userHasEventAccess(user,activeEv.id))sae(null);
+  },[user,activeEv]);
   const upEv=ev=>sevents(p=>{
     const next=ev?p.map(e=>e.id===ev.id?{...ev,localUpdatedAt:new Date().toISOString()}:e):p;
     eventsRef.current=next;
@@ -5012,14 +5021,7 @@ export default function App(){
     setTimeout(()=>scheduleCloudSave(400,eventsRef.current,{silent:false,notify:true}),100);
   };
   const logout=()=>{clearSession();su(null);sae(null);};
-  useEffect(()=>{ensureXLSX(()=>{});ensureJSZip(()=>{});},[]);
-
-  // Load product images from IndexedDB (persisted from Excel imports)
-  useEffect(()=>{
-    if(!dataReady)return;
-    idbLoadAllImages().then(n=>{if(n)notifyImagesChanged();});
-  },[dataReady]);
-  if(!dataReady||!cloudReady)return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",background:GD,fontFamily:"Lato,sans-serif",color:G}}>Loading Vianne data…</div>);
+  if(!dataReady||!cloudReady)return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",background:GD,fontFamily:"Lato,sans-serif",color:CR}}><div style={{textAlign:"center",padding:24}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G,marginBottom:10}}>Vianne Jewels</div><div style={{fontSize:14}}>Loading…</div></div></div>);
   const handleLogin=async u=>{
     const d=await cloudFetchData();
     if(d&&d.configured){
@@ -5039,10 +5041,7 @@ export default function App(){
     }
   };
   if(!user) return (<><ToastContainer/><Login onLogin={handleLogin} users={appUsers}/></>);
-  if(activeEv){
-    if(!userHasEventAccess(user,activeEv.id)){
-      sae(null);
-    }else{
+  if(activeEv&&userHasEventAccess(user,activeEv.id)){
     return (<div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:GD}}><ToastContainer/><EventERP
       key={activeEv.id}
       ev={normalizeEvent(events.find(e=>e.id===activeEv.id)||activeEv)}
@@ -5055,7 +5054,6 @@ export default function App(){
       onLogout={logout}
       onCloudSync={handleCloudSync}
     /></div>);
-    }
   }
   return(
     <div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:dark?"#0f0f0f":"#163D2E"}}>
@@ -5065,3 +5063,23 @@ export default function App(){
     </div>
   );
 }
+
+class ErrorBoundary extends React.Component{
+  constructor(p){super(p);this.state={hasError:false};}
+  static getDerivedStateFromError(){return{hasError:true};}
+  componentDidCatch(err,info){console.error("Vianne crash",err,info);}
+  render(){
+    if(this.state.hasError){
+      return(
+        <div style={{minHeight:"100dvh",background:GD,padding:24,fontFamily:"Lato,sans-serif",color:CR,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",gap:14}}>
+          <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G}}>Vianne Jewels</div>
+          <p style={{fontSize:13,maxWidth:360,lineHeight:1.5}}>Something went wrong. Hard refresh (Cmd+Shift+R) usually fixes it. If not, clear saved data below.</p>
+          <button type="button" onClick={()=>{try{localStorage.removeItem("vj_events");sessionStorage.clear();}catch(e){}location.reload();}} style={S.btn({width:"auto",padding:"11px 18px"})}>Clear saved data & reload</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function VianneRoot(){return <ErrorBoundary><App/></ErrorBoundary>;}

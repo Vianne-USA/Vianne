@@ -95,7 +95,7 @@ ${headMeta}
 <title>Vianne</title>
 <style>${css}</style>
 </head><body>
-<div id="root"></div>
+<div id="root"><div style="min-height:100dvh;display:flex;align-items:center;justify-content:center;background:#163D2E;color:#F5EDE0;font-family:Lato,sans-serif;font-size:15px">Loading Vianne…</div></div>
 <script>${react}</script>
 <script>${reactDom}</script>
 <script>${jsqr}</script>

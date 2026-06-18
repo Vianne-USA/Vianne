@@ -9,10 +9,11 @@ const jsx = fs.readFileSync(jsxPath, 'utf8');
 const code = jsx
   .replace(
     'import{useState,useRef,useEffect}from"react";',
-    'var _R=React;var useState=_R.useState;var useRef=_R.useRef;var useEffect=_R.useEffect;'
+    'var _R=React;var useState=_R.useState;var useRef=_R.useRef;var useEffect=_R.useEffect;var Component=_R.Component;'
   )
-  .replace('export default function App()', 'function App()')
-  + '\nReactDOM.render(React.createElement(App,null),document.getElementById("root"));';
+  .replace('export default function VianneRoot()', 'function VianneRoot()')
+  .replace('export default VianneRoot;', '')
+  + '\nReactDOM.render(React.createElement(VianneRoot,null),document.getElementById("root"));';
 
 const result = babel.transformSync(code, {
   presets: [

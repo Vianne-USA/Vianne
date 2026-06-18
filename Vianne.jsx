@@ -7,6 +7,17 @@ function normalizeEvent(ev){
   if(!ev)return ev;
   return{...ev,inv:Array.isArray(ev.inv)?ev.inv:[],sales:Array.isArray(ev.sales)?ev.sales:[],leads:Array.isArray(ev.leads)?ev.leads:[],audits:Array.isArray(ev.audits)?ev.audits:[],memos:Array.isArray(ev.memos)?ev.memos:[],invHistory:Array.isArray(ev.invHistory)?ev.invHistory:[],lookupHistory:Array.isArray(ev.lookupHistory)?ev.lookupHistory:[]};
 }
+const NY_OFFICE_ID="EVNYOFC";
+function isPermanentEvent(ev){return!!(ev&&(ev.id===NY_OFFICE_ID||ev.permanent));}
+function createNyOfficeEvent(){
+  return normalizeEvent({id:NY_OFFICE_ID,name:"NY Office",loc:"New York, USA",start:"",end:"",status:"active",color:"#1a3a5c",permanent:true,inv:[],sales:[],leads:[],memos:[],audits:[],invHistory:[],lookupHistory:[]});
+}
+function ensureNyOfficeEvent(events){
+  const list=Array.isArray(events)?events.filter(e=>e&&e.id!==NY_OFFICE_ID):[];
+  const existing=(Array.isArray(events)?events:[]).find(e=>e&&e.id===NY_OFFICE_ID);
+  const ny=normalizeEvent({...createNyOfficeEvent(),...(existing||{}),id:NY_OFFICE_ID,name:"NY Office",permanent:true});
+  return[ny,...list];
+}
 function isUsableImgSrc(src){const s=String(src||"").trim();return s&&(s.startsWith("data:image/")||s.startsWith("blob:")||s.startsWith("/api/product-images")||/^https?:\/\//i.test(s));}
 function driveImgUrl(eventId,id){return"/api/product-images?eventId="+encodeURIComponent(eventId)+"&id="+encodeURIComponent(String(id||"").toUpperCase());}
 const getImg=(item)=>{if(!item)return "";return resolveItemImage(item.id,item);};
@@ -415,8 +426,18 @@ const gp=(r,customPerms)=>{const base=RD[r]||SP;if(!customPerms||typeof customPe
 function isSuperAdmin(u){return u&&SUPER_ADMIN_UNS.has(String(u.un).toLowerCase());}
 function isProtectedUser(u){return isSuperAdmin(u);}
 function normalizeEventAccess(v){if(v==="all"||v==null||v===undefined)return"all";if(Array.isArray(v))return v;return"all";}
-function userHasEventAccess(user,eventId){if(!user||!eventId)return false;if(isSuperAdmin(user))return true;const access=normalizeEventAccess(user.eventAccess);if(access==="all")return true;if(!access.length)return false;return access.includes(eventId);}
-function filterEventsForUser(user,events){if(!Array.isArray(events))return[];if(isSuperAdmin(user))return events;const access=normalizeEventAccess(user.eventAccess);if(access==="all")return events;if(!access.length)return[];return events.filter(ev=>access.includes(ev.id));}
+function userHasEventAccess(user,eventId){if(!user||!eventId)return false;if(eventId===NY_OFFICE_ID||isPermanentEvent({id:eventId,permanent:true}))return true;if(isSuperAdmin(user))return true;const access=normalizeEventAccess(user.eventAccess);if(access==="all")return true;if(!access.length)return false;return access.includes(eventId);}
+function filterEventsForUser(user,events){
+  const list=ensureNyOfficeEvent(events);
+  const permanent=list.filter(isPermanentEvent);
+  const regular=list.filter(e=>!isPermanentEvent(e));
+  if(!user)return permanent;
+  if(isSuperAdmin(user))return list;
+  const access=normalizeEventAccess(user.eventAccess);
+  if(access==="all")return list;
+  if(!access.length)return permanent;
+  return[...permanent,...regular.filter(ev=>access.includes(ev.id))];
+}
 function mergeUserDefaults(saved){const out=[...saved];const known=new Set(out.map(u=>u.un));USERS.forEach(d=>{if(!known.has(d.un))out.push({...d,perms:null,eventAccess:"all"});});return out.map(u=>{const base=isSuperAdmin(u)?{...u,role:"Admin",eventAccess:"all"}:u;return{...base,eventAccess:base.eventAccess==null?"all":base.eventAccess};});}
 const JCK_INV=[{id:"VJBR0094",cat:"Bracelets",col:"CLASSICS",metal:"G14KWG",style:"BR0065",sz:"L 6.75 INCH",gw:9.66,nw:8.282,tc:6.89,fp:2015,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER0784",cat:"Earrings",col:"ROSE",metal:"G18KWG",style:"ER0147",sz:"",gw:7.69,nw:4.434,tc:16.28,fp:3975,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3259",cat:"Earrings",col:"LINQ",metal:"G14KYG",style:"ER0530",sz:"NONE",gw:3.715,nw:3.063,tc:3.26,fp:1325,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3234",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0148",sz:"L 16 - 18 INCH",gw:2.421,nw:1.857,tc:2.82,fp:835,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3260",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0134",sz:"L 16 - 18 INCH",gw:2.687,nw:2.079,tc:3.04,fp:950,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3268",cat:"Pendants",col:"CLASSICS",metal:"G14KYG",style:"PN0412",sz:"L 16 - 18 INCH",gw:1.5,nw:0.9,tc:3.0,fp:600,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3156",cat:"Earrings",col:"CLASSICS",metal:"G14KYG",style:"ER0479",sz:"NONE",gw:2.05,nw:1.874,tc:0.88,fp:405,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3157",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0382",sz:"NONE",gw:1.01,nw:0.826,tc:0.92,fp:505,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3159",cat:"Earrings",col:"CLASSICS",metal:"G14KWG",style:"ER0527",sz:"NONE",gw:3.4,nw:2.7,tc:3.5,fp:950,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3160",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0504",sz:"3.5 US",gw:3.88,nw:3.674,tc:1.03,fp:785,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3174",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0384",sz:"NONE",gw:0.834,nw:0.71,tc:0.62,fp:375,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3166",cat:"Earrings",col:"CLASSICS",metal:"G14KYG",style:"ER0359",sz:"NONE",gw:2.34,nw:1.932,tc:2.04,fp:610,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3167",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0414",sz:"L 16 - 18 INCH",gw:3.77,nw:3.354,tc:2.08,fp:890,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3168",cat:"Necklaces",col:"BEZEL",metal:"G14KYG",style:"NC0159",sz:"L 16 - 18 INCH",gw:5.99,nw:4.958,tc:5.16,fp:1600,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3169",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0506",sz:"3.5 US",gw:3.14,nw:2.922,tc:1.09,fp:685,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3170",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0404",sz:"NONE",gw:1.53,nw:1.24,tc:1.45,fp:785,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3171",cat:"Rings",col:"OTHER",metal:"G14KWG",style:"RG0498",sz:"6.50 US",gw:2.82,nw:2.358,tc:2.31,fp:735,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3178",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0150",sz:"L 16 - 18 INCH",gw:2.263,nw:1.831,tc:2.16,fp:790,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3179",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0131",sz:"L 16 - 18 INCH",gw:2.196,nw:2.036,tc:0.8,fp:650,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3180",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0147",sz:"L 16 - 18 INCH",gw:2.056,nw:1.912,tc:0.72,fp:650,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3181",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0149",sz:"L 16 - 18 INCH",gw:2.651,nw:1.935,tc:3.58,fp:1100,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3182",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0139",sz:"L 16 - 18 INCH",gw:2.058,nw:1.786,tc:1.36,fp:650,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3183",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0135",sz:"L 16 - 18 INCH",gw:2.199,nw:1.699,tc:2.5,fp:750,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC3184",cat:"Necklaces",col:"LINQ",metal:"G14KYG",style:"NC0039",sz:"L 16 - 18 INCH",gw:2.239,nw:1.451,tc:3.94,fp:950,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3191",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0390",sz:"NONE",gw:1.031,nw:0.855,tc:0.88,fp:495,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3192",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0395",sz:"NONE",gw:1.396,nw:1.17,tc:1.13,fp:650,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3194",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0505",sz:"3.5 US",gw:3.378,nw:3.174,tc:1.02,fp:695,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3195",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0507",sz:"3.5 US",gw:3.48,nw:3.268,tc:1.06,fp:710,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3196",cat:"Rings",col:"BEZEL",metal:"G14KWG",style:"RG0501",sz:"6.50 US",gw:4.055,nw:3.759,tc:1.48,fp:830,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3197",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0405",sz:"NONE",gw:1.299,nw:1.087,tc:1.06,fp:595,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3204",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0383",sz:"NONE",gw:1.01,nw:0.77,tc:1.2,fp:595,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN3074",cat:"Pendants",col:"BEZEL",metal:"G14KYG",style:"PN0406",sz:"NONE",gw:1.092,nw:0.94,tc:0.76,fp:475,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3205",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0320",sz:"6.50 US",gw:2.373,nw:2.141,tc:1.16,fp:510,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3206",cat:"Rings",col:"CLASSICS",metal:"G14KYG",style:"RG0499",sz:"6.50 US",gw:4.457,nw:3.855,tc:3.01,fp:1175,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3207",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0497",sz:"6.50 US",gw:4.39,nw:3.88,tc:2.55,fp:975,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG3208",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0326",sz:"6.00 US",gw:2.79,nw:2.586,tc:1.02,fp:595,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER3209",cat:"Earrings",col:"OTHER",metal:"G14KYG",style:"ER0535",sz:"NONE",gw:4.881,nw:4.477,tc:2.02,fp:1075,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1548",cat:"Rings",col:"CLASSICS",metal:"SL925",style:"RG0309",sz:"10.50 US",gw:5.56,nw:5.49,tc:0.35,fp:150,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR1552",cat:"Bracelets",col:"OTHER",metal:"G14KYG",style:"BR0161",sz:"L 10.00 INCH",gw:1.76,nw:1.08,tc:0.15,fp:225,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR1609",cat:"Bracelets",col:"BEZEL",metal:"G14KYG",style:"BR0174",sz:"L 10.00 INCH",gw:1.09,nw:0.18,tc:0.2,fp:90,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR0054",cat:"Bracelets",col:"LINQ",metal:"G18KRG",style:"BR0048",sz:"L 7.25 INCH",gw:2.476,nw:1.476,tc:5.0,fp:1325,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR0877",cat:"Bracelets",col:"LINQ",metal:"G18KWG",style:"BR0082",sz:"L 7.00 INCH",gw:3.21,nw:0.38,tc:12.52,fp:1895,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER1413",cat:"Earrings",col:"LINQ",metal:"G18KYG",style:"ER0260",sz:"NONE",gw:0.68,nw:0.274,tc:2.03,fp:525,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1814",cat:"Rings",col:"CLASSICS",metal:"G14KWG",style:"RG0337",sz:"5.75 US",gw:2.77,nw:1.75,tc:5.1,fp:625,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJER1841",cat:"Earrings",col:"CLASSICS",metal:"G14KYG",style:"ER0293",sz:"NONE",gw:2.77,nw:2.338,tc:2.16,fp:675,em:"✨",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1452",cat:"Rings",col:"LINQ",metal:"G18KWG",style:"RG0299",sz:"12 IN",gw:1.03,nw:0.906,tc:0.62,fp:450,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJBR1461",cat:"Bracelets",col:"CLASSICS",metal:"G14KWG",style:"BR0140",sz:"L 6.50 INCH",gw:6.97,nw:6.37,tc:3.0,fp:1125,em:"💎",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJNC1040",cat:"Necklaces",col:"LINQ",metal:"G18KWG",style:"NC0042",sz:"L 69.00 INCH",gw:10.6,nw:5.13,tc:27.35,fp:6250,em:"🔮",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJPN0022",cat:"Pendants",col:"PALETTE",metal:"G18KWG",style:"PN0021",sz:"",gw:10.82,nw:10.684,tc:0.68,fp:2350,em:"⭐",st:"available",img:"",views:0,searches:0,stones:[]},{id:"VJRG1756",cat:"Rings",col:"BEZEL",metal:"G14KYG",style:"RG0325",sz:"6.00 US",gw:2.86,nw:2.67,tc:0.95,fp:575,em:"💍",st:"available",img:"",views:0,searches:0,stones:[]}];
 const DI=[
@@ -441,10 +462,10 @@ function loadEvents(){
     const raw=localStorage.getItem(EVENTS_KEY);
     if(raw){
       const parsed=JSON.parse(raw);
-      if(Array.isArray(parsed)&&parsed.length)return parsed;
+      if(Array.isArray(parsed)&&parsed.length)return ensureNyOfficeEvent(parsed);
     }
   }catch(e){}
-  return DEMO_EVENTS;
+  return ensureNyOfficeEvent(DEMO_EVENTS);
 }
 const IDB_NAME="vianne_v1";
 const IDB_STORE="events";
@@ -620,7 +641,7 @@ function slimEventsForStorage(evts){
   }));
 }
 function saveEvents(evts){
-  const slim=slimEventsForStorage(evts);
+  const slim=slimEventsForStorage(ensureNyOfficeEvent(evts));
   try{localStorage.setItem(EVENTS_KEY,JSON.stringify(slim));}catch(e){
     console.warn("Could not save events to browser storage",e);
     try{localStorage.removeItem(EVENTS_KEY);}catch(_){}
@@ -631,7 +652,7 @@ async function loadEventsAsync(){
   let local=loadEvents();
   const idb=await idbGetEvents();
   if(idb&&idb.length)local=mergeEvents(local,idb);
-  return applyDeletedFilter(local);
+  return ensureNyOfficeEvent(applyDeletedFilter(local));
 }
 function eventTime(ev){
   const t=(ev&& (ev.syncedAt||ev.updatedAt||ev.localUpdatedAt))||"";
@@ -690,7 +711,7 @@ function mergeEvents(local,cloud){
     const prev=byId.get(e.id);
     byId.set(e.id,prev?mergeEventPair(prev,e):e);
   });
-  return[...byId.values()];
+  return ensureNyOfficeEvent([...byId.values()]);
 }
 const USERS_KEY="vj_users";
 const SESSION_KEY="vj_session";
@@ -727,7 +748,7 @@ function getPendingDeletedRecords(){
   }catch(e){return [];}
 }
 function addDeletedEvent(ev){
-  if(!ev||!ev.id)return;
+  if(!ev||!ev.id||isPermanentEvent(ev))return;
   try{
     const list=getPendingDeletedRecords();
     if(!list.find(d=>d.id===ev.id))list.push({id:ev.id,name:ev.name||ev.id,driveFolderId:ev.driveFolderId||null,deletedAt:new Date().toISOString()});
@@ -749,8 +770,9 @@ function loadDeletedIds(extra){
 }
 function applyDeletedFilter(events,extraIds){
   const ids=loadDeletedIds(extraIds);
-  if(!ids.size)return events||[];
-  return (events||[]).filter(e=>e&&!ids.has(e.id));
+  ids.delete(NY_OFFICE_ID);
+  if(!ids.size)return ensureNyOfficeEvent(events||[]);
+  return ensureNyOfficeEvent((events||[]).filter(e=>e&&!ids.has(e.id)));
 }
 function eventsAheadOfCloud(localEvents,cloudEvents){
   const cloudById=new Map((cloudEvents||[]).map(e=>[e.id,e]));
@@ -1360,6 +1382,29 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
   const [sc,ssc]=useState(false),[form,sf]=useState({name:"",loc:"",start:"",end:"",color:G}),[xlf,sxl]=useState(null),[msg,smsg]=useState(""),[loading,sl]=useState(false);
   const pr=gp(user.role,user.perms);
   const visibleEvents=filterEventsForUser(user,events);
+  const nyEvents=visibleEvents.filter(isPermanentEvent);
+  const regEvents=visibleEvents.filter(e=>!isPermanentEvent(e));
+  const renderEventCard=(ev)=>(
+    <div key={ev.id} style={{background:WH,borderRadius:13,marginBottom:12,boxShadow:"0 3px 14px rgba(0,0,0,0.12)",overflow:"hidden"}}>
+      <div style={{background:ev.color||G,padding:"13px 15px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+          <div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:CR,lineHeight:1.2}}>{ev.name}{isPermanentEvent(ev)?<span style={{fontSize:9,fontWeight:600,color:GO,marginLeft:6,letterSpacing:"0.08em"}}>PERMANENT</span>:null}</div><div style={{fontSize:10,color:"rgba(245,237,224,0.7)",marginTop:3}}>📍 {ev.loc||"—"}</div><div style={{fontSize:9,color:"rgba(245,237,224,0.6)",marginTop:2}}>{ev.start||ev.end?"📅 "+(ev.start||"—")+" → "+(ev.end||"—"):"📅 Always open"}</div></div>
+          <Bdg t={ev.status==="active"?"gr":ev.status==="completed"?"m":"a"} ch={ev.status}/>
+        </div>
+      </div>
+      <div style={{padding:"11px 14px"}}>
+        <div style={{display:"flex",gap:14,marginBottom:11}}>
+          {[{l:"Items",v:(ev.inv||[]).length},...(pr.vA?[{l:"Sales",v:(ev.sales||[]).length},{l:"Revenue",v:"$"+Math.round((ev.sales||[]).reduce((s,x)=>s+x.total,0)/1000)+"k"}]:[])].map(x=>(
+            <div key={x.l} style={{textAlign:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:G}}>{x.v}</div><div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{x.l}</div></div>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={()=>onEnter(events.find(e=>e.id===ev.id)||ev)} style={{flex:2,background:G,color:CR,border:"none",borderRadius:9,padding:"11px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer"}}>Open Event →</button>
+          {pr.mU&&<button onClick={()=>onManage(ev)} style={{flex:1,background:"transparent",color:G,border:"1.5px solid "+G,borderRadius:9,padding:"11px",fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:600,cursor:"pointer"}}>Manage</button>}
+        </div>
+      </div>
+    </div>
+  );
   useEffect(()=>{if(sc)ensureXLSX(()=>{});},[sc]);
   const create=()=>{if(!form.name.trim())return;const fin=async(inv,fileName,fileObj)=>{if(fileObj&&!inv.length){smsg(INV_FAIL+" — 0 items found. Check Unique Code and Round Off Final columns.");return;}const merged=mergeInvItems([],inv,"add");const baseInv=merged.inv;if(merged.skipped>0)toast.warn("Duplicates skipped",merged.skipped+" duplicate(s) skipped in upload · "+baseInv.length+" item(s) in new event");const base={id:uid("EVT"),name:form.name,loc:form.loc,start:form.start,end:form.end,status:"active",color:form.color,inv:baseInv,sales:[],leads:[],memos:[],audits:[],invHistory:[]};if(baseInv.length)base.invHistory=appendInvHistory(base,{fileName:fileName||fileObj?.name||"inventory.xlsx",mode:"initial",added:baseInv.length,skipped:merged.skipped,total:baseInv.length,by:user.name});if(fileObj&&baseInv.length){const imgN=await ensureImagesFromInvFile(fileObj,baseInv,base.id);await idbSaveInvFile(base.id,fileObj);await prefetchInvImages(baseInv.map(i=>i.id));if(fileObj.size<=12*1024*1024)await queueInventoryFileForDrive(base.id,fileObj);if(imgN)toast.success("Sheet imported",baseInv.length+" items · "+imgN+" photo(s) — syncing to cloud for all devices");else if(/\.xlsx?$/i.test(fileObj.name||""))toast.info("Data imported",baseInv.length+" items — use a Price List .xlsx with embedded photos for images");}onCreate(base);ssc(false);sf({name:"",loc:"",start:"",end:"",color:G});sxl(null);smsg("");};if(xlf){sl(true);parseXL(xlf,async inv=>{sl(false);await fin(inv,xlf.name,xlf);},err=>{sl(false);smsg(err);});}else fin([],null,null);};
   return(<div style={{background:"#f5f0e8",minHeight:"100dvh",width:"100%",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
@@ -1374,31 +1419,17 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
         ))}
       </div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:11}}>
+        <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>NY Office</div>
+      </div>
+      <div className="v-events-list" style={{marginBottom:18}}>
+        {nyEvents.map(renderEventCard)}
+      </div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:11}}>
         <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>Your Events</div>
         {pr.mU&&<button onClick={()=>ssc(true)} style={{background:GO,color:G,border:"none",borderRadius:8,padding:"8px 13px",fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,cursor:"pointer"}}>+ New Event</button>}
       </div>
       <div className="v-events-list">
-      {visibleEvents.map(ev=>(
-        <div key={ev.id} style={{background:WH,borderRadius:13,marginBottom:12,boxShadow:"0 3px 14px rgba(0,0,0,0.12)",overflow:"hidden"}}>
-          <div style={{background:ev.color||G,padding:"13px 15px"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-              <div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:CR,lineHeight:1.2}}>{ev.name}</div><div style={{fontSize:10,color:"rgba(245,237,224,0.7)",marginTop:3}}>📍 {ev.loc}</div><div style={{fontSize:9,color:"rgba(245,237,224,0.6)",marginTop:2}}>📅 {ev.start} → {ev.end}</div></div>
-              <Bdg t={ev.status==="active"?"gr":ev.status==="completed"?"m":"a"} ch={ev.status}/>
-            </div>
-          </div>
-          <div style={{padding:"11px 14px"}}>
-            <div style={{display:"flex",gap:14,marginBottom:11}}>
-              {[{l:"Items",v:(ev.inv||[]).length},...(pr.vA?[{l:"Sales",v:(ev.sales||[]).length},{l:"Revenue",v:"$"+Math.round((ev.sales||[]).reduce((s,x)=>s+x.total,0)/1000)+"k"}]:[])].map(x=>(
-                <div key={x.l} style={{textAlign:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:G}}>{x.v}</div><div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{x.l}</div></div>
-              ))}
-            </div>
-            <div style={{display:"flex",gap:8}}>
-              <button onClick={()=>onEnter(events.find(e=>e.id===ev.id)||ev)} style={{flex:2,background:G,color:CR,border:"none",borderRadius:9,padding:"11px",fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:600,cursor:"pointer"}}>Open Event →</button>
-              {pr.mU&&<button onClick={()=>onManage(ev)} style={{flex:1,background:"transparent",color:G,border:"1.5px solid "+G,borderRadius:9,padding:"11px",fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:600,cursor:"pointer"}}>Manage</button>}
-            </div>
-          </div>
-        </div>
-      ))}
+      {regEvents.map(renderEventCard)}
       </div>
       {visibleEvents.length===0&&<div style={{textAlign:"center",padding:40,color:T3,fontSize:14}}>{events.length===0?"No events yet. Create your first event.":"No events assigned to your account. Ask an admin for access."}</div>}
     </div>
@@ -1456,7 +1487,8 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
 
             <div><span style={S.lbl}>EVENT NAME</span>
               <input style={S.inp()} value={form.name} placeholder="e.g. JCK Las Vegas 2026"
-                onChange={e=>upd("name",e.target.value)}/>
+                onChange={e=>upd("name",e.target.value)} disabled={isPermanentEvent(ev)}/>
+              {isPermanentEvent(ev)&&<div style={{fontSize:10,color:T3,marginTop:4}}>Permanent office event — name cannot be changed.</div>}
             </div>
 
             <div><span style={S.lbl}>LOCATION</span>
@@ -1497,14 +1529,14 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
           </div>
 
           <button style={S.btn({padding:"12px",fontSize:13,marginBottom:8})}
-            onClick={()=>onUpdate({...ev,...form})}>
+            onClick={()=>onUpdate({...ev,...form,name:isPermanentEvent(ev)?"NY Office":form.name,id:ev.id,permanent:isPermanentEvent(ev)?true:ev.permanent})}>
             ✓ Save Changes
           </button>
 
           <div style={{height:1,background:CRD2,margin:"14px 0"}}/>
 
-          {/* Delete Event — Admin only with confirmation */}
-          {!confirmDel?(
+          {/* Delete Event — Admin only with confirmation; permanent events cannot be deleted */}
+          {!isPermanentEvent(ev)&&(!confirmDel?(
             <button onClick={()=>sConfirmDel(true)}
               style={{...S.bOut({padding:"11px",fontSize:12}),color:RE,borderColor:RE,width:"100%"}}>
               🗑 Delete Event
@@ -1526,7 +1558,8 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
                 </button>
               </div>
             </div>
-          )}
+          ))}
+          {isPermanentEvent(ev)&&<div style={{fontSize:11,color:T3,textAlign:"center",padding:"8px 0",lineHeight:1.5}}>NY Office is a permanent event and cannot be deleted.</div>}
         </div>
       )}
 
@@ -1784,6 +1817,48 @@ function receiptEsc(s){
 }
 function receiptLogoUrl(){
   try{return new URL("assets/vianne-logo.png",window.location.href).href;}catch(e){return"assets/vianne-logo.png";}
+}
+function absImgUrl(src){
+  const s=String(src||"").trim();
+  if(!s)return "";
+  if(s.startsWith("data:")||/^https?:\/\//i.test(s))return s;
+  try{return new URL(s,window.location.href).href;}catch(e){return s;}
+}
+function roundItemFp(fp){return Math.round(Number(fp||0));}
+function estimatePricing(items,disc,discAmt,markup){
+  const subtotal=(items||[]).reduce((s,i)=>s+roundItemFp(i.fp),0);
+  const adj=disc?subtotal*Number(disc)/100:discAmt?Number(discAmt):markup?-(subtotal*Number(markup)/100):0;
+  const final=Math.max(0,Math.round((subtotal-adj)*100)/100);
+  const total=Math.round(final*1.03*100)/100;
+  return{subtotal,final,total};
+}
+function buildEstimatePrintHtml(items,cur,meta){
+  const logo=receiptEsc(receiptLogoUrl());
+  const fmt=n=>receiptEsc(fc(n,cur));
+  const pr=estimatePricing(items,meta.disc,meta.discAmt,meta.markup);
+  const rows=(items||[]).map(item=>{
+    const img=absImgUrl(getImg(item));
+    const imgHtml=img?'<img src="'+receiptEsc(img)+'" alt=""/>':"<div class=\"ph\">"+receiptEsc(item.em||"💎")+"</div>";
+    return '<tr><td class="pic">'+imgHtml+'</td><td class="code">'+receiptEsc(item.id)+'</td><td class="series">'+receiptEsc(item.style||"—")+'</td><td class="col">'+receiptEsc(item.col||"—")+'</td><td class="cat">'+receiptEsc(item.cat||"")+'</td><td class="price">'+fmt(roundItemFp(item.fp))+'</td></tr>';
+  }).join("");
+  let sumRows="";
+  sumRows+='<div class="row"><span>Subtotal ('+items.length+' items)</span><span>'+fmt(pr.subtotal)+'</span></div>';
+  if(meta.disc&&Number(meta.disc)>0)sumRows+='<div class="row disc"><span>Discount ('+receiptEsc(meta.disc)+'%)</span><span>− '+fmt(pr.subtotal*Number(meta.disc)/100)+'</span></div>';
+  if(meta.discAmt&&Number(meta.discAmt)>0)sumRows+='<div class="row disc"><span>Discount (fixed)</span><span>− '+fmt(Number(meta.discAmt))+'</span></div>';
+  if(meta.markup&&Number(meta.markup)>0)sumRows+='<div class="row mk"><span>Markup ('+receiptEsc(meta.markup)+'%)</span><span>+ '+fmt(pr.subtotal*Number(meta.markup)/100)+'</span></div>';
+  sumRows+='<div class="row"><span>GST 3%</span><span>'+fmt(pr.final*0.03)+'</span></div>';
+  sumRows+='<div class="row grand"><span>ESTIMATED TOTAL</span><span>'+fmt(pr.total)+'</span></div>';
+  const evLine=meta.eventName?'<div>'+receiptEsc(meta.eventName)+'</div>':"";
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estimate</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{margin:12mm;size:A4}*{box-sizing:border-box}body{margin:0;padding:20px;background:#fff;color:#1E5C45;font-family:Lato,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{position:relative;max-width:820px;margin:0 auto;padding:24px 28px;overflow:hidden}.wm{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:280px;height:280px;background:url("'+logo+'") center/contain no-repeat;opacity:0.06;pointer-events:none;z-index:0}.content{position:relative;z-index:1}.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.brand{display:flex;align-items:flex-start;gap:12px}.brand img{width:48px;height:auto}.brand-name{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;letter-spacing:0.08em;line-height:1.05}.brand-tag{font-size:8px;color:#C9A84C;letter-spacing:0.14em;text-transform:uppercase;line-height:1.45;margin-top:5px}.meta{text-align:right;font-size:11px;line-height:1.55}.meta-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}table.items{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:11px}table.items th{text-align:left;padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7A8C7E;border-bottom:2px solid #1E5C45}table.items td{padding:10px 6px;border-bottom:1px solid #E8DCCB;vertical-align:middle}.pic{width:72px}.pic img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #E8DCCB;display:block}.ph{width:56px;height:56px;border-radius:8px;background:#F5EDE0;display:flex;align-items:center;justify-content:center;font-size:22px}.code{font-weight:700;font-size:12px;color:#1E5C45}.series,.col{color:#3D5C4A}.price{text-align:right;font-family:"Cormorant Garamond",serif;font-weight:700;font-size:14px;white-space:nowrap;color:#1E5C45}.totals{background:#F5EDE0;border-radius:10px;padding:12px 14px;margin-top:8px}.row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#3D5C4A}.row.disc{color:#C8963A}.row.mk{color:#8B6914}.row.grand{font-size:16px;font-weight:700;color:#1E5C45;padding-top:8px;margin-top:4px;border-top:2px solid #1E5C45}.foot-rule{height:3px;background:#1E5C45;margin:20px 0 10px}.footer{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9px;color:#7A8C7E;line-height:1.45}.note{margin-top:14px;font-size:10px;color:#7A8C7E;line-height:1.5}@media print{html,body{height:auto}body{padding:0;margin:0}.page{padding:16px 20px}}</style></head><body><div class="page"><div class="wm"></div><div class="content"><div class="hdr"><div class="brand"><img src="'+logo+'" alt="Vianne"/><div><div class="brand-name">VIANNE JEWELS</div><div class="brand-tag">THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div><div class="meta"><div class="meta-title">ESTIMATE</div><div>'+receiptEsc(meta.date||dstr())+'</div><div>'+receiptEsc(meta.time||tstr())+'</div>'+evLine+'<div>'+receiptEsc(meta.staff||"")+'</div></div></div><table class="items"><thead><tr><th>Photo</th><th>Unique Code</th><th>Style</th><th>Collection</th><th>Category</th><th style="text-align:right">Final Price</th></tr></thead><tbody>'+rows+'</tbody></table><div class="totals">'+sumRows+'</div><div class="note">Prices shown are rounded final prices. This estimate is for reference only and is not a binding invoice.</div><div class="foot-rule"></div><div class="footer"><div>Disputes subject to Mumbai jurisdiction.</div><div><strong style="font-family:Cormorant Garamond,serif;font-size:12px;letter-spacing:0.06em;color:#1E5C45">VIANNE JEWELS</strong></div></div></div></div></body></html>';
+}
+function printEstimate(items,cur,meta){
+  if(!items||!items.length){toast.warn("No items","Add products before printing an estimate.");return;}
+  const html=buildEstimatePrintHtml(items,cur,meta||{});
+  const w=window.open("","_blank");
+  if(!w){toast.error("Print blocked","Allow pop-ups to print estimates.");return;}
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{try{w.focus();w.print();}catch(e){}},600);
 }
 function receiptTotals(sale){
   const sub=sale.price||0;
@@ -2628,6 +2703,86 @@ function SingleLookup(p){
   );
 }
 
+function EstimateLookup({ev,inv,cur,user}){
+  const [input,setInput]=useState("");
+  const [items,setItems]=useState([]);
+  const [nf,setNf]=useState([]);
+  const [disc,setDisc]=useState("");
+  const [discAmt,setDiscAmt]=useState("");
+  const [markup,setMarkup]=useState("");
+  const [scan,setScan]=useState(false);
+  const resolve=()=>{
+    const codes=input.replace(/\n/g,",").split(",").map(s=>s.trim().toUpperCase()).filter(Boolean);
+    const found=[],notFound=[];
+    codes.forEach(code=>{
+      const item=inv.find(i=>i.id===code);
+      if(item&&!found.find(f=>f.id===item.id))found.push(item);
+      else if(!item)notFound.push(code);
+    });
+    setItems(found);
+    setNf(notFound);
+    setDisc("");
+    setDiscAmt("");
+    setMarkup("");
+  };
+  const pr=estimatePricing(items,disc,discAmt,markup);
+  return(
+    <div style={{padding:"13px 12px 40px"}}>
+      <div style={{...S.card({margin:0,marginBottom:12})}}>
+        <div style={S.sh}>📄 ESTIMATE</div>
+        <div style={{fontSize:11,color:T3,marginBottom:9,lineHeight:1.6}}>Search multiple items, then print a PDF estimate with photos and rounded final prices.</div>
+        <span style={S.lbl}>JEWEL CODES</span>
+        <textarea style={S.inp({height:88,resize:"none",marginBottom:8,fontFamily:"monospace",fontSize:13})} placeholder={"VJNC1345\nVJER3089\nor: VJNC1345, VJER3089"} value={input} onChange={e=>setInput(e.target.value)}/>
+        <div style={{display:"flex",gap:8,marginBottom:scan?8:0}}>
+          <button style={S.btn({flex:1,padding:"11px",fontSize:13})} onClick={resolve}>🔍 Look Up All</button>
+          <button style={S.bOut({padding:"11px 12px",fontSize:12,background:scan?RE:undefined,color:scan?WH:undefined,borderColor:scan?RE:undefined})} onClick={()=>setScan(x=>!x)}>{scan?"⬛ Stop":"📷"}</button>
+        </div>
+        {scan&&<QRScanner inv={inv} onScanned={(code)=>{setScan(false);if(code)setInput(p=>(p?p+"\n":"")+code);}}/>}
+        {nf.length>0&&<div style={{background:REBG,borderRadius:8,padding:"8px 11px",marginTop:9}}><div style={{fontSize:10,fontWeight:700,color:RE,marginBottom:2}}>NOT FOUND</div><div style={{fontSize:11,color:RE}}>{nf.join(", ")}</div></div>}
+      </div>
+      {items.length>0&&(
+        <>
+          <div style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2,marginBottom:12}}>
+            {items.map((item,i)=>(
+              <div key={item.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderBottom:i<items.length-1?"1px solid "+CRD2:"none"}}>
+                <ItemThumb item={item} size={38}/>
+                <div style={{flex:1}}><div style={{fontWeight:700,fontSize:12,color:T1}}>{item.id}</div><div style={{fontSize:10,color:T3}}>{item.style} · {item.col} · {item.cat}</div></div>
+                <div style={{textAlign:"right"}}>
+                  <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(roundItemFp(item.fp),cur)}</div>
+                  <button onClick={()=>setItems(p=>p.filter(x=>x.id!==item.id))} style={{background:"none",border:"none",color:RE,fontSize:10,cursor:"pointer"}}>✕</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{...S.card({margin:0,marginBottom:12})}}>
+            <div style={S.sh}>💲 PRICING ADJUSTMENT</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:10}}>
+              <div><span style={{...S.lbl,color:disc?G:T2}}>DISC %</span><input type="number" min="0" max="50" style={S.inp({borderColor:disc?G:CRD2})} placeholder="0" value={disc} onChange={e=>{setDisc(e.target.value);setDiscAmt("");setMarkup("");}}/></div>
+              <div><span style={{...S.lbl,color:discAmt?RE:T2}}>DISC AMT</span><input type="number" min="0" style={S.inp({borderColor:discAmt?RE:CRD2})} placeholder="0" value={discAmt} onChange={e=>{setDiscAmt(e.target.value);setDisc("");setMarkup("");}}/></div>
+              <div><span style={{...S.lbl,color:markup?AM:T2}}>MARKUP %</span><input type="number" min="0" style={S.inp({borderColor:markup?AM:CRD2})} placeholder="0" value={markup} onChange={e=>{setMarkup(e.target.value);setDisc("");setDiscAmt("");}}/></div>
+            </div>
+            <div style={{background:CRD,borderRadius:9,padding:"10px 11px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:T3,marginBottom:3}}><span>{items.length} items · Subtotal</span><span style={{fontWeight:600,color:T1}}>{fc(pr.subtotal,cur)}</span></div>
+              {disc&&Number(disc)>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:G,marginBottom:3}}><span>Discount ({disc}%)</span><span>− {fc(pr.subtotal*Number(disc)/100,cur)}</span></div>}
+              {discAmt&&Number(discAmt)>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:G,marginBottom:3}}><span>Discount (fixed)</span><span>− {fc(Number(discAmt),cur)}</span></div>}
+              {markup&&Number(markup)>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:AM,marginBottom:3}}><span>Markup ({markup}%)</span><span>+ {fc(pr.subtotal*Number(markup)/100,cur)}</span></div>}
+              <div style={{height:1,background:CRD2,margin:"6px 0"}}/>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:T3,marginBottom:3}}><span>GST 3%</span><span>{fc(pr.final*0.03,cur)}</span></div>
+              <div style={{height:2,background:G,borderRadius:1,margin:"5px 0"}}/>
+              <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:16,color:G}}><span>Estimated Total</span><span style={{fontFamily:"Cormorant Garamond,serif",fontSize:19}}>{fc(pr.total,cur)}</span></div>
+            </div>
+          </div>
+          <button style={S.btn({width:"100%",padding:"13px",fontSize:14})} onClick={()=>printEstimate(items,cur,{eventName:ev?.name,disc,discAmt,markup,staff:user?.name})}>📄 Estimate Print</button>
+        </>
+      )}
+      {items.length===0&&!input&&<div style={{...S.card({margin:0,textAlign:"center",padding:32})}}>
+        <div style={{fontSize:24,color:CRD2,marginBottom:10}}>📄</div>
+        <div style={{color:T3,fontSize:13}}>Enter codes above to build a printable estimate</div>
+      </div>}
+    </div>
+  );
+}
+
 function MultiLookup(p){
 
   var ev=p.ev;
@@ -2757,9 +2912,10 @@ function MultiLookup(p){
                         <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:16,color:G}}><span>Grand Total</span><span style={{fontFamily:"Cormorant Garamond,serif",fontSize:19}}>{fc(mlTotal,cur)}</span></div>
                       </div>
                     </div>
-                    <div style={{display:"flex",gap:8}}>
-                      <button style={S.btn({flex:2,padding:"12px",fontSize:13})} onClick={()=>sShowCustForm(true)}>💰 Convert to Sale</button>
-                      <button style={S.bOut({flex:1,padding:"12px",fontSize:12})} onClick={()=>toast.info("Quote ready",""+mlItems.length+" items")}>📋 Quote</button>
+                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                      <button style={S.btn({flex:2,minWidth:140,padding:"12px",fontSize:13})} onClick={()=>sShowCustForm(true)}>💰 Convert to Sale</button>
+                      <button style={S.bOut({flex:1,minWidth:120,padding:"12px",fontSize:12})} onClick={()=>printEstimate(mlItems,cur,{eventName:ev?.name,disc:mlDisc,discAmt:mlDiscAmt,markup:mlMarkup,staff:user?.name})}>📄 Estimate Print</button>
+                      <button style={S.bOut({flex:1,minWidth:90,padding:"12px",fontSize:12})} onClick={()=>toast.info("Quote ready",""+mlItems.length+" items")}>📋 Quote</button>
                     </div>
                   {showCustForm&&(
                     <div style={{...S.card({margin:"12px 0 0",border:"2px solid "+G})}}>
@@ -2899,8 +3055,8 @@ function LookupTab(p){
     <div>
             {/* Single / Multi sub-tabs */}
             <div style={{background:G,display:"flex",borderBottom:"1px solid rgba(201,168,76,0.2)"}}>
-              {[{id:"single",l:"🔍 SINGLE"},{id:"multi",l:"📋 MULTI LOOKUP"}].map(t=>(
-                <button key={t.id} onClick={()=>smlTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:mlTab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:mlTab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:mlTab===t.id?700:500,padding:"9px 7px",cursor:"pointer"}}>{t.l}</button>
+              {[{id:"single",l:"🔍 SINGLE"},{id:"multi",l:"📋 MULTI LOOKUP"},{id:"estimate",l:"📄 ESTIMATE"}].map(t=>(
+                <button key={t.id} onClick={()=>smlTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:mlTab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:mlTab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:10,fontWeight:mlTab===t.id?700:500,padding:"9px 5px",cursor:"pointer"}}>{t.l}</button>
               ))}
             </div>
 
@@ -2910,6 +3066,9 @@ function LookupTab(p){
 
             {/* MULTI LOOKUP */}
             {mlTab==="multi"&&<MultiLookup {...{ev:p.ev,inv:p.inv,si:p.si,cur:p.cur,user:p.user,pr:p.pr,fc:p.fc,st:p.st,doSell:p.doSell,sdet:p.sdet,sinvm:p.sinvm,jc:p.jc,sjc:p.sjc,det:p.det,scan:p.scan,sscan:p.sscan,mlTab:p.mlTab,smlTab:p.smlTab,mlInput:p.mlInput,smlInput:p.smlInput,mlItems:p.mlItems,smlItems:p.smlItems,mlDisc:p.mlDisc,smlDisc:p.smlDisc,mlDiscAmt:p.mlDiscAmt,smlDiscAmt:p.smlDiscAmt,mlMarkup:p.mlMarkup,smlMarkup:p.smlMarkup,mlNF:p.mlNF,smlNF:p.smlNF,mlScan:p.mlScan,smlScan:p.smlScan,mlSubtotal:p.mlSubtotal,mlFinal:p.mlFinal,mlTotal:p.mlTotal,resolveCodes:p.resolveCodes,sellMulti:p.sellMulti,showFilter:p.showFilter,sShowFilter:p.sShowFilter,activeFilters:p.activeFilters,resetFilters:p.resetFilters,fCat:p.fCat,sfCat:p.sfCat,fCol:p.fCol,sfCol:p.sfCol,fMetal:p.fMetal,sfMetal:p.sfMetal,fSt:p.fSt,sfSt:p.sfSt,fShape:p.fShape,sfShape:p.sfShape,fMinTc:p.fMinTc,sfMinTc:p.sfMinTc,fMaxTc:p.fMaxTc,sfMaxTc:p.sfMaxTc,fMinGw:p.fMinGw,sfMinGw:p.sfMinGw,fMaxGw:p.fMaxGw,sfMaxGw:p.sfMaxGw,fMinNw:p.fMinNw,sfMinNw:p.sfMinNw,fMaxNw:p.fMaxNw,sfMaxNw:p.sfMaxNw,fMinFp:p.fMinFp,sfMinFp:p.sfMinFp,fMaxFp:p.fMaxFp,sfMaxFp:p.sfMaxFp,allCats:p.allCats,allCols:p.allCols,allMetals:p.allMetals,allShapes:p.allShapes,allSt:p.allSt,lkQ:p.lkQ,lkResults:p.lkResults,lkShowResults:p.lkShowResults,leads:p.leads,onAddLead:p.onAddLead}}/>}
+
+            {/* ESTIMATE */}
+            {mlTab==="estimate"&&<EstimateLookup ev={p.ev} inv={p.inv} cur={p.cur} user={p.user}/>}
           </div>
   );
 }
@@ -5001,7 +5160,7 @@ function App(){
   };
   const delEv=id=>{
     const ev=events.find(e=>e.id===id);
-    if(!ev)return;
+    if(!ev||isPermanentEvent(ev))return;
     const record={id:ev.id,name:ev.name,driveFolderId:ev.driveFolderId};
     addDeletedEvent(record);
     pendingDeletesRef.current.push(record);

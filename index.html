@@ -10471,14 +10471,8 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n2 = 0, F = function F() {}; return { s: F, n: function n() { return _n2 >= r.length ? { done: !0 } : { done: !1, value: r[_n2++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
 function _objectWithoutProperties(e, t) { if (null == e) return {}; var o, r, i = _objectWithoutPropertiesLoose(e, t); if (Object.getOwnPropertySymbols) { var n = Object.getOwnPropertySymbols(e); for (r = 0; r < n.length; r++) o = n[r], -1 === t.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]); } return i; }
 function _objectWithoutPropertiesLoose(r, e) { if (null == r) return {}; var t = {}; for (var n in r) if ({}.hasOwnProperty.call(r, n)) { if (-1 !== e.indexOf(n)) continue; t[n] = r[n]; } return t; }
-function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
-function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
-function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
@@ -10486,6 +10480,12 @@ function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { 
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -10523,6 +10523,43 @@ function normalizeEvent(ev) {
     invHistory: Array.isArray(ev.invHistory) ? ev.invHistory : [],
     lookupHistory: Array.isArray(ev.lookupHistory) ? ev.lookupHistory : []
   });
+}
+var NY_OFFICE_ID = "EVNYOFC";
+function isPermanentEvent(ev) {
+  return !!(ev && (ev.id === NY_OFFICE_ID || ev.permanent));
+}
+function createNyOfficeEvent() {
+  return normalizeEvent({
+    id: NY_OFFICE_ID,
+    name: "NY Office",
+    loc: "New York, USA",
+    start: "",
+    end: "",
+    status: "active",
+    color: "#1a3a5c",
+    permanent: true,
+    inv: [],
+    sales: [],
+    leads: [],
+    memos: [],
+    audits: [],
+    invHistory: [],
+    lookupHistory: []
+  });
+}
+function ensureNyOfficeEvent(events) {
+  var list = Array.isArray(events) ? events.filter(function (e) {
+    return e && e.id !== NY_OFFICE_ID;
+  }) : [];
+  var existing = (Array.isArray(events) ? events : []).find(function (e) {
+    return e && e.id === NY_OFFICE_ID;
+  });
+  var ny = normalizeEvent(_objectSpread(_objectSpread(_objectSpread({}, createNyOfficeEvent()), existing || {}), {}, {
+    id: NY_OFFICE_ID,
+    name: "NY Office",
+    permanent: true
+  }));
+  return [ny].concat(_toConsumableArray(list));
 }
 function isUsableImgSrc(src) {
   var s = String(src || "").trim();
@@ -10777,9 +10814,9 @@ function _syncImagesToDrive() {
           }
           return _context14.a(2, 0);
         case 3:
-          entries = Object.entries(imgMap).filter(function (_ref81) {
-            var _ref82 = _slicedToArray(_ref81, 2),
-              src = _ref82[1];
+          entries = Object.entries(imgMap).filter(function (_ref82) {
+            var _ref83 = _slicedToArray(_ref82, 2),
+              src = _ref83[1];
             return String(src || "").startsWith("data:image/");
           });
           if (entries.length) {
@@ -10796,10 +10833,10 @@ function _syncImagesToDrive() {
             _context14.n = 12;
             break;
           }
-          chunk = entries.slice(i, i + BATCH).map(function (_ref83) {
-            var _ref84 = _slicedToArray(_ref83, 2),
-              id = _ref84[0],
-              src = _ref84[1];
+          chunk = entries.slice(i, i + BATCH).map(function (_ref84) {
+            var _ref85 = _slicedToArray(_ref84, 2),
+              id = _ref85[0],
+              src = _ref85[1];
             return {
               id: String(id).toUpperCase(),
               data: String(src).replace(/^data:image\/\w+;base64,/, "")
@@ -11845,6 +11882,10 @@ function normalizeEventAccess(v) {
 }
 function userHasEventAccess(user, eventId) {
   if (!user || !eventId) return false;
+  if (eventId === NY_OFFICE_ID || isPermanentEvent({
+    id: eventId,
+    permanent: true
+  })) return true;
   if (isSuperAdmin(user)) return true;
   var access = normalizeEventAccess(user.eventAccess);
   if (access === "all") return true;
@@ -11852,14 +11893,19 @@ function userHasEventAccess(user, eventId) {
   return access.includes(eventId);
 }
 function filterEventsForUser(user, events) {
-  if (!Array.isArray(events)) return [];
-  if (isSuperAdmin(user)) return events;
-  var access = normalizeEventAccess(user.eventAccess);
-  if (access === "all") return events;
-  if (!access.length) return [];
-  return events.filter(function (ev) {
-    return access.includes(ev.id);
+  var list = ensureNyOfficeEvent(events);
+  var permanent = list.filter(isPermanentEvent);
+  var regular = list.filter(function (e) {
+    return !isPermanentEvent(e);
   });
+  if (!user) return permanent;
+  if (isSuperAdmin(user)) return list;
+  var access = normalizeEventAccess(user.eventAccess);
+  if (access === "all") return list;
+  if (!access.length) return permanent;
+  return [].concat(_toConsumableArray(permanent), _toConsumableArray(regular.filter(function (ev) {
+    return access.includes(ev.id);
+  })));
 }
 function mergeUserDefaults(saved) {
   var out = _toConsumableArray(saved);
@@ -13036,10 +13082,10 @@ function loadEvents() {
     var raw = localStorage.getItem(EVENTS_KEY);
     if (raw) {
       var parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length) return parsed;
+      if (Array.isArray(parsed) && parsed.length) return ensureNyOfficeEvent(parsed);
     }
   } catch (e) {}
-  return DEMO_EVENTS;
+  return ensureNyOfficeEvent(DEMO_EVENTS);
 }
 var IDB_NAME = "vianne_v1";
 var IDB_STORE = "events";
@@ -13282,10 +13328,10 @@ function _idbSaveImages() {
           }
           return _context26.a(2);
         case 1:
-          entries = Object.entries(imgMap).filter(function (_ref85) {
-            var _ref86 = _slicedToArray(_ref85, 2),
-              id = _ref86[0],
-              src = _ref86[1];
+          entries = Object.entries(imgMap).filter(function (_ref86) {
+            var _ref87 = _slicedToArray(_ref86, 2),
+              id = _ref87[0],
+              src = _ref87[1];
             return id && src;
           });
           if (entries.length) {
@@ -13295,10 +13341,10 @@ function _idbSaveImages() {
           return _context26.a(2);
         case 2:
           if (!window.VJ_IMG) window.VJ_IMG = {};
-          entries.forEach(function (_ref87) {
-            var _ref88 = _slicedToArray(_ref87, 2),
-              id = _ref88[0],
-              src = _ref88[1];
+          entries.forEach(function (_ref88) {
+            var _ref89 = _slicedToArray(_ref88, 2),
+              id = _ref89[0],
+              src = _ref89[1];
             window.VJ_IMG[String(id).toUpperCase()] = src;
           });
           notifyImagesChanged();
@@ -13319,10 +13365,10 @@ function _idbSaveImages() {
                   return new Promise(function (res, rej) {
                     var tx = db.transaction(IDB_IMG_STORE, "readwrite");
                     var st = tx.objectStore(IDB_IMG_STORE);
-                    slice.forEach(function (_ref89) {
-                      var _ref90 = _slicedToArray(_ref89, 2),
-                        id = _ref90[0],
-                        src = _ref90[1];
+                    slice.forEach(function (_ref90) {
+                      var _ref91 = _slicedToArray(_ref90, 2),
+                        id = _ref91[0],
+                        src = _ref91[1];
                       return st.put({
                         id: String(id).toUpperCase(),
                         src: src
@@ -13574,7 +13620,7 @@ function slimEventsForStorage(evts) {
   });
 }
 function saveEvents(evts) {
-  var slim = slimEventsForStorage(evts);
+  var slim = slimEventsForStorage(ensureNyOfficeEvent(evts));
   try {
     localStorage.setItem(EVENTS_KEY, JSON.stringify(slim));
   } catch (e) {
@@ -13600,7 +13646,7 @@ function _loadEventsAsync() {
         case 1:
           idb = _context31.v;
           if (idb && idb.length) local = mergeEvents(local, idb);
-          return _context31.a(2, applyDeletedFilter(local));
+          return _context31.a(2, ensureNyOfficeEvent(applyDeletedFilter(local)));
       }
     }, _callee30);
   }));
@@ -13676,7 +13722,7 @@ function mergeEvents(local, cloud) {
     var prev = byId.get(e.id);
     byId.set(e.id, prev ? mergeEventPair(prev, e) : e);
   });
-  return _toConsumableArray(byId.values());
+  return ensureNyOfficeEvent(_toConsumableArray(byId.values()));
 }
 var USERS_KEY = "vj_users";
 var SESSION_KEY = "vj_session";
@@ -13736,7 +13782,7 @@ function getPendingDeletedRecords() {
   }
 }
 function addDeletedEvent(ev) {
-  if (!ev || !ev.id) return;
+  if (!ev || !ev.id || isPermanentEvent(ev)) return;
   try {
     var list = getPendingDeletedRecords();
     if (!list.find(function (d) {
@@ -13771,10 +13817,11 @@ function loadDeletedIds(extra) {
 }
 function applyDeletedFilter(events, extraIds) {
   var ids = loadDeletedIds(extraIds);
-  if (!ids.size) return events || [];
-  return (events || []).filter(function (e) {
+  ids.delete(NY_OFFICE_ID);
+  if (!ids.size) return ensureNyOfficeEvent(events || []);
+  return ensureNyOfficeEvent((events || []).filter(function (e) {
     return e && !ids.has(e.id);
-  });
+  }));
 }
 function eventsAheadOfCloud(localEvents, cloudEvents) {
   var cloudById = new Map((cloudEvents || []).map(function (e) {
@@ -14192,7 +14239,7 @@ function _cloudSave() {
             return true;
           });
           trySave = /*#__PURE__*/function () {
-            var _ref91 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(files) {
+            var _ref92 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(files) {
               var body, r, d, msg, _t26, _t27;
               return _regenerator().w(function (_context37) {
                 while (1) switch (_context37.p = _context37.n) {
@@ -14251,7 +14298,7 @@ function _cloudSave() {
               }, _callee36, null, [[5, 7], [1, 3]]);
             }));
             return function trySave(_x58) {
-              return _ref91.apply(this, arguments);
+              return _ref92.apply(this, arguments);
             };
           }();
           _context38.p = 3;
@@ -14297,10 +14344,10 @@ function flushCloudSync(_x42, _x43, _x44) {
 }
 function _flushCloudSync() {
   _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(events, users, deletedEvents) {
-    var _ref92,
-      _ref92$silent,
+    var _ref93,
+      _ref93$silent,
       silent,
-      _ref92$successMsg,
+      _ref93$successMsg,
       successMsg,
       ping,
       tombstones,
@@ -14315,7 +14362,7 @@ function _flushCloudSync() {
     return _regenerator().w(function (_context39) {
       while (1) switch (_context39.n) {
         case 0:
-          _ref92 = _args39.length > 3 && _args39[3] !== undefined ? _args39[3] : {}, _ref92$silent = _ref92.silent, silent = _ref92$silent === void 0 ? false : _ref92$silent, _ref92$successMsg = _ref92.successMsg, successMsg = _ref92$successMsg === void 0 ? "Shared with all users & devices" : _ref92$successMsg;
+          _ref93 = _args39.length > 3 && _args39[3] !== undefined ? _args39[3] : {}, _ref93$silent = _ref93.silent, silent = _ref93$silent === void 0 ? false : _ref93$silent, _ref93$successMsg = _ref93.successMsg, successMsg = _ref93$successMsg === void 0 ? "Shared with all users & devices" : _ref93$successMsg;
           _context39.n = 1;
           return cloudFetchData();
         case 1:
@@ -15834,6 +15881,144 @@ function EventHub(_ref19) {
     sl = _useState36[1];
   var pr = gp(user.role, user.perms);
   var visibleEvents = filterEventsForUser(user, events);
+  var nyEvents = visibleEvents.filter(isPermanentEvent);
+  var regEvents = visibleEvents.filter(function (e) {
+    return !isPermanentEvent(e);
+  });
+  var renderEventCard = function renderEventCard(ev) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: ev.id,
+      style: {
+        background: WH,
+        borderRadius: 13,
+        marginBottom: 12,
+        boxShadow: "0 3px 14px rgba(0,0,0,0.12)",
+        overflow: "hidden"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: ev.color || G,
+        padding: "13px 15px"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start"
+      }
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "Cormorant Garamond,serif",
+        fontSize: 16,
+        fontWeight: 700,
+        color: CR,
+        lineHeight: 1.2
+      }
+    }, ev.name, isPermanentEvent(ev) ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9,
+        fontWeight: 600,
+        color: GO,
+        marginLeft: 6,
+        letterSpacing: "0.08em"
+      }
+    }, "PERMANENT") : null), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "rgba(245,237,224,0.7)",
+        marginTop: 3
+      }
+    }, "\uD83D\uDCCD ", ev.loc || "—"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: "rgba(245,237,224,0.6)",
+        marginTop: 2
+      }
+    }, ev.start || ev.end ? "📅 " + (ev.start || "—") + " → " + (ev.end || "—") : "📅 Always open")), /*#__PURE__*/React.createElement(Bdg, {
+      t: ev.status === "active" ? "gr" : ev.status === "completed" ? "m" : "a",
+      ch: ev.status
+    }))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        padding: "11px 14px"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 14,
+        marginBottom: 11
+      }
+    }, [{
+      l: "Items",
+      v: (ev.inv || []).length
+    }].concat(_toConsumableArray(pr.vA ? [{
+      l: "Sales",
+      v: (ev.sales || []).length
+    }, {
+      l: "Revenue",
+      v: "$" + Math.round((ev.sales || []).reduce(function (s, x) {
+        return s + x.total;
+      }, 0) / 1000) + "k"
+    }] : [])).map(function (x) {
+      return /*#__PURE__*/React.createElement("div", {
+        key: x.l,
+        style: {
+          textAlign: "center"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontFamily: "Cormorant Garamond,serif",
+          fontSize: 15,
+          fontWeight: 700,
+          color: G
+        }
+      }, x.v), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 8,
+          color: T3,
+          textTransform: "uppercase"
+        }
+      }, x.l));
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: function onClick() {
+        return onEnter(events.find(function (e) {
+          return e.id === ev.id;
+        }) || ev);
+      },
+      style: {
+        flex: 2,
+        background: G,
+        color: CR,
+        border: "none",
+        borderRadius: 9,
+        padding: "11px",
+        fontFamily: "Lato,sans-serif",
+        fontSize: 13,
+        fontWeight: 600,
+        cursor: "pointer"
+      }
+    }, "Open Event \u2192"), pr.mU && /*#__PURE__*/React.createElement("button", {
+      onClick: function onClick() {
+        return onManage(ev);
+      },
+      style: {
+        flex: 1,
+        background: "transparent",
+        color: G,
+        border: "1.5px solid " + G,
+        borderRadius: 9,
+        padding: "11px",
+        fontFamily: "Lato,sans-serif",
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: "pointer"
+      }
+    }, "Manage"))));
+  };
   useEffect(function () {
     if (sc) ensureXLSX(function () {});
   }, [sc]);
@@ -16094,6 +16279,25 @@ function EventHub(_ref19) {
       fontWeight: 700,
       color: G
     }
+  }, "NY Office")), /*#__PURE__*/React.createElement("div", {
+    className: "v-events-list",
+    style: {
+      marginBottom: 18
+    }
+  }, nyEvents.map(renderEventCard)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 11
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "Cormorant Garamond,serif",
+      fontSize: 18,
+      fontWeight: 700,
+      color: G
+    }
   }, "Your Events"), pr.mU && /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
       return ssc(true);
@@ -16111,132 +16315,7 @@ function EventHub(_ref19) {
     }
   }, "+ New Event")), /*#__PURE__*/React.createElement("div", {
     className: "v-events-list"
-  }, visibleEvents.map(function (ev) {
-    return /*#__PURE__*/React.createElement("div", {
-      key: ev.id,
-      style: {
-        background: WH,
-        borderRadius: 13,
-        marginBottom: 12,
-        boxShadow: "0 3px 14px rgba(0,0,0,0.12)",
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: ev.color || G,
-        padding: "13px 15px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start"
-      }
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "Cormorant Garamond,serif",
-        fontSize: 16,
-        fontWeight: 700,
-        color: CR,
-        lineHeight: 1.2
-      }
-    }, ev.name), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: "rgba(245,237,224,0.7)",
-        marginTop: 3
-      }
-    }, "\uD83D\uDCCD ", ev.loc), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 9,
-        color: "rgba(245,237,224,0.6)",
-        marginTop: 2
-      }
-    }, "\uD83D\uDCC5 ", ev.start, " \u2192 ", ev.end)), /*#__PURE__*/React.createElement(Bdg, {
-      t: ev.status === "active" ? "gr" : ev.status === "completed" ? "m" : "a",
-      ch: ev.status
-    }))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "11px 14px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 14,
-        marginBottom: 11
-      }
-    }, [{
-      l: "Items",
-      v: (ev.inv || []).length
-    }].concat(_toConsumableArray(pr.vA ? [{
-      l: "Sales",
-      v: (ev.sales || []).length
-    }, {
-      l: "Revenue",
-      v: "$" + Math.round((ev.sales || []).reduce(function (s, x) {
-        return s + x.total;
-      }, 0) / 1000) + "k"
-    }] : [])).map(function (x) {
-      return /*#__PURE__*/React.createElement("div", {
-        key: x.l,
-        style: {
-          textAlign: "center"
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontFamily: "Cormorant Garamond,serif",
-          fontSize: 15,
-          fontWeight: 700,
-          color: G
-        }
-      }, x.v), /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontSize: 8,
-          color: T3,
-          textTransform: "uppercase"
-        }
-      }, x.l));
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 8
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: function onClick() {
-        return onEnter(events.find(function (e) {
-          return e.id === ev.id;
-        }) || ev);
-      },
-      style: {
-        flex: 2,
-        background: G,
-        color: CR,
-        border: "none",
-        borderRadius: 9,
-        padding: "11px",
-        fontFamily: "Lato,sans-serif",
-        fontSize: 13,
-        fontWeight: 600,
-        cursor: "pointer"
-      }
-    }, "Open Event \u2192"), pr.mU && /*#__PURE__*/React.createElement("button", {
-      onClick: function onClick() {
-        return onManage(ev);
-      },
-      style: {
-        flex: 1,
-        background: "transparent",
-        color: G,
-        border: "1.5px solid " + G,
-        borderRadius: 9,
-        padding: "11px",
-        fontFamily: "Lato,sans-serif",
-        fontSize: 12,
-        fontWeight: 600,
-        cursor: "pointer"
-      }
-    }, "Manage"))));
-  })), visibleEvents.length === 0 && /*#__PURE__*/React.createElement("div", {
+  }, regEvents.map(renderEventCard)), visibleEvents.length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       padding: 40,
@@ -16502,8 +16581,15 @@ function ManageEvent(_ref22) {
     placeholder: "e.g. JCK Las Vegas 2026",
     onChange: function onChange(e) {
       return upd("name", e.target.value);
+    },
+    disabled: isPermanentEvent(ev)
+  }), isPermanentEvent(ev) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: T3,
+      marginTop: 4
     }
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+  }, "Permanent office event \u2014 name cannot be changed.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     style: S.lbl
   }, "LOCATION"), /*#__PURE__*/React.createElement("input", {
     style: S.inp(),
@@ -16598,7 +16684,11 @@ function ManageEvent(_ref22) {
       marginBottom: 8
     }),
     onClick: function onClick() {
-      return onUpdate(_objectSpread(_objectSpread({}, ev), form));
+      return onUpdate(_objectSpread(_objectSpread(_objectSpread({}, ev), form), {}, {
+        name: isPermanentEvent(ev) ? "NY Office" : form.name,
+        id: ev.id,
+        permanent: isPermanentEvent(ev) ? true : ev.permanent
+      }));
     }
   }, "\u2713 Save Changes"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -16606,7 +16696,7 @@ function ManageEvent(_ref22) {
       background: CRD2,
       margin: "14px 0"
     }
-  }), !confirmDel ? /*#__PURE__*/React.createElement("button", {
+  }), !isPermanentEvent(ev) && (!confirmDel ? /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
       return sConfirmDel(true);
     },
@@ -16664,7 +16754,15 @@ function ManageEvent(_ref22) {
       padding: "10px",
       fontSize: 12
     })
-  }, "Cancel")))), tab === "inventory" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, "Cancel")))), isPermanentEvent(ev) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: T3,
+      textAlign: "center",
+      padding: "8px 0",
+      lineHeight: 1.5
+    }
+  }, "NY Office is a permanent event and cannot be deleted.")), tab === "inventory" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
       color: T2,
@@ -17910,6 +18008,73 @@ function receiptLogoUrl() {
   } catch (e) {
     return "assets/vianne-logo.png";
   }
+}
+function absImgUrl(src) {
+  var s = String(src || "").trim();
+  if (!s) return "";
+  if (s.startsWith("data:") || /^https?:\/\//i.test(s)) return s;
+  try {
+    return new URL(s, window.location.href).href;
+  } catch (e) {
+    return s;
+  }
+}
+function roundItemFp(fp) {
+  return Math.round(Number(fp || 0));
+}
+function estimatePricing(items, disc, discAmt, markup) {
+  var subtotal = (items || []).reduce(function (s, i) {
+    return s + roundItemFp(i.fp);
+  }, 0);
+  var adj = disc ? subtotal * Number(disc) / 100 : discAmt ? Number(discAmt) : markup ? -(subtotal * Number(markup) / 100) : 0;
+  var final = Math.max(0, Math.round((subtotal - adj) * 100) / 100);
+  var total = Math.round(final * 1.03 * 100) / 100;
+  return {
+    subtotal: subtotal,
+    final: final,
+    total: total
+  };
+}
+function buildEstimatePrintHtml(items, cur, meta) {
+  var logo = receiptEsc(receiptLogoUrl());
+  var fmt = function fmt(n) {
+    return receiptEsc(fc(n, cur));
+  };
+  var pr = estimatePricing(items, meta.disc, meta.discAmt, meta.markup);
+  var rows = (items || []).map(function (item) {
+    var img = absImgUrl(getImg(item));
+    var imgHtml = img ? '<img src="' + receiptEsc(img) + '" alt=""/>' : "<div class=\"ph\">" + receiptEsc(item.em || "💎") + "</div>";
+    return '<tr><td class="pic">' + imgHtml + '</td><td class="code">' + receiptEsc(item.id) + '</td><td class="series">' + receiptEsc(item.style || "—") + '</td><td class="col">' + receiptEsc(item.col || "—") + '</td><td class="cat">' + receiptEsc(item.cat || "") + '</td><td class="price">' + fmt(roundItemFp(item.fp)) + '</td></tr>';
+  }).join("");
+  var sumRows = "";
+  sumRows += '<div class="row"><span>Subtotal (' + items.length + ' items)</span><span>' + fmt(pr.subtotal) + '</span></div>';
+  if (meta.disc && Number(meta.disc) > 0) sumRows += '<div class="row disc"><span>Discount (' + receiptEsc(meta.disc) + '%)</span><span>− ' + fmt(pr.subtotal * Number(meta.disc) / 100) + '</span></div>';
+  if (meta.discAmt && Number(meta.discAmt) > 0) sumRows += '<div class="row disc"><span>Discount (fixed)</span><span>− ' + fmt(Number(meta.discAmt)) + '</span></div>';
+  if (meta.markup && Number(meta.markup) > 0) sumRows += '<div class="row mk"><span>Markup (' + receiptEsc(meta.markup) + '%)</span><span>+ ' + fmt(pr.subtotal * Number(meta.markup) / 100) + '</span></div>';
+  sumRows += '<div class="row"><span>GST 3%</span><span>' + fmt(pr.final * 0.03) + '</span></div>';
+  sumRows += '<div class="row grand"><span>ESTIMATED TOTAL</span><span>' + fmt(pr.total) + '</span></div>';
+  var evLine = meta.eventName ? '<div>' + receiptEsc(meta.eventName) + '</div>' : "";
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estimate</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{margin:12mm;size:A4}*{box-sizing:border-box}body{margin:0;padding:20px;background:#fff;color:#1E5C45;font-family:Lato,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{position:relative;max-width:820px;margin:0 auto;padding:24px 28px;overflow:hidden}.wm{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:280px;height:280px;background:url("' + logo + '") center/contain no-repeat;opacity:0.06;pointer-events:none;z-index:0}.content{position:relative;z-index:1}.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.brand{display:flex;align-items:flex-start;gap:12px}.brand img{width:48px;height:auto}.brand-name{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;letter-spacing:0.08em;line-height:1.05}.brand-tag{font-size:8px;color:#C9A84C;letter-spacing:0.14em;text-transform:uppercase;line-height:1.45;margin-top:5px}.meta{text-align:right;font-size:11px;line-height:1.55}.meta-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}table.items{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:11px}table.items th{text-align:left;padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7A8C7E;border-bottom:2px solid #1E5C45}table.items td{padding:10px 6px;border-bottom:1px solid #E8DCCB;vertical-align:middle}.pic{width:72px}.pic img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #E8DCCB;display:block}.ph{width:56px;height:56px;border-radius:8px;background:#F5EDE0;display:flex;align-items:center;justify-content:center;font-size:22px}.code{font-weight:700;font-size:12px;color:#1E5C45}.series,.col{color:#3D5C4A}.price{text-align:right;font-family:"Cormorant Garamond",serif;font-weight:700;font-size:14px;white-space:nowrap;color:#1E5C45}.totals{background:#F5EDE0;border-radius:10px;padding:12px 14px;margin-top:8px}.row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#3D5C4A}.row.disc{color:#C8963A}.row.mk{color:#8B6914}.row.grand{font-size:16px;font-weight:700;color:#1E5C45;padding-top:8px;margin-top:4px;border-top:2px solid #1E5C45}.foot-rule{height:3px;background:#1E5C45;margin:20px 0 10px}.footer{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9px;color:#7A8C7E;line-height:1.45}.note{margin-top:14px;font-size:10px;color:#7A8C7E;line-height:1.5}@media print{html,body{height:auto}body{padding:0;margin:0}.page{padding:16px 20px}}</style></head><body><div class="page"><div class="wm"></div><div class="content"><div class="hdr"><div class="brand"><img src="' + logo + '" alt="Vianne"/><div><div class="brand-name">VIANNE JEWELS</div><div class="brand-tag">THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div><div class="meta"><div class="meta-title">ESTIMATE</div><div>' + receiptEsc(meta.date || dstr()) + '</div><div>' + receiptEsc(meta.time || tstr()) + '</div>' + evLine + '<div>' + receiptEsc(meta.staff || "") + '</div></div></div><table class="items"><thead><tr><th>Photo</th><th>Unique Code</th><th>Style</th><th>Collection</th><th>Category</th><th style="text-align:right">Final Price</th></tr></thead><tbody>' + rows + '</tbody></table><div class="totals">' + sumRows + '</div><div class="note">Prices shown are rounded final prices. This estimate is for reference only and is not a binding invoice.</div><div class="foot-rule"></div><div class="footer"><div>Disputes subject to Mumbai jurisdiction.</div><div><strong style="font-family:Cormorant Garamond,serif;font-size:12px;letter-spacing:0.06em;color:#1E5C45">VIANNE JEWELS</strong></div></div></div></div></body></html>';
+}
+function printEstimate(items, cur, meta) {
+  if (!items || !items.length) {
+    toast.warn("No items", "Add products before printing an estimate.");
+    return;
+  }
+  var html = buildEstimatePrintHtml(items, cur, meta || {});
+  var w = window.open("", "_blank");
+  if (!w) {
+    toast.error("Print blocked", "Allow pop-ups to print estimates.");
+    return;
+  }
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function () {
+    try {
+      w.focus();
+      w.print();
+    } catch (e) {}
+  }, 600);
 }
 function receiptTotals(sale) {
   var sub = sale.price || 0;
@@ -20400,6 +20565,386 @@ function SingleLookup(p) {
     onAddLead: onAddLead
   })));
 }
+function EstimateLookup(_ref38) {
+  var ev = _ref38.ev,
+    inv = _ref38.inv,
+    cur = _ref38.cur,
+    user = _ref38.user;
+  var _useState75 = useState(""),
+    _useState76 = _slicedToArray(_useState75, 2),
+    input = _useState76[0],
+    setInput = _useState76[1];
+  var _useState77 = useState([]),
+    _useState78 = _slicedToArray(_useState77, 2),
+    items = _useState78[0],
+    setItems = _useState78[1];
+  var _useState79 = useState([]),
+    _useState80 = _slicedToArray(_useState79, 2),
+    nf = _useState80[0],
+    setNf = _useState80[1];
+  var _useState81 = useState(""),
+    _useState82 = _slicedToArray(_useState81, 2),
+    disc = _useState82[0],
+    setDisc = _useState82[1];
+  var _useState83 = useState(""),
+    _useState84 = _slicedToArray(_useState83, 2),
+    discAmt = _useState84[0],
+    setDiscAmt = _useState84[1];
+  var _useState85 = useState(""),
+    _useState86 = _slicedToArray(_useState85, 2),
+    markup = _useState86[0],
+    setMarkup = _useState86[1];
+  var _useState87 = useState(false),
+    _useState88 = _slicedToArray(_useState87, 2),
+    scan = _useState88[0],
+    setScan = _useState88[1];
+  var resolve = function resolve() {
+    var codes = input.replace(/\n/g, ",").split(",").map(function (s) {
+      return s.trim().toUpperCase();
+    }).filter(Boolean);
+    var found = [],
+      notFound = [];
+    codes.forEach(function (code) {
+      var item = inv.find(function (i) {
+        return i.id === code;
+      });
+      if (item && !found.find(function (f) {
+        return f.id === item.id;
+      })) found.push(item);else if (!item) notFound.push(code);
+    });
+    setItems(found);
+    setNf(notFound);
+    setDisc("");
+    setDiscAmt("");
+    setMarkup("");
+  };
+  var pr = estimatePricing(items, disc, discAmt, markup);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "13px 12px 40px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread({}, S.card({
+      margin: 0,
+      marginBottom: 12
+    }))
+  }, /*#__PURE__*/React.createElement("div", {
+    style: S.sh
+  }, "\uD83D\uDCC4 ESTIMATE"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: T3,
+      marginBottom: 9,
+      lineHeight: 1.6
+    }
+  }, "Search multiple items, then print a PDF estimate with photos and rounded final prices."), /*#__PURE__*/React.createElement("span", {
+    style: S.lbl
+  }, "JEWEL CODES"), /*#__PURE__*/React.createElement("textarea", {
+    style: S.inp({
+      height: 88,
+      resize: "none",
+      marginBottom: 8,
+      fontFamily: "monospace",
+      fontSize: 13
+    }),
+    placeholder: "VJNC1345\nVJER3089\nor: VJNC1345, VJER3089",
+    value: input,
+    onChange: function onChange(e) {
+      return setInput(e.target.value);
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: scan ? 8 : 0
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    style: S.btn({
+      flex: 1,
+      padding: "11px",
+      fontSize: 13
+    }),
+    onClick: resolve
+  }, "\uD83D\uDD0D Look Up All"), /*#__PURE__*/React.createElement("button", {
+    style: S.bOut({
+      padding: "11px 12px",
+      fontSize: 12,
+      background: scan ? RE : undefined,
+      color: scan ? WH : undefined,
+      borderColor: scan ? RE : undefined
+    }),
+    onClick: function onClick() {
+      return setScan(function (x) {
+        return !x;
+      });
+    }
+  }, scan ? "⬛ Stop" : "📷")), scan && /*#__PURE__*/React.createElement(QRScanner, {
+    inv: inv,
+    onScanned: function onScanned(code) {
+      setScan(false);
+      if (code) setInput(function (p) {
+        return (p ? p + "\n" : "") + code;
+      });
+    }
+  }), nf.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: REBG,
+      borderRadius: 8,
+      padding: "8px 11px",
+      marginTop: 9
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      fontWeight: 700,
+      color: RE,
+      marginBottom: 2
+    }
+  }, "NOT FOUND"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: RE
+    }
+  }, nf.join(", ")))), items.length > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: WH,
+      borderRadius: 12,
+      overflow: "hidden",
+      border: "1px solid " + CRD2,
+      marginBottom: 12
+    }
+  }, items.map(function (item, i) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: item.id,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "9px 12px",
+        borderBottom: i < items.length - 1 ? "1px solid " + CRD2 : "none"
+      }
+    }, /*#__PURE__*/React.createElement(ItemThumb, {
+      item: item,
+      size: 38
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 12,
+        color: T1
+      }
+    }, item.id), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T3
+      }
+    }, item.style, " \xB7 ", item.col, " \xB7 ", item.cat)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: "right"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "Cormorant Garamond,serif",
+        fontSize: 13,
+        fontWeight: 700,
+        color: G
+      }
+    }, fc(roundItemFp(item.fp), cur)), /*#__PURE__*/React.createElement("button", {
+      onClick: function onClick() {
+        return setItems(function (p) {
+          return p.filter(function (x) {
+            return x.id !== item.id;
+          });
+        });
+      },
+      style: {
+        background: "none",
+        border: "none",
+        color: RE,
+        fontSize: 10,
+        cursor: "pointer"
+      }
+    }, "\u2715")));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread({}, S.card({
+      margin: 0,
+      marginBottom: 12
+    }))
+  }, /*#__PURE__*/React.createElement("div", {
+    style: S.sh
+  }, "\uD83D\uDCB2 PRICING ADJUSTMENT"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: 8,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    style: _objectSpread(_objectSpread({}, S.lbl), {}, {
+      color: disc ? G : T2
+    })
+  }, "DISC %"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "0",
+    max: "50",
+    style: S.inp({
+      borderColor: disc ? G : CRD2
+    }),
+    placeholder: "0",
+    value: disc,
+    onChange: function onChange(e) {
+      setDisc(e.target.value);
+      setDiscAmt("");
+      setMarkup("");
+    }
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    style: _objectSpread(_objectSpread({}, S.lbl), {}, {
+      color: discAmt ? RE : T2
+    })
+  }, "DISC AMT"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "0",
+    style: S.inp({
+      borderColor: discAmt ? RE : CRD2
+    }),
+    placeholder: "0",
+    value: discAmt,
+    onChange: function onChange(e) {
+      setDiscAmt(e.target.value);
+      setDisc("");
+      setMarkup("");
+    }
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    style: _objectSpread(_objectSpread({}, S.lbl), {}, {
+      color: markup ? AM : T2
+    })
+  }, "MARKUP %"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "0",
+    style: S.inp({
+      borderColor: markup ? AM : CRD2
+    }),
+    placeholder: "0",
+    value: markup,
+    onChange: function onChange(e) {
+      setMarkup(e.target.value);
+      setDisc("");
+      setDiscAmt("");
+    }
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: CRD,
+      borderRadius: 9,
+      padding: "10px 11px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 12,
+      color: T3,
+      marginBottom: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", null, items.length, " items \xB7 Subtotal"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontWeight: 600,
+      color: T1
+    }
+  }, fc(pr.subtotal, cur))), disc && Number(disc) > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 12,
+      color: G,
+      marginBottom: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "Discount (", disc, "%)"), /*#__PURE__*/React.createElement("span", null, "\u2212 ", fc(pr.subtotal * Number(disc) / 100, cur))), discAmt && Number(discAmt) > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 12,
+      color: G,
+      marginBottom: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "Discount (fixed)"), /*#__PURE__*/React.createElement("span", null, "\u2212 ", fc(Number(discAmt), cur))), markup && Number(markup) > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 12,
+      color: AM,
+      marginBottom: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "Markup (", markup, "%)"), /*#__PURE__*/React.createElement("span", null, "+ ", fc(pr.subtotal * Number(markup) / 100, cur))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 1,
+      background: CRD2,
+      margin: "6px 0"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 12,
+      color: T3,
+      marginBottom: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "GST 3%"), /*#__PURE__*/React.createElement("span", null, fc(pr.final * 0.03, cur))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 2,
+      background: G,
+      borderRadius: 1,
+      margin: "5px 0"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontWeight: 700,
+      fontSize: 16,
+      color: G
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "Estimated Total"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "Cormorant Garamond,serif",
+      fontSize: 19
+    }
+  }, fc(pr.total, cur))))), /*#__PURE__*/React.createElement("button", {
+    style: S.btn({
+      width: "100%",
+      padding: "13px",
+      fontSize: 14
+    }),
+    onClick: function onClick() {
+      return printEstimate(items, cur, {
+        eventName: ev === null || ev === void 0 ? void 0 : ev.name,
+        disc: disc,
+        discAmt: discAmt,
+        markup: markup,
+        staff: user === null || user === void 0 ? void 0 : user.name
+      });
+    }
+  }, "\uD83D\uDCC4 Estimate Print")), items.length === 0 && !input && /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread({}, S.card({
+      margin: 0,
+      textAlign: "center",
+      padding: 32
+    }))
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 24,
+      color: CRD2,
+      marginBottom: 10
+    }
+  }, "\uD83D\uDCC4"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T3,
+      fontSize: 13
+    }
+  }, "Enter codes above to build a printable estimate")));
+}
 function MultiLookup(p) {
   var ev = p.ev;
   var inv = p.inv;
@@ -20444,29 +20989,29 @@ function MultiLookup(p) {
   var sellMulti = p.sellMulti;
   var leads = p.leads;
   var onAddLead = p.onAddLead;
-  var _useState75 = useState(false),
-    _useState76 = _slicedToArray(_useState75, 2),
-    showCustForm = _useState76[0],
-    sShowCustForm = _useState76[1];
-  var _useState77 = useState({
+  var _useState89 = useState(false),
+    _useState90 = _slicedToArray(_useState89, 2),
+    showCustForm = _useState90[0],
+    sShowCustForm = _useState90[1];
+  var _useState91 = useState({
       name: "",
       phone: "",
       email: "",
       company: "",
       source: "Walk-in"
     }),
-    _useState78 = _slicedToArray(_useState77, 2),
-    mlCust = _useState78[0],
-    smlCust = _useState78[1];
+    _useState92 = _slicedToArray(_useState91, 2),
+    mlCust = _useState92[0],
+    smlCust = _useState92[1];
   var setMC = function setMC(k, v) {
     return smlCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
     });
   };
-  var _useState79 = useState(null),
-    _useState80 = _slicedToArray(_useState79, 2),
-    mlMatchedCust = _useState80[0],
-    smlMatchedCust = _useState80[1];
+  var _useState93 = useState(null),
+    _useState94 = _slicedToArray(_useState93, 2),
+    mlMatchedCust = _useState94[0],
+    smlMatchedCust = _useState94[1];
   var onMCNameChange = function onMCNameChange(v) {
     smlCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, {
@@ -20848,11 +21393,13 @@ function MultiLookup(p) {
   }, fc(mlTotal, cur))))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      gap: 8
+      gap: 8,
+      flexWrap: "wrap"
     }
   }, /*#__PURE__*/React.createElement("button", {
     style: S.btn({
       flex: 2,
+      minWidth: 140,
       padding: "12px",
       fontSize: 13
     }),
@@ -20862,6 +21409,23 @@ function MultiLookup(p) {
   }, "\uD83D\uDCB0 Convert to Sale"), /*#__PURE__*/React.createElement("button", {
     style: S.bOut({
       flex: 1,
+      minWidth: 120,
+      padding: "12px",
+      fontSize: 12
+    }),
+    onClick: function onClick() {
+      return printEstimate(mlItems, cur, {
+        eventName: ev === null || ev === void 0 ? void 0 : ev.name,
+        disc: mlDisc,
+        discAmt: mlDiscAmt,
+        markup: mlMarkup,
+        staff: user === null || user === void 0 ? void 0 : user.name
+      });
+    }
+  }, "\uD83D\uDCC4 Estimate Print"), /*#__PURE__*/React.createElement("button", {
+    style: S.bOut({
+      flex: 1,
+      minWidth: 90,
       padding: "12px",
       fontSize: 12
     }),
@@ -21147,6 +21711,9 @@ function LookupTab(p) {
   }, {
     id: "multi",
     l: "📋 MULTI LOOKUP"
+  }, {
+    id: "estimate",
+    l: "📄 ESTIMATE"
   }].map(function (t) {
     return /*#__PURE__*/React.createElement("button", {
       key: t.id,
@@ -21160,9 +21727,9 @@ function LookupTab(p) {
         borderBottom: mlTab === t.id ? "2.5px solid " + GO : "2.5px solid transparent",
         color: mlTab === t.id ? GO : "rgba(245,237,224,0.5)",
         fontFamily: "Lato,sans-serif",
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: mlTab === t.id ? 700 : 500,
-        padding: "9px 7px",
+        padding: "9px 5px",
         cursor: "pointer"
       }
     }, t.l);
@@ -21329,7 +21896,12 @@ function LookupTab(p) {
     leads: p.leads,
     onAddLead: p.onAddLead
   ,
-    onAddLead: onAddLead}));
+    onAddLead: onAddLead}), mlTab === "estimate" && /*#__PURE__*/React.createElement(EstimateLookup, {
+    ev: p.ev,
+    inv: p.inv,
+    cur: p.cur,
+    user: p.user
+  }));
 }
 function InventoryTab(p) {
   var ev = p.ev;
@@ -21381,10 +21953,10 @@ function InventoryTab(p) {
   var sauditLoc = p.saLoc;
   var sauditScanned = p.saScanned;
   var imgTick = p.imgTick || 0;
-  var _useState81 = useState("add"),
-    _useState82 = _slicedToArray(_useState81, 2),
-    upMode = _useState82[0],
-    setUpMode = _useState82[1];
+  var _useState95 = useState("add"),
+    _useState96 = _slicedToArray(_useState95, 2),
+    upMode = _useState96[0],
+    setUpMode = _useState96[1];
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
@@ -21668,10 +22240,10 @@ function InventoryTab(p) {
     return i.st === "available";
   }).reduce(function (s, i) {
     return s + i.fp;
-  }, 0), cur)]].map(function (_ref38) {
-    var _ref39 = _slicedToArray(_ref38, 2),
-      l = _ref39[0],
-      v = _ref39[1];
+  }, 0), cur)]].map(function (_ref39) {
+    var _ref40 = _slicedToArray(_ref39, 2),
+      l = _ref40[0],
+      v = _ref40[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -22021,9 +22593,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref40) {
-    var item = _ref40.item,
-      scannedAt = _ref40.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref41) {
+    var item = _ref41.item,
+      scannedAt = _ref41.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -22157,12 +22729,12 @@ function invBuckets(inv, keyFn) {
     return b.cnt - a.cnt;
   });
 }
-function AnalyticsBucketCard(_ref41) {
-  var title = _ref41.title,
-    data = _ref41.data,
-    cur = _ref41.cur,
-    fc = _ref41.fc,
-    maxVal = _ref41.maxVal;
+function AnalyticsBucketCard(_ref42) {
+  var title = _ref42.title,
+    data = _ref42.data,
+    cur = _ref42.cur,
+    fc = _ref42.fc,
+    maxVal = _ref42.maxVal;
   var mx = maxVal || Math.max.apply(Math, [1].concat(_toConsumableArray(data.map(function (x) {
     return x.cnt;
   }))));
@@ -22255,10 +22827,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref42) {
-    var pct = _ref42.pct,
-      col = _ref42.col,
-      h = _ref42.h;
+  var Bar = function Bar(_ref43) {
+    var pct = _ref43.pct,
+      col = _ref43.col,
+      h = _ref43.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -22318,10 +22890,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref43) {
-    var _ref44 = _slicedToArray(_ref43, 2),
-      d = _ref44[0],
-      v = _ref44[1];
+  }).map(function (_ref44) {
+    var _ref45 = _slicedToArray(_ref44, 2),
+      d = _ref45[0],
+      v = _ref45[1];
     return {
       d: d,
       v: v
@@ -22882,9 +23454,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref45) {
-    var h = _ref45.h,
-      v = _ref45.v;
+  }, hourData.map(function (_ref46) {
+    var h = _ref46.h,
+      v = _ref46.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -23475,10 +24047,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref46, i) {
-    var _ref47 = _slicedToArray(_ref46, 2),
-      src = _ref47[0],
-      cnt = _ref47[1];
+  }, "No leads yet"), srcData.map(function (_ref47, i) {
+    var _ref48 = _slicedToArray(_ref47, 2),
+      src = _ref48[0],
+      cnt = _ref48[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -24162,27 +24734,27 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref48) {
-  var pr = _ref48.pr,
-    allEvents = _ref48.allEvents,
-    appUsers = _ref48.appUsers,
-    onSynced = _ref48.onSynced;
-  var _useState83 = useState(false),
-    _useState84 = _slicedToArray(_useState83, 2),
-    busy = _useState84[0],
-    setBusy = _useState84[1];
-  var _useState85 = useState(getCloudMeta()),
-    _useState86 = _slicedToArray(_useState85, 2),
-    meta = _useState86[0],
-    setMeta = _useState86[1];
-  var _useState87 = useState(""),
-    _useState88 = _slicedToArray(_useState87, 2),
-    lastErr = _useState88[0],
-    setLastErr = _useState88[1];
-  var _useState89 = useState(getCloudPingInfo()),
-    _useState90 = _slicedToArray(_useState89, 2),
-    ping = _useState90[0],
-    setPing = _useState90[1];
+function CloudStoragePanel(_ref49) {
+  var pr = _ref49.pr,
+    allEvents = _ref49.allEvents,
+    appUsers = _ref49.appUsers,
+    onSynced = _ref49.onSynced;
+  var _useState97 = useState(false),
+    _useState98 = _slicedToArray(_useState97, 2),
+    busy = _useState98[0],
+    setBusy = _useState98[1];
+  var _useState99 = useState(getCloudMeta()),
+    _useState100 = _slicedToArray(_useState99, 2),
+    meta = _useState100[0],
+    setMeta = _useState100[1];
+  var _useState101 = useState(""),
+    _useState102 = _slicedToArray(_useState101, 2),
+    lastErr = _useState102[0],
+    setLastErr = _useState102[1];
+  var _useState103 = useState(getCloudPingInfo()),
+    _useState104 = _slicedToArray(_useState103, 2),
+    ping = _useState104[0],
+    setPing = _useState104[1];
   var online = isCloudOnline();
   useEffect(function () {
     cloudFetchData(true).then(function (d) {
@@ -24193,7 +24765,7 @@ function CloudStoragePanel(_ref48) {
   var driveReadOk = ping && ping.driveRead === "ok";
   var ds = ping && ping.driveStatus;
   var syncNow = /*#__PURE__*/function () {
-    var _ref49 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
+    var _ref50 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
       var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
       return _regenerator().w(function (_context6) {
         while (1) switch (_context6.p = _context6.n) {
@@ -24259,7 +24831,7 @@ function CloudStoragePanel(_ref48) {
       }, _callee6, null, [[1, 7, 8, 9]]);
     }));
     return function syncNow() {
-      return _ref49.apply(this, arguments);
+      return _ref50.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -24341,19 +24913,19 @@ function CloudStoragePanel(_ref48) {
     }
   }, "Auto-sync runs in the background \u2014 use this only if another device looks out of date."));
 }
-function CurrencyManager(_ref50) {
-  var cur = _ref50.cur,
-    scur = _ref50.scur,
-    pr = _ref50.pr,
-    onRatesChanged = _ref50.onRatesChanged;
-  var _useState91 = useState(false),
-    _useState92 = _slicedToArray(_useState91, 2),
-    editMode = _useState92[0],
-    setEditMode = _useState92[1];
-  var _useState93 = useState({}),
-    _useState94 = _slicedToArray(_useState93, 2),
-    editRates = _useState94[0],
-    setEditRates = _useState94[1];
+function CurrencyManager(_ref51) {
+  var cur = _ref51.cur,
+    scur = _ref51.scur,
+    pr = _ref51.pr,
+    onRatesChanged = _ref51.onRatesChanged;
+  var _useState105 = useState(false),
+    _useState106 = _slicedToArray(_useState105, 2),
+    editMode = _useState106[0],
+    setEditMode = _useState106[1];
+  var _useState107 = useState({}),
+    _useState108 = _slicedToArray(_useState107, 2),
+    editRates = _useState108[0],
+    setEditRates = _useState108[1];
   var getCurr = function getCurr() {
     try {
       return JSON.parse(localStorage.getItem("vj_curr_rates") || "null") || DEFAULT_CURR;
@@ -24363,10 +24935,10 @@ function CurrencyManager(_ref50) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref51) {
-      var _ref52 = _slicedToArray(_ref51, 2),
-        k = _ref52[0],
-        v = _ref52[1];
+    Object.entries(getCurr()).forEach(function (_ref52) {
+      var _ref53 = _slicedToArray(_ref52, 2),
+        k = _ref53[0],
+        v = _ref53[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -24374,10 +24946,10 @@ function CurrencyManager(_ref50) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref53) {
-      var _ref54 = _slicedToArray(_ref53, 2),
-        k = _ref54[0],
-        v = _ref54[1];
+    Object.entries(getCurr()).forEach(function (_ref54) {
+      var _ref55 = _slicedToArray(_ref54, 2),
+        k = _ref55[0],
+        v = _ref55[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -24447,10 +25019,10 @@ function CurrencyManager(_ref50) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref55) {
-    var _ref56 = _slicedToArray(_ref55, 2),
-      k = _ref56[0],
-      v = _ref56[1];
+  }, Object.entries(rates).map(function (_ref56) {
+    var _ref57 = _slicedToArray(_ref56, 2),
+      k = _ref57[0],
+      v = _ref57[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -24478,10 +25050,10 @@ function CurrencyManager(_ref50) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref57, i, arr) {
-    var _ref58 = _slicedToArray(_ref57, 2),
-      k = _ref58[0],
-      v = _ref58[1];
+  })), Object.entries(rates).map(function (_ref58, i, arr) {
+    var _ref59 = _slicedToArray(_ref58, 2),
+      k = _ref59[0],
+      v = _ref59[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -24686,18 +25258,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref59) {
-    var _ref60 = _slicedToArray(_ref59, 2),
-      v = _ref60[1];
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref60) {
+    var _ref61 = _slicedToArray(_ref60, 2),
+      v = _ref61[1];
     return v;
-  }).map(function (_ref61) {
-    var _ref62 = _slicedToArray(_ref61, 1),
-      k = _ref62[0];
+  }).map(function (_ref62) {
+    var _ref63 = _slicedToArray(_ref62, 1),
+      k = _ref63[0];
     return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref63) {
-    var _ref64 = _slicedToArray(_ref63, 2),
-      l = _ref64[0],
-      v = _ref64[1];
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref64) {
+    var _ref65 = _slicedToArray(_ref64, 2),
+      l = _ref65[0],
+      v = _ref65[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -24741,10 +25313,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref65) {
-    var _ref66 = _slicedToArray(_ref65, 2),
-      l = _ref66[0],
-      v = _ref66[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref66) {
+    var _ref67 = _slicedToArray(_ref66, 2),
+      l = _ref67[0],
+      v = _ref67[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -24812,10 +25384,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref67) {
-    var _ref68 = _slicedToArray(_ref67, 2),
-      l = _ref68[0],
-      v = _ref68[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref68) {
+    var _ref69 = _slicedToArray(_ref68, 2),
+      l = _ref69[0],
+      v = _ref69[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -24881,52 +25453,52 @@ function SalesTab(p) {
   var sinvm = p.sinvm;
   var fc = p.fc;
   var onAddLead = p.onAddLead;
-  var _useState95 = useState(false),
-    _useState96 = _slicedToArray(_useState95, 2),
-    showNewSale = _useState96[0],
-    sShowNewSale = _useState96[1];
-  var _useState97 = useState({
+  var _useState109 = useState(false),
+    _useState110 = _slicedToArray(_useState109, 2),
+    showNewSale = _useState110[0],
+    sShowNewSale = _useState110[1];
+  var _useState111 = useState({
       name: "",
       phone: "",
       email: "",
       company: "",
       source: "Walk-in"
     }),
-    _useState98 = _slicedToArray(_useState97, 2),
-    nsCust = _useState98[0],
-    snsCust = _useState98[1];
-  var _useState99 = useState([]),
-    _useState100 = _slicedToArray(_useState99, 2),
-    nsItems = _useState100[0],
-    snsItems = _useState100[1]; // [{...item, overridePrice: null}]
-  var _useState101 = useState("NEFT"),
-    _useState102 = _slicedToArray(_useState101, 2),
-    nsPayment = _useState102[0],
-    snsPayment = _useState102[1];
-  var _useState103 = useState(""),
-    _useState104 = _slicedToArray(_useState103, 2),
-    nsDisc = _useState104[0],
-    snsDisc = _useState104[1]; // overall discount %
-  var _useState105 = useState(""),
-    _useState106 = _slicedToArray(_useState105, 2),
-    nsMarkup = _useState106[0],
-    snsMarkup = _useState106[1]; // overall markup %
-  var _useState107 = useState("pct"),
-    _useState108 = _slicedToArray(_useState107, 2),
-    nsCCType = _useState108[0],
-    snsCCType = _useState108[1]; // cc surcharge type
-  var _useState109 = useState(""),
-    _useState110 = _slicedToArray(_useState109, 2),
-    nsCCVal = _useState110[0],
-    snsCCVal = _useState110[1]; // cc surcharge value
-  var _useState111 = useState(""),
     _useState112 = _slicedToArray(_useState111, 2),
-    nsSearch = _useState112[0],
-    snsSearch = _useState112[1];
-  var _useState113 = useState(null),
+    nsCust = _useState112[0],
+    snsCust = _useState112[1];
+  var _useState113 = useState([]),
     _useState114 = _slicedToArray(_useState113, 2),
-    nsMatchedCust = _useState114[0],
-    snsMatchedCust = _useState114[1];
+    nsItems = _useState114[0],
+    snsItems = _useState114[1]; // [{...item, overridePrice: null}]
+  var _useState115 = useState("NEFT"),
+    _useState116 = _slicedToArray(_useState115, 2),
+    nsPayment = _useState116[0],
+    snsPayment = _useState116[1];
+  var _useState117 = useState(""),
+    _useState118 = _slicedToArray(_useState117, 2),
+    nsDisc = _useState118[0],
+    snsDisc = _useState118[1]; // overall discount %
+  var _useState119 = useState(""),
+    _useState120 = _slicedToArray(_useState119, 2),
+    nsMarkup = _useState120[0],
+    snsMarkup = _useState120[1]; // overall markup %
+  var _useState121 = useState("pct"),
+    _useState122 = _slicedToArray(_useState121, 2),
+    nsCCType = _useState122[0],
+    snsCCType = _useState122[1]; // cc surcharge type
+  var _useState123 = useState(""),
+    _useState124 = _slicedToArray(_useState123, 2),
+    nsCCVal = _useState124[0],
+    snsCCVal = _useState124[1]; // cc surcharge value
+  var _useState125 = useState(""),
+    _useState126 = _slicedToArray(_useState125, 2),
+    nsSearch = _useState126[0],
+    snsSearch = _useState126[1];
+  var _useState127 = useState(null),
+    _useState128 = _slicedToArray(_useState127, 2),
+    nsMatchedCust = _useState128[0],
+    snsMatchedCust = _useState128[1];
   var setNC = function setNC(k, v) {
     return snsCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
@@ -25860,26 +26432,26 @@ function HistoryTab(p) {
     pr = p.pr,
     user = p.user,
     sinvm = p.sinvm;
-  var _useState115 = useState(""),
-    _useState116 = _slicedToArray(_useState115, 2),
-    search = _useState116[0],
-    setSearch = _useState116[1];
-  var _useState117 = useState("All"),
-    _useState118 = _slicedToArray(_useState117, 2),
-    staffF = _useState118[0],
-    setStaffF = _useState118[1];
-  var _useState119 = useState("All"),
-    _useState120 = _slicedToArray(_useState119, 2),
-    pmF = _useState120[0],
-    setPmF = _useState120[1];
-  var _useState121 = useState("list"),
-    _useState122 = _slicedToArray(_useState121, 2),
-    view = _useState122[0],
-    setView = _useState122[1]; // list | analytics
-  var _useState123 = useState(null),
-    _useState124 = _slicedToArray(_useState123, 2),
-    selCust = _useState124[0],
-    setSelCust = _useState124[1];
+  var _useState129 = useState(""),
+    _useState130 = _slicedToArray(_useState129, 2),
+    search = _useState130[0],
+    setSearch = _useState130[1];
+  var _useState131 = useState("All"),
+    _useState132 = _slicedToArray(_useState131, 2),
+    staffF = _useState132[0],
+    setStaffF = _useState132[1];
+  var _useState133 = useState("All"),
+    _useState134 = _slicedToArray(_useState133, 2),
+    pmF = _useState134[0],
+    setPmF = _useState134[1];
+  var _useState135 = useState("list"),
+    _useState136 = _slicedToArray(_useState135, 2),
+    view = _useState136[0],
+    setView = _useState136[1]; // list | analytics
+  var _useState137 = useState(null),
+    _useState138 = _slicedToArray(_useState137, 2),
+    selCust = _useState138[0],
+    setSelCust = _useState138[1];
   var stf = ["All"].concat(_toConsumableArray(_toConsumableArray(new Set(sales.map(function (s) {
     return s.staff;
   }))).sort()));
@@ -26665,19 +27237,19 @@ function CustomersTab(p) {
     cur = p.cur,
     pr = p.pr,
     syncUp = p.syncUp;
-  var _useState125 = useState(false),
-    _useState126 = _slicedToArray(_useState125, 2),
-    showForm = _useState126[0],
-    sShowForm = _useState126[1];
-  var _useState127 = useState(""),
-    _useState128 = _slicedToArray(_useState127, 2),
-    search = _useState128[0],
-    setSearch = _useState128[1];
-  var _useState129 = useState(null),
-    _useState130 = _slicedToArray(_useState129, 2),
-    selected = _useState130[0],
-    setSelected = _useState130[1];
-  var _useState131 = useState({
+  var _useState139 = useState(false),
+    _useState140 = _slicedToArray(_useState139, 2),
+    showForm = _useState140[0],
+    sShowForm = _useState140[1];
+  var _useState141 = useState(""),
+    _useState142 = _slicedToArray(_useState141, 2),
+    search = _useState142[0],
+    setSearch = _useState142[1];
+  var _useState143 = useState(null),
+    _useState144 = _slicedToArray(_useState143, 2),
+    selected = _useState144[0],
+    setSelected = _useState144[1];
+  var _useState145 = useState({
       name: "",
       phone: "",
       email: "",
@@ -26686,9 +27258,9 @@ function CustomersTab(p) {
       status: "Warm",
       source: "Walk-in"
     }),
-    _useState132 = _slicedToArray(_useState131, 2),
-    form = _useState132[0],
-    setForm = _useState132[1];
+    _useState146 = _slicedToArray(_useState145, 2),
+    form = _useState146[0],
+    setForm = _useState146[1];
   var filtered = leads.filter(function (l) {
     if (!search) return true;
     var q = search.toLowerCase();
@@ -26836,10 +27408,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref69) {
-      var _ref70 = _slicedToArray(_ref69, 2),
-        ic = _ref70[0],
-        v = _ref70[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref70) {
+      var _ref71 = _slicedToArray(_ref70, 2),
+        ic = _ref71[0],
+        v = _ref71[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -27302,198 +27874,198 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref71) {
-  var ev = _ref71.ev,
-    user = _ref71.user,
-    allUsers = _ref71.allUsers,
-    onUsersChange = _ref71.onUsersChange,
-    allEvents = _ref71.allEvents,
-    onSwitch = _ref71.onSwitch,
-    onUpdateEvent = _ref71.onUpdateEvent,
-    onBack = _ref71.onBack,
-    onLogout = _ref71.onLogout,
-    onCloudSync = _ref71.onCloudSync,
-    cloudReady = _ref71.cloudReady;
+function EventERP(_ref72) {
+  var ev = _ref72.ev,
+    user = _ref72.user,
+    allUsers = _ref72.allUsers,
+    onUsersChange = _ref72.onUsersChange,
+    allEvents = _ref72.allEvents,
+    onSwitch = _ref72.onSwitch,
+    onUpdateEvent = _ref72.onUpdateEvent,
+    onBack = _ref72.onBack,
+    onLogout = _ref72.onLogout,
+    onCloudSync = _ref72.onCloudSync,
+    cloudReady = _ref72.cloudReady;
   ev = normalizeEvent(ev);
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents).map(normalizeEvent);
-  var _useState133 = useState("lookup"),
-    _useState134 = _slicedToArray(_useState133, 2),
-    tab = _useState134[0],
-    st = _useState134[1];
-  var _useState135 = useState(ev.inv),
-    _useState136 = _slicedToArray(_useState135, 2),
-    inv = _useState136[0],
-    si = _useState136[1];
-  var _useState137 = useState(ev.sales),
-    _useState138 = _slicedToArray(_useState137, 2),
-    sales = _useState138[0],
-    ssl = _useState138[1];
-  var _useState139 = useState(ev.leads),
-    _useState140 = _slicedToArray(_useState139, 2),
-    leads = _useState140[0],
-    sld = _useState140[1];
-  var _useState141 = useState("USD"),
-    _useState142 = _slicedToArray(_useState141, 2),
-    cur = _useState142[0],
-    scur = _useState142[1];
-  var _useState143 = useState(""),
-    _useState144 = _slicedToArray(_useState143, 2),
-    jc = _useState144[0],
-    sjc = _useState144[1];
-  var _useState145 = useState(null),
-    _useState146 = _slicedToArray(_useState145, 2),
-    det = _useState146[0],
-    sdet = _useState146[1];
-  var _useState147 = useState("single"),
+  var _useState147 = useState("lookup"),
     _useState148 = _slicedToArray(_useState147, 2),
-    mlTab = _useState148[0],
-    smlTab = _useState148[1];
-  var _useState149 = useState(""),
+    tab = _useState148[0],
+    st = _useState148[1];
+  var _useState149 = useState(ev.inv),
     _useState150 = _slicedToArray(_useState149, 2),
-    mlInput = _useState150[0],
-    smlInput = _useState150[1];
-  var _useState151 = useState([]),
+    inv = _useState150[0],
+    si = _useState150[1];
+  var _useState151 = useState(ev.sales),
     _useState152 = _slicedToArray(_useState151, 2),
-    mlItems = _useState152[0],
-    smlItems = _useState152[1];
-  var _useState153 = useState(""),
+    sales = _useState152[0],
+    ssl = _useState152[1];
+  var _useState153 = useState(ev.leads),
     _useState154 = _slicedToArray(_useState153, 2),
-    mlDisc = _useState154[0],
-    smlDisc = _useState154[1];
-  var _useState155 = useState(""),
+    leads = _useState154[0],
+    sld = _useState154[1];
+  var _useState155 = useState("USD"),
     _useState156 = _slicedToArray(_useState155, 2),
-    mlDiscAmt = _useState156[0],
-    smlDiscAmt = _useState156[1];
+    cur = _useState156[0],
+    scur = _useState156[1];
   var _useState157 = useState(""),
     _useState158 = _slicedToArray(_useState157, 2),
-    mlMarkup = _useState158[0],
-    smlMarkup = _useState158[1];
-  var _useState159 = useState([]),
+    jc = _useState158[0],
+    sjc = _useState158[1];
+  var _useState159 = useState(null),
     _useState160 = _slicedToArray(_useState159, 2),
-    mlNF = _useState160[0],
-    smlNF = _useState160[1];
-  var _useState161 = useState(false),
+    det = _useState160[0],
+    sdet = _useState160[1];
+  var _useState161 = useState("single"),
     _useState162 = _slicedToArray(_useState161, 2),
-    mlScan = _useState162[0],
-    smlScan = _useState162[1];
-  var _useState163 = useState(false),
+    mlTab = _useState162[0],
+    smlTab = _useState162[1];
+  var _useState163 = useState(""),
     _useState164 = _slicedToArray(_useState163, 2),
-    showFilter = _useState164[0],
-    sShowFilter = _useState164[1];
-  var _useState165 = useState("All"),
+    mlInput = _useState164[0],
+    smlInput = _useState164[1];
+  var _useState165 = useState([]),
     _useState166 = _slicedToArray(_useState165, 2),
-    fCat = _useState166[0],
-    sfCat = _useState166[1];
-  var _useState167 = useState("All"),
+    mlItems = _useState166[0],
+    smlItems = _useState166[1];
+  var _useState167 = useState(""),
     _useState168 = _slicedToArray(_useState167, 2),
-    fCol = _useState168[0],
-    sfCol = _useState168[1];
-  var _useState169 = useState("All"),
+    mlDisc = _useState168[0],
+    smlDisc = _useState168[1];
+  var _useState169 = useState(""),
     _useState170 = _slicedToArray(_useState169, 2),
-    fMetal = _useState170[0],
-    sfMetal = _useState170[1];
-  var _useState171 = useState("All"),
+    mlDiscAmt = _useState170[0],
+    smlDiscAmt = _useState170[1];
+  var _useState171 = useState(""),
     _useState172 = _slicedToArray(_useState171, 2),
-    fSt = _useState172[0],
-    sfSt = _useState172[1];
-  var _useState173 = useState("All"),
+    mlMarkup = _useState172[0],
+    smlMarkup = _useState172[1];
+  var _useState173 = useState([]),
     _useState174 = _slicedToArray(_useState173, 2),
-    fShape = _useState174[0],
-    sfShape = _useState174[1];
-  var _useState175 = useState(""),
+    mlNF = _useState174[0],
+    smlNF = _useState174[1];
+  var _useState175 = useState(false),
     _useState176 = _slicedToArray(_useState175, 2),
-    fMinTc = _useState176[0],
-    sfMinTc = _useState176[1];
-  var _useState177 = useState(""),
+    mlScan = _useState176[0],
+    smlScan = _useState176[1];
+  var _useState177 = useState(false),
     _useState178 = _slicedToArray(_useState177, 2),
-    fMaxTc = _useState178[0],
-    sfMaxTc = _useState178[1];
-  var _useState179 = useState(""),
+    showFilter = _useState178[0],
+    sShowFilter = _useState178[1];
+  var _useState179 = useState("All"),
     _useState180 = _slicedToArray(_useState179, 2),
-    fMinGw = _useState180[0],
-    sfMinGw = _useState180[1];
-  var _useState181 = useState(""),
+    fCat = _useState180[0],
+    sfCat = _useState180[1];
+  var _useState181 = useState("All"),
     _useState182 = _slicedToArray(_useState181, 2),
-    fMaxGw = _useState182[0],
-    sfMaxGw = _useState182[1];
-  var _useState183 = useState(""),
+    fCol = _useState182[0],
+    sfCol = _useState182[1];
+  var _useState183 = useState("All"),
     _useState184 = _slicedToArray(_useState183, 2),
-    fMinNw = _useState184[0],
-    sfMinNw = _useState184[1];
-  var _useState185 = useState(""),
+    fMetal = _useState184[0],
+    sfMetal = _useState184[1];
+  var _useState185 = useState("All"),
     _useState186 = _slicedToArray(_useState185, 2),
-    fMaxNw = _useState186[0],
-    sfMaxNw = _useState186[1];
-  var _useState187 = useState(""),
+    fSt = _useState186[0],
+    sfSt = _useState186[1];
+  var _useState187 = useState("All"),
     _useState188 = _slicedToArray(_useState187, 2),
-    fMinFp = _useState188[0],
-    sfMinFp = _useState188[1];
+    fShape = _useState188[0],
+    sfShape = _useState188[1];
   var _useState189 = useState(""),
     _useState190 = _slicedToArray(_useState189, 2),
-    fMaxFp = _useState190[0],
-    sfMaxFp = _useState190[1];
-  var _useState191 = useState(false),
+    fMinTc = _useState190[0],
+    sfMinTc = _useState190[1];
+  var _useState191 = useState(""),
     _useState192 = _slicedToArray(_useState191, 2),
-    scan = _useState192[0],
-    sscan = _useState192[1];
-  var _useState193 = useState(null),
+    fMaxTc = _useState192[0],
+    sfMaxTc = _useState192[1];
+  var _useState193 = useState(""),
     _useState194 = _slicedToArray(_useState193, 2),
-    invm = _useState194[0],
-    sinvm = _useState194[1];
-  var _useState195 = useState(false),
+    fMinGw = _useState194[0],
+    sfMinGw = _useState194[1];
+  var _useState195 = useState(""),
     _useState196 = _slicedToArray(_useState195, 2),
-    showSwitch = _useState196[0],
-    ssw = _useState196[1];
-  var _useState197 = useState(false),
+    fMaxGw = _useState196[0],
+    sfMaxGw = _useState196[1];
+  var _useState197 = useState(""),
     _useState198 = _slicedToArray(_useState197, 2),
-    showUser = _useState198[0],
-    ssu = _useState198[1];
-  var _useState199 = useState("stock"),
+    fMinNw = _useState198[0],
+    sfMinNw = _useState198[1];
+  var _useState199 = useState(""),
     _useState200 = _slicedToArray(_useState199, 2),
-    invTab = _useState200[0],
-    sivTab = _useState200[1];
+    fMaxNw = _useState200[0],
+    sfMaxNw = _useState200[1];
   var _useState201 = useState(""),
     _useState202 = _slicedToArray(_useState201, 2),
-    isq = _useState202[0],
-    sisq = _useState202[1];
-  var _useState203 = useState("All"),
+    fMinFp = _useState202[0],
+    sfMinFp = _useState202[1];
+  var _useState203 = useState(""),
     _useState204 = _slicedToArray(_useState203, 2),
-    ist = _useState204[0],
-    sist = _useState204[1];
-  var _useState205 = useState("All"),
+    fMaxFp = _useState204[0],
+    sfMaxFp = _useState204[1];
+  var _useState205 = useState(false),
     _useState206 = _slicedToArray(_useState205, 2),
-    icat = _useState206[0],
-    sicat = _useState206[1];
-  var _useState207 = useState("Exhibition"),
+    scan = _useState206[0],
+    sscan = _useState206[1];
+  var _useState207 = useState(null),
     _useState208 = _slicedToArray(_useState207, 2),
-    auditLoc = _useState208[0],
-    saLoc = _useState208[1];
-  var _useState209 = useState([]),
+    invm = _useState208[0],
+    sinvm = _useState208[1];
+  var _useState209 = useState(false),
     _useState210 = _slicedToArray(_useState209, 2),
-    auditScanned = _useState210[0],
-    saScanned = _useState210[1];
-  var _useState211 = useState(ev.audits || []),
+    showSwitch = _useState210[0],
+    ssw = _useState210[1];
+  var _useState211 = useState(false),
     _useState212 = _slicedToArray(_useState211, 2),
-    audits = _useState212[0],
-    sAudits = _useState212[1];
-  var _useState213 = useState(ev.lookupHistory),
+    showUser = _useState212[0],
+    ssu = _useState212[1];
+  var _useState213 = useState("stock"),
     _useState214 = _slicedToArray(_useState213, 2),
-    lookupHistory = _useState214[0],
-    sLookupHistory = _useState214[1];
-  var _useState215 = useState(0),
+    invTab = _useState214[0],
+    sivTab = _useState214[1];
+  var _useState215 = useState(""),
     _useState216 = _slicedToArray(_useState215, 2),
-    imgTick = _useState216[0],
-    sImgTick = _useState216[1];
+    isq = _useState216[0],
+    sisq = _useState216[1];
   var _useState217 = useState("All"),
     _useState218 = _slicedToArray(_useState217, 2),
-    hstaff = _useState218[0],
-    shs = _useState218[1];
-  var _useState219 = useState("overview"),
+    ist = _useState218[0],
+    sist = _useState218[1];
+  var _useState219 = useState("All"),
     _useState220 = _slicedToArray(_useState219, 2),
-    atab = _useState220[0],
-    sat = _useState220[1];
+    icat = _useState220[0],
+    sicat = _useState220[1];
+  var _useState221 = useState("Exhibition"),
+    _useState222 = _slicedToArray(_useState221, 2),
+    auditLoc = _useState222[0],
+    saLoc = _useState222[1];
+  var _useState223 = useState([]),
+    _useState224 = _slicedToArray(_useState223, 2),
+    auditScanned = _useState224[0],
+    saScanned = _useState224[1];
+  var _useState225 = useState(ev.audits || []),
+    _useState226 = _slicedToArray(_useState225, 2),
+    audits = _useState226[0],
+    sAudits = _useState226[1];
+  var _useState227 = useState(ev.lookupHistory),
+    _useState228 = _slicedToArray(_useState227, 2),
+    lookupHistory = _useState228[0],
+    sLookupHistory = _useState228[1];
+  var _useState229 = useState(0),
+    _useState230 = _slicedToArray(_useState229, 2),
+    imgTick = _useState230[0],
+    sImgTick = _useState230[1];
+  var _useState231 = useState("All"),
+    _useState232 = _slicedToArray(_useState231, 2),
+    hstaff = _useState232[0],
+    shs = _useState232[1];
+  var _useState233 = useState("overview"),
+    _useState234 = _slicedToArray(_useState233, 2),
+    atab = _useState234[0],
+    sat = _useState234[1];
   useEffect(function () {
     var nextEv = normalizeEvent(ev);
     si(nextEv.inv);
@@ -28631,34 +29203,34 @@ function EventERP(_ref71) {
   })))));
 }
 function App() {
-  var _useState221 = useState(null),
-    _useState222 = _slicedToArray(_useState221, 2),
-    user = _useState222[0],
-    su = _useState222[1];
-  var _useState223 = useState([]),
-    _useState224 = _slicedToArray(_useState223, 2),
-    events = _useState224[0],
-    sevents = _useState224[1];
-  var _useState225 = useState(loadUsers),
-    _useState226 = _slicedToArray(_useState225, 2),
-    appUsers = _useState226[0],
-    sappUsers = _useState226[1];
-  var _useState227 = useState(false),
-    _useState228 = _slicedToArray(_useState227, 2),
-    dataReady = _useState228[0],
-    setDataReady = _useState228[1];
-  var _useState229 = useState(false),
-    _useState230 = _slicedToArray(_useState229, 2),
-    cloudReady = _useState230[0],
-    setCloudReady = _useState230[1];
-  var _useState231 = useState(null),
-    _useState232 = _slicedToArray(_useState231, 2),
-    activeEv = _useState232[0],
-    sae = _useState232[1];
-  var _useState233 = useState(null),
-    _useState234 = _slicedToArray(_useState233, 2),
-    manageEv = _useState234[0],
-    smev = _useState234[1];
+  var _useState235 = useState(null),
+    _useState236 = _slicedToArray(_useState235, 2),
+    user = _useState236[0],
+    su = _useState236[1];
+  var _useState237 = useState([]),
+    _useState238 = _slicedToArray(_useState237, 2),
+    events = _useState238[0],
+    sevents = _useState238[1];
+  var _useState239 = useState(loadUsers),
+    _useState240 = _slicedToArray(_useState239, 2),
+    appUsers = _useState240[0],
+    sappUsers = _useState240[1];
+  var _useState241 = useState(false),
+    _useState242 = _slicedToArray(_useState241, 2),
+    dataReady = _useState242[0],
+    setDataReady = _useState242[1];
+  var _useState243 = useState(false),
+    _useState244 = _slicedToArray(_useState243, 2),
+    cloudReady = _useState244[0],
+    setCloudReady = _useState244[1];
+  var _useState245 = useState(null),
+    _useState246 = _slicedToArray(_useState245, 2),
+    activeEv = _useState246[0],
+    sae = _useState246[1];
+  var _useState247 = useState(null),
+    _useState248 = _slicedToArray(_useState247, 2),
+    manageEv = _useState248[0],
+    smev = _useState248[1];
   var dark = useDark();
   var cloudSyncRef = useRef(null);
   var autoSyncRef = useRef(null);
@@ -28675,16 +29247,16 @@ function App() {
     appUsersRef.current = appUsers;
   }, [appUsers]);
   var runCloudSave = /*#__PURE__*/function () {
-    var _ref72 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
-      var _ref73,
-        _ref73$silent,
+    var _ref73 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
+      var _ref74,
+        _ref74$silent,
         silent,
         r,
         _args7 = arguments;
       return _regenerator().w(function (_context7) {
         while (1) switch (_context7.n) {
           case 0:
-            _ref73 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref73$silent = _ref73.silent, silent = _ref73$silent === void 0 ? true : _ref73$silent;
+            _ref74 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref74$silent = _ref74.silent, silent = _ref74$silent === void 0 ? true : _ref74$silent;
             _context7.n = 1;
             return flushCloudSync(snap || eventsRef.current, usersSnap || appUsersRef.current, deleted || [], {
               silent: silent
@@ -28719,13 +29291,13 @@ function App() {
       }, _callee7);
     }));
     return function runCloudSave(_x54, _x55, _x56) {
-      return _ref72.apply(this, arguments);
+      return _ref73.apply(this, arguments);
     };
   }();
   var runAutoSyncCycle = /*#__PURE__*/function () {
-    var _ref74 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
-      var _ref75,
-        _ref75$silent,
+    var _ref75 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
+      var _ref76,
+        _ref76$silent,
         silent,
         d,
         cloudVer,
@@ -28737,7 +29309,7 @@ function App() {
       return _regenerator().w(function (_context8) {
         while (1) switch (_context8.p = _context8.n) {
           case 0:
-            _ref75 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref75$silent = _ref75.silent, silent = _ref75$silent === void 0 ? true : _ref75$silent;
+            _ref76 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref76$silent = _ref76.silent, silent = _ref76$silent === void 0 ? true : _ref76$silent;
             if (!(!dataReady || !cloudReady || cloudSyncBusyRef.current)) {
               _context8.n = 1;
               break;
@@ -28787,17 +29359,17 @@ function App() {
       }, _callee8, null, [[2,, 6, 7]]);
     }));
     return function runAutoSyncCycle() {
-      return _ref74.apply(this, arguments);
+      return _ref75.apply(this, arguments);
     };
   }();
   var scheduleCloudSave = function scheduleCloudSave() {
     var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 400;
     var snapshot = arguments.length > 1 ? arguments[1] : undefined;
-    var _ref76 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-      _ref76$silent = _ref76.silent,
-      silent = _ref76$silent === void 0 ? true : _ref76$silent,
-      _ref76$notify = _ref76.notify,
-      notify = _ref76$notify === void 0 ? false : _ref76$notify;
+    var _ref77 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      _ref77$silent = _ref77.silent,
+      silent = _ref77$silent === void 0 ? true : _ref77$silent,
+      _ref77$notify = _ref77.notify,
+      notify = _ref77$notify === void 0 ? false : _ref77$notify;
     localDirtyRef.current = true;
     if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
     cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9() {
@@ -29032,7 +29604,7 @@ function App() {
     var ev = events.find(function (e) {
       return e.id === id;
     });
-    if (!ev) return;
+    if (!ev || isPermanentEvent(ev)) return;
     var record = {
       id: ev.id,
       name: ev.name,
@@ -29113,7 +29685,7 @@ function App() {
     }
   }, "Loading\u2026")));
   var handleLogin = /*#__PURE__*/function () {
-    var _ref80 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
+    var _ref81 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
       var d;
       return _regenerator().w(function (_context10) {
         while (1) switch (_context10.n) {
@@ -29136,7 +29708,7 @@ function App() {
       }, _callee10);
     }));
     return function handleLogin(_x57) {
-      return _ref80.apply(this, arguments);
+      return _ref81.apply(this, arguments);
     };
   }();
   var handleCloudSync = function handleCloudSync(mergedEvents, mergedUsers) {

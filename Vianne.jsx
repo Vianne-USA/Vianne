@@ -1,6 +1,12 @@
 import{useState,useRef,useEffect}from"react";
 const _imgListeners=[];
 function notifyImagesChanged(){_imgListeners.forEach(fn=>{try{fn();}catch(e){}});}
+function sl(s){return String(s||"").toLowerCase();}
+function itemMatchesQ(i,q){if(!q)return true;const ql=sl(q);return sl(i.id).includes(ql)||sl(i.col).includes(ql)||sl(i.cat).includes(ql)||sl(i.metal).includes(ql)||sl(i.style).includes(ql);}
+function normalizeEvent(ev){
+  if(!ev)return ev;
+  return{...ev,inv:Array.isArray(ev.inv)?ev.inv:[],sales:Array.isArray(ev.sales)?ev.sales:[],leads:Array.isArray(ev.leads)?ev.leads:[],audits:Array.isArray(ev.audits)?ev.audits:[],memos:Array.isArray(ev.memos)?ev.memos:[],invHistory:Array.isArray(ev.invHistory)?ev.invHistory:[],lookupHistory:Array.isArray(ev.lookupHistory)?ev.lookupHistory:[]};
+}
 function isUsableImgSrc(src){const s=String(src||"").trim();return s&&(s.startsWith("data:image/")||s.startsWith("blob:")||s.startsWith("/api/product-images")||/^https?:\/\//i.test(s));}
 function driveImgUrl(eventId,id){return"/api/product-images?eventId="+encodeURIComponent(eventId)+"&id="+encodeURIComponent(String(id||"").toUpperCase());}
 const getImg=(item)=>{if(!item)return "";return resolveItemImage(item.id,item);};
@@ -775,8 +781,10 @@ function mimeForFileName(name){
   if(n.endsWith(".csv"))return "text/csv";
   return "application/octet-stream";
 }
+const MAX_INV_CLOUD_BYTES=12*1024*1024;
 async function queueInventoryFileForDrive(eventId,file){
   if(!file||!eventId)return;
+  if(file.size>MAX_INV_CLOUD_BYTES){console.warn("Skip Drive xlsx queue — file too large for cloud API",file.name,file.size);return;}
   try{
     const contentBase64=await fileToBase64(file);
     if(!contentBase64)return;
@@ -876,15 +884,25 @@ async function cloudLoad(){
 let _lastCloudError="";
 function getLastCloudError(){return _lastCloudError;}
 async function cloudSave(events,users,deletedEvents){
-  if(!_cloudOnline){const ping=await cloudFetchData();if(!ping)return null;}
+  if(!_cloudOnline){const ping=await cloudFetchData();if(!ping){_lastCloudError="Could not reach company cloud.";return null;}}
   const currency=getCloudCurrency();
-  let inventoryFiles=takePendingInvFiles();
+  let inventoryFiles=takePendingInvFiles().filter(f=>{
+    const n=(f&&f.contentBase64?f.contentBase64.length:0);
+    if(n>MAX_INV_CLOUD_BYTES*1.4){console.warn("Dropping oversized pending inventory file from cloud save",f&&f.fileName);return false;}
+    return true;
+  });
   const trySave=async(files)=>{
     const body={events,users,currency,deletedEvents:deletedEvents||[],inventoryFiles:files||[]};
-    const r=await fetch("/api/data",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-    const d=await r.json();
+    let r;
+    try{r=await fetch("/api/data",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});}
+    catch(e){_lastCloudError="Network error saving to cloud.";throw e;}
+    let d={};
+    try{d=await r.json();}catch(e){
+      _lastCloudError=r.status===413?"Upload too large — price list Excel is too big to attach to cloud save. Photos sync separately; inventory data still saves.":("Cloud save failed (HTTP "+r.status+").");
+      throw e;
+    }
     if(!r.ok||!d.ok){
-      const msg=d.error||"Save failed";
+      const msg=d.error||("Save failed (HTTP "+r.status+")");
       _lastCloudError=msg;
       throw new Error(msg);
     }
@@ -897,7 +915,11 @@ async function cloudSave(events,users,deletedEvents){
     if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
     return d;
   }catch(e){
-    if(inventoryFiles.length)_pendingInvFiles.unshift(...inventoryFiles);
+    if(inventoryFiles.length)_pendingInvFiles.unshift(...inventoryFiles.filter(f=>{
+      const n=(f&&f.contentBase64?f.contentBase64.length:0);
+      return n<=MAX_INV_CLOUD_BYTES*1.4;
+    }));
+    if(!_lastCloudError)_lastCloudError=String(e&&e.message?e.message:"Could not save to company cloud.");
     console.warn("Cloud save",e);
     return null;
   }
@@ -1209,7 +1231,7 @@ function rowToItem(row,excelRow){
   if(!id||id.length<3)return null;
   if(["UNIQUE CODE","JEWEL CODE","JEWEL","CODE","ID","SKU","STYLE CODE"].includes(id))return null;
   const design=String(xlVal(row,["Design","Category","Cat","Product Type"])||"Jewellery").trim();
-  const col=String(xlVal(row,["Coll'n","Collection","Col","Collection Name"])||"").trim();
+  const col=String(xlVal(row,["Coll'n","Collection","Col","Collection Name"])||"—").trim()||"—";
   const metal=String(xlVal(row,["KT/Col","KT Col","Metal","Metal Type"])||"").trim();
   const stoneShape=String(xlVal(row,["Stone Shape","Shape"])||"").trim();
   const clarity=String(xlVal(row,["Color/Clarity","Color Clarity","Clarity"])||"").trim();
@@ -3943,7 +3965,7 @@ function SalesTab(p){
       else snsMatchedCust(null);
     }
   };
-  const nsAvail=inv.filter(i=>i.st==="available"&&(!nsSearch||i.id.toLowerCase().includes(nsSearch.toLowerCase())||i.cat.toLowerCase().includes(nsSearch.toLowerCase())));
+  const nsAvail=inv.filter(i=>i.st==="available"&&(!nsSearch||itemMatchesQ(i,nsSearch)));
   const confirmNewSale=()=>{
     if(!nsCust.name.trim()||!nsCust.phone.trim()||!nsCust.email.trim()){
       const missing=[];
@@ -4605,13 +4627,14 @@ function CustomersTab(p){
 }
 
 function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEvent,onBack,onLogout,onCloudSync,cloudReady}){
+  ev=normalizeEvent(ev);
   const pr=gp(user.role, user.perms);
   const users=allUsers;
-  const accessibleEvents=filterEventsForUser(user,allEvents);
+  const accessibleEvents=filterEventsForUser(user,allEvents).map(normalizeEvent);
   const [tab,st]=useState("lookup");
   const [inv,si]=useState(ev.inv);
   const [sales,ssl]=useState(ev.sales);
-  const [leads,sld]=useState(ev.leads||[]);
+  const [leads,sld]=useState(ev.leads);
   const [cur,scur]=useState("USD");
   const [jc,sjc]=useState("");
   const [det,sdet]=useState(null);
@@ -4648,23 +4671,23 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const [auditLoc,saLoc]=useState("Exhibition");
   const [auditScanned,saScanned]=useState([]);
   const [audits,sAudits]=useState(ev.audits||[]);
-  const [lookupHistory,sLookupHistory]=useState(ev.lookupHistory||[]);
+  const [lookupHistory,sLookupHistory]=useState(ev.lookupHistory);
   const [imgTick,sImgTick]=useState(0);
+  const [hstaff,shs]=useState("All");
+  const [atab,sat]=useState("overview");
   useEffect(()=>{
-    const nextInv=ev.inv||[];
-    si(nextInv);
-    ssl(ev.sales||[]);
-    sld(ev.leads||[]);
-    sAudits(ev.audits||[]);
-    sLookupHistory(ev.lookupHistory||[]);
-    sdet(d=>d?invItem(nextInv,d):null);
+    const nextEv=normalizeEvent(ev);
+    si(nextEv.inv);
+    ssl(nextEv.sales);
+    sld(nextEv.leads);
+    sAudits(nextEv.audits);
+    sLookupHistory(nextEv.lookupHistory);
+    sdet(d=>d?invItem(nextEv.inv,d):null);
   },[ev.id,ev.localUpdatedAt,ev.syncedAt]);
   useEffect(()=>{
     if(cloudReady===false)return;
-    ensureEventInvImages(ev).then(n=>{if(n)sImgTick(x=>x+1);});
+    ensureEventInvImages(ev).then(n=>{if(n)sImgTick(x=>x+1);}).catch(e=>console.warn("Event images",e));
   },[cloudReady,ev.id,ev.syncedAt,ev.localUpdatedAt,(ev.inv||[]).length,(ev.invHistory||[]).map(h=>h.driveFileId).join(",")]);
-  const [hstaff,shs]=useState("All");
-  const [atab,sat]=useState("overview");
   const syncUp=(ni,ns,nl,na,nlh)=>onUpdateEvent({...ev,inv:ni||inv,sales:ns||sales,leads:nl||leads,audits:na||audits,lookupHistory:nlh!==undefined?nlh:lookupHistory});
   const recordLookup=(item,type,query)=>{
     if(!item)return null;
@@ -4717,13 +4740,13 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const allSt=["All","available","sold","reserved"];
 
   // Apply all filters to get filtered lookup results
-  const applyFilters=(items,q)=>items.filter(i=>(fCat==="All"||i.cat===fCat)&&(fCol==="All"||i.col===fCol)&&(fMetal==="All"||i.metal===fMetal)&&(fSt==="All"||i.st===fSt)&&(fShape==="All"||(i.stones||[]).some(s=>s.sh===fShape))&&(!fMinTc||i.tc>=Number(fMinTc))&&(!fMaxTc||i.tc<=Number(fMaxTc))&&(!fMinGw||i.gw>=Number(fMinGw))&&(!fMaxGw||i.gw<=Number(fMaxGw))&&(!fMinNw||i.nw>=Number(fMinNw))&&(!fMaxNw||i.nw<=Number(fMaxNw))&&(!fMinFp||i.fp>=Number(fMinFp))&&(!fMaxFp||i.fp<=Number(fMaxFp))&&(!q||i.id.toLowerCase().includes(q.toLowerCase())||i.col.toLowerCase().includes(q.toLowerCase())||i.cat.toLowerCase().includes(q.toLowerCase())||i.metal.toLowerCase().includes(q.toLowerCase())||(i.style&&i.style.toLowerCase().includes(q.toLowerCase()))));
+  const applyFilters=(items,q)=>items.filter(i=>(fCat==="All"||i.cat===fCat)&&(fCol==="All"||i.col===fCol)&&(fMetal==="All"||i.metal===fMetal)&&(fSt==="All"||i.st===fSt)&&(fShape==="All"||(i.stones||[]).some(s=>s.sh===fShape))&&(!fMinTc||i.tc>=Number(fMinTc))&&(!fMaxTc||i.tc<=Number(fMaxTc))&&(!fMinGw||i.gw>=Number(fMinGw))&&(!fMaxGw||i.gw<=Number(fMaxGw))&&(!fMinNw||i.nw>=Number(fMinNw))&&(!fMaxNw||i.nw<=Number(fMaxNw))&&(!fMinFp||i.fp>=Number(fMinFp))&&(!fMaxFp||i.fp<=Number(fMaxFp))&&(!q||itemMatchesQ(i,q)));
   const activeFilters=[fCat!=="All",fCol!=="All",fMetal!=="All",fSt!=="All",fShape!=="All",fMinTc,fMaxTc,fMinGw,fMaxGw,fMinNw,fMaxNw,fMinFp,fMaxFp].filter(Boolean).length;
   const resetFilters=()=>{sfCat("All");sfCol("All");sfMetal("All");sfSt("All");sfShape("All");sfMinTc("");sfMaxTc("");sfMinGw("");sfMaxGw("");sfMinNw("");sfMaxNw("");sfMinFp("");sfMaxFp("");};
 
   const cats=["All",...new Set(inv.map(i=>i.cat))];
   const deadStock=inv.filter(i=>i.st==="available"&&i.views===0&&i.searches===0);
-  const fi=inv.filter(i=>!isq||i.id.toLowerCase().includes(isq.toLowerCase())||i.cat.toLowerCase().includes(isq.toLowerCase())||i.col.toLowerCase().includes(isq.toLowerCase())||i.metal.toLowerCase().includes(isq.toLowerCase()));
+  const fi=inv.filter(i=>!isq||itemMatchesQ(i,isq));
   const fh=sales.filter(s=>hstaff==="All"||s.staff===hstaff);
   const totalRev=sales.reduce((s,x)=>s+x.total,0);
   const stf=[...new Set(sales.map(s=>s.staff))];
@@ -4786,7 +4809,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
                   <div style={{display:"flex",gap:6,alignItems:"center"}}><Bdg t={e.status==="active"?"gr":"m"} ch={e.status}/>{e.id===ev.id&&<Bdg t="g" ch="Current"/>}</div>
                 </div>
                 <div style={{display:"flex",gap:12,marginTop:7,fontSize:10,color:T3}}>
-                  <span>📦 {e.inv.length} items</span><span>💰 {e.sales.length} sales</span><span>🎯 {e.leads.length} leads</span>
+                  <span>📦 {(e.inv||[]).length} items</span><span>💰 {(e.sales||[]).length} sales</span><span>🎯 {(e.leads||[]).length} leads</span>
                 </div>
               </div>
             ))}
@@ -5022,7 +5045,7 @@ export default function App(){
     }else{
     return (<div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:GD}}><ToastContainer/><EventERP
       key={activeEv.id}
-      ev={events.find(e=>e.id===activeEv.id)||activeEv}
+      ev={normalizeEvent(events.find(e=>e.id===activeEv.id)||activeEv)}
       user={user} allUsers={appUsers} onUsersChange={updateUsers}
       allEvents={events}
       cloudReady={cloudReady}

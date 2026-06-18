@@ -123,6 +123,7 @@ async function syncImagesToDrive(eventId,imgMap){
     }catch(e){console.warn("Drive image sync",e);}
     await new Promise(res=>setTimeout(res,40));
   }
+  if(synced)toast.success("Photos synced to cloud",synced+" product photo(s) — visible on all devices");
   return synced;
 }
 function applyDriveImageUrls(eventId,ids){
@@ -255,6 +256,13 @@ function ItemThumb({item,size=40,style={}}){
   const box={width:size,height:size,borderRadius:size>36?10:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center",...style};
   if(src)return <img src={src} alt="" loading="lazy" decoding="async" onError={()=>setBroken(true)} style={{width:size,height:size,objectFit:"cover",display:"block"}}/>;
   return <div style={box}><span style={{fontSize:Math.round(size*0.5)}}>{item?.em||"💎"}</span></div>;
+}
+function ProductHeroImg({item,style={}}){
+  const [broken,setBroken]=useState(false);
+  useEffect(()=>{setBroken(false);},[item?.id]);
+  const src=broken?"":getImg(item);
+  if(!src)return <span style={{fontSize:64}}>{item?.em||"💎"}</span>;
+  return <img src={src} alt="" loading="lazy" decoding="async" onError={()=>setBroken(true)} style={style}/>;
 }
 const INV_FAIL="Inventory adding failed";
 const G="#1E5C45",GD="#163D2E",GO="#C9A84C",CR="#F5EDE0",WH="#FFFFFF",CRD="#F5EDE0",CRD2="#E8DCCB",INP="#FBF5E8";
@@ -1744,7 +1752,7 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
           <span style={{background:"rgba(255,255,255,0.15)",color:CR,border:"1px solid rgba(255,255,255,0.2)",borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:700}}>{item.cat}</span>
         </div>
         <div style={{background:"rgba(0,0,0,0.2)",borderRadius:10,height:140,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:12}}>
-          {getImg(item)?<img src={getImg(item)} alt="" loading="lazy" decoding="async" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:64}}>{item.em}</span>}
+          {getImg(item)?<ProductHeroImg item={item} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:64}}>{item.em}</span>}
         </div>
         <div style={{fontSize:9,color:"rgba(245,237,224,0.5)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:3}}>FINAL SALE PRICE</div>
         <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:pr.sF?4:10}}>

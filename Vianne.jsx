@@ -3,9 +3,44 @@ const _imgListeners=[];
 function notifyImagesChanged(){_imgListeners.forEach(fn=>{try{fn();}catch(e){}});}
 function sl(s){return String(s||"").toLowerCase();}
 function itemMatchesQ(i,q){if(!q)return true;const ql=sl(q);return sl(i.id).includes(ql)||sl(i.col).includes(ql)||sl(i.cat).includes(ql)||sl(i.metal).includes(ql)||sl(i.style).includes(ql);}
+function normalizeInvItem(it){
+  if(!it||!it.id)return null;
+  return{
+    ...it,
+    id:String(it.id).toUpperCase(),
+    cat:it.cat!=null?String(it.cat):"",
+    col:it.col!=null?String(it.col):"—",
+    metal:it.metal!=null?String(it.metal):"",
+    style:it.style!=null?String(it.style):"",
+    sz:it.sz!=null?String(it.sz):"Std",
+    fp:Number(it.fp)||0,
+    st:it.st||"available",
+    stones:Array.isArray(it.stones)?it.stones:[],
+    em:it.em||"💎",
+    loc:it.loc||"Exhibition",
+    views:Number(it.views)||0,
+    searches:Number(it.searches)||0,
+  };
+}
 function normalizeEvent(ev){
   if(!ev)return ev;
-  return{...ev,inv:Array.isArray(ev.inv)?ev.inv:[],sales:Array.isArray(ev.sales)?ev.sales:[],leads:Array.isArray(ev.leads)?ev.leads:[],audits:Array.isArray(ev.audits)?ev.audits:[],memos:Array.isArray(ev.memos)?ev.memos:[],invHistory:Array.isArray(ev.invHistory)?ev.invHistory:[],lookupHistory:Array.isArray(ev.lookupHistory)?ev.lookupHistory:[]};
+  return{...ev,inv:Array.isArray(ev.inv)?ev.inv.map(normalizeInvItem).filter(Boolean):[],sales:Array.isArray(ev.sales)?ev.sales:[],leads:Array.isArray(ev.leads)?ev.leads:[],audits:Array.isArray(ev.audits)?ev.audits:[],memos:Array.isArray(ev.memos)?ev.memos:[],invHistory:Array.isArray(ev.invHistory)?ev.invHistory:[],lookupHistory:Array.isArray(ev.lookupHistory)?ev.lookupHistory:[]};
+}
+async function clearAllAppData(){
+  try{
+    ["vj_events","vj_users","vj_cloud_meta","vj_deleted_events","vj_curr_rates","vj_dark","vj_bio_user","vj_bio_key"].forEach(k=>localStorage.removeItem(k));
+    sessionStorage.clear();
+    if(typeof indexedDB!=="undefined"){
+      await new Promise(res=>{
+        const req=indexedDB.deleteDatabase("vianne_v1");
+        req.onsuccess=()=>res();
+        req.onerror=()=>res();
+        req.onblocked=()=>res();
+      });
+    }
+    if(window.VJ_IMG)window.VJ_IMG={};
+    if(window.IMGS)window.IMGS={};
+  }catch(e){console.warn("Clear app data",e);}
 }
 const NY_OFFICE_ID="EVNYOFC";
 function isPermanentEvent(ev){return!!(ev&&(ev.id===NY_OFFICE_ID||ev.permanent));}
@@ -634,9 +669,11 @@ function slimEventsForStorage(evts){
   return(evts||[]).map(ev=>({
     ...ev,
     inv:(ev.inv||[]).map(it=>{
-      if(!it||!it.img||/^https?:\/\//i.test(it.img))return it;
-      const{img,...rest}=it;
-      return rest;
+      if(!it)return it;
+      const slim=normalizeInvItem(it);
+      if(!slim)return it;
+      const {img,xl,...rest}=slim;
+      return img&&/^https?:\/\//i.test(img)?{...rest,img}:rest;
     }),
   }));
 }
@@ -4651,6 +4688,9 @@ function CustomersTab(p){
     const q=search.toLowerCase();
     return(l.name&&l.name.toLowerCase().includes(q))||(l.phone&&l.phone.includes(q))||(l.company&&l.company&&l.company.toLowerCase().includes(q));
   });
+  useEffect(()=>{
+    if(selected&&!leads.find(l=>l.id===selected))setSelected(null);
+  },[selected,leads]);
   const addCustomer=()=>{
     if(!form.name.trim())return;
     const newC={id:uid("LD"),name:form.name.trim(),phone:form.phone.trim(),email:form.email.trim(),company:form.company.trim(),notes:form.notes.trim(),status:form.status,source:form.source,contact:form.email.trim(),created:dstr()};
@@ -4663,7 +4703,7 @@ function CustomersTab(p){
   const upd=(f,v)=>setForm(p=>({...p,[f]:v}));
   if(selected){
     const cust=leads.find(l=>l.id===selected);
-    if(!cust){setSelected(null);return null;}
+    if(!cust)return null;
     const cs=sales.filter(s=>s.custName===cust.name);
     const spent=cs.reduce((s,x)=>s+x.total,0);
     return(
@@ -5232,7 +5272,7 @@ function App(){
 }
 
 class ErrorBoundary extends React.Component{
-  constructor(p){super(p);this.state={hasError:false};}
+  constructor(p){super(p);this.state={hasError:false,clearing:false};}
   static getDerivedStateFromError(){return{hasError:true};}
   componentDidCatch(err,info){console.error("Vianne crash",err,info);}
   render(){
@@ -5240,8 +5280,8 @@ class ErrorBoundary extends React.Component{
       return(
         <div style={{minHeight:"100dvh",background:GD,padding:24,fontFamily:"Lato,sans-serif",color:CR,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",gap:14}}>
           <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G}}>Vianne Jewels</div>
-          <p style={{fontSize:13,maxWidth:360,lineHeight:1.5}}>Something went wrong. Hard refresh (Cmd+Shift+R) usually fixes it. If not, clear saved data below.</p>
-          <button type="button" onClick={()=>{try{localStorage.removeItem("vj_events");sessionStorage.clear();}catch(e){}location.reload();}} style={S.btn({width:"auto",padding:"11px 18px"})}>Clear saved data & reload</button>
+          <p style={{fontSize:13,maxWidth:360,lineHeight:1.5}}>Something went wrong — usually caused by old cached data in your browser. Clear saved data below, then hard refresh.</p>
+          <button type="button" disabled={this.state.clearing} onClick={async()=>{this.setState({clearing:true});await clearAllAppData();location.reload();}} style={S.btn({width:"auto",padding:"11px 18px"})}>{this.state.clearing?"Clearing…":"Clear saved data & reload"}</button>
         </div>
       );
     }

@@ -16005,12 +16005,12 @@ function EventHub(_ref18) {
   }].concat(_toConsumableArray(pr.vA ? [{
     l: "Total Sales",
     v: visibleEvents.reduce(function (s, e) {
-      return s + e.sales.length;
+      return s + (e.sales || []).length;
     }, 0)
   }, {
     l: "Revenue",
     v: "$" + Math.round(visibleEvents.reduce(function (s, e) {
-      return s + e.sales.reduce(function (ss, x) {
+      return s + (e.sales || []).reduce(function (ss, x) {
         return ss + x.total;
       }, 0);
     }, 0) / 1000) + "k"
@@ -16599,7 +16599,7 @@ function ManageEvent(_ref21) {
       marginBottom: 10,
       lineHeight: 1.5
     }
-  }, "This will permanently remove the event and all its inventory, sales (", ev.sales.length, " records), customers and audit data. This cannot be undone."), /*#__PURE__*/React.createElement("div", {
+  }, "This will permanently remove the event and all its inventory, sales (", (ev.sales || []).length, " records), customers and audit data. This cannot be undone."), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8

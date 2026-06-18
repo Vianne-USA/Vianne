@@ -1361,7 +1361,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
     </div>
     <div className="v-content">
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9,marginBottom:16}}>
-        {[{l:"Events",v:visibleEvents.length},...(pr.vA?[{l:"Total Sales",v:visibleEvents.reduce((s,e)=>s+e.sales.length,0)},{l:"Revenue",v:"$"+Math.round(visibleEvents.reduce((s,e)=>s+e.sales.reduce((ss,x)=>ss+x.total,0),0)/1000)+"k"}]:[])].map(x=>(
+        {[{l:"Events",v:visibleEvents.length},...(pr.vA?[{l:"Total Sales",v:visibleEvents.reduce((s,e)=>s+(e.sales||[]).length,0)},{l:"Revenue",v:"$"+Math.round(visibleEvents.reduce((s,e)=>s+(e.sales||[]).reduce((ss,x)=>ss+x.total,0),0)/1000)+"k"}]:[])].map(x=>(
           <div key={x.l} style={{background:WH,borderRadius:11,padding:"12px 8px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.08)"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:3,textTransform:"uppercase"}}>{x.l}</div></div>
         ))}
       </div>
@@ -1505,7 +1505,7 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
             <div style={{background:REBG,border:"1.5px solid "+RE,borderRadius:10,padding:12}}>
               <div style={{fontWeight:700,fontSize:13,color:RE,marginBottom:6}}>⚠ Delete "{ev.name}"?</div>
               <div style={{fontSize:11,color:T2,marginBottom:10,lineHeight:1.5}}>
-                This will permanently remove the event and all its inventory, sales ({ev.sales.length} records), customers and audit data. This cannot be undone.
+                This will permanently remove the event and all its inventory, sales ({(ev.sales||[]).length} records), customers and audit data. This cannot be undone.
               </div>
               <div style={{display:"flex",gap:8}}>
                 <button onClick={()=>{onDelete(ev.id);onClose();}}

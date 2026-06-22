@@ -26944,6 +26944,16 @@ function HistoryTab(p) {
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
+      return setMode("lookups");
+    },
+    style: _objectSpread(_objectSpread({
+      flex: 1
+    }, S.pill(mode === "lookups")), {}, {
+      padding: "9px 8px",
+      fontSize: 11
+    })
+  }, "\uD83D\uDD0D Lookups (", lookupHistory.length, ")"), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
       setMode("sales");
       setView("list");
     },
@@ -26953,17 +26963,7 @@ function HistoryTab(p) {
       padding: "9px 8px",
       fontSize: 11
     })
-  }, "\uD83D\uDCB0 Sales (", sales.length, ")"), /*#__PURE__*/React.createElement("button", {
-    onClick: function onClick() {
-      return setMode("lookups");
-    },
-    style: _objectSpread(_objectSpread({
-      flex: 1
-    }, S.pill(mode === "lookups")), {}, {
-      padding: "9px 8px",
-      fontSize: 11
-    })
-  }, "\uD83D\uDD0D Lookups (", lookupHistory.length, ")")), /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDCB0 Sales (", sales.length, ")")), /*#__PURE__*/React.createElement("div", {
     style: _objectSpread({}, S.card({
       margin: 0,
       marginBottom: 10

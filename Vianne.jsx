@@ -4606,8 +4606,8 @@ function HistoryTab(p){
 
       {/* Sales vs Lookups */}
       <div style={{display:"flex",gap:8,marginBottom:10}}>
-        <button onClick={()=>{setMode("sales");setView("list");}} style={{flex:1,...S.pill(mode==="sales"),padding:"9px 8px",fontSize:11}}>💰 Sales ({sales.length})</button>
         <button onClick={()=>setMode("lookups")} style={{flex:1,...S.pill(mode==="lookups"),padding:"9px 8px",fontSize:11}}>🔍 Lookups ({lookupHistory.length})</button>
+        <button onClick={()=>{setMode("sales");setView("list");}} style={{flex:1,...S.pill(mode==="sales"),padding:"9px 8px",fontSize:11}}>💰 Sales ({sales.length})</button>
       </div>
 
       {/* Search + filters */}

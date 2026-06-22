@@ -19,7 +19,7 @@ function normalizeInvItem(it){
     sz:it.sz!=null?String(it.sz):"Std",
     fp:Number(it.fp)||0,
     st:it.st||"available",
-    stones:Array.isArray(it.stones)?it.stones:[],
+    stones:Array.isArray(it.stones)?it.stones.filter(Boolean).map(s=>({sh:s.sh||"",cl:s.cl||"",pc:s.pc||"",ct:s.ct||"",tct:s.tct||""})):[],
     em:it.em||"💎",
     loc:it.loc||"Exhibition",
     views:Number(it.views)||0,
@@ -338,9 +338,43 @@ const INV_FAIL="Inventory adding failed";
 const G="#1E5C45",GD="#163D2E",GO="#C9A84C",CR="#F5EDE0",WH="#FFFFFF",CRD="#F5EDE0",CRD2="#E8DCCB",INP="#FBF5E8";
 const T1="#1E5C45",T2="#3D5C4A",T3="#7A8C7E",T4="#B0A88A",RE="#A03030",REBG="#F9ECEC",AM="#C8963A",AMBG="#FDF5E6";
 const DEFAULT_CURR={USD:{s:"$",r:1,name:"US Dollar"},INR:{s:"₹",r:83.5,name:"Indian Rupee"},AED:{s:"AED ",r:3.67,name:"UAE Dirham"},GBP:{s:"£",r:0.79,name:"British Pound"},EUR:{s:"€",r:0.92,name:"Euro"},SGD:{s:"S$",r:1.35,name:"Singapore Dollar"},HKD:{s:"HK$",r:7.82,name:"Hong Kong Dollar"},JPY:{s:"¥",r:149.5,name:"Japanese Yen"},CAD:{s:"CA$",r:1.36,name:"Canadian Dollar"},AUD:{s:"A$",r:1.52,name:"Australian Dollar"}};
-let _sc=null;try{_sc=JSON.parse(localStorage.getItem("vj_curr_rates")||"null");}catch(e){}
-const CURR=_sc||Object.assign({},DEFAULT_CURR);
-const fc=(n,c)=>{const x=CURR[c]||CURR.USD;return x.s+Number((n||0)*x.r).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});};
+function normalizeCurrencyRates(raw){
+  if(!raw||typeof raw!=="object"||!raw.USD||!raw.USD.s)return Object.assign({},DEFAULT_CURR);
+  const out=Object.assign({},DEFAULT_CURR);
+  Object.entries(raw).forEach(([k,v])=>{
+    if(!v||typeof v!=="object")return;
+    const base=DEFAULT_CURR[k]||{s:"",r:1,name:k};
+    out[k]={s:v.s!=null?String(v.s):base.s,r:Number(v.r)||base.r,name:v.name||base.name};
+  });
+  return out;
+}
+function applyCurrencyRates(raw){
+  const merged=normalizeCurrencyRates(raw);
+  Object.keys(CURR).forEach(k=>delete CURR[k]);
+  Object.assign(CURR,merged);
+  try{localStorage.setItem("vj_curr_rates",JSON.stringify(merged));}catch(e){}
+  return merged;
+}
+function repairCurrencyStorage(){
+  try{
+    const raw=JSON.parse(localStorage.getItem("vj_curr_rates")||"null");
+    if(!raw||typeof raw!=="object"||!raw.USD||!raw.USD.s){
+      applyCurrencyRates(DEFAULT_CURR);
+      return true;
+    }
+    const merged=normalizeCurrencyRates(raw);
+    if(JSON.stringify(merged)!==JSON.stringify(raw)){
+      applyCurrencyRates(merged);
+      return true;
+    }
+  }catch(e){
+    applyCurrencyRates(DEFAULT_CURR);
+    return true;
+  }
+  return false;
+}
+const CURR=normalizeCurrencyRates((()=>{try{return JSON.parse(localStorage.getItem("vj_curr_rates")||"null");}catch(e){return null;}})());
+const fc=(n,c)=>{const x=CURR[c]||CURR.USD||DEFAULT_CURR.USD;return (x.s||"$")+Number((n||0)*(x.r||1)).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});};
 
 // ── Toast System ─────────────────────────────────────────────────────────
 const _toastListeners=[];
@@ -889,13 +923,7 @@ function takePendingInvFiles(){
 let _markCloudDirty=null;
 function setMarkCloudDirty(fn){_markCloudDirty=fn;}
 function markCloudDirty(opts={}){if(_markCloudDirty)_markCloudDirty(opts);}
-function getCloudCurrency(){
-  try{
-    const raw=JSON.parse(localStorage.getItem("vj_curr_rates")||"null");
-    if(raw&&typeof raw==="object")return raw;
-  }catch(e){}
-  return Object.assign({},CURR);
-}
+function getCloudCurrency(){return normalizeCurrencyRates((()=>{try{return JSON.parse(localStorage.getItem("vj_curr_rates")||"null");}catch(e){return null;}})());}
 async function cloudUploadInventoryFiles(files){
   const failed=[];
   for(const f of files){
@@ -959,7 +987,7 @@ function applyCloudPull(d,sevents,sappUsers,refs){
       return merged;
     });
   }
-  if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
+  if(d.currency)applyCurrencyRates(d.currency);
   if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
   return true;
 }
@@ -968,7 +996,7 @@ async function cloudLoad(){
   if(!d)return null;
   if(Array.isArray(d.events)&&d.events.length){saveEvents(mergeEvents(loadEvents(),d.events));}
   if(Array.isArray(d.users)&&d.users.length){saveUsers(mergeUserDefaults(d.users));}
-  if(d.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(d.currency));Object.assign(CURR,d.currency);}catch(e){}}
+  if(d.currency)applyCurrencyRates(d.currency);
   if(d.version)setCloudMeta({version:d.version,updatedAt:d.updatedAt});
   return d;
 }
@@ -4009,10 +4037,10 @@ function CloudStoragePanel({pr,allEvents,appUsers,onSynced}){
 function CurrencyManager({cur,scur,pr,onRatesChanged}){
   const [editMode,setEditMode]=useState(false);
   const [editRates,setEditRates]=useState({});
-  const getCurr=()=>{try{return JSON.parse(localStorage.getItem("vj_curr_rates")||"null")||DEFAULT_CURR;}catch(e){return DEFAULT_CURR;}};
+  const getCurr=()=>normalizeCurrencyRates((()=>{try{return JSON.parse(localStorage.getItem("vj_curr_rates")||"null");}catch(e){return null;}})());
   const startEdit=()=>{const r={};Object.entries(getCurr()).forEach(([k,v])=>{r[k]=v.r;});setEditRates(r);setEditMode(true);};
-  const saveRates=()=>{const u={};Object.entries(getCurr()).forEach(([k,v])=>{u[k]={s:v.s,r:parseFloat(editRates[k])||v.r,name:v.name};});localStorage.setItem("vj_curr_rates",JSON.stringify(u));Object.assign(CURR,u);setEditMode(false);markCloudDirty({delay:400,notify:true});if(onRatesChanged)onRatesChanged();};
-  const resetRates=()=>{localStorage.removeItem("vj_curr_rates");Object.assign(CURR,DEFAULT_CURR);setEditMode(false);markCloudDirty({delay:400,notify:true});if(onRatesChanged)onRatesChanged();};
+  const saveRates=()=>{const u={};Object.entries(getCurr()).forEach(([k,v])=>{u[k]={s:v.s,r:parseFloat(editRates[k])||v.r,name:v.name};});applyCurrencyRates(u);setEditMode(false);markCloudDirty({delay:400,notify:true});if(onRatesChanged)onRatesChanged();};
+  const resetRates=()=>{applyCurrencyRates(DEFAULT_CURR);setEditMode(false);markCloudDirty({delay:400,notify:true});if(onRatesChanged)onRatesChanged();};
   const rates=editMode?getCurr():getCurr();
   return(
     <div style={{...S.card({margin:0,marginBottom:12})}}>
@@ -5078,7 +5106,7 @@ function App(){
       pendingCloudSaveRef.current=false;
       if(r.synced&&r.synced.length)sevents(p=>{const m=mergeEvents(p,r.synced);eventsRef.current=m;return m;});
       if(Array.isArray(r.users)&&r.users.length)sappUsers(p=>{const m=mergeUserDefaults(r.users);appUsersRef.current=m;saveUsers(m);return m;});
-      if(r.currency){try{localStorage.setItem("vj_curr_rates",JSON.stringify(r.currency));Object.assign(CURR,r.currency);}catch(e){}}
+      if(r.currency)applyCurrencyRates(r.currency);
     }else{
       pendingCloudSaveRef.current=true;
     }
@@ -5125,6 +5153,7 @@ function App(){
     },delay);
   };
   useEffect(()=>{
+    repairCurrencyStorage();
     repairEventsStorage();
     (async()=>{
       const local=await loadEventsAsync();

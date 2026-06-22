@@ -10529,7 +10529,15 @@ function normalizeInvItem(it) {
     sz: it.sz != null ? String(it.sz) : "Std",
     fp: Number(it.fp) || 0,
     st: it.st || "available",
-    stones: Array.isArray(it.stones) ? it.stones : [],
+    stones: Array.isArray(it.stones) ? it.stones.filter(Boolean).map(function (s) {
+      return {
+        sh: s.sh || "",
+        cl: s.cl || "",
+        pc: s.pc || "",
+        ct: s.ct || "",
+        tct: s.tct || ""
+      };
+    }) : [],
     em: it.em || "💎",
     loc: it.loc || "Exhibition",
     views: Number(it.views) || 0,
@@ -10915,9 +10923,9 @@ function _syncImagesToDrive() {
           }
           return _context16.a(2, 0);
         case 3:
-          entries = Object.entries(imgMap).filter(function (_ref83) {
-            var _ref84 = _slicedToArray(_ref83, 2),
-              src = _ref84[1];
+          entries = Object.entries(imgMap).filter(function (_ref85) {
+            var _ref86 = _slicedToArray(_ref85, 2),
+              src = _ref86[1];
             return String(src || "").startsWith("data:image/");
           });
           if (entries.length) {
@@ -10934,10 +10942,10 @@ function _syncImagesToDrive() {
             _context16.n = 12;
             break;
           }
-          chunk = entries.slice(i, i + BATCH).map(function (_ref85) {
-            var _ref86 = _slicedToArray(_ref85, 2),
-              id = _ref86[0],
-              src = _ref86[1];
+          chunk = entries.slice(i, i + BATCH).map(function (_ref87) {
+            var _ref88 = _slicedToArray(_ref87, 2),
+              id = _ref88[0],
+              src = _ref88[1];
             return {
               id: String(id).toUpperCase(),
               data: String(src).replace(/^data:image\/\w+;base64,/, "")
@@ -11480,14 +11488,66 @@ var DEFAULT_CURR = {
     name: "Australian Dollar"
   }
 };
-var _sc = null;
-try {
-  _sc = JSON.parse(localStorage.getItem("vj_curr_rates") || "null");
-} catch (e) {}
-var CURR = _sc || Object.assign({}, DEFAULT_CURR);
+function normalizeCurrencyRates(raw) {
+  if (!raw || _typeof(raw) !== "object" || !raw.USD || !raw.USD.s) return Object.assign({}, DEFAULT_CURR);
+  var out = Object.assign({}, DEFAULT_CURR);
+  Object.entries(raw).forEach(function (_ref4) {
+    var _ref5 = _slicedToArray(_ref4, 2),
+      k = _ref5[0],
+      v = _ref5[1];
+    if (!v || _typeof(v) !== "object") return;
+    var base = DEFAULT_CURR[k] || {
+      s: "",
+      r: 1,
+      name: k
+    };
+    out[k] = {
+      s: v.s != null ? String(v.s) : base.s,
+      r: Number(v.r) || base.r,
+      name: v.name || base.name
+    };
+  });
+  return out;
+}
+function applyCurrencyRates(raw) {
+  var merged = normalizeCurrencyRates(raw);
+  Object.keys(CURR).forEach(function (k) {
+    return delete CURR[k];
+  });
+  Object.assign(CURR, merged);
+  try {
+    localStorage.setItem("vj_curr_rates", JSON.stringify(merged));
+  } catch (e) {}
+  return merged;
+}
+function repairCurrencyStorage() {
+  try {
+    var raw = JSON.parse(localStorage.getItem("vj_curr_rates") || "null");
+    if (!raw || _typeof(raw) !== "object" || !raw.USD || !raw.USD.s) {
+      applyCurrencyRates(DEFAULT_CURR);
+      return true;
+    }
+    var merged = normalizeCurrencyRates(raw);
+    if (JSON.stringify(merged) !== JSON.stringify(raw)) {
+      applyCurrencyRates(merged);
+      return true;
+    }
+  } catch (e) {
+    applyCurrencyRates(DEFAULT_CURR);
+    return true;
+  }
+  return false;
+}
+var CURR = normalizeCurrencyRates(function () {
+  try {
+    return JSON.parse(localStorage.getItem("vj_curr_rates") || "null");
+  } catch (e) {
+    return null;
+  }
+}());
 var fc = function fc(n, c) {
-  var x = CURR[c] || CURR.USD;
-  return x.s + Number((n || 0) * x.r).toLocaleString("en-US", {
+  var x = CURR[c] || CURR.USD || DEFAULT_CURR.USD;
+  return (x.s || "$") + Number((n || 0) * (x.r || 1)).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
@@ -13429,10 +13489,10 @@ function _idbSaveImages() {
           }
           return _context28.a(2);
         case 1:
-          entries = Object.entries(imgMap).filter(function (_ref87) {
-            var _ref88 = _slicedToArray(_ref87, 2),
-              id = _ref88[0],
-              src = _ref88[1];
+          entries = Object.entries(imgMap).filter(function (_ref89) {
+            var _ref90 = _slicedToArray(_ref89, 2),
+              id = _ref90[0],
+              src = _ref90[1];
             return id && src;
           });
           if (entries.length) {
@@ -13442,10 +13502,10 @@ function _idbSaveImages() {
           return _context28.a(2);
         case 2:
           if (!window.VJ_IMG) window.VJ_IMG = {};
-          entries.forEach(function (_ref89) {
-            var _ref90 = _slicedToArray(_ref89, 2),
-              id = _ref90[0],
-              src = _ref90[1];
+          entries.forEach(function (_ref91) {
+            var _ref92 = _slicedToArray(_ref91, 2),
+              id = _ref92[0],
+              src = _ref92[1];
             window.VJ_IMG[String(id).toUpperCase()] = src;
           });
           notifyImagesChanged();
@@ -13466,10 +13526,10 @@ function _idbSaveImages() {
                   return new Promise(function (res, rej) {
                     var tx = db.transaction(IDB_IMG_STORE, "readwrite");
                     var st = tx.objectStore(IDB_IMG_STORE);
-                    slice.forEach(function (_ref91) {
-                      var _ref92 = _slicedToArray(_ref91, 2),
-                        id = _ref92[0],
-                        src = _ref92[1];
+                    slice.forEach(function (_ref93) {
+                      var _ref94 = _slicedToArray(_ref93, 2),
+                        id = _ref94[0],
+                        src = _ref94[1];
                       return st.put({
                         id: String(id).toUpperCase(),
                         src: src
@@ -14040,11 +14100,13 @@ function markCloudDirty() {
   if (_markCloudDirty) _markCloudDirty(opts);
 }
 function getCloudCurrency() {
-  try {
-    var raw = JSON.parse(localStorage.getItem("vj_curr_rates") || "null");
-    if (raw && _typeof(raw) === "object") return raw;
-  } catch (e) {}
-  return Object.assign({}, CURR);
+  return normalizeCurrencyRates(function () {
+    try {
+      return JSON.parse(localStorage.getItem("vj_curr_rates") || "null");
+    } catch (e) {
+      return null;
+    }
+  }());
 }
 function cloudUploadInventoryFiles(_x36) {
   return _cloudUploadInventoryFiles.apply(this, arguments);
@@ -14124,12 +14186,12 @@ function cloudSaveReceipt(_x37) {
   return _cloudSaveReceipt.apply(this, arguments);
 }
 function _cloudSaveReceipt() {
-  _cloudSaveReceipt = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(_ref4) {
+  _cloudSaveReceipt = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(_ref6) {
     var eventName, receiptId, html, r, d, _t25;
     return _regenerator().w(function (_context36) {
       while (1) switch (_context36.p = _context36.n) {
         case 0:
-          eventName = _ref4.eventName, receiptId = _ref4.receiptId, html = _ref4.html;
+          eventName = _ref6.eventName, receiptId = _ref6.receiptId, html = _ref6.html;
           if (!(!isCloudOnline() || !eventName || !receiptId || !html)) {
             _context36.n = 1;
             break;
@@ -14254,12 +14316,7 @@ function applyCloudPull(d, sevents, sappUsers, refs) {
       return merged;
     });
   }
-  if (d.currency) {
-    try {
-      localStorage.setItem("vj_curr_rates", JSON.stringify(d.currency));
-      Object.assign(CURR, d.currency);
-    } catch (e) {}
-  }
+  if (d.currency) applyCurrencyRates(d.currency);
   if (d.version) setCloudMeta({
     version: d.version,
     updatedAt: d.updatedAt
@@ -14291,12 +14348,7 @@ function _cloudLoad() {
           if (Array.isArray(d.users) && d.users.length) {
             saveUsers(mergeUserDefaults(d.users));
           }
-          if (d.currency) {
-            try {
-              localStorage.setItem("vj_curr_rates", JSON.stringify(d.currency));
-              Object.assign(CURR, d.currency);
-            } catch (e) {}
-          }
+          if (d.currency) applyCurrencyRates(d.currency);
           if (d.version) setCloudMeta({
             version: d.version,
             updatedAt: d.updatedAt
@@ -14345,7 +14397,7 @@ function _cloudSave() {
             return true;
           });
           trySave = /*#__PURE__*/function () {
-            var _ref93 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(files) {
+            var _ref95 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(files) {
               var body, r, d, msg, _t27, _t28;
               return _regenerator().w(function (_context39) {
                 while (1) switch (_context39.p = _context39.n) {
@@ -14404,7 +14456,7 @@ function _cloudSave() {
               }, _callee38, null, [[5, 7], [1, 3]]);
             }));
             return function trySave(_x58) {
-              return _ref93.apply(this, arguments);
+              return _ref95.apply(this, arguments);
             };
           }();
           _context40.p = 3;
@@ -14450,10 +14502,10 @@ function flushCloudSync(_x42, _x43, _x44) {
 }
 function _flushCloudSync() {
   _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(events, users, deletedEvents) {
-    var _ref94,
-      _ref94$silent,
+    var _ref96,
+      _ref96$silent,
       silent,
-      _ref94$successMsg,
+      _ref96$successMsg,
       successMsg,
       ping,
       tombstones,
@@ -14468,7 +14520,7 @@ function _flushCloudSync() {
     return _regenerator().w(function (_context41) {
       while (1) switch (_context41.n) {
         case 0:
-          _ref94 = _args41.length > 3 && _args41[3] !== undefined ? _args41[3] : {}, _ref94$silent = _ref94.silent, silent = _ref94$silent === void 0 ? false : _ref94$silent, _ref94$successMsg = _ref94.successMsg, successMsg = _ref94$successMsg === void 0 ? "Shared with all users & devices" : _ref94$successMsg;
+          _ref96 = _args41.length > 3 && _args41[3] !== undefined ? _args41[3] : {}, _ref96$silent = _ref96.silent, silent = _ref96$silent === void 0 ? false : _ref96$silent, _ref96$successMsg = _ref96.successMsg, successMsg = _ref96$successMsg === void 0 ? "Shared with all users & devices" : _ref96$successMsg;
           _context41.n = 1;
           return cloudFetchData();
         case 1:
@@ -14628,10 +14680,10 @@ var S = {
     }, o);
   }
 };
-function Bdg(_ref5) {
-  var t = _ref5.t,
-    ch = _ref5.ch,
-    sm = _ref5.sm;
+function Bdg(_ref7) {
+  var t = _ref7.t,
+    ch = _ref7.ch,
+    sm = _ref7.sm;
   var m = {
     g: {
       bg: "rgba(30,92,69,0.1)",
@@ -14679,9 +14731,9 @@ function Bdg(_ref5) {
     }
   }, ch);
 }
-function Logo(_ref6) {
-  var _ref6$h = _ref6.h,
-    h = _ref6$h === void 0 ? 36 : _ref6$h;
+function Logo(_ref8) {
+  var _ref8$h = _ref8.h,
+    h = _ref8$h === void 0 ? 36 : _ref8$h;
   return /*#__PURE__*/React.createElement("img", {
     src: "assets/vianne-logo.png",
     alt: "Vianne",
@@ -14694,10 +14746,10 @@ function Logo(_ref6) {
     }
   });
 }
-function Sheet(_ref7) {
-  var onClose = _ref7.onClose,
-    title = _ref7.title,
-    children = _ref7.children;
+function Sheet(_ref9) {
+  var onClose = _ref9.onClose,
+    title = _ref9.title,
+    children = _ref9.children;
   return /*#__PURE__*/React.createElement("div", {
     className: "v-sheet-overlay",
     onClick: onClose,
@@ -14762,9 +14814,9 @@ function Sheet(_ref7) {
     }
   }, children)));
 }
-function QRScanner(_ref8) {
-  var onScanned = _ref8.onScanned,
-    inv = _ref8.inv;
+function QRScanner(_ref0) {
+  var onScanned = _ref0.onScanned,
+    inv = _ref0.inv;
   var vr = useRef(null),
     sr = useRef(null),
     cv = useRef(null),
@@ -14944,10 +14996,10 @@ function QRScanner(_ref8) {
   }, {
     borderBottomWidth: 3,
     borderRightWidth: 3
-  }]].map(function (_ref9, i) {
-    var _ref0 = _slicedToArray(_ref9, 2),
-      pos = _ref0[0],
-      brd = _ref0[1];
+  }]].map(function (_ref1, i) {
+    var _ref10 = _slicedToArray(_ref1, 2),
+      pos = _ref10[0],
+      brd = _ref10[1];
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       style: _objectSpread(_objectSpread(_objectSpread({
@@ -15092,10 +15144,10 @@ function normXLKey(k) {
 }
 function xlVal(row, keys) {
   var map = {};
-  Object.entries(row || {}).forEach(function (_ref1) {
-    var _ref10 = _slicedToArray(_ref1, 2),
-      k = _ref10[0],
-      v = _ref10[1];
+  Object.entries(row || {}).forEach(function (_ref11) {
+    var _ref12 = _slicedToArray(_ref11, 2),
+      k = _ref12[0],
+      v = _ref12[1];
     map[normXLKey(k)] = v;
   });
   var _iterator = _createForOfIteratorHelper(keys),
@@ -15164,11 +15216,11 @@ function mergeInvItems(existing, incoming, mode) {
     skipped: skipped
   };
 }
-function invMergeToast(_ref11) {
-  var added = _ref11.added,
-    skipped = _ref11.skipped,
-    mode = _ref11.mode,
-    total = _ref11.total;
+function invMergeToast(_ref13) {
+  var added = _ref13.added,
+    skipped = _ref13.skipped,
+    mode = _ref13.mode,
+    total = _ref13.total;
   var dup = skipped > 0 ? skipped + " duplicate(s) skipped" : null;
   if (mode === "replace") {
     if (skipped > 0 && added === 0) {
@@ -15253,9 +15305,9 @@ function codeForExcelRow(excelRow, idByRow) {
 function parseDrawingRels(relsXml) {
   var relMap = {};
   relsXml.replace(/<(?:Relationship|[^>]*:Relationship)[^>]*>/g, function (tag) {
-    var _ref12, _ref13;
-    var id = (_ref12 = tag.match(/\bId="([^"]+)"/) || tag.match(/\bid="([^"]+)"/)) === null || _ref12 === void 0 ? void 0 : _ref12[1];
-    var tgt = (_ref13 = tag.match(/\bTarget="([^"]+)"/) || tag.match(/\btarget="([^"]+)"/)) === null || _ref13 === void 0 ? void 0 : _ref13[1];
+    var _ref14, _ref15;
+    var id = (_ref14 = tag.match(/\bId="([^"]+)"/) || tag.match(/\bid="([^"]+)"/)) === null || _ref14 === void 0 ? void 0 : _ref14[1];
+    var tgt = (_ref15 = tag.match(/\bTarget="([^"]+)"/) || tag.match(/\btarget="([^"]+)"/)) === null || _ref15 === void 0 ? void 0 : _ref15[1];
     if (id && tgt) relMap[id] = "xl/" + tgt.replace(/^\.\.\//, "");
     return tag;
   });
@@ -15413,10 +15465,10 @@ function rowToItem(row, excelRow) {
   var salePrice = xlNum(xlVal(row, ["Sale Price"]));
   var roundOff = xlNum(xlVal(row, ["Round Off Final", "Round Off"]));
   var xlRaw = {};
-  Object.entries(row || {}).forEach(function (_ref14) {
-    var _ref15 = _slicedToArray(_ref14, 2),
-      k = _ref15[0],
-      v = _ref15[1];
+  Object.entries(row || {}).forEach(function (_ref16) {
+    var _ref17 = _slicedToArray(_ref16, 2),
+      k = _ref17[0],
+      v = _ref17[1];
     if (v != null && String(v).trim() !== "") xlRaw[String(k).trim()] = v;
   });
   var stones = stoneShape || clarity || pcs || cts ? [{
@@ -15535,7 +15587,7 @@ function parseXL(file, onDone, onError) {
       }
       var r = new FileReader();
       r.onload = /*#__PURE__*/function () {
-        var _ref16 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(e) {
+        var _ref18 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(e) {
           var buf, wb, items, idByRow, _iterator2, _step2, sn, _ws, parsed, ws, headers, imgMap, _t, _t2;
           return _regenerator().w(function (_context2) {
             while (1) switch (_context2.p = _context2.n) {
@@ -15617,7 +15669,7 @@ function parseXL(file, onDone, onError) {
           }, _callee2, null, [[1, 6, 7, 8], [0, 12]]);
         }));
         return function (_x49) {
-          return _ref16.apply(this, arguments);
+          return _ref18.apply(this, arguments);
         };
       }();
       r.onerror = function () {
@@ -15627,9 +15679,9 @@ function parseXL(file, onDone, onError) {
     });
   });
 }
-function Login(_ref17) {
-  var onLogin = _ref17.onLogin,
-    users = _ref17.users;
+function Login(_ref19) {
+  var onLogin = _ref19.onLogin,
+    users = _ref19.users;
   var _useState17 = useState(""),
     _useState18 = _slicedToArray(_useState17, 2),
     u = _useState18[0],
@@ -15690,7 +15742,7 @@ function Login(_ref17) {
     }, 320);
   };
   var go = /*#__PURE__*/function () {
-    var _ref18 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+    var _ref20 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
       var usr, saved, ok;
       return _regenerator().w(function (_context3) {
         while (1) switch (_context3.n) {
@@ -15733,7 +15785,7 @@ function Login(_ref17) {
       }, _callee3);
     }));
     return function go() {
-      return _ref18.apply(this, arguments);
+      return _ref20.apply(this, arguments);
     };
   }();
   var doBio = function doBio() {
@@ -15951,14 +16003,14 @@ function Login(_ref17) {
     }
   }, "nilay/nilay123 \xB7 jimit/jimit123 \xB7 naresh/naresh123")));
 }
-function EventHub(_ref19) {
-  var user = _ref19.user,
-    events = _ref19.events,
-    onEnter = _ref19.onEnter,
-    onCreate = _ref19.onCreate,
-    onManage = _ref19.onManage,
-    onDelete = _ref19.onDelete,
-    onLogout = _ref19.onLogout;
+function EventHub(_ref21) {
+  var user = _ref21.user,
+    events = _ref21.events,
+    onEnter = _ref21.onEnter,
+    onCreate = _ref21.onCreate,
+    onManage = _ref21.onManage,
+    onDelete = _ref21.onDelete,
+    onLogout = _ref21.onLogout;
   var _useState27 = useState(false),
     _useState28 = _slicedToArray(_useState27, 2),
     sc = _useState28[0],
@@ -16131,7 +16183,7 @@ function EventHub(_ref19) {
   var create = function create() {
     if (!form.name.trim()) return;
     var fin = /*#__PURE__*/function () {
-      var _ref20 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(inv, fileName, fileObj) {
+      var _ref22 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(inv, fileName, fileObj) {
         var merged, baseInv, base, imgN;
         return _regenerator().w(function (_context4) {
           while (1) switch (_context4.n) {
@@ -16211,13 +16263,13 @@ function EventHub(_ref19) {
         }, _callee4);
       }));
       return function fin(_x50, _x51, _x52) {
-        return _ref20.apply(this, arguments);
+        return _ref22.apply(this, arguments);
       };
     }();
     if (xlf) {
       sl(true);
       parseXL(xlf, /*#__PURE__*/function () {
-        var _ref21 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(inv) {
+        var _ref23 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(inv) {
           return _regenerator().w(function (_context5) {
             while (1) switch (_context5.n) {
               case 0:
@@ -16230,7 +16282,7 @@ function EventHub(_ref19) {
           }, _callee5);
         }));
         return function (_x53) {
-          return _ref21.apply(this, arguments);
+          return _ref23.apply(this, arguments);
         };
       }(), function (err) {
         sl(false);
@@ -16591,13 +16643,13 @@ function EventHub(_ref19) {
     onClick: create
   }, loading ? "Parsing..." : "✓ Create Event")));
 }
-function ManageEvent(_ref22) {
+function ManageEvent(_ref24) {
   var _COLORS$find;
-  var ev = _ref22.ev,
-    onClose = _ref22.onClose,
-    onUpdate = _ref22.onUpdate,
-    onDelete = _ref22.onDelete,
-    user = _ref22.user;
+  var ev = _ref24.ev,
+    onClose = _ref24.onClose,
+    onUpdate = _ref24.onUpdate,
+    onDelete = _ref24.onDelete,
+    user = _ref24.user;
   var _useState37 = useState("details"),
     _useState38 = _slicedToArray(_useState37, 2),
     tab = _useState38[0],
@@ -17011,13 +17063,13 @@ function ManageEvent(_ref22) {
     }
   }, "All product data and embedded photos are imported from the sheet. Duplicate Unique Codes are skipped \u2014 you will see a summary after each upload.")));
 }
-function SaleSuccess(_ref23) {
-  var sale = _ref23.sale,
-    item = _ref23.item,
-    fc = _ref23.fc,
-    cur = _ref23.cur,
-    onDone = _ref23.onDone,
-    onPrint = _ref23.onPrint;
+function SaleSuccess(_ref25) {
+  var sale = _ref25.sale,
+    item = _ref25.item,
+    fc = _ref25.fc,
+    cur = _ref25.cur,
+    onDone = _ref25.onDone,
+    onPrint = _ref25.onPrint;
   var _useState45 = useState(4),
     _useState46 = _slicedToArray(_useState45, 2),
     count = _useState46[0],
@@ -17186,19 +17238,19 @@ function SaleSuccess(_ref23) {
     }
   }, "Auto-closing in ", count, "s..."));
 }
-function ItemCard(_ref24) {
-  var item = _ref24.item,
-    user = _ref24.user,
-    inv = _ref24.inv,
-    leads = _ref24.leads,
-    cur = _ref24.cur,
-    preCustName = _ref24.preCustName,
-    eventName = _ref24.eventName,
-    sales = _ref24.sales,
-    onSell = _ref24.onSell,
-    onBack = _ref24.onBack,
-    onAddLead = _ref24.onAddLead,
-    imgTick = _ref24.imgTick;
+function ItemCard(_ref26) {
+  var item = _ref26.item,
+    user = _ref26.user,
+    inv = _ref26.inv,
+    leads = _ref26.leads,
+    cur = _ref26.cur,
+    preCustName = _ref26.preCustName,
+    eventName = _ref26.eventName,
+    sales = _ref26.sales,
+    onSell = _ref26.onSell,
+    onBack = _ref26.onBack,
+    onAddLead = _ref26.onAddLead,
+    imgTick = _ref26.imgTick;
   var pr = gp(user.role, user.perms);
   var _useState47 = useState(0),
     _useState48 = _slicedToArray(_useState47, 2),
@@ -17700,10 +17752,10 @@ function ItemCard(_ref24) {
     style: _objectSpread({}, S.cc({
       marginBottom: 11
     }))
-  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref25) {
-    var _ref26 = _slicedToArray(_ref25, 2),
-      l = _ref26[0],
-      v = _ref26[1];
+  }, [["Price", fc(dp, cur)], f.disc > 0 ? ["Disc (" + f.disc + "%)", "− " + fc(dsc, cur)] : null, ccAmt > 0 ? ["💳 CC" + (f.cc_type === "pct" ? " " + f.cc_val + "%" : ""), fc(ccAmt, cur)] : null].filter(Boolean).map(function (_ref27) {
+    var _ref28 = _slicedToArray(_ref27, 2),
+      l = _ref28[0],
+      v = _ref28[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -17938,10 +17990,10 @@ function ItemCard(_ref24) {
       gap: 8,
       marginBottom: 13
     }
-  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref27) {
-    var _ref28 = _slicedToArray(_ref27, 2),
-      l = _ref28[0],
-      v = _ref28[1];
+  }, [["Today Cost", fc(item.tod, cur)], ["Inward Val", fc(item.iv, cur)], ["Cost+Tar", fc(item.cpt, cur)], ["Inward+Tar", fc(item.ipt, cur)], ["Calc Sale", fc(item.fp, cur)], ["Margin", Math.round((item.fp - item.cpt) / Math.max(item.fp, 1) * 100) + "%"]].map(function (_ref29) {
+    var _ref30 = _slicedToArray(_ref29, 2),
+      l = _ref30[0],
+      v = _ref30[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -17975,10 +18027,10 @@ function ItemCard(_ref24) {
       gridTemplateColumns: "1fr 1fr",
       gap: 9
     }
-  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref29) {
-    var _ref30 = _slicedToArray(_ref29, 2),
-      l = _ref30[0],
-      v = _ref30[1];
+  }, [["Collection", item.col], ["Metal", item.metal], ["Size", item.sz || "—"], ["Gross Wt", item.gw + "g"], ["Net Wt", item.nw + "g"], ["Carats", item.tc + "ct"], ["Stone Pcs", item.sp], ["Qty", item.qty || 1]].map(function (_ref31) {
+    var _ref32 = _slicedToArray(_ref31, 2),
+      l = _ref32[0],
+      v = _ref32[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l
     }, /*#__PURE__*/React.createElement("div", {
@@ -18246,8 +18298,8 @@ function printReceipt(sale, eventMeta) {
     } catch (e) {}
   }, 500);
 }
-function ReceiptPreview(_ref31) {
-  var sale = _ref31.sale;
+function ReceiptPreview(_ref33) {
+  var sale = _ref33.sale;
   var _receiptTotals2 = receiptTotals(sale),
     sub = _receiptTotals2.sub,
     dsc = _receiptTotals2.dsc,
@@ -18485,10 +18537,10 @@ function ReceiptPreview(_ref31) {
     }
   }, "VIANNE JEWELS"), /*#__PURE__*/React.createElement("br", null), "Auth. Signatory"))));
 }
-function InvoiceSheet(_ref32) {
-  var sale = _ref32.sale,
-    event = _ref32.event,
-    onClose = _ref32.onClose;
+function InvoiceSheet(_ref34) {
+  var sale = _ref34.sale,
+    event = _ref34.event,
+    onClose = _ref34.onClose;
   return /*#__PURE__*/React.createElement(Sheet, {
     onClose: onClose,
     title: "Receipt"
@@ -18528,11 +18580,11 @@ function InvoiceSheet(_ref32) {
 }
 
 // ─── USER MANAGER ────────────────────────────────────────────────────────────
-function UserManager(_ref33) {
-  var users = _ref33.users,
-    currentUser = _ref33.currentUser,
-    onUsersChange = _ref33.onUsersChange,
-    events = _ref33.events;
+function UserManager(_ref35) {
+  var users = _ref35.users,
+    currentUser = _ref35.currentUser,
+    onUsersChange = _ref35.onUsersChange,
+    events = _ref35.events;
   var _useState57 = useState(null),
     _useState58 = _slicedToArray(_useState57, 2),
     editPerms = _useState58[0],
@@ -18607,8 +18659,8 @@ function UserManager(_ref33) {
     var roleBase = RD[editPerms.role] || RD.Staff;
     var merged = _objectSpread(_objectSpread({}, roleBase), editPerms.perms || {});
     var overrides = {};
-    PK.forEach(function (_ref34) {
-      var k = _ref34.k;
+    PK.forEach(function (_ref36) {
+      var k = _ref36.k;
       if (merged[k] !== roleBase[k]) overrides[k] = merged[k];
     });
     onUsersChange(users.map(function (u) {
@@ -18685,9 +18737,9 @@ function UserManager(_ref33) {
         color: AM,
         fontWeight: 600
       }
-    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref35) {
-      var k = _ref35.k,
-        l = _ref35.l;
+    }, "Toggle app permissions. Changes apply immediately after save."), PK.map(function (_ref37) {
+      var k = _ref37.k,
+        l = _ref37.l;
       return /*#__PURE__*/React.createElement("div", {
         key: k,
         style: {
@@ -19145,10 +19197,10 @@ function UserManager(_ref33) {
     }, "\u2715")));
   }));
 }
-function PhotoSearch(_ref36) {
-  var inv = _ref36.inv,
-    onResult = _ref36.onResult,
-    onClose = _ref36.onClose;
+function PhotoSearch(_ref38) {
+  var inv = _ref38.inv,
+    onResult = _ref38.onResult,
+    onClose = _ref38.onClose;
   var _useState63 = useState("upload"),
     _useState64 = _slicedToArray(_useState63, 2),
     phase = _useState64[0],
@@ -20355,12 +20407,12 @@ function SingleLookup(p) {
     sMin: sfMinFp,
     max: fMaxFp,
     sMax: sfMaxFp
-  }].map(function (_ref37) {
-    var l = _ref37.l,
-      min = _ref37.min,
-      sMin = _ref37.sMin,
-      max = _ref37.max,
-      sMax = _ref37.sMax;
+  }].map(function (_ref39) {
+    var l = _ref39.l,
+      min = _ref39.min,
+      sMin = _ref39.sMin,
+      max = _ref39.max,
+      sMax = _ref39.sMax;
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -20671,11 +20723,11 @@ function SingleLookup(p) {
     onAddLead: onAddLead
   })));
 }
-function EstimateLookup(_ref38) {
-  var ev = _ref38.ev,
-    inv = _ref38.inv,
-    cur = _ref38.cur,
-    user = _ref38.user;
+function EstimateLookup(_ref40) {
+  var ev = _ref40.ev,
+    inv = _ref40.inv,
+    cur = _ref40.cur,
+    user = _ref40.user;
   var _useState75 = useState(""),
     _useState76 = _slicedToArray(_useState75, 2),
     input = _useState76[0],
@@ -22346,10 +22398,10 @@ function InventoryTab(p) {
     return i.st === "available";
   }).reduce(function (s, i) {
     return s + i.fp;
-  }, 0), cur)]].map(function (_ref39) {
-    var _ref40 = _slicedToArray(_ref39, 2),
-      l = _ref40[0],
-      v = _ref40[1];
+  }, 0), cur)]].map(function (_ref41) {
+    var _ref42 = _slicedToArray(_ref41, 2),
+      l = _ref42[0],
+      v = _ref42[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -22699,9 +22751,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref41) {
-    var item = _ref41.item,
-      scannedAt = _ref41.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref43) {
+    var item = _ref43.item,
+      scannedAt = _ref43.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -22835,12 +22887,12 @@ function invBuckets(inv, keyFn) {
     return b.cnt - a.cnt;
   });
 }
-function AnalyticsBucketCard(_ref42) {
-  var title = _ref42.title,
-    data = _ref42.data,
-    cur = _ref42.cur,
-    fc = _ref42.fc,
-    maxVal = _ref42.maxVal;
+function AnalyticsBucketCard(_ref44) {
+  var title = _ref44.title,
+    data = _ref44.data,
+    cur = _ref44.cur,
+    fc = _ref44.fc,
+    maxVal = _ref44.maxVal;
   var mx = maxVal || Math.max.apply(Math, [1].concat(_toConsumableArray(data.map(function (x) {
     return x.cnt;
   }))));
@@ -22933,10 +22985,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref43) {
-    var pct = _ref43.pct,
-      col = _ref43.col,
-      h = _ref43.h;
+  var Bar = function Bar(_ref45) {
+    var pct = _ref45.pct,
+      col = _ref45.col,
+      h = _ref45.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -22996,10 +23048,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref44) {
-    var _ref45 = _slicedToArray(_ref44, 2),
-      d = _ref45[0],
-      v = _ref45[1];
+  }).map(function (_ref46) {
+    var _ref47 = _slicedToArray(_ref46, 2),
+      d = _ref47[0],
+      v = _ref47[1];
     return {
       d: d,
       v: v
@@ -23560,9 +23612,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref46) {
-    var h = _ref46.h,
-      v = _ref46.v;
+  }, hourData.map(function (_ref48) {
+    var h = _ref48.h,
+      v = _ref48.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -24153,10 +24205,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref47, i) {
-    var _ref48 = _slicedToArray(_ref47, 2),
-      src = _ref48[0],
-      cnt = _ref48[1];
+  }, "No leads yet"), srcData.map(function (_ref49, i) {
+    var _ref50 = _slicedToArray(_ref49, 2),
+      src = _ref50[0],
+      cnt = _ref50[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -24840,11 +24892,11 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref49) {
-  var pr = _ref49.pr,
-    allEvents = _ref49.allEvents,
-    appUsers = _ref49.appUsers,
-    onSynced = _ref49.onSynced;
+function CloudStoragePanel(_ref51) {
+  var pr = _ref51.pr,
+    allEvents = _ref51.allEvents,
+    appUsers = _ref51.appUsers,
+    onSynced = _ref51.onSynced;
   var _useState97 = useState(false),
     _useState98 = _slicedToArray(_useState97, 2),
     busy = _useState98[0],
@@ -24871,7 +24923,7 @@ function CloudStoragePanel(_ref49) {
   var driveReadOk = ping && ping.driveRead === "ok";
   var ds = ping && ping.driveStatus;
   var syncNow = /*#__PURE__*/function () {
-    var _ref50 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
+    var _ref52 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
       var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
       return _regenerator().w(function (_context6) {
         while (1) switch (_context6.p = _context6.n) {
@@ -24937,7 +24989,7 @@ function CloudStoragePanel(_ref49) {
       }, _callee6, null, [[1, 7, 8, 9]]);
     }));
     return function syncNow() {
-      return _ref50.apply(this, arguments);
+      return _ref52.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -25019,11 +25071,11 @@ function CloudStoragePanel(_ref49) {
     }
   }, "Auto-sync runs in the background \u2014 use this only if another device looks out of date."));
 }
-function CurrencyManager(_ref51) {
-  var cur = _ref51.cur,
-    scur = _ref51.scur,
-    pr = _ref51.pr,
-    onRatesChanged = _ref51.onRatesChanged;
+function CurrencyManager(_ref53) {
+  var cur = _ref53.cur,
+    scur = _ref53.scur,
+    pr = _ref53.pr,
+    onRatesChanged = _ref53.onRatesChanged;
   var _useState105 = useState(false),
     _useState106 = _slicedToArray(_useState105, 2),
     editMode = _useState106[0],
@@ -25033,18 +25085,20 @@ function CurrencyManager(_ref51) {
     editRates = _useState108[0],
     setEditRates = _useState108[1];
   var getCurr = function getCurr() {
-    try {
-      return JSON.parse(localStorage.getItem("vj_curr_rates") || "null") || DEFAULT_CURR;
-    } catch (e) {
-      return DEFAULT_CURR;
-    }
+    return normalizeCurrencyRates(function () {
+      try {
+        return JSON.parse(localStorage.getItem("vj_curr_rates") || "null");
+      } catch (e) {
+        return null;
+      }
+    }());
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref52) {
-      var _ref53 = _slicedToArray(_ref52, 2),
-        k = _ref53[0],
-        v = _ref53[1];
+    Object.entries(getCurr()).forEach(function (_ref54) {
+      var _ref55 = _slicedToArray(_ref54, 2),
+        k = _ref55[0],
+        v = _ref55[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -25052,18 +25106,17 @@ function CurrencyManager(_ref51) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref54) {
-      var _ref55 = _slicedToArray(_ref54, 2),
-        k = _ref55[0],
-        v = _ref55[1];
+    Object.entries(getCurr()).forEach(function (_ref56) {
+      var _ref57 = _slicedToArray(_ref56, 2),
+        k = _ref57[0],
+        v = _ref57[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
         name: v.name
       };
     });
-    localStorage.setItem("vj_curr_rates", JSON.stringify(u));
-    Object.assign(CURR, u);
+    applyCurrencyRates(u);
     setEditMode(false);
     markCloudDirty({
       delay: 400,
@@ -25072,8 +25125,7 @@ function CurrencyManager(_ref51) {
     if (onRatesChanged) onRatesChanged();
   };
   var resetRates = function resetRates() {
-    localStorage.removeItem("vj_curr_rates");
-    Object.assign(CURR, DEFAULT_CURR);
+    applyCurrencyRates(DEFAULT_CURR);
     setEditMode(false);
     markCloudDirty({
       delay: 400,
@@ -25125,10 +25177,10 @@ function CurrencyManager(_ref51) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref56) {
-    var _ref57 = _slicedToArray(_ref56, 2),
-      k = _ref57[0],
-      v = _ref57[1];
+  }, Object.entries(rates).map(function (_ref58) {
+    var _ref59 = _slicedToArray(_ref58, 2),
+      k = _ref59[0],
+      v = _ref59[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -25156,10 +25208,10 @@ function CurrencyManager(_ref51) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref58, i, arr) {
-    var _ref59 = _slicedToArray(_ref58, 2),
-      k = _ref59[0],
-      v = _ref59[1];
+  })), Object.entries(rates).map(function (_ref60, i, arr) {
+    var _ref61 = _slicedToArray(_ref60, 2),
+      k = _ref61[0],
+      v = _ref61[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -25364,18 +25416,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref60) {
-    var _ref61 = _slicedToArray(_ref60, 2),
-      v = _ref61[1];
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref62) {
+    var _ref63 = _slicedToArray(_ref62, 2),
+      v = _ref63[1];
     return v;
-  }).map(function (_ref62) {
-    var _ref63 = _slicedToArray(_ref62, 1),
-      k = _ref63[0];
+  }).map(function (_ref64) {
+    var _ref65 = _slicedToArray(_ref64, 1),
+      k = _ref65[0];
     return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref64) {
-    var _ref65 = _slicedToArray(_ref64, 2),
-      l = _ref65[0],
-      v = _ref65[1];
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref66) {
+    var _ref67 = _slicedToArray(_ref66, 2),
+      l = _ref67[0],
+      v = _ref67[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -25419,10 +25471,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref66) {
-    var _ref67 = _slicedToArray(_ref66, 2),
-      l = _ref67[0],
-      v = _ref67[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref68) {
+    var _ref69 = _slicedToArray(_ref68, 2),
+      l = _ref69[0],
+      v = _ref69[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -25490,10 +25542,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref68) {
-    var _ref69 = _slicedToArray(_ref68, 2),
-      l = _ref69[0],
-      v = _ref69[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref70) {
+    var _ref71 = _slicedToArray(_ref70, 2),
+      l = _ref71[0],
+      v = _ref71[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -27516,10 +27568,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref70) {
-      var _ref71 = _slicedToArray(_ref70, 2),
-        ic = _ref71[0],
-        v = _ref71[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref72) {
+      var _ref73 = _slicedToArray(_ref72, 2),
+        ic = _ref73[0],
+        v = _ref73[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -27982,18 +28034,18 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref72) {
-  var ev = _ref72.ev,
-    user = _ref72.user,
-    allUsers = _ref72.allUsers,
-    onUsersChange = _ref72.onUsersChange,
-    allEvents = _ref72.allEvents,
-    onSwitch = _ref72.onSwitch,
-    onUpdateEvent = _ref72.onUpdateEvent,
-    onBack = _ref72.onBack,
-    onLogout = _ref72.onLogout,
-    onCloudSync = _ref72.onCloudSync,
-    cloudReady = _ref72.cloudReady;
+function EventERP(_ref74) {
+  var ev = _ref74.ev,
+    user = _ref74.user,
+    allUsers = _ref74.allUsers,
+    onUsersChange = _ref74.onUsersChange,
+    allEvents = _ref74.allEvents,
+    onSwitch = _ref74.onSwitch,
+    onUpdateEvent = _ref74.onUpdateEvent,
+    onBack = _ref74.onBack,
+    onLogout = _ref74.onLogout,
+    onCloudSync = _ref74.onCloudSync,
+    cloudReady = _ref74.cloudReady;
   ev = normalizeEvent(ev);
   var pr = gp(user.role, user.perms);
   var users = allUsers;
@@ -29355,16 +29407,16 @@ function App() {
     appUsersRef.current = appUsers;
   }, [appUsers]);
   var runCloudSave = /*#__PURE__*/function () {
-    var _ref73 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
-      var _ref74,
-        _ref74$silent,
+    var _ref75 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
+      var _ref76,
+        _ref76$silent,
         silent,
         r,
         _args7 = arguments;
       return _regenerator().w(function (_context7) {
         while (1) switch (_context7.n) {
           case 0:
-            _ref74 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref74$silent = _ref74.silent, silent = _ref74$silent === void 0 ? true : _ref74$silent;
+            _ref76 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref76$silent = _ref76.silent, silent = _ref76$silent === void 0 ? true : _ref76$silent;
             _context7.n = 1;
             return flushCloudSync(snap || eventsRef.current, usersSnap || appUsersRef.current, deleted || [], {
               silent: silent
@@ -29385,12 +29437,7 @@ function App() {
                 saveUsers(m);
                 return m;
               });
-              if (r.currency) {
-                try {
-                  localStorage.setItem("vj_curr_rates", JSON.stringify(r.currency));
-                  Object.assign(CURR, r.currency);
-                } catch (e) {}
-              }
+              if (r.currency) applyCurrencyRates(r.currency);
             } else {
               pendingCloudSaveRef.current = true;
             }
@@ -29399,13 +29446,13 @@ function App() {
       }, _callee7);
     }));
     return function runCloudSave(_x54, _x55, _x56) {
-      return _ref73.apply(this, arguments);
+      return _ref75.apply(this, arguments);
     };
   }();
   var runAutoSyncCycle = /*#__PURE__*/function () {
-    var _ref75 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
-      var _ref76,
-        _ref76$silent,
+    var _ref77 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
+      var _ref78,
+        _ref78$silent,
         silent,
         d,
         cloudVer,
@@ -29417,7 +29464,7 @@ function App() {
       return _regenerator().w(function (_context8) {
         while (1) switch (_context8.p = _context8.n) {
           case 0:
-            _ref76 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref76$silent = _ref76.silent, silent = _ref76$silent === void 0 ? true : _ref76$silent;
+            _ref78 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref78$silent = _ref78.silent, silent = _ref78$silent === void 0 ? true : _ref78$silent;
             if (!(!dataReady || !cloudReady || cloudSyncBusyRef.current)) {
               _context8.n = 1;
               break;
@@ -29467,17 +29514,17 @@ function App() {
       }, _callee8, null, [[2,, 6, 7]]);
     }));
     return function runAutoSyncCycle() {
-      return _ref75.apply(this, arguments);
+      return _ref77.apply(this, arguments);
     };
   }();
   var scheduleCloudSave = function scheduleCloudSave() {
     var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 400;
     var snapshot = arguments.length > 1 ? arguments[1] : undefined;
-    var _ref77 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-      _ref77$silent = _ref77.silent,
-      silent = _ref77$silent === void 0 ? true : _ref77$silent,
-      _ref77$notify = _ref77.notify,
-      notify = _ref77$notify === void 0 ? false : _ref77$notify;
+    var _ref79 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      _ref79$silent = _ref79.silent,
+      silent = _ref79$silent === void 0 ? true : _ref79$silent,
+      _ref79$notify = _ref79.notify,
+      notify = _ref79$notify === void 0 ? false : _ref79$notify;
     localDirtyRef.current = true;
     if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
     cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9() {
@@ -29522,6 +29569,7 @@ function App() {
     })), delay);
   };
   useEffect(function () {
+    repairCurrencyStorage();
     repairEventsStorage();
     _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0() {
       var local;
@@ -29794,7 +29842,7 @@ function App() {
     }
   }, "Loading\u2026")));
   var handleLogin = /*#__PURE__*/function () {
-    var _ref81 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
+    var _ref83 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
       var d;
       return _regenerator().w(function (_context10) {
         while (1) switch (_context10.n) {
@@ -29817,7 +29865,7 @@ function App() {
       }, _callee10);
     }));
     return function handleLogin(_x57) {
-      return _ref81.apply(this, arguments);
+      return _ref83.apply(this, arguments);
     };
   }();
   var handleCloudSync = function handleCloudSync(mergedEvents, mergedUsers) {

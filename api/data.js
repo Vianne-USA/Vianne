@@ -5,6 +5,7 @@ const {
   saveSyncData,
   getDriveStatus,
 } = require("./lib/sync-store");
+const { normalizeCurrencyRates } = require("./lib/currency-rates");
 
 function cors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -47,7 +48,7 @@ module.exports = async function handler(req, res) {
         updatedAt: data.updatedAt || null,
         events: data.events || [],
         users: data.users || null,
-        currency: data.currency || null,
+        currency: normalizeCurrencyRates(data.currency),
         deletedEventIds: data.deletedEventIds || [],
       };
       if (req.query && req.query.debug === "1") {

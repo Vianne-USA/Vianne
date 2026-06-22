@@ -1,6 +1,8 @@
 const crypto = require("crypto");
 const { mergeEvents, applyDeletedEvents } = require("./merge-events");
 
+const { normalizeCurrencyRates } = require("./currency-rates");
+
 const MASTER_NAME = "vianne-master.json";
 const SCOPES = "https://www.googleapis.com/auth/drive";
 const DRIVE_FLAGS = "supportsAllDrives=true&includeItemsFromAllDrives=true";
@@ -757,7 +759,7 @@ async function saveMasterData(payload) {
     updatedAt: new Date().toISOString(),
     events: syncedEvents.map(slimEventForMaster),
     users: payload.users || (prev && prev.users) || null,
-    currency: payload.currency || (prev && prev.currency) || null,
+    currency: normalizeCurrencyRates(payload.currency || (prev && prev.currency) || null),
     deletedEventIds,
   };
 

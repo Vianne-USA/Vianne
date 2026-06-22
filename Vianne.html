@@ -13849,9 +13849,21 @@ function mergeEventPair(local, cloud) {
     histMap.set(k, mergeHist(histMap.get(k), h));
   });
   var invHistory = _toConsumableArray(histMap.values());
+  var mergeLookupHist = function mergeLookupHist(a, b) {
+    var seen = new Set();
+    var out = [];
+    [].concat(_toConsumableArray(a || []), _toConsumableArray(b || [])).forEach(function (h) {
+      if (!h || !h.id || seen.has(h.id)) return;
+      seen.add(h.id);
+      out.push(h);
+    });
+    return out.slice(0, 300);
+  };
+  var lookupHistory = pickLocal ? mergeLookupHist(local.lookupHistory, cloud.lookupHistory) : mergeLookupHist(cloud.lookupHistory, local.lookupHistory);
   return _objectSpread(_objectSpread({}, meta), {}, {
     inv: (localInv >= cloudInv ? local.inv || [] : cloud.inv || []).map(normalizeInvItem).filter(Boolean),
     invHistory: invHistory,
+    lookupHistory: lookupHistory,
     sales: pickLocal ? local.sales || [] : cloud.sales || [],
     leads: pickLocal ? local.leads || [] : cloud.leads || [],
     audits: pickLocal ? local.audits || [] : cloud.audits || [],
@@ -26590,6 +26602,9 @@ function HistoryTab(p) {
     pr = p.pr,
     user = p.user,
     sinvm = p.sinvm;
+  var lookupHistory = p.lookupHistory || [];
+  var openItem = p.openItem;
+  var stTab = p.st;
   var _useState129 = useState(""),
     _useState130 = _slicedToArray(_useState129, 2),
     search = _useState130[0],
@@ -26602,14 +26617,22 @@ function HistoryTab(p) {
     _useState134 = _slicedToArray(_useState133, 2),
     pmF = _useState134[0],
     setPmF = _useState134[1];
-  var _useState135 = useState("list"),
+  var _useState135 = useState("sales"),
     _useState136 = _slicedToArray(_useState135, 2),
-    view = _useState136[0],
-    setView = _useState136[1]; // list | analytics
-  var _useState137 = useState(null),
+    mode = _useState136[0],
+    setMode = _useState136[1]; // sales | lookups
+  var _useState137 = useState("list"),
     _useState138 = _slicedToArray(_useState137, 2),
-    selCust = _useState138[0],
-    setSelCust = _useState138[1];
+    view = _useState138[0],
+    setView = _useState138[1]; // list | analytics
+  var _useState139 = useState("All"),
+    _useState140 = _slicedToArray(_useState139, 2),
+    lookupUserF = _useState140[0],
+    setLookupUserF = _useState140[1];
+  var _useState141 = useState(null),
+    _useState142 = _slicedToArray(_useState141, 2),
+    selCust = _useState142[0],
+    setSelCust = _useState142[1];
   var stf = ["All"].concat(_toConsumableArray(_toConsumableArray(new Set(sales.map(function (s) {
     return s.staff;
   }))).sort()));
@@ -26625,6 +26648,18 @@ function HistoryTab(p) {
     }
     return true;
   });
+  var lookupUsers = ["All"].concat(_toConsumableArray(_toConsumableArray(new Set(lookupHistory.map(function (h) {
+    return h.user;
+  }))).filter(Boolean).sort()));
+  var filteredLookups = lookupHistory.filter(function (h) {
+    if (lookupUserF !== "All" && h.user !== lookupUserF) return false;
+    if (search) {
+      var q = search.toLowerCase();
+      return h.itemId && h.itemId.toLowerCase().includes(q) || h.itemName && h.itemName.toLowerCase().includes(q) || h.query && h.query.toLowerCase().includes(q) || h.user && h.user.toLowerCase().includes(q);
+    }
+    return true;
+  });
+  var historyCount = mode === "sales" ? filtered.length : filteredLookups.length;
   var rev = filtered.reduce(function (s, x) {
     return s + x.total;
   }, 0);
@@ -26866,12 +26901,12 @@ function HistoryTab(p) {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: S.sh
-  }, "\uD83D\uDD50 HISTORY (", filtered.length, ")"), /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDD50 HISTORY (", historyCount, ")"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 6
     }
-  }, /*#__PURE__*/React.createElement("button", {
+  }, mode === "sales" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
       return setView("list");
     },
@@ -26901,7 +26936,34 @@ function HistoryTab(p) {
       fontWeight: 600,
       cursor: "pointer"
     }
-  }, "Analytics"))), /*#__PURE__*/React.createElement("div", {
+  }, "Analytics")))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      setMode("sales");
+      setView("list");
+    },
+    style: _objectSpread(_objectSpread({
+      flex: 1
+    }, S.pill(mode === "sales")), {}, {
+      padding: "9px 8px",
+      fontSize: 11
+    })
+  }, "\uD83D\uDCB0 Sales (", sales.length, ")"), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return setMode("lookups");
+    },
+    style: _objectSpread(_objectSpread({
+      flex: 1
+    }, S.pill(mode === "lookups")), {}, {
+      padding: "9px 8px",
+      fontSize: 11
+    })
+  }, "\uD83D\uDD0D Lookups (", lookupHistory.length, ")")), /*#__PURE__*/React.createElement("div", {
     style: _objectSpread({}, S.card({
       margin: 0,
       marginBottom: 10
@@ -26910,12 +26972,12 @@ function HistoryTab(p) {
     style: S.inp({
       marginBottom: 8
     }),
-    placeholder: "Search customer, item code, payment...",
+    placeholder: mode === "sales" ? "Search customer, item code, payment..." : "Search item code, query, staff...",
     value: search,
     onChange: function onChange(e) {
       return setSearch(e.target.value);
     }
-  }), /*#__PURE__*/React.createElement("div", {
+  }), mode === "sales" ? /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 7
@@ -26948,7 +27010,19 @@ function HistoryTab(p) {
     return /*#__PURE__*/React.createElement("option", {
       key: s
     }, s);
-  })))), pr.vA && filtered.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }))) : /*#__PURE__*/React.createElement("select", {
+    style: S.inp({
+      marginBottom: 0
+    }),
+    value: lookupUserF,
+    onChange: function onChange(e) {
+      return setLookupUserF(e.target.value);
+    }
+  }, lookupUsers.map(function (s) {
+    return /*#__PURE__*/React.createElement("option", {
+      key: s
+    }, s);
+  }))), mode === "sales" && pr.vA && filtered.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "1fr 1fr 1fr",
@@ -26988,7 +27062,7 @@ function HistoryTab(p) {
         textTransform: "uppercase"
       }
     }, x.l));
-  })), view === "list" && /*#__PURE__*/React.createElement("div", {
+  })), mode === "sales" && view === "list" && /*#__PURE__*/React.createElement("div", {
     style: {
       background: WH,
       borderRadius: 12,
@@ -27017,7 +27091,7 @@ function HistoryTab(p) {
       color: T3,
       fontSize: 12
     }
-  }, "Completed sales will appear here.")), _toConsumableArray(filtered).reverse().map(function (s, i, arr) {
+  }, "Completed sales appear here. Switch to ", /*#__PURE__*/React.createElement("strong", null, "Lookups"), " for search history.")), _toConsumableArray(filtered).reverse().map(function (s, i, arr) {
     var it = inv.find(function (x) {
       return x.id === s.itemId;
     });
@@ -27129,7 +27203,104 @@ function HistoryTab(p) {
         fontStyle: "italic"
       }
     }, "\"", s.remark, "\""))));
-  })), view === "analytics" && filtered.length > 0 && /*#__PURE__*/React.createElement("div", {
+  })), mode === "lookups" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: WH,
+      borderRadius: 12,
+      overflow: "hidden",
+      border: "1px solid " + CRD2
+    }
+  }, filteredLookups.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: 40
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 28,
+      marginBottom: 10
+    }
+  }, "\uD83D\uDD0D"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T1,
+      fontSize: 14,
+      fontWeight: 600,
+      marginBottom: 6
+    }
+  }, "No Lookups Yet"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T3,
+      fontSize: 12
+    }
+  }, "Search or scan items in the Lookup tab \u2014 they appear here.")), filteredLookups.map(function (h, i, arr) {
+    var hi = inv.find(function (x) {
+      return x.id === h.itemId;
+    });
+    if (!hi) return null;
+    var ic = h.type === "scan" ? "📷" : h.type === "search" ? "🔍" : "👁";
+    return /*#__PURE__*/React.createElement("div", {
+      key: h.id,
+      onClick: function onClick() {
+        if (openItem) {
+          openItem(hi, h.type || "view", h.query);
+          if (stTab) stTab("lookup");
+        }
+      },
+      style: {
+        display: "flex",
+        gap: 11,
+        padding: "11px 13px",
+        borderBottom: i < arr.length - 1 ? "1px solid " + CRD2 : "none",
+        cursor: "pointer",
+        alignItems: "center"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 44,
+        height: 44,
+        borderRadius: 8,
+        overflow: "hidden",
+        flexShrink: 0,
+        background: CRD,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }
+    }, /*#__PURE__*/React.createElement(ItemThumb, {
+      item: hi,
+      size: 44
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 12,
+        color: T1
+      }
+    }, hi.id), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T3
+      }
+    }, hi.col, " \xB7 ", hi.cat), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T2,
+        marginTop: 2
+      }
+    }, ic, " ", h.query || h.type, " \xB7 ", h.user, " \xB7 ", h.date, " ", h.time)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "Cormorant Garamond,serif",
+        fontSize: 14,
+        fontWeight: 700,
+        color: G,
+        flexShrink: 0
+      }
+    }, fc(hi.fp, cur)));
+  })), mode === "sales" && view === "analytics" && filtered.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
@@ -27395,19 +27566,19 @@ function CustomersTab(p) {
     cur = p.cur,
     pr = p.pr,
     syncUp = p.syncUp;
-  var _useState139 = useState(false),
-    _useState140 = _slicedToArray(_useState139, 2),
-    showForm = _useState140[0],
-    sShowForm = _useState140[1];
-  var _useState141 = useState(""),
-    _useState142 = _slicedToArray(_useState141, 2),
-    search = _useState142[0],
-    setSearch = _useState142[1];
-  var _useState143 = useState(null),
+  var _useState143 = useState(false),
     _useState144 = _slicedToArray(_useState143, 2),
-    selected = _useState144[0],
-    setSelected = _useState144[1];
-  var _useState145 = useState({
+    showForm = _useState144[0],
+    sShowForm = _useState144[1];
+  var _useState145 = useState(""),
+    _useState146 = _slicedToArray(_useState145, 2),
+    search = _useState146[0],
+    setSearch = _useState146[1];
+  var _useState147 = useState(null),
+    _useState148 = _slicedToArray(_useState147, 2),
+    selected = _useState148[0],
+    setSelected = _useState148[1];
+  var _useState149 = useState({
       name: "",
       phone: "",
       email: "",
@@ -27416,9 +27587,9 @@ function CustomersTab(p) {
       status: "Warm",
       source: "Walk-in"
     }),
-    _useState146 = _slicedToArray(_useState145, 2),
-    form = _useState146[0],
-    setForm = _useState146[1];
+    _useState150 = _slicedToArray(_useState149, 2),
+    form = _useState150[0],
+    setForm = _useState150[1];
   var filtered = leads.filter(function (l) {
     if (!search) return true;
     var q = search.toLowerCase();
@@ -28050,182 +28221,182 @@ function EventERP(_ref74) {
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents).map(normalizeEvent);
-  var _useState147 = useState("lookup"),
-    _useState148 = _slicedToArray(_useState147, 2),
-    tab = _useState148[0],
-    st = _useState148[1];
-  var _useState149 = useState(ev.inv),
-    _useState150 = _slicedToArray(_useState149, 2),
-    inv = _useState150[0],
-    si = _useState150[1];
-  var _useState151 = useState(ev.sales),
+  var _useState151 = useState("lookup"),
     _useState152 = _slicedToArray(_useState151, 2),
-    sales = _useState152[0],
-    ssl = _useState152[1];
-  var _useState153 = useState(ev.leads),
+    tab = _useState152[0],
+    st = _useState152[1];
+  var _useState153 = useState(ev.inv),
     _useState154 = _slicedToArray(_useState153, 2),
-    leads = _useState154[0],
-    sld = _useState154[1];
-  var _useState155 = useState("USD"),
+    inv = _useState154[0],
+    si = _useState154[1];
+  var _useState155 = useState(ev.sales),
     _useState156 = _slicedToArray(_useState155, 2),
-    cur = _useState156[0],
-    scur = _useState156[1];
-  var _useState157 = useState(""),
+    sales = _useState156[0],
+    ssl = _useState156[1];
+  var _useState157 = useState(ev.leads),
     _useState158 = _slicedToArray(_useState157, 2),
-    jc = _useState158[0],
-    sjc = _useState158[1];
-  var _useState159 = useState(null),
+    leads = _useState158[0],
+    sld = _useState158[1];
+  var _useState159 = useState("USD"),
     _useState160 = _slicedToArray(_useState159, 2),
-    det = _useState160[0],
-    sdet = _useState160[1];
-  var _useState161 = useState("single"),
+    cur = _useState160[0],
+    scur = _useState160[1];
+  var _useState161 = useState(""),
     _useState162 = _slicedToArray(_useState161, 2),
-    mlTab = _useState162[0],
-    smlTab = _useState162[1];
-  var _useState163 = useState(""),
+    jc = _useState162[0],
+    sjc = _useState162[1];
+  var _useState163 = useState(null),
     _useState164 = _slicedToArray(_useState163, 2),
-    mlInput = _useState164[0],
-    smlInput = _useState164[1];
-  var _useState165 = useState([]),
+    det = _useState164[0],
+    sdet = _useState164[1];
+  var _useState165 = useState("single"),
     _useState166 = _slicedToArray(_useState165, 2),
-    mlItems = _useState166[0],
-    smlItems = _useState166[1];
+    mlTab = _useState166[0],
+    smlTab = _useState166[1];
   var _useState167 = useState(""),
     _useState168 = _slicedToArray(_useState167, 2),
-    mlDisc = _useState168[0],
-    smlDisc = _useState168[1];
-  var _useState169 = useState(""),
+    mlInput = _useState168[0],
+    smlInput = _useState168[1];
+  var _useState169 = useState([]),
     _useState170 = _slicedToArray(_useState169, 2),
-    mlDiscAmt = _useState170[0],
-    smlDiscAmt = _useState170[1];
+    mlItems = _useState170[0],
+    smlItems = _useState170[1];
   var _useState171 = useState(""),
     _useState172 = _slicedToArray(_useState171, 2),
-    mlMarkup = _useState172[0],
-    smlMarkup = _useState172[1];
-  var _useState173 = useState([]),
+    mlDisc = _useState172[0],
+    smlDisc = _useState172[1];
+  var _useState173 = useState(""),
     _useState174 = _slicedToArray(_useState173, 2),
-    mlNF = _useState174[0],
-    smlNF = _useState174[1];
-  var _useState175 = useState(false),
+    mlDiscAmt = _useState174[0],
+    smlDiscAmt = _useState174[1];
+  var _useState175 = useState(""),
     _useState176 = _slicedToArray(_useState175, 2),
-    mlScan = _useState176[0],
-    smlScan = _useState176[1];
-  var _useState177 = useState(false),
+    mlMarkup = _useState176[0],
+    smlMarkup = _useState176[1];
+  var _useState177 = useState([]),
     _useState178 = _slicedToArray(_useState177, 2),
-    showFilter = _useState178[0],
-    sShowFilter = _useState178[1];
-  var _useState179 = useState("All"),
+    mlNF = _useState178[0],
+    smlNF = _useState178[1];
+  var _useState179 = useState(false),
     _useState180 = _slicedToArray(_useState179, 2),
-    fCat = _useState180[0],
-    sfCat = _useState180[1];
-  var _useState181 = useState("All"),
+    mlScan = _useState180[0],
+    smlScan = _useState180[1];
+  var _useState181 = useState(false),
     _useState182 = _slicedToArray(_useState181, 2),
-    fCol = _useState182[0],
-    sfCol = _useState182[1];
+    showFilter = _useState182[0],
+    sShowFilter = _useState182[1];
   var _useState183 = useState("All"),
     _useState184 = _slicedToArray(_useState183, 2),
-    fMetal = _useState184[0],
-    sfMetal = _useState184[1];
+    fCat = _useState184[0],
+    sfCat = _useState184[1];
   var _useState185 = useState("All"),
     _useState186 = _slicedToArray(_useState185, 2),
-    fSt = _useState186[0],
-    sfSt = _useState186[1];
+    fCol = _useState186[0],
+    sfCol = _useState186[1];
   var _useState187 = useState("All"),
     _useState188 = _slicedToArray(_useState187, 2),
-    fShape = _useState188[0],
-    sfShape = _useState188[1];
-  var _useState189 = useState(""),
+    fMetal = _useState188[0],
+    sfMetal = _useState188[1];
+  var _useState189 = useState("All"),
     _useState190 = _slicedToArray(_useState189, 2),
-    fMinTc = _useState190[0],
-    sfMinTc = _useState190[1];
-  var _useState191 = useState(""),
+    fSt = _useState190[0],
+    sfSt = _useState190[1];
+  var _useState191 = useState("All"),
     _useState192 = _slicedToArray(_useState191, 2),
-    fMaxTc = _useState192[0],
-    sfMaxTc = _useState192[1];
+    fShape = _useState192[0],
+    sfShape = _useState192[1];
   var _useState193 = useState(""),
     _useState194 = _slicedToArray(_useState193, 2),
-    fMinGw = _useState194[0],
-    sfMinGw = _useState194[1];
+    fMinTc = _useState194[0],
+    sfMinTc = _useState194[1];
   var _useState195 = useState(""),
     _useState196 = _slicedToArray(_useState195, 2),
-    fMaxGw = _useState196[0],
-    sfMaxGw = _useState196[1];
+    fMaxTc = _useState196[0],
+    sfMaxTc = _useState196[1];
   var _useState197 = useState(""),
     _useState198 = _slicedToArray(_useState197, 2),
-    fMinNw = _useState198[0],
-    sfMinNw = _useState198[1];
+    fMinGw = _useState198[0],
+    sfMinGw = _useState198[1];
   var _useState199 = useState(""),
     _useState200 = _slicedToArray(_useState199, 2),
-    fMaxNw = _useState200[0],
-    sfMaxNw = _useState200[1];
+    fMaxGw = _useState200[0],
+    sfMaxGw = _useState200[1];
   var _useState201 = useState(""),
     _useState202 = _slicedToArray(_useState201, 2),
-    fMinFp = _useState202[0],
-    sfMinFp = _useState202[1];
+    fMinNw = _useState202[0],
+    sfMinNw = _useState202[1];
   var _useState203 = useState(""),
     _useState204 = _slicedToArray(_useState203, 2),
-    fMaxFp = _useState204[0],
-    sfMaxFp = _useState204[1];
-  var _useState205 = useState(false),
+    fMaxNw = _useState204[0],
+    sfMaxNw = _useState204[1];
+  var _useState205 = useState(""),
     _useState206 = _slicedToArray(_useState205, 2),
-    scan = _useState206[0],
-    sscan = _useState206[1];
-  var _useState207 = useState(null),
+    fMinFp = _useState206[0],
+    sfMinFp = _useState206[1];
+  var _useState207 = useState(""),
     _useState208 = _slicedToArray(_useState207, 2),
-    invm = _useState208[0],
-    sinvm = _useState208[1];
+    fMaxFp = _useState208[0],
+    sfMaxFp = _useState208[1];
   var _useState209 = useState(false),
     _useState210 = _slicedToArray(_useState209, 2),
-    showSwitch = _useState210[0],
-    ssw = _useState210[1];
-  var _useState211 = useState(false),
+    scan = _useState210[0],
+    sscan = _useState210[1];
+  var _useState211 = useState(null),
     _useState212 = _slicedToArray(_useState211, 2),
-    showUser = _useState212[0],
-    ssu = _useState212[1];
-  var _useState213 = useState("stock"),
+    invm = _useState212[0],
+    sinvm = _useState212[1];
+  var _useState213 = useState(false),
     _useState214 = _slicedToArray(_useState213, 2),
-    invTab = _useState214[0],
-    sivTab = _useState214[1];
-  var _useState215 = useState(""),
+    showSwitch = _useState214[0],
+    ssw = _useState214[1];
+  var _useState215 = useState(false),
     _useState216 = _slicedToArray(_useState215, 2),
-    isq = _useState216[0],
-    sisq = _useState216[1];
-  var _useState217 = useState("All"),
+    showUser = _useState216[0],
+    ssu = _useState216[1];
+  var _useState217 = useState("stock"),
     _useState218 = _slicedToArray(_useState217, 2),
-    ist = _useState218[0],
-    sist = _useState218[1];
-  var _useState219 = useState("All"),
+    invTab = _useState218[0],
+    sivTab = _useState218[1];
+  var _useState219 = useState(""),
     _useState220 = _slicedToArray(_useState219, 2),
-    icat = _useState220[0],
-    sicat = _useState220[1];
-  var _useState221 = useState("Exhibition"),
+    isq = _useState220[0],
+    sisq = _useState220[1];
+  var _useState221 = useState("All"),
     _useState222 = _slicedToArray(_useState221, 2),
-    auditLoc = _useState222[0],
-    saLoc = _useState222[1];
-  var _useState223 = useState([]),
+    ist = _useState222[0],
+    sist = _useState222[1];
+  var _useState223 = useState("All"),
     _useState224 = _slicedToArray(_useState223, 2),
-    auditScanned = _useState224[0],
-    saScanned = _useState224[1];
-  var _useState225 = useState(ev.audits || []),
+    icat = _useState224[0],
+    sicat = _useState224[1];
+  var _useState225 = useState("Exhibition"),
     _useState226 = _slicedToArray(_useState225, 2),
-    audits = _useState226[0],
-    sAudits = _useState226[1];
-  var _useState227 = useState(ev.lookupHistory),
+    auditLoc = _useState226[0],
+    saLoc = _useState226[1];
+  var _useState227 = useState([]),
     _useState228 = _slicedToArray(_useState227, 2),
-    lookupHistory = _useState228[0],
-    sLookupHistory = _useState228[1];
-  var _useState229 = useState(0),
+    auditScanned = _useState228[0],
+    saScanned = _useState228[1];
+  var _useState229 = useState(ev.audits || []),
     _useState230 = _slicedToArray(_useState229, 2),
-    imgTick = _useState230[0],
-    sImgTick = _useState230[1];
-  var _useState231 = useState("All"),
+    audits = _useState230[0],
+    sAudits = _useState230[1];
+  var _useState231 = useState(ev.lookupHistory),
     _useState232 = _slicedToArray(_useState231, 2),
-    hstaff = _useState232[0],
-    shs = _useState232[1];
-  var _useState233 = useState("overview"),
+    lookupHistory = _useState232[0],
+    sLookupHistory = _useState232[1];
+  var _useState233 = useState(0),
     _useState234 = _slicedToArray(_useState233, 2),
-    atab = _useState234[0],
-    sat = _useState234[1];
+    imgTick = _useState234[0],
+    sImgTick = _useState234[1];
+  var _useState235 = useState("All"),
+    _useState236 = _slicedToArray(_useState235, 2),
+    hstaff = _useState236[0],
+    shs = _useState236[1];
+  var _useState237 = useState("overview"),
+    _useState238 = _slicedToArray(_useState237, 2),
+    atab = _useState238[0],
+    sat = _useState238[1];
   useEffect(function () {
     var nextEv = normalizeEvent(ev);
     si(nextEv.inv);
@@ -28906,7 +29077,10 @@ function EventERP(_ref74) {
     stf: stf,
     fh: fh,
     totalRev: totalRev,
-    onLogout: onLogout
+    onLogout: onLogout,
+    lookupHistory: lookupHistory,
+    openItem: openItem,
+    imgTick: imgTick
   }), tab === "inventory" && /*#__PURE__*/React.createElement(InventoryTab, {
     ev: ev,
     inv: inv,
@@ -29363,34 +29537,34 @@ function EventERP(_ref74) {
   })))));
 }
 function App() {
-  var _useState235 = useState(null),
-    _useState236 = _slicedToArray(_useState235, 2),
-    user = _useState236[0],
-    su = _useState236[1];
-  var _useState237 = useState([]),
-    _useState238 = _slicedToArray(_useState237, 2),
-    events = _useState238[0],
-    sevents = _useState238[1];
-  var _useState239 = useState(loadUsers),
+  var _useState239 = useState(null),
     _useState240 = _slicedToArray(_useState239, 2),
-    appUsers = _useState240[0],
-    sappUsers = _useState240[1];
-  var _useState241 = useState(false),
+    user = _useState240[0],
+    su = _useState240[1];
+  var _useState241 = useState([]),
     _useState242 = _slicedToArray(_useState241, 2),
-    dataReady = _useState242[0],
-    setDataReady = _useState242[1];
-  var _useState243 = useState(false),
+    events = _useState242[0],
+    sevents = _useState242[1];
+  var _useState243 = useState(loadUsers),
     _useState244 = _slicedToArray(_useState243, 2),
-    cloudReady = _useState244[0],
-    setCloudReady = _useState244[1];
-  var _useState245 = useState(null),
+    appUsers = _useState244[0],
+    sappUsers = _useState244[1];
+  var _useState245 = useState(false),
     _useState246 = _slicedToArray(_useState245, 2),
-    activeEv = _useState246[0],
-    sae = _useState246[1];
-  var _useState247 = useState(null),
+    dataReady = _useState246[0],
+    setDataReady = _useState246[1];
+  var _useState247 = useState(false),
     _useState248 = _slicedToArray(_useState247, 2),
-    manageEv = _useState248[0],
-    smev = _useState248[1];
+    cloudReady = _useState248[0],
+    setCloudReady = _useState248[1];
+  var _useState249 = useState(null),
+    _useState250 = _slicedToArray(_useState249, 2),
+    activeEv = _useState250[0],
+    sae = _useState250[1];
+  var _useState251 = useState(null),
+    _useState252 = _slicedToArray(_useState251, 2),
+    manageEv = _useState252[0],
+    smev = _useState252[1];
   var dark = useDark();
   var cloudSyncRef = useRef(null);
   var autoSyncRef = useRef(null);

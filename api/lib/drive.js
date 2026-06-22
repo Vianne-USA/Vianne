@@ -449,6 +449,9 @@ async function hydrateEventFromFolder(ev) {
         invHistory: (full.invHistory && full.invHistory.length)
           ? full.invHistory
           : ev.invHistory || [],
+        lookupHistory: (full.lookupHistory && full.lookupHistory.length)
+          ? full.lookupHistory
+          : ev.lookupHistory || [],
         driveFolderId: ev.driveFolderId || full.driveFolderId,
         driveFileId: ev.driveFileId || full.driveFileId,
       };

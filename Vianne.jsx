@@ -774,10 +774,22 @@ function mergeEventPair(local,cloud){
     histMap.set(k,mergeHist(histMap.get(k),h));
   });
   const invHistory=[...histMap.values()];
+  const mergeLookupHist=(a,b)=>{
+    const seen=new Set();
+    const out=[];
+    [...(a||[]),...(b||[])].forEach(h=>{
+      if(!h||!h.id||seen.has(h.id))return;
+      seen.add(h.id);
+      out.push(h);
+    });
+    return out.slice(0,300);
+  };
+  const lookupHistory=pickLocal?mergeLookupHist(local.lookupHistory,cloud.lookupHistory):mergeLookupHist(cloud.lookupHistory,local.lookupHistory);
   return{
     ...meta,
     inv:(localInv>=cloudInv?(local.inv||[]):(cloud.inv||[])).map(normalizeInvItem).filter(Boolean),
     invHistory,
+    lookupHistory,
     sales:pickLocal?(local.sales||[]):(cloud.sales||[]),
     leads:pickLocal?(local.leads||[]):(cloud.leads||[]),
     audits:pickLocal?(local.audits||[]):(cloud.audits||[]),
@@ -4455,10 +4467,15 @@ function SalesTab(p){
 
 function HistoryTab(p){
   var sales=p.sales,inv=p.inv,cur=p.cur,fc=p.fc,pr=p.pr,user=p.user,sinvm=p.sinvm;
+  var lookupHistory=p.lookupHistory||[];
+  var openItem=p.openItem;
+  var stTab=p.st;
   const [search,setSearch]=useState("");
   const [staffF,setStaffF]=useState("All");
   const [pmF,setPmF]=useState("All");
+  const [mode,setMode]=useState("sales"); // sales | lookups
   const [view,setView]=useState("list"); // list | analytics
+  const [lookupUserF,setLookupUserF]=useState("All");
   const [selCust,setSelCust]=useState(null);
 
   const stf=["All",...[...new Set(sales.map(s=>s.staff))].sort()];
@@ -4477,6 +4494,19 @@ function HistoryTab(p){
     }
     return true;
   });
+  const lookupUsers=["All",...[...new Set(lookupHistory.map(h=>h.user))].filter(Boolean).sort()];
+  const filteredLookups=lookupHistory.filter(h=>{
+    if(lookupUserF!=="All"&&h.user!==lookupUserF)return false;
+    if(search){
+      const q=search.toLowerCase();
+      return(h.itemId&&h.itemId.toLowerCase().includes(q))||
+             (h.itemName&&h.itemName.toLowerCase().includes(q))||
+             (h.query&&h.query.toLowerCase().includes(q))||
+             (h.user&&h.user.toLowerCase().includes(q));
+    }
+    return true;
+  });
+  const historyCount=mode==="sales"?filtered.length:filteredLookups.length;
 
   const rev=filtered.reduce((s,x)=>s+x.total,0);
   const avgDeal=filtered.length?rev/filtered.length:0;
@@ -4565,16 +4595,25 @@ function HistoryTab(p){
 
       {/* Header + view toggle */}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:11}}>
-        <div style={S.sh}>🕐 HISTORY ({filtered.length})</div>
+        <div style={S.sh}>🕐 HISTORY ({historyCount})</div>
         <div style={{display:"flex",gap:6}}>
-          <button onClick={()=>setView("list")} style={{background:view==="list"?G:CRD,border:"1.5px solid "+(view==="list"?G:CRD2),color:view==="list"?CR:T2,borderRadius:7,padding:"5px 10px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,cursor:"pointer"}}>List</button>
-          <button onClick={()=>setView("analytics")} style={{background:view==="analytics"?G:CRD,border:"1.5px solid "+(view==="analytics"?G:CRD2),color:view==="analytics"?CR:T2,borderRadius:7,padding:"5px 10px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,cursor:"pointer"}}>Analytics</button>
+          {mode==="sales"&&<>
+            <button onClick={()=>setView("list")} style={{background:view==="list"?G:CRD,border:"1.5px solid "+(view==="list"?G:CRD2),color:view==="list"?CR:T2,borderRadius:7,padding:"5px 10px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,cursor:"pointer"}}>List</button>
+            <button onClick={()=>setView("analytics")} style={{background:view==="analytics"?G:CRD,border:"1.5px solid "+(view==="analytics"?G:CRD2),color:view==="analytics"?CR:T2,borderRadius:7,padding:"5px 10px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,cursor:"pointer"}}>Analytics</button>
+          </>}
         </div>
+      </div>
+
+      {/* Sales vs Lookups */}
+      <div style={{display:"flex",gap:8,marginBottom:10}}>
+        <button onClick={()=>{setMode("sales");setView("list");}} style={{flex:1,...S.pill(mode==="sales"),padding:"9px 8px",fontSize:11}}>💰 Sales ({sales.length})</button>
+        <button onClick={()=>setMode("lookups")} style={{flex:1,...S.pill(mode==="lookups"),padding:"9px 8px",fontSize:11}}>🔍 Lookups ({lookupHistory.length})</button>
       </div>
 
       {/* Search + filters */}
       <div style={{...S.card({margin:0,marginBottom:10})}}>
-        <input style={S.inp({marginBottom:8})} placeholder="Search customer, item code, payment..." value={search} onChange={e=>setSearch(e.target.value)}/>
+        <input style={S.inp({marginBottom:8})} placeholder={mode==="sales"?"Search customer, item code, payment...":"Search item code, query, staff..."} value={search} onChange={e=>setSearch(e.target.value)}/>
+        {mode==="sales"?(
         <div style={{display:"flex",gap:7}}>
           <select style={{...S.inp({marginBottom:0}),flex:1}} value={staffF} onChange={e=>setStaffF(e.target.value)}>
             {stf.map(s=><option key={s}>{s}</option>)}
@@ -4583,10 +4622,15 @@ function HistoryTab(p){
             {pms.map(s=><option key={s}>{s}</option>)}
           </select>
         </div>
+        ):(
+        <select style={S.inp({marginBottom:0})} value={lookupUserF} onChange={e=>setLookupUserF(e.target.value)}>
+          {lookupUsers.map(s=><option key={s}>{s}</option>)}
+        </select>
+        )}
       </div>
 
       {/* Revenue summary bar */}
-      {pr.vA&&filtered.length>0&&(
+      {mode==="sales"&&pr.vA&&filtered.length>0&&(
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:10}}>
           {[{l:"Revenue",v:fc(rev,cur)},{l:"Sales",v:filtered.length},{l:"Avg Deal",v:fc(avgDeal,cur)}].map(x=>(
             <div key={x.l} style={{...S.card({margin:0,padding:"10px 8px"}),textAlign:"center"}}>
@@ -4598,13 +4642,13 @@ function HistoryTab(p){
       )}
 
       {/* ── LIST VIEW ── */}
-      {view==="list"&&(
+      {mode==="sales"&&view==="list"&&(
         <div style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2}}>
           {filtered.length===0&&(
             <div style={{textAlign:"center",padding:40}}>
               <div style={{fontSize:28,marginBottom:10}}>🕐</div>
               <div style={{color:T1,fontSize:14,fontWeight:600,marginBottom:6}}>No Sales Yet</div>
-              <div style={{color:T3,fontSize:12}}>Completed sales will appear here.</div>
+              <div style={{color:T3,fontSize:12}}>Completed sales appear here. Switch to <strong>Lookups</strong> for search history.</div>
             </div>
           )}
           {[...filtered].reverse().map((s,i,arr)=>{
@@ -4641,8 +4685,39 @@ function HistoryTab(p){
         </div>
       )}
 
+      {/* ── LOOKUPS VIEW ── */}
+      {mode==="lookups"&&(
+        <div style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2}}>
+          {filteredLookups.length===0&&(
+            <div style={{textAlign:"center",padding:40}}>
+              <div style={{fontSize:28,marginBottom:10}}>🔍</div>
+              <div style={{color:T1,fontSize:14,fontWeight:600,marginBottom:6}}>No Lookups Yet</div>
+              <div style={{color:T3,fontSize:12}}>Search or scan items in the Lookup tab — they appear here.</div>
+            </div>
+          )}
+          {filteredLookups.map((h,i,arr)=>{
+            const hi=inv.find(x=>x.id===h.itemId);
+            if(!hi)return null;
+            const ic=h.type==="scan"?"📷":h.type==="search"?"🔍":"👁";
+            return(
+              <div key={h.id} onClick={()=>{if(openItem){openItem(hi,h.type||"view",h.query);if(stTab)stTab("lookup");}}} style={{display:"flex",gap:11,padding:"11px 13px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer",alignItems:"center"}}>
+                <div style={{width:44,height:44,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  <ItemThumb item={hi} size={44}/>
+                </div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:700,fontSize:12,color:T1}}>{hi.id}</div>
+                  <div style={{fontSize:10,color:T3}}>{hi.col} · {hi.cat}</div>
+                  <div style={{fontSize:10,color:T2,marginTop:2}}>{ic} {h.query||h.type} · {h.user} · {h.date} {h.time}</div>
+                </div>
+                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G,flexShrink:0}}>{fc(hi.fp,cur)}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* ── ANALYTICS VIEW ── */}
-      {view==="analytics"&&filtered.length>0&&(
+      {mode==="sales"&&view==="analytics"&&filtered.length>0&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
 
           {/* Customer leaderboard */}
@@ -5046,7 +5121,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
         {tab==="sales"&&<SalesTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,onAddLead:onAddLead}}/>}
 
-        {tab==="history"&&<HistoryTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout}}/>}
+        {tab==="history"&&<HistoryTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,lookupHistory:lookupHistory,openItem:openItem,imgTick:imgTick}}/>}
 
         {tab==="inventory"&&<InventoryTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,lookupHistory:lookupHistory,openItem:openItem,imgTick:imgTick}}/>}
 

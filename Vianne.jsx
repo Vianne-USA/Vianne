@@ -5,8 +5,12 @@ function sl(s){return String(s||"").toLowerCase();}
 function itemMatchesQ(i,q){if(!q)return true;const ql=sl(q);return sl(i.id).includes(ql)||sl(i.col).includes(ql)||sl(i.cat).includes(ql)||sl(i.metal).includes(ql)||sl(i.style).includes(ql);}
 function normalizeInvItem(it){
   if(!it||!it.id)return null;
+  const {xl,img:rawImg,...rest}=it;
+  let img=String(rawImg||"").trim();
+  if(img.startsWith("data:")||img.startsWith("blob:"))img="";
+  else if(img&&!/^https?:\/\//i.test(img)&&!img.startsWith("/api/"))img="";
   return{
-    ...it,
+    ...rest,
     id:String(it.id).toUpperCase(),
     cat:it.cat!=null?String(it.cat):"",
     col:it.col!=null?String(it.col):"—",
@@ -20,7 +24,27 @@ function normalizeInvItem(it){
     loc:it.loc||"Exhibition",
     views:Number(it.views)||0,
     searches:Number(it.searches)||0,
+    img:img||"",
   };
+}
+function repairEventsStorage(){
+  try{
+    const raw=localStorage.getItem(EVENTS_KEY);
+    if(!raw)return false;
+    let parsed;
+    try{parsed=JSON.parse(raw);}catch(e){localStorage.removeItem(EVENTS_KEY);return true;}
+    if(!Array.isArray(parsed)){localStorage.removeItem(EVENTS_KEY);return true;}
+    const fixed=ensureNyOfficeEvent(parsed.map(normalizeEvent));
+    const slim=JSON.stringify(slimEventsForStorage(fixed));
+    if(raw.length>900000||slim.length<raw.length*0.85){
+      localStorage.setItem(EVENTS_KEY,slim);
+      return true;
+    }
+  }catch(e){
+    try{localStorage.removeItem(EVENTS_KEY);}catch(_){}
+    return true;
+  }
+  return false;
 }
 function normalizeEvent(ev){
   if(!ev)return ev;
@@ -497,7 +521,7 @@ function loadEvents(){
     const raw=localStorage.getItem(EVENTS_KEY);
     if(raw){
       const parsed=JSON.parse(raw);
-      if(Array.isArray(parsed)&&parsed.length)return ensureNyOfficeEvent(parsed);
+      if(Array.isArray(parsed)&&parsed.length)return ensureNyOfficeEvent(parsed.map(normalizeEvent));
     }
   }catch(e){}
   return ensureNyOfficeEvent(DEMO_EVENTS);
@@ -718,7 +742,7 @@ function mergeEventPair(local,cloud){
   const invHistory=[...histMap.values()];
   return{
     ...meta,
-    inv:localInv>=cloudInv?(local.inv||[]):(cloud.inv||[]),
+    inv:(localInv>=cloudInv?(local.inv||[]):(cloud.inv||[])).map(normalizeInvItem).filter(Boolean),
     invHistory,
     sales:pickLocal?(local.sales||[]):(cloud.sales||[]),
     leads:pickLocal?(local.leads||[]):(cloud.leads||[]),
@@ -748,7 +772,7 @@ function mergeEvents(local,cloud){
     const prev=byId.get(e.id);
     byId.set(e.id,prev?mergeEventPair(prev,e):e);
   });
-  return ensureNyOfficeEvent([...byId.values()]);
+  return ensureNyOfficeEvent([...byId.values()].map(normalizeEvent));
 }
 const USERS_KEY="vj_users";
 const SESSION_KEY="vj_session";
@@ -922,7 +946,7 @@ function applyCloudPull(d,sevents,sappUsers,refs){
   if(!hasCloudData&&cloudVer<=localMeta.version)return false;
   sevents(prev=>{
     const extra=Array.isArray(d.deletedEventIds)?d.deletedEventIds:[];
-    const merged=applyDeletedFilter(mergeEvents(prev,d.events||[]),extra);
+    const merged=ensureNyOfficeEvent(applyDeletedFilter(mergeEvents(prev,d.events||[]),extra).map(normalizeEvent));
     saveEvents(merged);
     if(refs&&refs.eventsRef)refs.eventsRef.current=merged;
     return merged;
@@ -4895,6 +4919,10 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
     if(cloudReady===false)return;
     ensureEventInvImages(ev).then(n=>{if(n)sImgTick(x=>x+1);}).catch(e=>console.warn("Event images",e));
   },[cloudReady,ev.id,ev.syncedAt,ev.localUpdatedAt,(ev.inv||[]).length,(ev.invHistory||[]).map(h=>h.driveFileId).join(",")]);
+  useEffect(()=>{
+    const ids=(inv||[]).slice(0,25).map(i=>i.id);
+    if(ids.length)prefetchInvImages(ids).then(n=>{if(n)sImgTick(x=>x+1);});
+  },[inv.length,ev.id]);
   const syncUp=(ni,ns,nl,na,nlh)=>onUpdateEvent({...ev,inv:ni||inv,sales:ns||sales,leads:nl||leads,audits:na||audits,lookupHistory:nlh!==undefined?nlh:lookupHistory});
   const recordLookup=(item,type,query)=>{
     if(!item)return null;
@@ -4967,10 +4995,6 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const lkResults = applyFilters(inv, lkQ || null);
   const lkShowResults = lkQ.length > 0 || activeFilters > 0;
   const detItem = det ? invItem(inv, det) : null;
-  useEffect(()=>{
-    const ids=lkResults.slice(0,25).map(i=>i.id);
-    if(ids.length)prefetchInvImages(ids).then(n=>{if(n)sImgTick(x=>x+1);});
-  },[lkQ,lkResults.length,inv.length,ev.id,activeFilters]);
 
   return(
     <div style={{width:"100%",minHeight:"100dvh",background:GD,display:"flex",flexDirection:"column",boxSizing:"border-box",alignItems:"center"}}>
@@ -5101,9 +5125,10 @@ function App(){
     },delay);
   };
   useEffect(()=>{
+    repairEventsStorage();
     (async()=>{
       const local=await loadEventsAsync();
-      sevents(local);
+      sevents(local.map(normalizeEvent));
       saveEvents(local);
       setDataReady(true);
     })();
@@ -5265,22 +5290,23 @@ function App(){
   return(
     <div style={{width:"100%",minHeight:"100dvh",overflowX:"hidden",background:dark?"#0f0f0f":"#163D2E"}}>
       <ToastContainer/>
-      <EventHub user={user} events={events} onEnter={ev=>{if(!userHasEventAccess(user,ev.id)){toast.warn("No access","Ask an admin to assign this event to your account.");return;}sae(ev);}} onCreate={createEv} onManage={ev=>smev(ev)} onDelete={delEv} onLogout={logout}/>
+      <EventHub user={user} events={events} onEnter={ev=>{const full=normalizeEvent(events.find(e=>e.id===ev.id)||ev);if(!userHasEventAccess(user,full.id)){toast.warn("No access","Ask an admin to assign this event to your account.");return;}sae(full);}} onCreate={createEv} onManage={ev=>smev(ev)} onDelete={delEv} onLogout={logout}/>
       {manageEv&&<ManageEvent ev={events.find(e=>e.id===manageEv.id)||manageEv} user={user} onClose={()=>smev(null)} onUpdate={ev=>{upEv(ev);smev(ev);if(activeEv&&activeEv.id===ev.id)sae(ev);}} onDelete={id=>{delEv(id);smev(null);if(activeEv&&activeEv.id===id)sae(null);}}/>}
     </div>
   );
 }
 
 class ErrorBoundary extends React.Component{
-  constructor(p){super(p);this.state={hasError:false,clearing:false};}
-  static getDerivedStateFromError(){return{hasError:true};}
+  constructor(p){super(p);this.state={hasError:false,errMsg:"",clearing:false};}
+  static getDerivedStateFromError(err){return{hasError:true,errMsg:err&&(err.message||String(err))||"Unknown error"};}
   componentDidCatch(err,info){console.error("Vianne crash",err,info);}
   render(){
     if(this.state.hasError){
       return(
         <div style={{minHeight:"100dvh",background:GD,padding:24,fontFamily:"Lato,sans-serif",color:CR,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",gap:14}}>
           <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G}}>Vianne Jewels</div>
-          <p style={{fontSize:13,maxWidth:360,lineHeight:1.5}}>Something went wrong — usually caused by old cached data in your browser. Clear saved data below, then hard refresh.</p>
+          <p style={{fontSize:13,maxWidth:360,lineHeight:1.5}}>Something went wrong — usually old cached data in your browser. Clear saved data below, then sign in again.</p>
+          {this.state.errMsg&&<p style={{fontSize:10,maxWidth:360,color:T3,wordBreak:"break-word",lineHeight:1.4}}>{this.state.errMsg}</p>}
           <button type="button" disabled={this.state.clearing} onClick={async()=>{this.setState({clearing:true});await clearAllAppData();location.reload();}} style={S.btn({width:"auto",padding:"11px 18px"})}>{this.state.clearing?"Clearing…":"Clear saved data & reload"}</button>
         </div>
       );

@@ -10455,8 +10455,9 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 /***/ })
 /******/ ])["default"];
 });</script>
-<script>var _excluded = ["img", "xl"],
-  _excluded2 = ["img"];
+<script>var _excluded = ["xl", "img"],
+  _excluded2 = ["img", "xl"],
+  _excluded3 = ["img"];
 function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
@@ -10469,8 +10470,6 @@ function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? O
 function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n2 = 0, F = function F() {}; return { s: F, n: function n() { return _n2 >= r.length ? { done: !0 } : { done: !1, value: r[_n2++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
-function _objectWithoutProperties(e, t) { if (null == e) return {}; var o, r, i = _objectWithoutPropertiesLoose(e, t); if (Object.getOwnPropertySymbols) { var n = Object.getOwnPropertySymbols(e); for (r = 0; r < n.length; r++) o = n[r], -1 === t.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]); } return i; }
-function _objectWithoutPropertiesLoose(r, e) { if (null == r) return {}; var t = {}; for (var n in r) if ({}.hasOwnProperty.call(r, n)) { if (-1 !== e.indexOf(n)) continue; t[n] = r[n]; } return t; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
@@ -10491,6 +10490,8 @@ function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t =
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _objectWithoutProperties(e, t) { if (null == e) return {}; var o, r, i = _objectWithoutPropertiesLoose(e, t); if (Object.getOwnPropertySymbols) { var n = Object.getOwnPropertySymbols(e); for (r = 0; r < n.length; r++) o = n[r], -1 === t.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]); } return i; }
+function _objectWithoutPropertiesLoose(r, e) { if (null == r) return {}; var t = {}; for (var n in r) if ({}.hasOwnProperty.call(r, n)) { if (-1 !== e.indexOf(n)) continue; t[n] = r[n]; } return t; }
 var _R = React;
 var useState = _R.useState;
 var useRef = _R.useRef;
@@ -10514,7 +10515,12 @@ function itemMatchesQ(i, q) {
 }
 function normalizeInvItem(it) {
   if (!it || !it.id) return null;
-  return _objectSpread(_objectSpread({}, it), {}, {
+  var xl = it.xl,
+    rawImg = it.img,
+    rest = _objectWithoutProperties(it, _excluded);
+  var img = String(rawImg || "").trim();
+  if (img.startsWith("data:") || img.startsWith("blob:")) img = "";else if (img && !/^https?:\/\//i.test(img) && !img.startsWith("/api/")) img = "";
+  return _objectSpread(_objectSpread({}, rest), {}, {
     id: String(it.id).toUpperCase(),
     cat: it.cat != null ? String(it.cat) : "",
     col: it.col != null ? String(it.col) : "—",
@@ -10527,8 +10533,38 @@ function normalizeInvItem(it) {
     em: it.em || "💎",
     loc: it.loc || "Exhibition",
     views: Number(it.views) || 0,
-    searches: Number(it.searches) || 0
+    searches: Number(it.searches) || 0,
+    img: img || ""
   });
+}
+function repairEventsStorage() {
+  try {
+    var raw = localStorage.getItem(EVENTS_KEY);
+    if (!raw) return false;
+    var parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (e) {
+      localStorage.removeItem(EVENTS_KEY);
+      return true;
+    }
+    if (!Array.isArray(parsed)) {
+      localStorage.removeItem(EVENTS_KEY);
+      return true;
+    }
+    var fixed = ensureNyOfficeEvent(parsed.map(normalizeEvent));
+    var slim = JSON.stringify(slimEventsForStorage(fixed));
+    if (raw.length > 900000 || slim.length < raw.length * 0.85) {
+      localStorage.setItem(EVENTS_KEY, slim);
+      return true;
+    }
+  } catch (e) {
+    try {
+      localStorage.removeItem(EVENTS_KEY);
+    } catch (_) {}
+    return true;
+  }
+  return false;
 }
 function normalizeEvent(ev) {
   if (!ev) return ev;
@@ -13147,7 +13183,7 @@ function loadEvents() {
     var raw = localStorage.getItem(EVENTS_KEY);
     if (raw) {
       var parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length) return ensureNyOfficeEvent(parsed);
+      if (Array.isArray(parsed) && parsed.length) return ensureNyOfficeEvent(parsed.map(normalizeEvent));
     }
   } catch (e) {}
   return ensureNyOfficeEvent(DEMO_EVENTS);
@@ -13681,7 +13717,7 @@ function slimEventsForStorage(evts) {
         if (!slim) return it;
         var img = slim.img,
           xl = slim.xl,
-          rest = _objectWithoutProperties(slim, _excluded);
+          rest = _objectWithoutProperties(slim, _excluded2);
         return img && /^https?:\/\//i.test(img) ? _objectSpread(_objectSpread({}, rest), {}, {
           img: img
         }) : rest;
@@ -13754,7 +13790,7 @@ function mergeEventPair(local, cloud) {
   });
   var invHistory = _toConsumableArray(histMap.values());
   return _objectSpread(_objectSpread({}, meta), {}, {
-    inv: localInv >= cloudInv ? local.inv || [] : cloud.inv || [],
+    inv: (localInv >= cloudInv ? local.inv || [] : cloud.inv || []).map(normalizeInvItem).filter(Boolean),
     invHistory: invHistory,
     sales: pickLocal ? local.sales || [] : cloud.sales || [],
     leads: pickLocal ? local.leads || [] : cloud.leads || [],
@@ -13792,7 +13828,7 @@ function mergeEvents(local, cloud) {
     var prev = byId.get(e.id);
     byId.set(e.id, prev ? mergeEventPair(prev, e) : e);
   });
-  return ensureNyOfficeEvent(_toConsumableArray(byId.values()));
+  return ensureNyOfficeEvent(_toConsumableArray(byId.values()).map(normalizeEvent));
 }
 var USERS_KEY = "vj_users";
 var SESSION_KEY = "vj_session";
@@ -14205,7 +14241,7 @@ function applyCloudPull(d, sevents, sappUsers, refs) {
   if (!hasCloudData && cloudVer <= localMeta.version) return false;
   sevents(function (prev) {
     var extra = Array.isArray(d.deletedEventIds) ? d.deletedEventIds : [];
-    var merged = applyDeletedFilter(mergeEvents(prev, d.events || []), extra);
+    var merged = ensureNyOfficeEvent(applyDeletedFilter(mergeEvents(prev, d.events || []), extra).map(normalizeEvent));
     saveEvents(merged);
     if (refs && refs.eventsRef) refs.eventsRef.current = merged;
     return merged;
@@ -14403,7 +14439,7 @@ function eventsForCloudPayload(events) {
       inv: (ev.inv || []).map(function (it) {
         if (!it || !it.img || !String(it.img).startsWith("data:")) return it;
         var img = it.img,
-          rest = _objectWithoutProperties(it, _excluded2);
+          rest = _objectWithoutProperties(it, _excluded3);
         return rest;
       })
     });
@@ -28161,6 +28197,16 @@ function EventERP(_ref72) {
   }, [cloudReady, ev.id, ev.syncedAt, ev.localUpdatedAt, (ev.inv || []).length, (ev.invHistory || []).map(function (h) {
     return h.driveFileId;
   }).join(",")]);
+  useEffect(function () {
+    var ids = (inv || []).slice(0, 25).map(function (i) {
+      return i.id;
+    });
+    if (ids.length) prefetchInvImages(ids).then(function (n) {
+      if (n) sImgTick(function (x) {
+        return x + 1;
+      });
+    });
+  }, [inv.length, ev.id]);
   var syncUp = function syncUp(ni, ns, nl, na, nlh) {
     return onUpdateEvent(_objectSpread(_objectSpread({}, ev), {}, {
       inv: ni || inv,
@@ -28443,16 +28489,6 @@ function EventERP(_ref72) {
   var lkResults = applyFilters(inv, lkQ || null);
   var lkShowResults = lkQ.length > 0 || activeFilters > 0;
   var detItem = det ? invItem(inv, det) : null;
-  useEffect(function () {
-    var ids = lkResults.slice(0, 25).map(function (i) {
-      return i.id;
-    });
-    if (ids.length) prefetchInvImages(ids).then(function (n) {
-      if (n) sImgTick(function (x) {
-        return x + 1;
-      });
-    });
-  }, [lkQ, lkResults.length, inv.length, ev.id, activeFilters]);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       width: "100%",
@@ -29486,6 +29522,7 @@ function App() {
     })), delay);
   };
   useEffect(function () {
+    repairEventsStorage();
     _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0() {
       var local;
       return _regenerator().w(function (_context0) {
@@ -29495,7 +29532,7 @@ function App() {
             return loadEventsAsync();
           case 1:
             local = _context0.v;
-            sevents(local);
+            sevents(local.map(normalizeEvent));
             saveEvents(local);
             setDataReady(true);
           case 2:
@@ -29841,11 +29878,14 @@ function App() {
     user: user,
     events: events,
     onEnter: function onEnter(ev) {
-      if (!userHasEventAccess(user, ev.id)) {
+      var full = normalizeEvent(events.find(function (e) {
+        return e.id === ev.id;
+      }) || ev);
+      if (!userHasEventAccess(user, full.id)) {
         toast.warn("No access", "Ask an admin to assign this event to your account.");
         return;
       }
-      sae(ev);
+      sae(full);
     },
     onCreate: createEv,
     onManage: function onManage(ev) {
@@ -29882,6 +29922,7 @@ var ErrorBoundary = /*#__PURE__*/function (_React$Component) {
     _this = _callSuper(this, ErrorBoundary, [p]);
     _this.state = {
       hasError: false,
+      errMsg: "",
       clearing: false
     };
     return _this;
@@ -29924,7 +29965,15 @@ var ErrorBoundary = /*#__PURE__*/function (_React$Component) {
             maxWidth: 360,
             lineHeight: 1.5
           }
-        }, "Something went wrong \u2014 usually caused by old cached data in your browser. Clear saved data below, then hard refresh."), /*#__PURE__*/React.createElement("button", {
+        }, "Something went wrong \u2014 usually old cached data in your browser. Clear saved data below, then sign in again."), this.state.errMsg && /*#__PURE__*/React.createElement("p", {
+          style: {
+            fontSize: 10,
+            maxWidth: 360,
+            color: T3,
+            wordBreak: "break-word",
+            lineHeight: 1.4
+          }
+        }, this.state.errMsg), /*#__PURE__*/React.createElement("button", {
           type: "button",
           disabled: this.state.clearing,
           onClick: /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee11() {
@@ -29953,9 +30002,10 @@ var ErrorBoundary = /*#__PURE__*/function (_React$Component) {
     }
   }], [{
     key: "getDerivedStateFromError",
-    value: function getDerivedStateFromError() {
+    value: function getDerivedStateFromError(err) {
       return {
-        hasError: true
+        hasError: true,
+        errMsg: err && (err.message || String(err)) || "Unknown error"
       };
     }
   }]);

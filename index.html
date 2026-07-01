@@ -20088,7 +20088,7 @@ function SingleLookup(p) {
   var lookupHistory = p.lookupHistory || [];
   var imgTick = p.imgTick || 0;
   var pickItem = function pickItem(item, type, query) {
-    return openItem ? openItem(item, type, query) : sdet(item);
+    return openItem ? openItem(item, type, query, custName) : sdet(item);
   };
   var resultRows = lkResults.slice(0, 20);
   return /*#__PURE__*/React.createElement("div", {
@@ -20241,7 +20241,8 @@ function SingleLookup(p) {
     placeholder: "Search code, collection, metal, category...",
     value: jc,
     onChange: function onChange(ev) {
-      return sjc(ev.target.value);
+      sjc(ev.target.value);
+      if (det) sdet(null);
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -20675,7 +20676,7 @@ function SingleLookup(p) {
         fontSize: 10,
         color: T3
       }
-    }, ic, " ", h.query || h.type, " \xB7 ", h.time)), /*#__PURE__*/React.createElement("div", {
+    }, ic, " ", h.query || h.type, h.custName ? " · " + h.custName : "", " \xB7 ", h.time)), /*#__PURE__*/React.createElement("div", {
       style: {
         fontFamily: "Cormorant Garamond,serif",
         fontSize: 13,
@@ -20967,7 +20968,9 @@ function MultiLookup(p) {
       padding: "11px",
       fontSize: 13
     }),
-    onClick: resolveCodes
+    onClick: function onClick() {
+      return resolveCodes(mlCustName);
+    }
   }, "\uD83D\uDD0D Look Up All"), /*#__PURE__*/React.createElement("button", {
     style: S.bOut({
       padding: "11px 12px",
@@ -22177,7 +22180,7 @@ function InventoryTab(p) {
         fontSize: 10,
         color: T3
       }
-    }, ic, " ", h.query || h.type, " \xB7 ", h.user, " \xB7 ", h.date, " ", h.time)), /*#__PURE__*/React.createElement("div", {
+    }, ic, " ", h.query || h.type, h.custName ? " · " + h.custName : "", " \xB7 ", h.user, " \xB7 ", h.date, " ", h.time)), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 9,
         color: T4
@@ -26328,7 +26331,7 @@ function HistoryTab(p) {
     if (lookupUserF !== "All" && h.user !== lookupUserF) return false;
     if (search) {
       var q = search.toLowerCase();
-      return h.itemId && h.itemId.toLowerCase().includes(q) || h.itemName && h.itemName.toLowerCase().includes(q) || h.query && h.query.toLowerCase().includes(q) || h.user && h.user.toLowerCase().includes(q);
+      return h.itemId && h.itemId.toLowerCase().includes(q) || h.itemName && h.itemName.toLowerCase().includes(q) || h.query && h.query.toLowerCase().includes(q) || h.custName && h.custName.toLowerCase().includes(q) || h.user && h.user.toLowerCase().includes(q);
     }
     return true;
   });
@@ -26958,7 +26961,7 @@ function HistoryTab(p) {
         fontSize: 10,
         color: T3
       }
-    }, hi.col, " \xB7 ", hi.cat), /*#__PURE__*/React.createElement("div", {
+    }, hi.col, " \xB7 ", hi.cat, h.custName ? " · 👤 " + h.custName : ""), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 10,
         color: T2,
@@ -28112,7 +28115,7 @@ function EventERP(_ref73) {
       lookupHistory: nlh !== undefined ? nlh : lookupHistory
     }));
   };
-  var recordLookup = function recordLookup(item, type, query) {
+  var recordLookup = function recordLookup(item, type, query, custName) {
     if (!item) return null;
     var ni = inv.map(function (i) {
       if (i.id !== item.id) return i;
@@ -28128,6 +28131,7 @@ function EventERP(_ref73) {
       itemName: (item.cat || "") + " · " + (item.col || ""),
       type: type || "view",
       query: query || "",
+      custName: (custName || "").trim(),
       user: user.name,
       date: dstr(),
       time: tstr()
@@ -28137,10 +28141,10 @@ function EventERP(_ref73) {
     syncUp(ni, null, null, null, nh);
     return ni;
   };
-  var openItem = function openItem(item, type, query) {
+  var openItem = function openItem(item, type, query, custName) {
     var full = invItem(inv, item);
     if (!full) return;
-    recordLookup(full, type || "view", query || jc.trim());
+    recordLookup(full, type || "view", query || jc.trim(), custName);
     var similarIds = inv.filter(function (i) {
       return i.id !== full.id && (i.col === full.col || i.cat === full.cat);
     }).slice(0, 3).map(function (i) {
@@ -28153,7 +28157,7 @@ function EventERP(_ref73) {
     });
     sdet(full);
   };
-  var recordMultiLookup = function recordMultiLookup(items, query) {
+  var recordMultiLookup = function recordMultiLookup(items, query, custName) {
     if (!items || !items.length) return;
     var ids = new Set(items.map(function (i) {
       return i.id;
@@ -28171,6 +28175,7 @@ function EventERP(_ref73) {
         itemName: (item.cat || "") + " · " + (item.col || ""),
         type: "search",
         query: query || "",
+        custName: (custName || "").trim(),
         user: user.name,
         date: dstr(),
         time: tstr()
@@ -28222,7 +28227,7 @@ function EventERP(_ref73) {
   var mlAdj = mlDisc ? mlSubtotal * Number(mlDisc) / 100 : mlDiscAmt ? Number(mlDiscAmt) : mlMarkup ? -(mlSubtotal * Number(mlMarkup) / 100) : 0;
   var mlFinal = Math.max(0, Math.round((mlSubtotal - mlAdj) * 100) / 100);
   var mlTotal = Math.round(mlFinal * 1.03 * 100) / 100;
-  var resolveCodes = function resolveCodes() {
+  var resolveCodes = function resolveCodes(custName) {
     var codes = mlInput.replace(/\n/g, ",").split(",").map(function (s) {
       return s.trim();
     }).map(function (s) {
@@ -28243,7 +28248,7 @@ function EventERP(_ref73) {
     smlDisc("");
     smlDiscAmt("");
     smlMarkup("");
-    recordMultiLookup(found, mlInput.trim());
+    recordMultiLookup(found, mlInput.trim(), custName);
   };
   var sellMulti = function sellMulti(custName, phone, custId) {
     var batchNo = nextReceiptNumber(ev.name, sales);

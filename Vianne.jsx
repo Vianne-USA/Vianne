@@ -2660,7 +2660,7 @@ function SingleLookup(p){
   var openItem=p.openItem;
   var lookupHistory=p.lookupHistory||[];
   var imgTick=p.imgTick||0;
-  const pickItem=(item,type,query)=>openItem?openItem(item,type,query):sdet(item);
+  const pickItem=(item,type,query)=>openItem?openItem(item,type,query,custName):sdet(item);
   const resultRows=lkResults.slice(0,20);
   return(
     <div className="v-page-pad">
@@ -2695,7 +2695,7 @@ function SingleLookup(p){
                     <PhotoSearch inv={inv} onResult={(item)=>{sPhotoSearch(false);pickItem(item,"search","photo");}} onClose={()=>sPhotoSearch(false)}/>
                   )}
                   <input style={{...S.inp({marginBottom:8}),borderColor:"rgba(201,168,76,0.5)"}} placeholder="Customer name (optional)..." value={custName} onChange={ev=>sCustName(ev.target.value)}/>
-                  <input style={{...S.inp({marginBottom:4}),borderColor:G}} placeholder="Search code, collection, metal, category..." value={jc} onChange={ev=>sjc(ev.target.value)}/>
+                  <input style={{...S.inp({marginBottom:4}),borderColor:G}} placeholder="Search code, collection, metal, category..." value={jc} onChange={ev=>{sjc(ev.target.value);if(det)sdet(null);}}/>
                   <div style={{fontSize:10,color:T4,marginBottom:7}}>Type to search all {inv.length} items</div>
                   <div style={{background:"#edf7f0",border:"1px solid rgba(30,92,69,0.2)",borderRadius:8,padding:"7px 11px",display:"flex",alignItems:"center",gap:7}}>
                     <span style={{fontSize:12}}>{isCloudOnline()?"☁":"💾"}</span><span style={{fontSize:11,color:G,fontWeight:600}}>{isCloudOnline()?"Auto-sync on — saves every few seconds":"Saved locally only"}</span>
@@ -2785,7 +2785,7 @@ function SingleLookup(p){
                           </div>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:12,fontWeight:700,color:T1}}>{hi.id}</div>
-                            <div style={{fontSize:10,color:T3}}>{ic} {h.query||h.type} · {h.time}</div>
+                            <div style={{fontSize:10,color:T3}}>{ic} {h.query||h.type}{h.custName?" · "+h.custName:""} · {h.time}</div>
                           </div>
                           <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(hi.fp,cur)}</div>
                         </div>
@@ -2912,7 +2912,7 @@ function MultiLookup(p){
                   <span style={S.lbl}>JEWEL CODES</span>
                   <textarea style={S.inp({height:88,resize:"none",marginBottom:8,fontFamily:"monospace",fontSize:13})} placeholder={"VJNC1345\nVJER3089\nor: VJNC1345, VJER3089"} value={mlInput} onChange={ev=>smlInput(ev.target.value)}/>
                   <div style={{display:"flex",gap:8,marginBottom:mlScan?8:0}}>
-                    <button style={S.btn({flex:1,padding:"11px",fontSize:13})} onClick={resolveCodes}>🔍 Look Up All</button>
+                    <button style={S.btn({flex:1,padding:"11px",fontSize:13})} onClick={()=>resolveCodes(mlCustName)}>🔍 Look Up All</button>
                     <button style={S.bOut({padding:"11px 12px",fontSize:12,background:mlScan?RE:undefined,color:mlScan?WH:undefined,borderColor:mlScan?RE:undefined})} onClick={()=>smlScan(x=>!x)}>{mlScan?"⬛ Stop":"📷"}</button>
                   </div>
                   {mlScan&&<QRScanner inv={inv} onScanned={(code,item)=>{smlScan(false);if(code){smlInput(p=>(p?p+"\n":"")+code);}}}/>}
@@ -3216,7 +3216,7 @@ function InventoryTab(p){
                   <div style={{width:36,height:36,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}><ItemThumb item={hi} size={36}/></div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontWeight:700,fontSize:12,color:T1}}>{hi.id}</div>
-                    <div style={{fontSize:10,color:T3}}>{ic} {h.query||h.type} · {h.user} · {h.date} {h.time}</div>
+                    <div style={{fontSize:10,color:T3}}>{ic} {h.query||h.type}{h.custName?" · "+h.custName:""} · {h.user} · {h.date} {h.time}</div>
                   </div>
                   <div style={{fontSize:9,color:T4}}>🔍 {hi.searches||0} · 👁 {hi.views||0}</div>
                 </div>
@@ -4439,6 +4439,7 @@ function HistoryTab(p){
       return(h.itemId&&h.itemId.toLowerCase().includes(q))||
              (h.itemName&&h.itemName.toLowerCase().includes(q))||
              (h.query&&h.query.toLowerCase().includes(q))||
+             (h.custName&&h.custName.toLowerCase().includes(q))||
              (h.user&&h.user.toLowerCase().includes(q));
     }
     return true;
@@ -4643,7 +4644,7 @@ function HistoryTab(p){
                 </div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontWeight:700,fontSize:12,color:T1}}>{hi.id}</div>
-                  <div style={{fontSize:10,color:T3}}>{hi.col} · {hi.cat}</div>
+                  <div style={{fontSize:10,color:T3}}>{hi.col} · {hi.cat}{h.custName?" · 👤 "+h.custName:""}</div>
                   <div style={{fontSize:10,color:T2,marginTop:2}}>{ic} {h.query||h.type} · {h.user} · {h.date} {h.time}</div>
                 </div>
                 <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G,flexShrink:0}}>{fc(hi.fp,cur)}</div>
@@ -4964,33 +4965,33 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
     if(ids.length)prefetchInvImages(ids).then(n=>{if(n)sImgTick(x=>x+1);});
   },[inv.length,ev.id]);
   const syncUp=(ni,ns,nl,na,nlh)=>onUpdateEvent({...ev,inv:ni||inv,sales:ns||sales,leads:nl||leads,audits:na||audits,lookupHistory:nlh!==undefined?nlh:lookupHistory});
-  const recordLookup=(item,type,query)=>{
+  const recordLookup=(item,type,query,custName)=>{
     if(!item)return null;
     const ni=inv.map(i=>{
       if(i.id!==item.id)return i;
       return {...i,views:(i.views||0)+(type==="view"?1:0),searches:(i.searches||0)+(type==="search"||type==="scan"?1:0)};
     });
     si(ni);
-    const entry={id:uid("LK"),itemId:item.id,itemName:(item.cat||"")+" · "+(item.col||""),type:type||"view",query:query||"",user:user.name,date:dstr(),time:tstr()};
+    const entry={id:uid("LK"),itemId:item.id,itemName:(item.cat||"")+" · "+(item.col||""),type:type||"view",query:query||"",custName:(custName||"").trim(),user:user.name,date:dstr(),time:tstr()};
     const nh=[entry,...lookupHistory].slice(0,300);
     sLookupHistory(nh);
     syncUp(ni,null,null,null,nh);
     return ni;
   };
-  const openItem=(item,type,query)=>{
+  const openItem=(item,type,query,custName)=>{
     const full=invItem(inv,item);
     if(!full)return;
-    recordLookup(full,type||"view",query||jc.trim());
+    recordLookup(full,type||"view",query||jc.trim(),custName);
     const similarIds=inv.filter(i=>i.id!==full.id&&(i.col===full.col||i.cat===full.cat)).slice(0,3).map(i=>i.id);
     prefetchInvImages([full.id,...similarIds]).then(n=>{if(n)sImgTick(x=>x+1);});
     sdet(full);
   };
-  const recordMultiLookup=(items,query)=>{
+  const recordMultiLookup=(items,query,custName)=>{
     if(!items||!items.length)return;
     const ids=new Set(items.map(i=>i.id));
     const ni=inv.map(i=>ids.has(i.id)?{...i,searches:(i.searches||0)+1}:i);
     si(ni);
-    const entries=items.map(item=>({id:uid("LK"),itemId:item.id,itemName:(item.cat||"")+" · "+(item.col||""),type:"search",query:query||"",user:user.name,date:dstr(),time:tstr()}));
+    const entries=items.map(item=>({id:uid("LK"),itemId:item.id,itemName:(item.cat||"")+" · "+(item.col||""),type:"search",query:query||"",custName:(custName||"").trim(),user:user.name,date:dstr(),time:tstr()}));
     const nh=[...entries,...lookupHistory].slice(0,300);
     sLookupHistory(nh);
     syncUp(ni,null,null,null,nh);
@@ -5015,7 +5016,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const mlAdj=mlDisc?mlSubtotal*Number(mlDisc)/100:mlDiscAmt?Number(mlDiscAmt):mlMarkup?-(mlSubtotal*Number(mlMarkup)/100):0;
   const mlFinal=Math.max(0,Math.round((mlSubtotal-mlAdj)*100)/100);
   const mlTotal=Math.round(mlFinal*1.03*100)/100;
-  const resolveCodes=()=>{const codes=mlInput.replace(/\n/g,",").split(",").map(function(s){return s.trim();}).map(s=>s.trim().toUpperCase()).filter(Boolean);const found=[],nf=[];codes.forEach(code=>{const item=inv.find(i=>i.id===code);if(item&&!found.find(f=>f.id===item.id))found.push(item);else if(!item)nf.push(code);});smlItems(found);smlNF(nf);smlDisc("");smlDiscAmt("");smlMarkup("");recordMultiLookup(found,mlInput.trim());};
+  const resolveCodes=(custName)=>{const codes=mlInput.replace(/\n/g,",").split(",").map(function(s){return s.trim();}).map(s=>s.trim().toUpperCase()).filter(Boolean);const found=[],nf=[];codes.forEach(code=>{const item=inv.find(i=>i.id===code);if(item&&!found.find(f=>f.id===item.id))found.push(item);else if(!item)nf.push(code);});smlItems(found);smlNF(nf);smlDisc("");smlDiscAmt("");smlMarkup("");recordMultiLookup(found,mlInput.trim(),custName);};
   const sellMulti=(custName,phone,custId)=>{const batchNo=nextReceiptNumber(ev.name,sales);mlItems.forEach((item,i)=>{const ip=Math.round((item.fp*(mlFinal/Math.max(mlSubtotal,1)))*100)/100;doSell({id:nextReceiptNumber(ev.name,sales,i),custId:custId||"",custName:custName,phone:phone||"",itemId:item.id,itemName:item.cat+" · "+item.col+" · "+item.metal,metal:item.metal,col:item.col,sz:item.sz,gw:item.gw,nw:item.nw,tc:item.tc,sp:item.sp,style:item.style,price:ip,disc:mlDisc?Number(mlDisc):0,cgst:0,sgst:0,total:Math.round(ip*(1+(mlMarkup?Number(mlMarkup)/100:0))*100)/100,currency:cur,margin:0,date:dstr(),time:tstr(),payment:"NEFT",staff:user.name,st:"completed",gt:"",remark:mlItems.length>1?"[Batch "+batchNo+(i>0?" #"+(i+1):"")+"] ":""});});smlItems([]);smlInput("");st("sales");toast.success("Sale confirmed",""+mlItems.length+" items · "+custName);};
   // Filter options derived from inventory
   const allCats=["All",...new Set(inv.map(i=>i.cat).filter(Boolean))].sort();

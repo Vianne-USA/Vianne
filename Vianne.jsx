@@ -3448,8 +3448,54 @@ function AnalyticsTab(p){
   const byStoneShape=invBuckets(inv,i=>i.stoneShape||(i.stones&&i.stones[0]&&i.stones[0].sh)||"");
   const byClarity=invBuckets(inv,i=>i.clarity||(i.stones&&i.stones[0]&&i.stones[0].cl)||"");
 
+  // ── LOOKUP INTELLIGENCE (Single + Multi Lookup search/scan/view history) ──
+  const lookupHistory=p.lookupHistory||[];
+  const openItem=p.openItem;
+  const lookupCountMap={};
+  lookupHistory.forEach(h=>{
+    if(!lookupCountMap[h.itemId])lookupCountMap[h.itemId]={itemId:h.itemId,cnt:0,customers:new Set()};
+    lookupCountMap[h.itemId].cnt++;
+    if(h.custName&&h.custName.trim())lookupCountMap[h.itemId].customers.add(h.custName.trim());
+  });
+  const topSearched=Object.values(lookupCountMap)
+    .map(x=>({...x,item:inv.find(i=>i.id===x.itemId),custCount:x.customers.size}))
+    .filter(x=>x.item)
+    .sort((a,b)=>b.cnt-a.cnt)
+    .slice(0,20);
+  const maxLookupCnt=topSearched.length?topSearched[0].cnt:1;
+
+  // Follow-up opportunities: a named customer looked up an item that's still available and hasn't bought it
+  const followUpMap={};
+  lookupHistory.forEach(h=>{
+    const cn=(h.custName||"").trim();
+    if(!cn)return;
+    const item=inv.find(i=>i.id===h.itemId);
+    if(!item||item.st==="sold")return;
+    const boughtThis=sales.some(s=>s.itemId===h.itemId&&s.custName&&s.custName.trim().toLowerCase()===cn.toLowerCase());
+    if(boughtThis)return;
+    const key=cn.toLowerCase()+"|"+h.itemId;
+    const stamp=h.date+" "+h.time;
+    if(!followUpMap[key]||followUpMap[key].stamp<stamp)followUpMap[key]={custName:cn,itemId:h.itemId,item,user:h.user,date:h.date,time:h.time,stamp};
+  });
+  const followUpArr=Object.values(followUpMap).sort((a,b)=>b.stamp<a.stamp?-1:1).slice(0,30);
+
+  // Lookup activity by staff
+  const lookupStaffMap={};
+  lookupHistory.forEach(h=>{
+    if(!lookupStaffMap[h.user])lookupStaffMap[h.user]={name:h.user,cnt:0};
+    lookupStaffMap[h.user].cnt++;
+  });
+  const lookupStaffArr=Object.values(lookupStaffMap).sort((a,b)=>b.cnt-a.cnt);
+  const maxLookupStaff=lookupStaffArr.length?lookupStaffArr[0].cnt:1;
+
+  // Search-to-sale conversion
+  const uniqueLookedUpIds=[...new Set(lookupHistory.map(h=>h.itemId))];
+  const lookedUpAndSold=uniqueLookedUpIds.filter(id=>{const it=inv.find(i=>i.id===id);return it&&it.st==="sold";}).length;
+  const lookupConvRate=uniqueLookedUpIds.length?Math.round(lookedUpAndSold/uniqueLookedUpIds.length*100):0;
+
   const TABS=[
     {id:"overview",l:"Overview",ic:"📊"},
+    {id:"lookups",l:"Lookups",ic:"🔍"},
     {id:"catalog",l:"Catalog",ic:"📦"},
     {id:"timing",l:"Timing",ic:"⏱"},
     {id:"inventory",l:"Stock IQ",ic:"💎"},
@@ -3515,6 +3561,72 @@ function AnalyticsTab(p){
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ═══════════════ LOOKUP INTELLIGENCE ═══════════════ */}
+      {atab==="lookups"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {/* Summary */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+            {[{l:"Total Lookups",v:lookupHistory.length},{l:"Unique Items",v:uniqueLookedUpIds.length},{l:"Search→Sale",v:lookupConvRate+"%"}].map(k=>(
+              <div key={k.l} style={{...S.card({margin:0,padding:"12px 10px"}),textAlign:"center"}}>
+                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:G}}>{k.v}</div>
+                <div style={{fontSize:9,color:T3,textTransform:"uppercase",marginTop:2}}>{k.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Top 20 searched codes */}
+          <div style={S.card({margin:0})}>
+            <div style={{...S.sh,marginBottom:10}}>🔍 Top 20 Searched Codes</div>
+            {topSearched.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11,padding:12}}>No lookups recorded yet — search or scan items in the Lookup tab.</div>}
+            {topSearched.map((x,i)=>(
+              <div key={x.itemId} onClick={()=>openItem&&openItem(x.item,"view")} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 0",borderBottom:i<topSearched.length-1?"1px solid "+CRD2:"none",cursor:openItem?"pointer":"default"}}>
+                <div style={{width:18,fontSize:11,fontWeight:700,color:i<3?GO:T3,flexShrink:0}}>{i+1}</div>
+                <div style={{width:34,height:34,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}><ItemThumb item={x.item} size={34}/></div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:700,fontSize:12,color:T1}}>{x.itemId}</div>
+                  <div style={{fontSize:10,color:T3}}>{x.item.cat} · {x.item.col}{x.custCount>0?" · "+x.custCount+" customer"+(x.custCount!==1?"s":""):""}</div>
+                </div>
+                <Bar pct={Math.round(x.cnt/maxLookupCnt*100)} col={i===0?GO:G}/>
+                <div style={{fontSize:12,fontWeight:700,color:G,flexShrink:0,width:22,textAlign:"right"}}>{x.cnt}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Follow-up opportunities */}
+          <div style={S.card({margin:0})}>
+            <div style={{...S.sh,marginBottom:4}}>📞 Follow-Up Opportunities</div>
+            <div style={{fontSize:10,color:T3,marginBottom:9,lineHeight:1.5}}>Named customers who looked up an item that's still available and haven't bought it yet — good candidates for upselling / a follow-up call.</div>
+            {followUpArr.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11,padding:12}}>No open follow-ups right now.</div>}
+            {followUpArr.map((f,i)=>(
+              <div key={f.custName.toLowerCase()+"|"+f.itemId} onClick={()=>openItem&&openItem(f.item,"view")} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:i<followUpArr.length-1?"1px solid "+CRD2:"none",cursor:openItem?"pointer":"default"}}>
+                <div style={{width:34,height:34,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}><ItemThumb item={f.item} size={34}/></div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:700,fontSize:12,color:T1}}>👤 {f.custName}</div>
+                  <div style={{fontSize:10,color:T3}}>{f.itemId} · {f.item.cat} · {f.date}</div>
+                </div>
+                <div style={{textAlign:"right",flexShrink:0}}>
+                  <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(f.item.fp,cur)}</div>
+                  <div style={{fontSize:9,color:T3}}>by {f.user}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Lookups by staff */}
+          <div style={S.card({margin:0})}>
+            <div style={{...S.sh,marginBottom:10}}>🧑‍💼 Lookups by Staff</div>
+            {lookupStaffArr.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11}}>No lookups yet</div>}
+            {lookupStaffArr.map((s,i)=>(
+              <div key={s.name} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:i<lookupStaffArr.length-1?"1px solid "+CRD2:"none"}}>
+                <div style={{flex:1,fontSize:11,fontWeight:600,color:T1}}>{s.name}</div>
+                <Bar pct={Math.round(s.cnt/maxLookupStaff*100)}/>
+                <div style={{fontSize:12,fontWeight:700,color:G,flexShrink:0,width:22,textAlign:"right"}}>{s.cnt}</div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -5075,7 +5187,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
         {tab==="customers"&&<CustomersTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,addLead:addLead}}/>}
 
-        {tab==="analytics"&&<AnalyticsTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
+        {tab==="analytics"&&<AnalyticsTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,lookupHistory:lookupHistory,openItem:openItem}}/>}
 
         {tab==="admin"&&<AdminTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,onCloudSync:onCloudSync,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
 

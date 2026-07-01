@@ -23033,10 +23033,96 @@ function AnalyticsTab(p) {
   var byClarity = invBuckets(inv, function (i) {
     return i.clarity || i.stones && i.stones[0] && i.stones[0].cl || "";
   });
+
+  // ── LOOKUP INTELLIGENCE (Single + Multi Lookup search/scan/view history) ──
+  var lookupHistory = p.lookupHistory || [];
+  var openItem = p.openItem;
+  var lookupCountMap = {};
+  lookupHistory.forEach(function (h) {
+    if (!lookupCountMap[h.itemId]) lookupCountMap[h.itemId] = {
+      itemId: h.itemId,
+      cnt: 0,
+      customers: new Set()
+    };
+    lookupCountMap[h.itemId].cnt++;
+    if (h.custName && h.custName.trim()) lookupCountMap[h.itemId].customers.add(h.custName.trim());
+  });
+  var topSearched = Object.values(lookupCountMap).map(function (x) {
+    return _objectSpread(_objectSpread({}, x), {}, {
+      item: inv.find(function (i) {
+        return i.id === x.itemId;
+      }),
+      custCount: x.customers.size
+    });
+  }).filter(function (x) {
+    return x.item;
+  }).sort(function (a, b) {
+    return b.cnt - a.cnt;
+  }).slice(0, 20);
+  var maxLookupCnt = topSearched.length ? topSearched[0].cnt : 1;
+
+  // Follow-up opportunities: a named customer looked up an item that's still available and hasn't bought it
+  var followUpMap = {};
+  lookupHistory.forEach(function (h) {
+    var cn = (h.custName || "").trim();
+    if (!cn) return;
+    var item = inv.find(function (i) {
+      return i.id === h.itemId;
+    });
+    if (!item || item.st === "sold") return;
+    var boughtThis = sales.some(function (s) {
+      return s.itemId === h.itemId && s.custName && s.custName.trim().toLowerCase() === cn.toLowerCase();
+    });
+    if (boughtThis) return;
+    var key = cn.toLowerCase() + "|" + h.itemId;
+    var stamp = h.date + " " + h.time;
+    if (!followUpMap[key] || followUpMap[key].stamp < stamp) followUpMap[key] = {
+      custName: cn,
+      itemId: h.itemId,
+      item: item,
+      user: h.user,
+      date: h.date,
+      time: h.time,
+      stamp: stamp
+    };
+  });
+  var followUpArr = Object.values(followUpMap).sort(function (a, b) {
+    return b.stamp < a.stamp ? -1 : 1;
+  }).slice(0, 30);
+
+  // Lookup activity by staff
+  var lookupStaffMap = {};
+  lookupHistory.forEach(function (h) {
+    if (!lookupStaffMap[h.user]) lookupStaffMap[h.user] = {
+      name: h.user,
+      cnt: 0
+    };
+    lookupStaffMap[h.user].cnt++;
+  });
+  var lookupStaffArr = Object.values(lookupStaffMap).sort(function (a, b) {
+    return b.cnt - a.cnt;
+  });
+  var maxLookupStaff = lookupStaffArr.length ? lookupStaffArr[0].cnt : 1;
+
+  // Search-to-sale conversion
+  var uniqueLookedUpIds = _toConsumableArray(new Set(lookupHistory.map(function (h) {
+    return h.itemId;
+  })));
+  var lookedUpAndSold = uniqueLookedUpIds.filter(function (id) {
+    var it = inv.find(function (i) {
+      return i.id === id;
+    });
+    return it && it.st === "sold";
+  }).length;
+  var lookupConvRate = uniqueLookedUpIds.length ? Math.round(lookedUpAndSold / uniqueLookedUpIds.length * 100) : 0;
   var TABS = [{
     id: "overview",
     l: "Overview",
     ic: "📊"
+  }, {
+    id: "lookups",
+    l: "Lookups",
+    ic: "🔍"
   }, {
     id: "catalog",
     l: "Catalog",
@@ -23232,7 +23318,261 @@ function AnalyticsTab(p) {
       color: T1,
       lineHeight: 1.5
     }
-  }, "Top ", /*#__PURE__*/React.createElement("strong", null, top20pct, "%"), " of revenue came from just ", /*#__PURE__*/React.createElement("strong", null, top20cnt, " item", top20cnt !== 1 ? "s" : ""), " (", Math.round(top20cnt / Math.max(itemRevSorted.length, 1) * 100), "% of catalog)."))), atab === "catalog" && /*#__PURE__*/React.createElement("div", {
+  }, "Top ", /*#__PURE__*/React.createElement("strong", null, top20pct, "%"), " of revenue came from just ", /*#__PURE__*/React.createElement("strong", null, top20cnt, " item", top20cnt !== 1 ? "s" : ""), " (", Math.round(top20cnt / Math.max(itemRevSorted.length, 1) * 100), "% of catalog)."))), atab === "lookups" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: 8
+    }
+  }, [{
+    l: "Total Lookups",
+    v: lookupHistory.length
+  }, {
+    l: "Unique Items",
+    v: uniqueLookedUpIds.length
+  }, {
+    l: "Search→Sale",
+    v: lookupConvRate + "%"
+  }].map(function (k) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: k.l,
+      style: _objectSpread(_objectSpread({}, S.card({
+        margin: 0,
+        padding: "12px 10px"
+      })), {}, {
+        textAlign: "center"
+      })
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "Cormorant Garamond,serif",
+        fontSize: 20,
+        fontWeight: 700,
+        color: G
+      }
+    }, k.v), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: T3,
+        textTransform: "uppercase",
+        marginTop: 2
+      }
+    }, k.l));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: S.card({
+      margin: 0
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.sh), {}, {
+      marginBottom: 10
+    })
+  }, "\uD83D\uDD0D Top 20 Searched Codes"), topSearched.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      color: T3,
+      fontSize: 11,
+      padding: 12
+    }
+  }, "No lookups recorded yet \u2014 search or scan items in the Lookup tab."), topSearched.map(function (x, i) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: x.itemId,
+      onClick: function onClick() {
+        return openItem && openItem(x.item, "view");
+      },
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 9,
+        padding: "8px 0",
+        borderBottom: i < topSearched.length - 1 ? "1px solid " + CRD2 : "none",
+        cursor: openItem ? "pointer" : "default"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 18,
+        fontSize: 11,
+        fontWeight: 700,
+        color: i < 3 ? GO : T3,
+        flexShrink: 0
+      }
+    }, i + 1), /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 34,
+        height: 34,
+        borderRadius: 6,
+        overflow: "hidden",
+        flexShrink: 0,
+        background: CRD,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }
+    }, /*#__PURE__*/React.createElement(ItemThumb, {
+      item: x.item,
+      size: 34
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 12,
+        color: T1
+      }
+    }, x.itemId), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T3
+      }
+    }, x.item.cat, " \xB7 ", x.item.col, x.custCount > 0 ? " · " + x.custCount + " customer" + (x.custCount !== 1 ? "s" : "") : "")), /*#__PURE__*/React.createElement(Bar, {
+      pct: Math.round(x.cnt / maxLookupCnt * 100),
+      col: i === 0 ? GO : G
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        color: G,
+        flexShrink: 0,
+        width: 22,
+        textAlign: "right"
+      }
+    }, x.cnt));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: S.card({
+      margin: 0
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.sh), {}, {
+      marginBottom: 4
+    })
+  }, "\uD83D\uDCDE Follow-Up Opportunities"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: T3,
+      marginBottom: 9,
+      lineHeight: 1.5
+    }
+  }, "Named customers who looked up an item that's still available and haven't bought it yet \u2014 good candidates for upselling / a follow-up call."), followUpArr.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      color: T3,
+      fontSize: 11,
+      padding: 12
+    }
+  }, "No open follow-ups right now."), followUpArr.map(function (f, i) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: f.custName.toLowerCase() + "|" + f.itemId,
+      onClick: function onClick() {
+        return openItem && openItem(f.item, "view");
+      },
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "9px 0",
+        borderBottom: i < followUpArr.length - 1 ? "1px solid " + CRD2 : "none",
+        cursor: openItem ? "pointer" : "default"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 34,
+        height: 34,
+        borderRadius: 6,
+        overflow: "hidden",
+        flexShrink: 0,
+        background: CRD,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }
+    }, /*#__PURE__*/React.createElement(ItemThumb, {
+      item: f.item,
+      size: 34
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 12,
+        color: T1
+      }
+    }, "\uD83D\uDC64 ", f.custName), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: T3
+      }
+    }, f.itemId, " \xB7 ", f.item.cat, " \xB7 ", f.date)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: "right",
+        flexShrink: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "Cormorant Garamond,serif",
+        fontSize: 13,
+        fontWeight: 700,
+        color: G
+      }
+    }, fc(f.item.fp, cur)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: T3
+      }
+    }, "by ", f.user)));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: S.card({
+      margin: 0
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: _objectSpread(_objectSpread({}, S.sh), {}, {
+      marginBottom: 10
+    })
+  }, "\uD83E\uDDD1\u200D\uD83D\uDCBC Lookups by Staff"), lookupStaffArr.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      color: T3,
+      fontSize: 11
+    }
+  }, "No lookups yet"), lookupStaffArr.map(function (s, i) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: s.name,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "6px 0",
+        borderBottom: i < lookupStaffArr.length - 1 ? "1px solid " + CRD2 : "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        fontSize: 11,
+        fontWeight: 600,
+        color: T1
+      }
+    }, s.name), /*#__PURE__*/React.createElement(Bar, {
+      pct: Math.round(s.cnt / maxLookupStaff * 100)
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        color: G,
+        flexShrink: 0,
+        width: 22,
+        textAlign: "right"
+      }
+    }, s.cnt));
+  }))), atab === "catalog" && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
@@ -29046,7 +29386,9 @@ function EventERP(_ref73) {
     atab: atab,
     sat: sat,
     showSwitch: showSwitch,
-    ssw: ssw
+    ssw: ssw,
+    lookupHistory: lookupHistory,
+    openItem: openItem
   }), tab === "admin" && /*#__PURE__*/React.createElement(AdminTab, {
     ev: ev,
     inv: inv,

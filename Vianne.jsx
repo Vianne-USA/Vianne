@@ -1885,8 +1885,8 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
           <div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:CR}}>{item.id}</div><div style={{fontSize:10,color:"rgba(245,237,224,0.6)",marginTop:1}}>Style: {item.style}</div></div>
           <span style={{background:"rgba(255,255,255,0.15)",color:CR,border:"1px solid rgba(255,255,255,0.2)",borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:700}}>{item.cat}</span>
         </div>
-        <div style={{background:"rgba(0,0,0,0.2)",borderRadius:10,height:140,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:12}}>
-          {getImg(item)?<ProductHeroImg item={item} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:64}}>{item.em}</span>}
+        <div className="v-hero-img" style={{background:"rgba(0,0,0,0.2)",borderRadius:10,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:12}}>
+          {getImg(item)?<ProductHeroImg item={item} style={{width:"100%",height:"100%",objectFit:"contain"}}/>:<span style={{fontSize:64}}>{item.em}</span>}
         </div>
         <div style={{fontSize:9,color:"rgba(245,237,224,0.5)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:3}}>FINAL SALE PRICE</div>
         <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:pr.sF?4:10}}>

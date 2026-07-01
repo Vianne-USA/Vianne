@@ -38,6 +38,7 @@ img,svg,video{max-width:100%;height:auto;display:block}
 .v-sheet-panel{width:100%;max-width:430px;max-height:93dvh;overflow-y:auto;border-radius:20px 20px 0 0}
 .v-erp-ev-name{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .v-hub-header,.v-erp-header{width:100%}
+.v-hero-img{height:140px}
 @media (min-width:640px){
   .v-content{max-width:720px;padding:18px 20px;padding-left:calc(20px + env(safe-area-inset-left,0px));padding-right:calc(20px + env(safe-area-inset-right,0px))}
   .v-erp-shell{max-width:720px}
@@ -53,6 +54,7 @@ img,svg,video{max-width:100%;height:auto;display:block}
   .v-results-grid>div{border:1px solid #E8DCCB!important;border-radius:12px!important;background:#fff!important;margin:0!important}
   .v-inv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;background:transparent!important;border:none!important;max-height:none!important;overflow:visible!important}
   .v-inv-grid>div{border:1px solid #E8DCCB!important;border-radius:12px!important;background:#fff!important;margin:0!important}
+  .v-hero-img{height:220px}
 }
 @media (min-width:1024px){
   .v-content{max-width:1200px;padding:22px 28px;padding-left:calc(28px + env(safe-area-inset-left,0px));padding-right:calc(28px + env(safe-area-inset-right,0px))}
@@ -66,6 +68,7 @@ img,svg,video{max-width:100%;height:auto;display:block}
   .v-events-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
   .v-results-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .v-inv-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .v-hero-img{height:300px}
 }
 @media (min-width:1280px){
   .v-results-grid{grid-template-columns:repeat(4,minmax(0,1fr))}

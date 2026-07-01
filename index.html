@@ -21881,9 +21881,6 @@ function LookupTab(p) {
   }, {
     id: "multi",
     l: "📋 MULTI LOOKUP"
-  }, {
-    id: "estimate",
-    l: "📄 ESTIMATE"
   }].map(function (t) {
     return /*#__PURE__*/React.createElement("button", {
       key: t.id,
@@ -22066,12 +22063,7 @@ function LookupTab(p) {
     leads: p.leads,
     onAddLead: p.onAddLead
   ,
-    onAddLead: onAddLead}), mlTab === "estimate" && /*#__PURE__*/React.createElement(EstimateLookup, {
-    ev: p.ev,
-    inv: p.inv,
-    cur: p.cur,
-    user: p.user
-  }));
+    onAddLead: onAddLead}));
 }
 function InventoryTab(p) {
   var ev = p.ev;

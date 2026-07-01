@@ -3156,7 +3156,7 @@ function LookupTab(p){
     <div>
             {/* Single / Multi sub-tabs */}
             <div style={{background:G,display:"flex",borderBottom:"1px solid rgba(201,168,76,0.2)"}}>
-              {[{id:"single",l:"🔍 SINGLE"},{id:"multi",l:"📋 MULTI LOOKUP"},{id:"estimate",l:"📄 ESTIMATE"}].map(t=>(
+              {[{id:"single",l:"🔍 SINGLE"},{id:"multi",l:"📋 MULTI LOOKUP"}].map(t=>(
                 <button key={t.id} onClick={()=>smlTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:mlTab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:mlTab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:10,fontWeight:mlTab===t.id?700:500,padding:"9px 5px",cursor:"pointer"}}>{t.l}</button>
               ))}
             </div>
@@ -3168,8 +3168,6 @@ function LookupTab(p){
             {/* MULTI LOOKUP */}
             {mlTab==="multi"&&<MultiLookup {...{ev:p.ev,inv:p.inv,si:p.si,cur:p.cur,user:p.user,pr:p.pr,fc:p.fc,st:p.st,doSell:p.doSell,sdet:p.sdet,sinvm:p.sinvm,jc:p.jc,sjc:p.sjc,det:p.det,scan:p.scan,sscan:p.sscan,mlTab:p.mlTab,smlTab:p.smlTab,mlInput:p.mlInput,smlInput:p.smlInput,mlItems:p.mlItems,smlItems:p.smlItems,mlDisc:p.mlDisc,smlDisc:p.smlDisc,mlDiscAmt:p.mlDiscAmt,smlDiscAmt:p.smlDiscAmt,mlMarkup:p.mlMarkup,smlMarkup:p.smlMarkup,mlNF:p.mlNF,smlNF:p.smlNF,mlScan:p.mlScan,smlScan:p.smlScan,mlSubtotal:p.mlSubtotal,mlFinal:p.mlFinal,mlTotal:p.mlTotal,resolveCodes:p.resolveCodes,sellMulti:p.sellMulti,showFilter:p.showFilter,sShowFilter:p.sShowFilter,activeFilters:p.activeFilters,resetFilters:p.resetFilters,fCat:p.fCat,sfCat:p.sfCat,fCol:p.fCol,sfCol:p.sfCol,fMetal:p.fMetal,sfMetal:p.sfMetal,fSt:p.fSt,sfSt:p.sfSt,fShape:p.fShape,sfShape:p.sfShape,fMinTc:p.fMinTc,sfMinTc:p.sfMinTc,fMaxTc:p.fMaxTc,sfMaxTc:p.sfMaxTc,fMinGw:p.fMinGw,sfMinGw:p.sfMinGw,fMaxGw:p.fMaxGw,sfMaxGw:p.sfMaxGw,fMinNw:p.fMinNw,sfMinNw:p.sfMinNw,fMaxNw:p.fMaxNw,sfMaxNw:p.sfMaxNw,fMinFp:p.fMinFp,sfMinFp:p.sfMinFp,fMaxFp:p.fMaxFp,sfMaxFp:p.sfMaxFp,allCats:p.allCats,allCols:p.allCols,allMetals:p.allMetals,allShapes:p.allShapes,allSt:p.allSt,lkQ:p.lkQ,lkResults:p.lkResults,lkShowResults:p.lkShowResults,leads:p.leads,onAddLead:p.onAddLead}}/>}
 
-            {/* ESTIMATE */}
-            {mlTab==="estimate"&&<EstimateLookup ev={p.ev} inv={p.inv} cur={p.cur} user={p.user}/>}
           </div>
   );
 }

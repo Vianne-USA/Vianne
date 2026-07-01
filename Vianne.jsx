@@ -1933,7 +1933,12 @@ function estimatePricing(items,disc,discAmt,markup){
   const total=Math.round(final*1.03*100)/100;
   return{subtotal,final,total};
 }
+function printDocBackButtonHtml(){
+  return '<button class="back-nav" onclick="window.close();if(!window.closed){history.back();}" style="position:fixed;top:14px;left:14px;z-index:9;background:#1E5C45;color:#F5EDE0;border:none;border-radius:8px;padding:9px 14px;font-family:Lato,sans-serif;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2)">← Back</button><style>@media print{.back-nav{display:none}}</style>';
+}
 function buildEstimatePrintHtml(items,cur,meta){
+  const isQuote=meta.docType==="quote";
+  const docLabel=isQuote?"QUOTE":"ESTIMATE";
   const logo=receiptEsc(receiptLogoUrl());
   const fmt=n=>receiptEsc(fc(n,cur));
   const pr=estimatePricing(items,meta.disc,meta.discAmt,meta.markup);
@@ -1948,15 +1953,26 @@ function buildEstimatePrintHtml(items,cur,meta){
   if(meta.discAmt&&Number(meta.discAmt)>0)sumRows+='<div class="row disc"><span>Discount (fixed)</span><span>− '+fmt(Number(meta.discAmt))+'</span></div>';
   if(meta.markup&&Number(meta.markup)>0)sumRows+='<div class="row mk"><span>Markup ('+receiptEsc(meta.markup)+'%)</span><span>+ '+fmt(pr.subtotal*Number(meta.markup)/100)+'</span></div>';
   sumRows+='<div class="row"><span>GST 3%</span><span>'+fmt(pr.final*0.03)+'</span></div>';
-  sumRows+='<div class="row grand"><span>ESTIMATED TOTAL</span><span>'+fmt(pr.total)+'</span></div>';
+  sumRows+='<div class="row grand"><span>'+(isQuote?"QUOTED TOTAL":"ESTIMATED TOTAL")+'</span><span>'+fmt(pr.total)+'</span></div>';
   const evLine=meta.eventName?'<div>'+receiptEsc(meta.eventName)+'</div>':"";
-  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estimate</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{margin:12mm;size:A4}*{box-sizing:border-box}body{margin:0;padding:20px;background:#fff;color:#1E5C45;font-family:Lato,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{position:relative;max-width:820px;margin:0 auto;padding:24px 28px;overflow:hidden}.wm{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:280px;height:280px;background:url("'+logo+'") center/contain no-repeat;opacity:0.06;pointer-events:none;z-index:0}.content{position:relative;z-index:1}.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.brand{display:flex;align-items:flex-start;gap:12px}.brand img{width:48px;height:auto}.brand-name{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;letter-spacing:0.08em;line-height:1.05}.brand-tag{font-size:8px;color:#C9A84C;letter-spacing:0.14em;text-transform:uppercase;line-height:1.45;margin-top:5px}.meta{text-align:right;font-size:11px;line-height:1.55}.meta-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}table.items{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:11px}table.items th{text-align:left;padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7A8C7E;border-bottom:2px solid #1E5C45}table.items td{padding:10px 6px;border-bottom:1px solid #E8DCCB;vertical-align:middle}.pic{width:72px}.pic img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #E8DCCB;display:block}.ph{width:56px;height:56px;border-radius:8px;background:#F5EDE0;display:flex;align-items:center;justify-content:center;font-size:22px}.code{font-weight:700;font-size:12px;color:#1E5C45}.series,.col{color:#3D5C4A}.price{text-align:right;font-family:"Cormorant Garamond",serif;font-weight:700;font-size:14px;white-space:nowrap;color:#1E5C45}.totals{background:#F5EDE0;border-radius:10px;padding:12px 14px;margin-top:8px}.row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#3D5C4A}.row.disc{color:#C8963A}.row.mk{color:#8B6914}.row.grand{font-size:16px;font-weight:700;color:#1E5C45;padding-top:8px;margin-top:4px;border-top:2px solid #1E5C45}.foot-rule{height:3px;background:#1E5C45;margin:20px 0 10px}.footer{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9px;color:#7A8C7E;line-height:1.45}.note{margin-top:14px;font-size:10px;color:#7A8C7E;line-height:1.5}@media print{html,body{height:auto}body{padding:0;margin:0}.page{padding:16px 20px}}</style></head><body><div class="page"><div class="wm"></div><div class="content"><div class="hdr"><div class="brand"><img src="'+logo+'" alt="Vianne"/><div><div class="brand-name">VIANNE JEWELS</div><div class="brand-tag">THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div><div class="meta"><div class="meta-title">ESTIMATE</div><div>'+receiptEsc(meta.date||dstr())+'</div><div>'+receiptEsc(meta.time||tstr())+'</div>'+evLine+'<div>'+receiptEsc(meta.staff||"")+'</div></div></div><table class="items"><thead><tr><th>Photo</th><th>Unique Code</th><th>Style</th><th>Collection</th><th>Category</th><th style="text-align:right">Final Price</th></tr></thead><tbody>'+rows+'</tbody></table><div class="totals">'+sumRows+'</div><div class="note">Prices shown are rounded final prices. This estimate is for reference only and is not a binding invoice.</div><div class="foot-rule"></div><div class="footer"><div>Disputes subject to Mumbai jurisdiction.</div><div><strong style="font-family:Cormorant Garamond,serif;font-size:12px;letter-spacing:0.06em;color:#1E5C45">VIANNE JEWELS</strong></div></div></div></div></body></html>';
+  const custLine=meta.custName?'<div>'+receiptEsc(meta.custName)+'</div>':"";
+  const note=isQuote?"This quote is valid for 7 days from the date above and is subject to availability.":"Prices shown are rounded final prices. This estimate is for reference only and is not a binding invoice.";
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+docLabel+'</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{margin:12mm;size:A4}*{box-sizing:border-box}body{margin:0;padding:20px;background:#fff;color:#1E5C45;font-family:Lato,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{position:relative;max-width:820px;margin:0 auto;padding:24px 28px;overflow:hidden}.wm{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:280px;height:280px;background:url("'+logo+'") center/contain no-repeat;opacity:0.06;pointer-events:none;z-index:0}.content{position:relative;z-index:1}.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.brand{display:flex;align-items:flex-start;gap:12px}.brand img{width:48px;height:auto}.brand-name{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;letter-spacing:0.08em;line-height:1.05}.brand-tag{font-size:8px;color:#C9A84C;letter-spacing:0.14em;text-transform:uppercase;line-height:1.45;margin-top:5px}.meta{text-align:right;font-size:11px;line-height:1.55}.meta-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}table.items{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:11px}table.items th{text-align:left;padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7A8C7E;border-bottom:2px solid #1E5C45}table.items td{padding:10px 6px;border-bottom:1px solid #E8DCCB;vertical-align:middle}.pic{width:72px}.pic img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #E8DCCB;display:block}.ph{width:56px;height:56px;border-radius:8px;background:#F5EDE0;display:flex;align-items:center;justify-content:center;font-size:22px}.code{font-weight:700;font-size:12px;color:#1E5C45}.series,.col{color:#3D5C4A}.price{text-align:right;font-family:"Cormorant Garamond",serif;font-weight:700;font-size:14px;white-space:nowrap;color:#1E5C45}.totals{background:#F5EDE0;border-radius:10px;padding:12px 14px;margin-top:8px}.row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#3D5C4A}.row.disc{color:#C8963A}.row.mk{color:#8B6914}.row.grand{font-size:16px;font-weight:700;color:#1E5C45;padding-top:8px;margin-top:4px;border-top:2px solid #1E5C45}.foot-rule{height:3px;background:#1E5C45;margin:20px 0 10px}.footer{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9px;color:#7A8C7E;line-height:1.45}.note{margin-top:14px;font-size:10px;color:#7A8C7E;line-height:1.5}@media print{html,body{height:auto}body{padding:0;margin:0}.page{padding:16px 20px}}</style></head><body>'+printDocBackButtonHtml()+'<div class="page"><div class="wm"></div><div class="content"><div class="hdr"><div class="brand"><img src="'+logo+'" alt="Vianne"/><div><div class="brand-name">VIANNE JEWELS</div><div class="brand-tag">THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div><div class="meta"><div class="meta-title">'+docLabel+'</div><div>'+receiptEsc(meta.date||dstr())+'</div><div>'+receiptEsc(meta.time||tstr())+'</div>'+evLine+custLine+'<div>'+receiptEsc(meta.staff||"")+'</div></div></div><table class="items"><thead><tr><th>Photo</th><th>Unique Code</th><th>Style</th><th>Collection</th><th>Category</th><th style="text-align:right">Final Price</th></tr></thead><tbody>'+rows+'</tbody></table><div class="totals">'+sumRows+'</div><div class="note">'+note+'</div><div class="foot-rule"></div><div class="footer"><div>Disputes subject to Mumbai jurisdiction.</div><div><strong style="font-family:Cormorant Garamond,serif;font-size:12px;letter-spacing:0.06em;color:#1E5C45">VIANNE JEWELS</strong></div></div></div></div></body></html>';
 }
 function printEstimate(items,cur,meta){
   if(!items||!items.length){toast.warn("No items","Add products before printing an estimate.");return;}
   const html=buildEstimatePrintHtml(items,cur,meta||{});
   const w=window.open("","_blank");
   if(!w){toast.error("Print blocked","Allow pop-ups to print estimates.");return;}
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{try{w.focus();w.print();}catch(e){}},600);
+}
+function printQuote(items,cur,meta){
+  if(!items||!items.length){toast.warn("No items","Add products before printing a quote.");return;}
+  const html=buildEstimatePrintHtml(items,cur,{...(meta||{}),docType:"quote"});
+  const w=window.open("","_blank");
+  if(!w){toast.error("Print blocked","Allow pop-ups to print quotes.");return;}
   w.document.write(html);
   w.document.close();
   setTimeout(()=>{try{w.focus();w.print();}catch(e){}},600);
@@ -2713,7 +2729,7 @@ function SingleLookup(p){
                 )}
 
                 {/* Results count when searching/filtering */}
-                {lkShowResults&&(
+                {lkShowResults&&!det&&(
                   <div style={{fontSize:10,color:T3,marginBottom:7,fontWeight:600}}>
                     {lkResults.length} item{lkResults.length!==1?"s":""} found
                     {lkQ?(" for " + lkQ):""}
@@ -2722,7 +2738,7 @@ function SingleLookup(p){
                 )}
 
                 {/* No results message */}
-                {lkShowResults&&lkResults.length===0&&(
+                {lkShowResults&&lkResults.length===0&&!det&&(
                   <div style={{...S.card({margin:0,textAlign:"center",padding:28})}}>
                     <div style={{fontSize:24,marginBottom:8}}>🔍</div>
                     <div style={{color:T2,fontSize:13,fontWeight:600,marginBottom:4}}>No items found</div>
@@ -2731,8 +2747,8 @@ function SingleLookup(p){
                   </div>
                 )}
 
-                {/* Search/filter results list — always above item detail */}
-                {lkShowResults&&lkResults.length>0&&(
+                {/* Search/filter results list — hidden once an item is opened */}
+                {lkShowResults&&lkResults.length>0&&!det&&(
                   <div className="v-results-grid" style={{background:WH,borderRadius:12,overflow:"hidden",border:"1px solid "+CRD2,marginBottom:12}}>
                     {resultRows.map((item,i,arr)=>(
                       <div key={item.id+"-"+imgTick} onClick={()=>pickItem(item,lkQ?"search":"view",lkQ)} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderBottom:i<arr.length-1?"1px solid "+CRD2:"none",cursor:"pointer",background:det&&det.id===item.id?"rgba(201,168,76,0.12)":WH}}>
@@ -2850,6 +2866,7 @@ function MultiLookup(p){
   var leads=p.leads;
   var onAddLead=p.onAddLead;
   const [showCustForm,sShowCustForm]=useState(false);
+  const [mlCustName,smlCustName]=useState("");
   const [mlCust,smlCust]=useState({name:"",phone:"",email:"",company:"",source:"Walk-in"});
   const setMC=(k,v)=>smlCust(p=>({...p,[k]:v}));
   const [mlMatchedCust,smlMatchedCust]=useState(null);
@@ -2884,12 +2901,14 @@ function MultiLookup(p){
     sShowCustForm(false);
     smlCust({name:"",phone:"",email:"",company:"",source:"Walk-in"});
     smlMatchedCust(null);
+    smlCustName("");
   };
   return(
     <div style={{padding:"13px 12px 40px"}}>
                 <div style={{...S.card({margin:0,marginBottom:12})}}>
                   <div style={S.sh}>📋 MULTI ITEM LOOKUP</div>
                   <div style={{fontSize:11,color:T3,marginBottom:9,lineHeight:1.6}}>One code per line, or comma separated.</div>
+                  <input style={{...S.inp({marginBottom:8}),borderColor:"rgba(201,168,76,0.5)"}} placeholder="Customer name (optional)..." value={mlCustName} onChange={ev=>smlCustName(ev.target.value)}/>
                   <span style={S.lbl}>JEWEL CODES</span>
                   <textarea style={S.inp({height:88,resize:"none",marginBottom:8,fontFamily:"monospace",fontSize:13})} placeholder={"VJNC1345\nVJER3089\nor: VJNC1345, VJER3089"} value={mlInput} onChange={ev=>smlInput(ev.target.value)}/>
                   <div style={{display:"flex",gap:8,marginBottom:mlScan?8:0}}>
@@ -2934,9 +2953,9 @@ function MultiLookup(p){
                       </div>
                     </div>
                     <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                      <button style={S.btn({flex:2,minWidth:140,padding:"12px",fontSize:13})} onClick={()=>sShowCustForm(true)}>💰 Convert to Sale</button>
-                      <button style={S.bOut({flex:1,minWidth:120,padding:"12px",fontSize:12})} onClick={()=>printEstimate(mlItems,cur,{eventName:ev?.name,disc:mlDisc,discAmt:mlDiscAmt,markup:mlMarkup,staff:user?.name})}>📄 Estimate Print</button>
-                      <button style={S.bOut({flex:1,minWidth:90,padding:"12px",fontSize:12})} onClick={()=>toast.info("Quote ready",""+mlItems.length+" items")}>📋 Quote</button>
+                      <button style={S.btn({flex:2,minWidth:140,padding:"12px",fontSize:13})} onClick={()=>{if(mlCustName.trim())smlCust(p=>({...p,name:p.name.trim()?p.name:mlCustName}));sShowCustForm(true);}}>💰 Convert to Sale</button>
+                      <button style={S.bOut({flex:1,minWidth:120,padding:"12px",fontSize:12})} onClick={()=>printEstimate(mlItems,cur,{eventName:ev?.name,custName:mlCustName.trim(),disc:mlDisc,discAmt:mlDiscAmt,markup:mlMarkup,staff:user?.name})}>📄 Estimate Print</button>
+                      <button style={S.bOut({flex:1,minWidth:90,padding:"12px",fontSize:12})} onClick={()=>printQuote(mlItems,cur,{eventName:ev?.name,custName:mlCustName.trim(),disc:mlDisc,discAmt:mlDiscAmt,markup:mlMarkup,staff:user?.name})}>📋 Quote</button>
                     </div>
                   {showCustForm&&(
                     <div style={{...S.card({margin:"12px 0 0",border:"2px solid "+G})}}>
@@ -4391,7 +4410,7 @@ function HistoryTab(p){
   const [search,setSearch]=useState("");
   const [staffF,setStaffF]=useState("All");
   const [pmF,setPmF]=useState("All");
-  const [mode,setMode]=useState("sales"); // sales | lookups
+  const [mode,setMode]=useState("lookups"); // sales | lookups
   const [view,setView]=useState("list"); // list | analytics
   const [lookupUserF,setLookupUserF]=useState("All");
   const [selCust,setSelCust]=useState(null);
@@ -4966,6 +4985,16 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
     prefetchInvImages([full.id,...similarIds]).then(n=>{if(n)sImgTick(x=>x+1);});
     sdet(full);
   };
+  const recordMultiLookup=(items,query)=>{
+    if(!items||!items.length)return;
+    const ids=new Set(items.map(i=>i.id));
+    const ni=inv.map(i=>ids.has(i.id)?{...i,searches:(i.searches||0)+1}:i);
+    si(ni);
+    const entries=items.map(item=>({id:uid("LK"),itemId:item.id,itemName:(item.cat||"")+" · "+(item.col||""),type:"search",query:query||"",user:user.name,date:dstr(),time:tstr()}));
+    const nh=[...entries,...lookupHistory].slice(0,300);
+    sLookupHistory(nh);
+    syncUp(ni,null,null,null,nh);
+  };
   const doSell=sale=>{const ni=inv.map(i=>i.id===sale.itemId?{...i,st:"sold"}:i);const ns=[sale,...sales];si(ni);ssl(ns);sdet(null);sinvm(sale);syncUp(ni,ns,null,null);};
   const onAddLead=(cust,action)=>{
     if(action==="update"){
@@ -4986,7 +5015,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const mlAdj=mlDisc?mlSubtotal*Number(mlDisc)/100:mlDiscAmt?Number(mlDiscAmt):mlMarkup?-(mlSubtotal*Number(mlMarkup)/100):0;
   const mlFinal=Math.max(0,Math.round((mlSubtotal-mlAdj)*100)/100);
   const mlTotal=Math.round(mlFinal*1.03*100)/100;
-  const resolveCodes=()=>{const codes=mlInput.replace(/\n/g,",").split(",").map(function(s){return s.trim();}).map(s=>s.trim().toUpperCase()).filter(Boolean);const found=[],nf=[];codes.forEach(code=>{const item=inv.find(i=>i.id===code);if(item&&!found.find(f=>f.id===item.id))found.push(item);else if(!item)nf.push(code);});smlItems(found);smlNF(nf);smlDisc("");smlDiscAmt("");smlMarkup("");};
+  const resolveCodes=()=>{const codes=mlInput.replace(/\n/g,",").split(",").map(function(s){return s.trim();}).map(s=>s.trim().toUpperCase()).filter(Boolean);const found=[],nf=[];codes.forEach(code=>{const item=inv.find(i=>i.id===code);if(item&&!found.find(f=>f.id===item.id))found.push(item);else if(!item)nf.push(code);});smlItems(found);smlNF(nf);smlDisc("");smlDiscAmt("");smlMarkup("");recordMultiLookup(found,mlInput.trim());};
   const sellMulti=(custName,phone,custId)=>{const batchNo=nextReceiptNumber(ev.name,sales);mlItems.forEach((item,i)=>{const ip=Math.round((item.fp*(mlFinal/Math.max(mlSubtotal,1)))*100)/100;doSell({id:nextReceiptNumber(ev.name,sales,i),custId:custId||"",custName:custName,phone:phone||"",itemId:item.id,itemName:item.cat+" · "+item.col+" · "+item.metal,metal:item.metal,col:item.col,sz:item.sz,gw:item.gw,nw:item.nw,tc:item.tc,sp:item.sp,style:item.style,price:ip,disc:mlDisc?Number(mlDisc):0,cgst:0,sgst:0,total:Math.round(ip*(1+(mlMarkup?Number(mlMarkup)/100:0))*100)/100,currency:cur,margin:0,date:dstr(),time:tstr(),payment:"NEFT",staff:user.name,st:"completed",gt:"",remark:mlItems.length>1?"[Batch "+batchNo+(i>0?" #"+(i+1):"")+"] ":""});});smlItems([]);smlInput("");st("sales");toast.success("Sale confirmed",""+mlItems.length+" items · "+custName);};
   // Filter options derived from inventory
   const allCats=["All",...new Set(inv.map(i=>i.cat).filter(Boolean))].sort();

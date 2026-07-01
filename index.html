@@ -10923,9 +10923,9 @@ function _syncImagesToDrive() {
           }
           return _context16.a(2, 0);
         case 3:
-          entries = Object.entries(imgMap).filter(function (_ref85) {
-            var _ref86 = _slicedToArray(_ref85, 2),
-              src = _ref86[1];
+          entries = Object.entries(imgMap).filter(function (_ref84) {
+            var _ref85 = _slicedToArray(_ref84, 2),
+              src = _ref85[1];
             return String(src || "").startsWith("data:image/");
           });
           if (entries.length) {
@@ -10942,10 +10942,10 @@ function _syncImagesToDrive() {
             _context16.n = 12;
             break;
           }
-          chunk = entries.slice(i, i + BATCH).map(function (_ref87) {
-            var _ref88 = _slicedToArray(_ref87, 2),
-              id = _ref88[0],
-              src = _ref88[1];
+          chunk = entries.slice(i, i + BATCH).map(function (_ref86) {
+            var _ref87 = _slicedToArray(_ref86, 2),
+              id = _ref87[0],
+              src = _ref87[1];
             return {
               id: String(id).toUpperCase(),
               data: String(src).replace(/^data:image\/\w+;base64,/, "")
@@ -13489,10 +13489,10 @@ function _idbSaveImages() {
           }
           return _context28.a(2);
         case 1:
-          entries = Object.entries(imgMap).filter(function (_ref89) {
-            var _ref90 = _slicedToArray(_ref89, 2),
-              id = _ref90[0],
-              src = _ref90[1];
+          entries = Object.entries(imgMap).filter(function (_ref88) {
+            var _ref89 = _slicedToArray(_ref88, 2),
+              id = _ref89[0],
+              src = _ref89[1];
             return id && src;
           });
           if (entries.length) {
@@ -13502,10 +13502,10 @@ function _idbSaveImages() {
           return _context28.a(2);
         case 2:
           if (!window.VJ_IMG) window.VJ_IMG = {};
-          entries.forEach(function (_ref91) {
-            var _ref92 = _slicedToArray(_ref91, 2),
-              id = _ref92[0],
-              src = _ref92[1];
+          entries.forEach(function (_ref90) {
+            var _ref91 = _slicedToArray(_ref90, 2),
+              id = _ref91[0],
+              src = _ref91[1];
             window.VJ_IMG[String(id).toUpperCase()] = src;
           });
           notifyImagesChanged();
@@ -13526,10 +13526,10 @@ function _idbSaveImages() {
                   return new Promise(function (res, rej) {
                     var tx = db.transaction(IDB_IMG_STORE, "readwrite");
                     var st = tx.objectStore(IDB_IMG_STORE);
-                    slice.forEach(function (_ref93) {
-                      var _ref94 = _slicedToArray(_ref93, 2),
-                        id = _ref94[0],
-                        src = _ref94[1];
+                    slice.forEach(function (_ref92) {
+                      var _ref93 = _slicedToArray(_ref92, 2),
+                        id = _ref93[0],
+                        src = _ref93[1];
                       return st.put({
                         id: String(id).toUpperCase(),
                         src: src
@@ -14409,7 +14409,7 @@ function _cloudSave() {
             return true;
           });
           trySave = /*#__PURE__*/function () {
-            var _ref95 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(files) {
+            var _ref94 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(files) {
               var body, r, d, msg, _t27, _t28;
               return _regenerator().w(function (_context39) {
                 while (1) switch (_context39.p = _context39.n) {
@@ -14468,7 +14468,7 @@ function _cloudSave() {
               }, _callee38, null, [[5, 7], [1, 3]]);
             }));
             return function trySave(_x58) {
-              return _ref95.apply(this, arguments);
+              return _ref94.apply(this, arguments);
             };
           }();
           _context40.p = 3;
@@ -14514,10 +14514,10 @@ function flushCloudSync(_x42, _x43, _x44) {
 }
 function _flushCloudSync() {
   _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(events, users, deletedEvents) {
-    var _ref96,
-      _ref96$silent,
+    var _ref95,
+      _ref95$silent,
       silent,
-      _ref96$successMsg,
+      _ref95$successMsg,
       successMsg,
       ping,
       tombstones,
@@ -14532,7 +14532,7 @@ function _flushCloudSync() {
     return _regenerator().w(function (_context41) {
       while (1) switch (_context41.n) {
         case 0:
-          _ref96 = _args41.length > 3 && _args41[3] !== undefined ? _args41[3] : {}, _ref96$silent = _ref96.silent, silent = _ref96$silent === void 0 ? false : _ref96$silent, _ref96$successMsg = _ref96.successMsg, successMsg = _ref96$successMsg === void 0 ? "Shared with all users & devices" : _ref96$successMsg;
+          _ref95 = _args41.length > 3 && _args41[3] !== undefined ? _args41[3] : {}, _ref95$silent = _ref95.silent, silent = _ref95$silent === void 0 ? false : _ref95$silent, _ref95$successMsg = _ref95.successMsg, successMsg = _ref95$successMsg === void 0 ? "Shared with all users & devices" : _ref95$successMsg;
           _context41.n = 1;
           return cloudFetchData();
         case 1:
@@ -20735,386 +20735,6 @@ function SingleLookup(p) {
     onAddLead: onAddLead
   })));
 }
-function EstimateLookup(_ref40) {
-  var ev = _ref40.ev,
-    inv = _ref40.inv,
-    cur = _ref40.cur,
-    user = _ref40.user;
-  var _useState75 = useState(""),
-    _useState76 = _slicedToArray(_useState75, 2),
-    input = _useState76[0],
-    setInput = _useState76[1];
-  var _useState77 = useState([]),
-    _useState78 = _slicedToArray(_useState77, 2),
-    items = _useState78[0],
-    setItems = _useState78[1];
-  var _useState79 = useState([]),
-    _useState80 = _slicedToArray(_useState79, 2),
-    nf = _useState80[0],
-    setNf = _useState80[1];
-  var _useState81 = useState(""),
-    _useState82 = _slicedToArray(_useState81, 2),
-    disc = _useState82[0],
-    setDisc = _useState82[1];
-  var _useState83 = useState(""),
-    _useState84 = _slicedToArray(_useState83, 2),
-    discAmt = _useState84[0],
-    setDiscAmt = _useState84[1];
-  var _useState85 = useState(""),
-    _useState86 = _slicedToArray(_useState85, 2),
-    markup = _useState86[0],
-    setMarkup = _useState86[1];
-  var _useState87 = useState(false),
-    _useState88 = _slicedToArray(_useState87, 2),
-    scan = _useState88[0],
-    setScan = _useState88[1];
-  var resolve = function resolve() {
-    var codes = input.replace(/\n/g, ",").split(",").map(function (s) {
-      return s.trim().toUpperCase();
-    }).filter(Boolean);
-    var found = [],
-      notFound = [];
-    codes.forEach(function (code) {
-      var item = inv.find(function (i) {
-        return i.id === code;
-      });
-      if (item && !found.find(function (f) {
-        return f.id === item.id;
-      })) found.push(item);else if (!item) notFound.push(code);
-    });
-    setItems(found);
-    setNf(notFound);
-    setDisc("");
-    setDiscAmt("");
-    setMarkup("");
-  };
-  var pr = estimatePricing(items, disc, discAmt, markup);
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: "13px 12px 40px"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: _objectSpread({}, S.card({
-      margin: 0,
-      marginBottom: 12
-    }))
-  }, /*#__PURE__*/React.createElement("div", {
-    style: S.sh
-  }, "\uD83D\uDCC4 ESTIMATE"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: T3,
-      marginBottom: 9,
-      lineHeight: 1.6
-    }
-  }, "Search multiple items, then print a PDF estimate with photos and rounded final prices."), /*#__PURE__*/React.createElement("span", {
-    style: S.lbl
-  }, "JEWEL CODES"), /*#__PURE__*/React.createElement("textarea", {
-    style: S.inp({
-      height: 88,
-      resize: "none",
-      marginBottom: 8,
-      fontFamily: "monospace",
-      fontSize: 13
-    }),
-    placeholder: "VJNC1345\nVJER3089\nor: VJNC1345, VJER3089",
-    value: input,
-    onChange: function onChange(e) {
-      return setInput(e.target.value);
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8,
-      marginBottom: scan ? 8 : 0
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    style: S.btn({
-      flex: 1,
-      padding: "11px",
-      fontSize: 13
-    }),
-    onClick: resolve
-  }, "\uD83D\uDD0D Look Up All"), /*#__PURE__*/React.createElement("button", {
-    style: S.bOut({
-      padding: "11px 12px",
-      fontSize: 12,
-      background: scan ? RE : undefined,
-      color: scan ? WH : undefined,
-      borderColor: scan ? RE : undefined
-    }),
-    onClick: function onClick() {
-      return setScan(function (x) {
-        return !x;
-      });
-    }
-  }, scan ? "⬛ Stop" : "📷")), scan && /*#__PURE__*/React.createElement(QRScanner, {
-    inv: inv,
-    onScanned: function onScanned(code) {
-      setScan(false);
-      if (code) setInput(function (p) {
-        return (p ? p + "\n" : "") + code;
-      });
-    }
-  }), nf.length > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: REBG,
-      borderRadius: 8,
-      padding: "8px 11px",
-      marginTop: 9
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      fontWeight: 700,
-      color: RE,
-      marginBottom: 2
-    }
-  }, "NOT FOUND"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: RE
-    }
-  }, nf.join(", ")))), items.length > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: WH,
-      borderRadius: 12,
-      overflow: "hidden",
-      border: "1px solid " + CRD2,
-      marginBottom: 12
-    }
-  }, items.map(function (item, i) {
-    return /*#__PURE__*/React.createElement("div", {
-      key: item.id,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "9px 12px",
-        borderBottom: i < items.length - 1 ? "1px solid " + CRD2 : "none"
-      }
-    }, /*#__PURE__*/React.createElement(ItemThumb, {
-      item: item,
-      size: 38
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 700,
-        fontSize: 12,
-        color: T1
-      }
-    }, item.id), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: T3
-      }
-    }, item.style, " \xB7 ", item.col, " \xB7 ", item.cat)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: "right"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "Cormorant Garamond,serif",
-        fontSize: 13,
-        fontWeight: 700,
-        color: G
-      }
-    }, fc(roundItemFp(item.fp), cur)), /*#__PURE__*/React.createElement("button", {
-      onClick: function onClick() {
-        return setItems(function (p) {
-          return p.filter(function (x) {
-            return x.id !== item.id;
-          });
-        });
-      },
-      style: {
-        background: "none",
-        border: "none",
-        color: RE,
-        fontSize: 10,
-        cursor: "pointer"
-      }
-    }, "\u2715")));
-  })), /*#__PURE__*/React.createElement("div", {
-    style: _objectSpread({}, S.card({
-      margin: 0,
-      marginBottom: 12
-    }))
-  }, /*#__PURE__*/React.createElement("div", {
-    style: S.sh
-  }, "\uD83D\uDCB2 PRICING ADJUSTMENT"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr 1fr",
-      gap: 8,
-      marginBottom: 10
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    style: _objectSpread(_objectSpread({}, S.lbl), {}, {
-      color: disc ? G : T2
-    })
-  }, "DISC %"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    min: "0",
-    max: "50",
-    style: S.inp({
-      borderColor: disc ? G : CRD2
-    }),
-    placeholder: "0",
-    value: disc,
-    onChange: function onChange(e) {
-      setDisc(e.target.value);
-      setDiscAmt("");
-      setMarkup("");
-    }
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    style: _objectSpread(_objectSpread({}, S.lbl), {}, {
-      color: discAmt ? RE : T2
-    })
-  }, "DISC AMT"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    min: "0",
-    style: S.inp({
-      borderColor: discAmt ? RE : CRD2
-    }),
-    placeholder: "0",
-    value: discAmt,
-    onChange: function onChange(e) {
-      setDiscAmt(e.target.value);
-      setDisc("");
-      setMarkup("");
-    }
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    style: _objectSpread(_objectSpread({}, S.lbl), {}, {
-      color: markup ? AM : T2
-    })
-  }, "MARKUP %"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    min: "0",
-    style: S.inp({
-      borderColor: markup ? AM : CRD2
-    }),
-    placeholder: "0",
-    value: markup,
-    onChange: function onChange(e) {
-      setMarkup(e.target.value);
-      setDisc("");
-      setDiscAmt("");
-    }
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: CRD,
-      borderRadius: 9,
-      padding: "10px 11px"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 12,
-      color: T3,
-      marginBottom: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", null, items.length, " items \xB7 Subtotal"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: 600,
-      color: T1
-    }
-  }, fc(pr.subtotal, cur))), disc && Number(disc) > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 12,
-      color: G,
-      marginBottom: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "Discount (", disc, "%)"), /*#__PURE__*/React.createElement("span", null, "\u2212 ", fc(pr.subtotal * Number(disc) / 100, cur))), discAmt && Number(discAmt) > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 12,
-      color: G,
-      marginBottom: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "Discount (fixed)"), /*#__PURE__*/React.createElement("span", null, "\u2212 ", fc(Number(discAmt), cur))), markup && Number(markup) > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 12,
-      color: AM,
-      marginBottom: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "Markup (", markup, "%)"), /*#__PURE__*/React.createElement("span", null, "+ ", fc(pr.subtotal * Number(markup) / 100, cur))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 1,
-      background: CRD2,
-      margin: "6px 0"
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 12,
-      color: T3,
-      marginBottom: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "GST 3%"), /*#__PURE__*/React.createElement("span", null, fc(pr.final * 0.03, cur))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 2,
-      background: G,
-      borderRadius: 1,
-      margin: "5px 0"
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontWeight: 700,
-      fontSize: 16,
-      color: G
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "Estimated Total"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: "Cormorant Garamond,serif",
-      fontSize: 19
-    }
-  }, fc(pr.total, cur))))), /*#__PURE__*/React.createElement("button", {
-    style: S.btn({
-      width: "100%",
-      padding: "13px",
-      fontSize: 14
-    }),
-    onClick: function onClick() {
-      return printEstimate(items, cur, {
-        eventName: ev === null || ev === void 0 ? void 0 : ev.name,
-        disc: disc,
-        discAmt: discAmt,
-        markup: markup,
-        staff: user === null || user === void 0 ? void 0 : user.name
-      });
-    }
-  }, "\uD83D\uDCC4 Estimate Print")), items.length === 0 && !input && /*#__PURE__*/React.createElement("div", {
-    style: _objectSpread({}, S.card({
-      margin: 0,
-      textAlign: "center",
-      padding: 32
-    }))
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 24,
-      color: CRD2,
-      marginBottom: 10
-    }
-  }, "\uD83D\uDCC4"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: T3,
-      fontSize: 13
-    }
-  }, "Enter codes above to build a printable estimate")));
-}
 function MultiLookup(p) {
   var ev = p.ev;
   var inv = p.inv;
@@ -21159,29 +20779,29 @@ function MultiLookup(p) {
   var sellMulti = p.sellMulti;
   var leads = p.leads;
   var onAddLead = p.onAddLead;
-  var _useState89 = useState(false),
-    _useState90 = _slicedToArray(_useState89, 2),
-    showCustForm = _useState90[0],
-    sShowCustForm = _useState90[1];
-  var _useState91 = useState({
+  var _useState75 = useState(false),
+    _useState76 = _slicedToArray(_useState75, 2),
+    showCustForm = _useState76[0],
+    sShowCustForm = _useState76[1];
+  var _useState77 = useState({
       name: "",
       phone: "",
       email: "",
       company: "",
       source: "Walk-in"
     }),
-    _useState92 = _slicedToArray(_useState91, 2),
-    mlCust = _useState92[0],
-    smlCust = _useState92[1];
+    _useState78 = _slicedToArray(_useState77, 2),
+    mlCust = _useState78[0],
+    smlCust = _useState78[1];
   var setMC = function setMC(k, v) {
     return smlCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
     });
   };
-  var _useState93 = useState(null),
-    _useState94 = _slicedToArray(_useState93, 2),
-    mlMatchedCust = _useState94[0],
-    smlMatchedCust = _useState94[1];
+  var _useState79 = useState(null),
+    _useState80 = _slicedToArray(_useState79, 2),
+    mlMatchedCust = _useState80[0],
+    smlMatchedCust = _useState80[1];
   var onMCNameChange = function onMCNameChange(v) {
     smlCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, {
@@ -22115,10 +21735,10 @@ function InventoryTab(p) {
   var sauditLoc = p.saLoc;
   var sauditScanned = p.saScanned;
   var imgTick = p.imgTick || 0;
-  var _useState95 = useState("add"),
-    _useState96 = _slicedToArray(_useState95, 2),
-    upMode = _useState96[0],
-    setUpMode = _useState96[1];
+  var _useState81 = useState("add"),
+    _useState82 = _slicedToArray(_useState81, 2),
+    upMode = _useState82[0],
+    setUpMode = _useState82[1];
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       background: G,
@@ -22402,10 +22022,10 @@ function InventoryTab(p) {
     return i.st === "available";
   }).reduce(function (s, i) {
     return s + i.fp;
-  }, 0), cur)]].map(function (_ref41) {
-    var _ref42 = _slicedToArray(_ref41, 2),
-      l = _ref42[0],
-      v = _ref42[1];
+  }, 0), cur)]].map(function (_ref40) {
+    var _ref41 = _slicedToArray(_ref40, 2),
+      l = _ref41[0],
+      v = _ref41[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -22755,9 +22375,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref43) {
-    var item = _ref43.item,
-      scannedAt = _ref43.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref42) {
+    var item = _ref42.item,
+      scannedAt = _ref42.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -22891,12 +22511,12 @@ function invBuckets(inv, keyFn) {
     return b.cnt - a.cnt;
   });
 }
-function AnalyticsBucketCard(_ref44) {
-  var title = _ref44.title,
-    data = _ref44.data,
-    cur = _ref44.cur,
-    fc = _ref44.fc,
-    maxVal = _ref44.maxVal;
+function AnalyticsBucketCard(_ref43) {
+  var title = _ref43.title,
+    data = _ref43.data,
+    cur = _ref43.cur,
+    fc = _ref43.fc,
+    maxVal = _ref43.maxVal;
   var mx = maxVal || Math.max.apply(Math, [1].concat(_toConsumableArray(data.map(function (x) {
     return x.cnt;
   }))));
@@ -22989,10 +22609,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref45) {
-    var pct = _ref45.pct,
-      col = _ref45.col,
-      h = _ref45.h;
+  var Bar = function Bar(_ref44) {
+    var pct = _ref44.pct,
+      col = _ref44.col,
+      h = _ref44.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -23052,10 +22672,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref46) {
-    var _ref47 = _slicedToArray(_ref46, 2),
-      d = _ref47[0],
-      v = _ref47[1];
+  }).map(function (_ref45) {
+    var _ref46 = _slicedToArray(_ref45, 2),
+      d = _ref46[0],
+      v = _ref46[1];
     return {
       d: d,
       v: v
@@ -23616,9 +23236,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref48) {
-    var h = _ref48.h,
-      v = _ref48.v;
+  }, hourData.map(function (_ref47) {
+    var h = _ref47.h,
+      v = _ref47.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -24209,10 +23829,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref49, i) {
-    var _ref50 = _slicedToArray(_ref49, 2),
-      src = _ref50[0],
-      cnt = _ref50[1];
+  }, "No leads yet"), srcData.map(function (_ref48, i) {
+    var _ref49 = _slicedToArray(_ref48, 2),
+      src = _ref49[0],
+      cnt = _ref49[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -24896,27 +24516,27 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref51) {
-  var pr = _ref51.pr,
-    allEvents = _ref51.allEvents,
-    appUsers = _ref51.appUsers,
-    onSynced = _ref51.onSynced;
-  var _useState97 = useState(false),
-    _useState98 = _slicedToArray(_useState97, 2),
-    busy = _useState98[0],
-    setBusy = _useState98[1];
-  var _useState99 = useState(getCloudMeta()),
-    _useState100 = _slicedToArray(_useState99, 2),
-    meta = _useState100[0],
-    setMeta = _useState100[1];
-  var _useState101 = useState(""),
-    _useState102 = _slicedToArray(_useState101, 2),
-    lastErr = _useState102[0],
-    setLastErr = _useState102[1];
-  var _useState103 = useState(getCloudPingInfo()),
-    _useState104 = _slicedToArray(_useState103, 2),
-    ping = _useState104[0],
-    setPing = _useState104[1];
+function CloudStoragePanel(_ref50) {
+  var pr = _ref50.pr,
+    allEvents = _ref50.allEvents,
+    appUsers = _ref50.appUsers,
+    onSynced = _ref50.onSynced;
+  var _useState83 = useState(false),
+    _useState84 = _slicedToArray(_useState83, 2),
+    busy = _useState84[0],
+    setBusy = _useState84[1];
+  var _useState85 = useState(getCloudMeta()),
+    _useState86 = _slicedToArray(_useState85, 2),
+    meta = _useState86[0],
+    setMeta = _useState86[1];
+  var _useState87 = useState(""),
+    _useState88 = _slicedToArray(_useState87, 2),
+    lastErr = _useState88[0],
+    setLastErr = _useState88[1];
+  var _useState89 = useState(getCloudPingInfo()),
+    _useState90 = _slicedToArray(_useState89, 2),
+    ping = _useState90[0],
+    setPing = _useState90[1];
   var online = isCloudOnline();
   useEffect(function () {
     cloudFetchData(true).then(function (d) {
@@ -24927,7 +24547,7 @@ function CloudStoragePanel(_ref51) {
   var driveReadOk = ping && ping.driveRead === "ok";
   var ds = ping && ping.driveStatus;
   var syncNow = /*#__PURE__*/function () {
-    var _ref52 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
+    var _ref51 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
       var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
       return _regenerator().w(function (_context6) {
         while (1) switch (_context6.p = _context6.n) {
@@ -24993,7 +24613,7 @@ function CloudStoragePanel(_ref51) {
       }, _callee6, null, [[1, 7, 8, 9]]);
     }));
     return function syncNow() {
-      return _ref52.apply(this, arguments);
+      return _ref51.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -25075,19 +24695,19 @@ function CloudStoragePanel(_ref51) {
     }
   }, "Auto-sync runs in the background \u2014 use this only if another device looks out of date."));
 }
-function CurrencyManager(_ref53) {
-  var cur = _ref53.cur,
-    scur = _ref53.scur,
-    pr = _ref53.pr,
-    onRatesChanged = _ref53.onRatesChanged;
-  var _useState105 = useState(false),
-    _useState106 = _slicedToArray(_useState105, 2),
-    editMode = _useState106[0],
-    setEditMode = _useState106[1];
-  var _useState107 = useState({}),
-    _useState108 = _slicedToArray(_useState107, 2),
-    editRates = _useState108[0],
-    setEditRates = _useState108[1];
+function CurrencyManager(_ref52) {
+  var cur = _ref52.cur,
+    scur = _ref52.scur,
+    pr = _ref52.pr,
+    onRatesChanged = _ref52.onRatesChanged;
+  var _useState91 = useState(false),
+    _useState92 = _slicedToArray(_useState91, 2),
+    editMode = _useState92[0],
+    setEditMode = _useState92[1];
+  var _useState93 = useState({}),
+    _useState94 = _slicedToArray(_useState93, 2),
+    editRates = _useState94[0],
+    setEditRates = _useState94[1];
   var getCurr = function getCurr() {
     return normalizeCurrencyRates(function () {
       try {
@@ -25099,10 +24719,10 @@ function CurrencyManager(_ref53) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref54) {
-      var _ref55 = _slicedToArray(_ref54, 2),
-        k = _ref55[0],
-        v = _ref55[1];
+    Object.entries(getCurr()).forEach(function (_ref53) {
+      var _ref54 = _slicedToArray(_ref53, 2),
+        k = _ref54[0],
+        v = _ref54[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -25110,10 +24730,10 @@ function CurrencyManager(_ref53) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref56) {
-      var _ref57 = _slicedToArray(_ref56, 2),
-        k = _ref57[0],
-        v = _ref57[1];
+    Object.entries(getCurr()).forEach(function (_ref55) {
+      var _ref56 = _slicedToArray(_ref55, 2),
+        k = _ref56[0],
+        v = _ref56[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -25181,10 +24801,10 @@ function CurrencyManager(_ref53) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref58) {
-    var _ref59 = _slicedToArray(_ref58, 2),
-      k = _ref59[0],
-      v = _ref59[1];
+  }, Object.entries(rates).map(function (_ref57) {
+    var _ref58 = _slicedToArray(_ref57, 2),
+      k = _ref58[0],
+      v = _ref58[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -25212,10 +24832,10 @@ function CurrencyManager(_ref53) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref60, i, arr) {
-    var _ref61 = _slicedToArray(_ref60, 2),
-      k = _ref61[0],
-      v = _ref61[1];
+  })), Object.entries(rates).map(function (_ref59, i, arr) {
+    var _ref60 = _slicedToArray(_ref59, 2),
+      k = _ref60[0],
+      v = _ref60[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -25420,18 +25040,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref62) {
-    var _ref63 = _slicedToArray(_ref62, 2),
-      v = _ref63[1];
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref61) {
+    var _ref62 = _slicedToArray(_ref61, 2),
+      v = _ref62[1];
     return v;
-  }).map(function (_ref64) {
-    var _ref65 = _slicedToArray(_ref64, 1),
-      k = _ref65[0];
+  }).map(function (_ref63) {
+    var _ref64 = _slicedToArray(_ref63, 1),
+      k = _ref64[0];
     return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref66) {
-    var _ref67 = _slicedToArray(_ref66, 2),
-      l = _ref67[0],
-      v = _ref67[1];
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref65) {
+    var _ref66 = _slicedToArray(_ref65, 2),
+      l = _ref66[0],
+      v = _ref66[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -25475,10 +25095,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref68) {
-    var _ref69 = _slicedToArray(_ref68, 2),
-      l = _ref69[0],
-      v = _ref69[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref67) {
+    var _ref68 = _slicedToArray(_ref67, 2),
+      l = _ref68[0],
+      v = _ref68[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -25546,10 +25166,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref70) {
-    var _ref71 = _slicedToArray(_ref70, 2),
-      l = _ref71[0],
-      v = _ref71[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref69) {
+    var _ref70 = _slicedToArray(_ref69, 2),
+      l = _ref70[0],
+      v = _ref70[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -25615,52 +25235,52 @@ function SalesTab(p) {
   var sinvm = p.sinvm;
   var fc = p.fc;
   var onAddLead = p.onAddLead;
-  var _useState109 = useState(false),
-    _useState110 = _slicedToArray(_useState109, 2),
-    showNewSale = _useState110[0],
-    sShowNewSale = _useState110[1];
-  var _useState111 = useState({
+  var _useState95 = useState(false),
+    _useState96 = _slicedToArray(_useState95, 2),
+    showNewSale = _useState96[0],
+    sShowNewSale = _useState96[1];
+  var _useState97 = useState({
       name: "",
       phone: "",
       email: "",
       company: "",
       source: "Walk-in"
     }),
+    _useState98 = _slicedToArray(_useState97, 2),
+    nsCust = _useState98[0],
+    snsCust = _useState98[1];
+  var _useState99 = useState([]),
+    _useState100 = _slicedToArray(_useState99, 2),
+    nsItems = _useState100[0],
+    snsItems = _useState100[1]; // [{...item, overridePrice: null}]
+  var _useState101 = useState("NEFT"),
+    _useState102 = _slicedToArray(_useState101, 2),
+    nsPayment = _useState102[0],
+    snsPayment = _useState102[1];
+  var _useState103 = useState(""),
+    _useState104 = _slicedToArray(_useState103, 2),
+    nsDisc = _useState104[0],
+    snsDisc = _useState104[1]; // overall discount %
+  var _useState105 = useState(""),
+    _useState106 = _slicedToArray(_useState105, 2),
+    nsMarkup = _useState106[0],
+    snsMarkup = _useState106[1]; // overall markup %
+  var _useState107 = useState("pct"),
+    _useState108 = _slicedToArray(_useState107, 2),
+    nsCCType = _useState108[0],
+    snsCCType = _useState108[1]; // cc surcharge type
+  var _useState109 = useState(""),
+    _useState110 = _slicedToArray(_useState109, 2),
+    nsCCVal = _useState110[0],
+    snsCCVal = _useState110[1]; // cc surcharge value
+  var _useState111 = useState(""),
     _useState112 = _slicedToArray(_useState111, 2),
-    nsCust = _useState112[0],
-    snsCust = _useState112[1];
-  var _useState113 = useState([]),
+    nsSearch = _useState112[0],
+    snsSearch = _useState112[1];
+  var _useState113 = useState(null),
     _useState114 = _slicedToArray(_useState113, 2),
-    nsItems = _useState114[0],
-    snsItems = _useState114[1]; // [{...item, overridePrice: null}]
-  var _useState115 = useState("NEFT"),
-    _useState116 = _slicedToArray(_useState115, 2),
-    nsPayment = _useState116[0],
-    snsPayment = _useState116[1];
-  var _useState117 = useState(""),
-    _useState118 = _slicedToArray(_useState117, 2),
-    nsDisc = _useState118[0],
-    snsDisc = _useState118[1]; // overall discount %
-  var _useState119 = useState(""),
-    _useState120 = _slicedToArray(_useState119, 2),
-    nsMarkup = _useState120[0],
-    snsMarkup = _useState120[1]; // overall markup %
-  var _useState121 = useState("pct"),
-    _useState122 = _slicedToArray(_useState121, 2),
-    nsCCType = _useState122[0],
-    snsCCType = _useState122[1]; // cc surcharge type
-  var _useState123 = useState(""),
-    _useState124 = _slicedToArray(_useState123, 2),
-    nsCCVal = _useState124[0],
-    snsCCVal = _useState124[1]; // cc surcharge value
-  var _useState125 = useState(""),
-    _useState126 = _slicedToArray(_useState125, 2),
-    nsSearch = _useState126[0],
-    snsSearch = _useState126[1];
-  var _useState127 = useState(null),
-    _useState128 = _slicedToArray(_useState127, 2),
-    nsMatchedCust = _useState128[0],
-    snsMatchedCust = _useState128[1];
+    nsMatchedCust = _useState114[0],
+    snsMatchedCust = _useState114[1];
   var setNC = function setNC(k, v) {
     return snsCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
@@ -26597,34 +26217,34 @@ function HistoryTab(p) {
   var lookupHistory = p.lookupHistory || [];
   var openItem = p.openItem;
   var stTab = p.st;
-  var _useState129 = useState(""),
-    _useState130 = _slicedToArray(_useState129, 2),
-    search = _useState130[0],
-    setSearch = _useState130[1];
-  var _useState131 = useState("All"),
-    _useState132 = _slicedToArray(_useState131, 2),
-    staffF = _useState132[0],
-    setStaffF = _useState132[1];
-  var _useState133 = useState("All"),
-    _useState134 = _slicedToArray(_useState133, 2),
-    pmF = _useState134[0],
-    setPmF = _useState134[1];
-  var _useState135 = useState("sales"),
-    _useState136 = _slicedToArray(_useState135, 2),
-    mode = _useState136[0],
-    setMode = _useState136[1]; // sales | lookups
-  var _useState137 = useState("list"),
-    _useState138 = _slicedToArray(_useState137, 2),
-    view = _useState138[0],
-    setView = _useState138[1]; // list | analytics
-  var _useState139 = useState("All"),
-    _useState140 = _slicedToArray(_useState139, 2),
-    lookupUserF = _useState140[0],
-    setLookupUserF = _useState140[1];
-  var _useState141 = useState(null),
-    _useState142 = _slicedToArray(_useState141, 2),
-    selCust = _useState142[0],
-    setSelCust = _useState142[1];
+  var _useState115 = useState(""),
+    _useState116 = _slicedToArray(_useState115, 2),
+    search = _useState116[0],
+    setSearch = _useState116[1];
+  var _useState117 = useState("All"),
+    _useState118 = _slicedToArray(_useState117, 2),
+    staffF = _useState118[0],
+    setStaffF = _useState118[1];
+  var _useState119 = useState("All"),
+    _useState120 = _slicedToArray(_useState119, 2),
+    pmF = _useState120[0],
+    setPmF = _useState120[1];
+  var _useState121 = useState("sales"),
+    _useState122 = _slicedToArray(_useState121, 2),
+    mode = _useState122[0],
+    setMode = _useState122[1]; // sales | lookups
+  var _useState123 = useState("list"),
+    _useState124 = _slicedToArray(_useState123, 2),
+    view = _useState124[0],
+    setView = _useState124[1]; // list | analytics
+  var _useState125 = useState("All"),
+    _useState126 = _slicedToArray(_useState125, 2),
+    lookupUserF = _useState126[0],
+    setLookupUserF = _useState126[1];
+  var _useState127 = useState(null),
+    _useState128 = _slicedToArray(_useState127, 2),
+    selCust = _useState128[0],
+    setSelCust = _useState128[1];
   var stf = ["All"].concat(_toConsumableArray(_toConsumableArray(new Set(sales.map(function (s) {
     return s.staff;
   }))).sort()));
@@ -27558,19 +27178,19 @@ function CustomersTab(p) {
     cur = p.cur,
     pr = p.pr,
     syncUp = p.syncUp;
-  var _useState143 = useState(false),
-    _useState144 = _slicedToArray(_useState143, 2),
-    showForm = _useState144[0],
-    sShowForm = _useState144[1];
-  var _useState145 = useState(""),
-    _useState146 = _slicedToArray(_useState145, 2),
-    search = _useState146[0],
-    setSearch = _useState146[1];
-  var _useState147 = useState(null),
-    _useState148 = _slicedToArray(_useState147, 2),
-    selected = _useState148[0],
-    setSelected = _useState148[1];
-  var _useState149 = useState({
+  var _useState129 = useState(false),
+    _useState130 = _slicedToArray(_useState129, 2),
+    showForm = _useState130[0],
+    sShowForm = _useState130[1];
+  var _useState131 = useState(""),
+    _useState132 = _slicedToArray(_useState131, 2),
+    search = _useState132[0],
+    setSearch = _useState132[1];
+  var _useState133 = useState(null),
+    _useState134 = _slicedToArray(_useState133, 2),
+    selected = _useState134[0],
+    setSelected = _useState134[1];
+  var _useState135 = useState({
       name: "",
       phone: "",
       email: "",
@@ -27579,9 +27199,9 @@ function CustomersTab(p) {
       status: "Warm",
       source: "Walk-in"
     }),
-    _useState150 = _slicedToArray(_useState149, 2),
-    form = _useState150[0],
-    setForm = _useState150[1];
+    _useState136 = _slicedToArray(_useState135, 2),
+    form = _useState136[0],
+    setForm = _useState136[1];
   var filtered = leads.filter(function (l) {
     if (!search) return true;
     var q = search.toLowerCase();
@@ -27731,10 +27351,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref72) {
-      var _ref73 = _slicedToArray(_ref72, 2),
-        ic = _ref73[0],
-        v = _ref73[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref71) {
+      var _ref72 = _slicedToArray(_ref71, 2),
+        ic = _ref72[0],
+        v = _ref72[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -28197,198 +27817,198 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref74) {
-  var ev = _ref74.ev,
-    user = _ref74.user,
-    allUsers = _ref74.allUsers,
-    onUsersChange = _ref74.onUsersChange,
-    allEvents = _ref74.allEvents,
-    onSwitch = _ref74.onSwitch,
-    onUpdateEvent = _ref74.onUpdateEvent,
-    onBack = _ref74.onBack,
-    onLogout = _ref74.onLogout,
-    onCloudSync = _ref74.onCloudSync,
-    cloudReady = _ref74.cloudReady;
+function EventERP(_ref73) {
+  var ev = _ref73.ev,
+    user = _ref73.user,
+    allUsers = _ref73.allUsers,
+    onUsersChange = _ref73.onUsersChange,
+    allEvents = _ref73.allEvents,
+    onSwitch = _ref73.onSwitch,
+    onUpdateEvent = _ref73.onUpdateEvent,
+    onBack = _ref73.onBack,
+    onLogout = _ref73.onLogout,
+    onCloudSync = _ref73.onCloudSync,
+    cloudReady = _ref73.cloudReady;
   ev = normalizeEvent(ev);
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents).map(normalizeEvent);
-  var _useState151 = useState("lookup"),
+  var _useState137 = useState("lookup"),
+    _useState138 = _slicedToArray(_useState137, 2),
+    tab = _useState138[0],
+    st = _useState138[1];
+  var _useState139 = useState(ev.inv),
+    _useState140 = _slicedToArray(_useState139, 2),
+    inv = _useState140[0],
+    si = _useState140[1];
+  var _useState141 = useState(ev.sales),
+    _useState142 = _slicedToArray(_useState141, 2),
+    sales = _useState142[0],
+    ssl = _useState142[1];
+  var _useState143 = useState(ev.leads),
+    _useState144 = _slicedToArray(_useState143, 2),
+    leads = _useState144[0],
+    sld = _useState144[1];
+  var _useState145 = useState("USD"),
+    _useState146 = _slicedToArray(_useState145, 2),
+    cur = _useState146[0],
+    scur = _useState146[1];
+  var _useState147 = useState(""),
+    _useState148 = _slicedToArray(_useState147, 2),
+    jc = _useState148[0],
+    sjc = _useState148[1];
+  var _useState149 = useState(null),
+    _useState150 = _slicedToArray(_useState149, 2),
+    det = _useState150[0],
+    sdet = _useState150[1];
+  var _useState151 = useState("single"),
     _useState152 = _slicedToArray(_useState151, 2),
-    tab = _useState152[0],
-    st = _useState152[1];
-  var _useState153 = useState(ev.inv),
+    mlTab = _useState152[0],
+    smlTab = _useState152[1];
+  var _useState153 = useState(""),
     _useState154 = _slicedToArray(_useState153, 2),
-    inv = _useState154[0],
-    si = _useState154[1];
-  var _useState155 = useState(ev.sales),
+    mlInput = _useState154[0],
+    smlInput = _useState154[1];
+  var _useState155 = useState([]),
     _useState156 = _slicedToArray(_useState155, 2),
-    sales = _useState156[0],
-    ssl = _useState156[1];
-  var _useState157 = useState(ev.leads),
+    mlItems = _useState156[0],
+    smlItems = _useState156[1];
+  var _useState157 = useState(""),
     _useState158 = _slicedToArray(_useState157, 2),
-    leads = _useState158[0],
-    sld = _useState158[1];
-  var _useState159 = useState("USD"),
+    mlDisc = _useState158[0],
+    smlDisc = _useState158[1];
+  var _useState159 = useState(""),
     _useState160 = _slicedToArray(_useState159, 2),
-    cur = _useState160[0],
-    scur = _useState160[1];
+    mlDiscAmt = _useState160[0],
+    smlDiscAmt = _useState160[1];
   var _useState161 = useState(""),
     _useState162 = _slicedToArray(_useState161, 2),
-    jc = _useState162[0],
-    sjc = _useState162[1];
-  var _useState163 = useState(null),
+    mlMarkup = _useState162[0],
+    smlMarkup = _useState162[1];
+  var _useState163 = useState([]),
     _useState164 = _slicedToArray(_useState163, 2),
-    det = _useState164[0],
-    sdet = _useState164[1];
-  var _useState165 = useState("single"),
+    mlNF = _useState164[0],
+    smlNF = _useState164[1];
+  var _useState165 = useState(false),
     _useState166 = _slicedToArray(_useState165, 2),
-    mlTab = _useState166[0],
-    smlTab = _useState166[1];
-  var _useState167 = useState(""),
+    mlScan = _useState166[0],
+    smlScan = _useState166[1];
+  var _useState167 = useState(false),
     _useState168 = _slicedToArray(_useState167, 2),
-    mlInput = _useState168[0],
-    smlInput = _useState168[1];
-  var _useState169 = useState([]),
+    showFilter = _useState168[0],
+    sShowFilter = _useState168[1];
+  var _useState169 = useState("All"),
     _useState170 = _slicedToArray(_useState169, 2),
-    mlItems = _useState170[0],
-    smlItems = _useState170[1];
-  var _useState171 = useState(""),
+    fCat = _useState170[0],
+    sfCat = _useState170[1];
+  var _useState171 = useState("All"),
     _useState172 = _slicedToArray(_useState171, 2),
-    mlDisc = _useState172[0],
-    smlDisc = _useState172[1];
-  var _useState173 = useState(""),
+    fCol = _useState172[0],
+    sfCol = _useState172[1];
+  var _useState173 = useState("All"),
     _useState174 = _slicedToArray(_useState173, 2),
-    mlDiscAmt = _useState174[0],
-    smlDiscAmt = _useState174[1];
-  var _useState175 = useState(""),
+    fMetal = _useState174[0],
+    sfMetal = _useState174[1];
+  var _useState175 = useState("All"),
     _useState176 = _slicedToArray(_useState175, 2),
-    mlMarkup = _useState176[0],
-    smlMarkup = _useState176[1];
-  var _useState177 = useState([]),
+    fSt = _useState176[0],
+    sfSt = _useState176[1];
+  var _useState177 = useState("All"),
     _useState178 = _slicedToArray(_useState177, 2),
-    mlNF = _useState178[0],
-    smlNF = _useState178[1];
-  var _useState179 = useState(false),
+    fShape = _useState178[0],
+    sfShape = _useState178[1];
+  var _useState179 = useState(""),
     _useState180 = _slicedToArray(_useState179, 2),
-    mlScan = _useState180[0],
-    smlScan = _useState180[1];
-  var _useState181 = useState(false),
+    fMinTc = _useState180[0],
+    sfMinTc = _useState180[1];
+  var _useState181 = useState(""),
     _useState182 = _slicedToArray(_useState181, 2),
-    showFilter = _useState182[0],
-    sShowFilter = _useState182[1];
-  var _useState183 = useState("All"),
+    fMaxTc = _useState182[0],
+    sfMaxTc = _useState182[1];
+  var _useState183 = useState(""),
     _useState184 = _slicedToArray(_useState183, 2),
-    fCat = _useState184[0],
-    sfCat = _useState184[1];
-  var _useState185 = useState("All"),
+    fMinGw = _useState184[0],
+    sfMinGw = _useState184[1];
+  var _useState185 = useState(""),
     _useState186 = _slicedToArray(_useState185, 2),
-    fCol = _useState186[0],
-    sfCol = _useState186[1];
-  var _useState187 = useState("All"),
+    fMaxGw = _useState186[0],
+    sfMaxGw = _useState186[1];
+  var _useState187 = useState(""),
     _useState188 = _slicedToArray(_useState187, 2),
-    fMetal = _useState188[0],
-    sfMetal = _useState188[1];
-  var _useState189 = useState("All"),
+    fMinNw = _useState188[0],
+    sfMinNw = _useState188[1];
+  var _useState189 = useState(""),
     _useState190 = _slicedToArray(_useState189, 2),
-    fSt = _useState190[0],
-    sfSt = _useState190[1];
-  var _useState191 = useState("All"),
+    fMaxNw = _useState190[0],
+    sfMaxNw = _useState190[1];
+  var _useState191 = useState(""),
     _useState192 = _slicedToArray(_useState191, 2),
-    fShape = _useState192[0],
-    sfShape = _useState192[1];
+    fMinFp = _useState192[0],
+    sfMinFp = _useState192[1];
   var _useState193 = useState(""),
     _useState194 = _slicedToArray(_useState193, 2),
-    fMinTc = _useState194[0],
-    sfMinTc = _useState194[1];
-  var _useState195 = useState(""),
+    fMaxFp = _useState194[0],
+    sfMaxFp = _useState194[1];
+  var _useState195 = useState(false),
     _useState196 = _slicedToArray(_useState195, 2),
-    fMaxTc = _useState196[0],
-    sfMaxTc = _useState196[1];
-  var _useState197 = useState(""),
+    scan = _useState196[0],
+    sscan = _useState196[1];
+  var _useState197 = useState(null),
     _useState198 = _slicedToArray(_useState197, 2),
-    fMinGw = _useState198[0],
-    sfMinGw = _useState198[1];
-  var _useState199 = useState(""),
+    invm = _useState198[0],
+    sinvm = _useState198[1];
+  var _useState199 = useState(false),
     _useState200 = _slicedToArray(_useState199, 2),
-    fMaxGw = _useState200[0],
-    sfMaxGw = _useState200[1];
-  var _useState201 = useState(""),
+    showSwitch = _useState200[0],
+    ssw = _useState200[1];
+  var _useState201 = useState(false),
     _useState202 = _slicedToArray(_useState201, 2),
-    fMinNw = _useState202[0],
-    sfMinNw = _useState202[1];
-  var _useState203 = useState(""),
+    showUser = _useState202[0],
+    ssu = _useState202[1];
+  var _useState203 = useState("stock"),
     _useState204 = _slicedToArray(_useState203, 2),
-    fMaxNw = _useState204[0],
-    sfMaxNw = _useState204[1];
+    invTab = _useState204[0],
+    sivTab = _useState204[1];
   var _useState205 = useState(""),
     _useState206 = _slicedToArray(_useState205, 2),
-    fMinFp = _useState206[0],
-    sfMinFp = _useState206[1];
-  var _useState207 = useState(""),
+    isq = _useState206[0],
+    sisq = _useState206[1];
+  var _useState207 = useState("All"),
     _useState208 = _slicedToArray(_useState207, 2),
-    fMaxFp = _useState208[0],
-    sfMaxFp = _useState208[1];
-  var _useState209 = useState(false),
+    ist = _useState208[0],
+    sist = _useState208[1];
+  var _useState209 = useState("All"),
     _useState210 = _slicedToArray(_useState209, 2),
-    scan = _useState210[0],
-    sscan = _useState210[1];
-  var _useState211 = useState(null),
+    icat = _useState210[0],
+    sicat = _useState210[1];
+  var _useState211 = useState("Exhibition"),
     _useState212 = _slicedToArray(_useState211, 2),
-    invm = _useState212[0],
-    sinvm = _useState212[1];
-  var _useState213 = useState(false),
+    auditLoc = _useState212[0],
+    saLoc = _useState212[1];
+  var _useState213 = useState([]),
     _useState214 = _slicedToArray(_useState213, 2),
-    showSwitch = _useState214[0],
-    ssw = _useState214[1];
-  var _useState215 = useState(false),
+    auditScanned = _useState214[0],
+    saScanned = _useState214[1];
+  var _useState215 = useState(ev.audits || []),
     _useState216 = _slicedToArray(_useState215, 2),
-    showUser = _useState216[0],
-    ssu = _useState216[1];
-  var _useState217 = useState("stock"),
+    audits = _useState216[0],
+    sAudits = _useState216[1];
+  var _useState217 = useState(ev.lookupHistory),
     _useState218 = _slicedToArray(_useState217, 2),
-    invTab = _useState218[0],
-    sivTab = _useState218[1];
-  var _useState219 = useState(""),
+    lookupHistory = _useState218[0],
+    sLookupHistory = _useState218[1];
+  var _useState219 = useState(0),
     _useState220 = _slicedToArray(_useState219, 2),
-    isq = _useState220[0],
-    sisq = _useState220[1];
+    imgTick = _useState220[0],
+    sImgTick = _useState220[1];
   var _useState221 = useState("All"),
     _useState222 = _slicedToArray(_useState221, 2),
-    ist = _useState222[0],
-    sist = _useState222[1];
-  var _useState223 = useState("All"),
+    hstaff = _useState222[0],
+    shs = _useState222[1];
+  var _useState223 = useState("overview"),
     _useState224 = _slicedToArray(_useState223, 2),
-    icat = _useState224[0],
-    sicat = _useState224[1];
-  var _useState225 = useState("Exhibition"),
-    _useState226 = _slicedToArray(_useState225, 2),
-    auditLoc = _useState226[0],
-    saLoc = _useState226[1];
-  var _useState227 = useState([]),
-    _useState228 = _slicedToArray(_useState227, 2),
-    auditScanned = _useState228[0],
-    saScanned = _useState228[1];
-  var _useState229 = useState(ev.audits || []),
-    _useState230 = _slicedToArray(_useState229, 2),
-    audits = _useState230[0],
-    sAudits = _useState230[1];
-  var _useState231 = useState(ev.lookupHistory),
-    _useState232 = _slicedToArray(_useState231, 2),
-    lookupHistory = _useState232[0],
-    sLookupHistory = _useState232[1];
-  var _useState233 = useState(0),
-    _useState234 = _slicedToArray(_useState233, 2),
-    imgTick = _useState234[0],
-    sImgTick = _useState234[1];
-  var _useState235 = useState("All"),
-    _useState236 = _slicedToArray(_useState235, 2),
-    hstaff = _useState236[0],
-    shs = _useState236[1];
-  var _useState237 = useState("overview"),
-    _useState238 = _slicedToArray(_useState237, 2),
-    atab = _useState238[0],
-    sat = _useState238[1];
+    atab = _useState224[0],
+    sat = _useState224[1];
   useEffect(function () {
     var nextEv = normalizeEvent(ev);
     si(nextEv.inv);
@@ -29529,34 +29149,34 @@ function EventERP(_ref74) {
   })))));
 }
 function App() {
-  var _useState239 = useState(null),
-    _useState240 = _slicedToArray(_useState239, 2),
-    user = _useState240[0],
-    su = _useState240[1];
-  var _useState241 = useState([]),
-    _useState242 = _slicedToArray(_useState241, 2),
-    events = _useState242[0],
-    sevents = _useState242[1];
-  var _useState243 = useState(loadUsers),
-    _useState244 = _slicedToArray(_useState243, 2),
-    appUsers = _useState244[0],
-    sappUsers = _useState244[1];
-  var _useState245 = useState(false),
-    _useState246 = _slicedToArray(_useState245, 2),
-    dataReady = _useState246[0],
-    setDataReady = _useState246[1];
-  var _useState247 = useState(false),
-    _useState248 = _slicedToArray(_useState247, 2),
-    cloudReady = _useState248[0],
-    setCloudReady = _useState248[1];
-  var _useState249 = useState(null),
-    _useState250 = _slicedToArray(_useState249, 2),
-    activeEv = _useState250[0],
-    sae = _useState250[1];
-  var _useState251 = useState(null),
-    _useState252 = _slicedToArray(_useState251, 2),
-    manageEv = _useState252[0],
-    smev = _useState252[1];
+  var _useState225 = useState(null),
+    _useState226 = _slicedToArray(_useState225, 2),
+    user = _useState226[0],
+    su = _useState226[1];
+  var _useState227 = useState([]),
+    _useState228 = _slicedToArray(_useState227, 2),
+    events = _useState228[0],
+    sevents = _useState228[1];
+  var _useState229 = useState(loadUsers),
+    _useState230 = _slicedToArray(_useState229, 2),
+    appUsers = _useState230[0],
+    sappUsers = _useState230[1];
+  var _useState231 = useState(false),
+    _useState232 = _slicedToArray(_useState231, 2),
+    dataReady = _useState232[0],
+    setDataReady = _useState232[1];
+  var _useState233 = useState(false),
+    _useState234 = _slicedToArray(_useState233, 2),
+    cloudReady = _useState234[0],
+    setCloudReady = _useState234[1];
+  var _useState235 = useState(null),
+    _useState236 = _slicedToArray(_useState235, 2),
+    activeEv = _useState236[0],
+    sae = _useState236[1];
+  var _useState237 = useState(null),
+    _useState238 = _slicedToArray(_useState237, 2),
+    manageEv = _useState238[0],
+    smev = _useState238[1];
   var dark = useDark();
   var cloudSyncRef = useRef(null);
   var autoSyncRef = useRef(null);
@@ -29573,16 +29193,16 @@ function App() {
     appUsersRef.current = appUsers;
   }, [appUsers]);
   var runCloudSave = /*#__PURE__*/function () {
-    var _ref75 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
-      var _ref76,
-        _ref76$silent,
+    var _ref74 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
+      var _ref75,
+        _ref75$silent,
         silent,
         r,
         _args7 = arguments;
       return _regenerator().w(function (_context7) {
         while (1) switch (_context7.n) {
           case 0:
-            _ref76 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref76$silent = _ref76.silent, silent = _ref76$silent === void 0 ? true : _ref76$silent;
+            _ref75 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref75$silent = _ref75.silent, silent = _ref75$silent === void 0 ? true : _ref75$silent;
             _context7.n = 1;
             return flushCloudSync(snap || eventsRef.current, usersSnap || appUsersRef.current, deleted || [], {
               silent: silent
@@ -29612,13 +29232,13 @@ function App() {
       }, _callee7);
     }));
     return function runCloudSave(_x54, _x55, _x56) {
-      return _ref75.apply(this, arguments);
+      return _ref74.apply(this, arguments);
     };
   }();
   var runAutoSyncCycle = /*#__PURE__*/function () {
-    var _ref77 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
-      var _ref78,
-        _ref78$silent,
+    var _ref76 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
+      var _ref77,
+        _ref77$silent,
         silent,
         d,
         cloudVer,
@@ -29630,7 +29250,7 @@ function App() {
       return _regenerator().w(function (_context8) {
         while (1) switch (_context8.p = _context8.n) {
           case 0:
-            _ref78 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref78$silent = _ref78.silent, silent = _ref78$silent === void 0 ? true : _ref78$silent;
+            _ref77 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref77$silent = _ref77.silent, silent = _ref77$silent === void 0 ? true : _ref77$silent;
             if (!(!dataReady || !cloudReady || cloudSyncBusyRef.current)) {
               _context8.n = 1;
               break;
@@ -29680,17 +29300,17 @@ function App() {
       }, _callee8, null, [[2,, 6, 7]]);
     }));
     return function runAutoSyncCycle() {
-      return _ref77.apply(this, arguments);
+      return _ref76.apply(this, arguments);
     };
   }();
   var scheduleCloudSave = function scheduleCloudSave() {
     var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 400;
     var snapshot = arguments.length > 1 ? arguments[1] : undefined;
-    var _ref79 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-      _ref79$silent = _ref79.silent,
-      silent = _ref79$silent === void 0 ? true : _ref79$silent,
-      _ref79$notify = _ref79.notify,
-      notify = _ref79$notify === void 0 ? false : _ref79$notify;
+    var _ref78 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      _ref78$silent = _ref78.silent,
+      silent = _ref78$silent === void 0 ? true : _ref78$silent,
+      _ref78$notify = _ref78.notify,
+      notify = _ref78$notify === void 0 ? false : _ref78$notify;
     localDirtyRef.current = true;
     if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
     cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9() {
@@ -30008,7 +29628,7 @@ function App() {
     }
   }, "Loading\u2026")));
   var handleLogin = /*#__PURE__*/function () {
-    var _ref83 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
+    var _ref82 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
       var d;
       return _regenerator().w(function (_context10) {
         while (1) switch (_context10.n) {
@@ -30031,7 +29651,7 @@ function App() {
       }, _callee10);
     }));
     return function handleLogin(_x57) {
-      return _ref83.apply(this, arguments);
+      return _ref82.apply(this, arguments);
     };
   }();
   var handleCloudSync = function handleCloudSync(mergedEvents, mergedUsers) {

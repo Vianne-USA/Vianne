@@ -4,18 +4,7 @@ const {
   downloadProductImageForEvent,
   driveErrorMessage,
 } = require("./lib/sync-store");
-
-function cors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-}
-
-function checkWriteAuth(req) {
-  const secret = process.env.VIANNE_SYNC_SECRET;
-  if (!secret) return true;
-  return req.headers["x-vianne-key"] === secret;
-}
+const { cors, checkWriteAuth } = require("./lib/http");
 
 module.exports = async function handler(req, res) {
   cors(res);

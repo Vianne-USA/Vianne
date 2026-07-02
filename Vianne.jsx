@@ -3183,12 +3183,15 @@ function InventoryTab(p){
   var locItems=p.locItems;
   var missing=p.missing;
   var saveAudit=p.saveAudit;
+  var updateAuditMeta=p.updateAuditMeta;
   var scan=p.scan;
   var sscan=p.sscan;
   var lookupHistory=p.lookupHistory||[];
   var openItem=p.openItem;
   var imgTick=p.imgTick||0;
   const [upMode,setUpMode]=useState("add");
+  const [editAuditId,setEditAuditId]=useState(null);
+  const [editAuditNote,setEditAuditNote]=useState("");
   return(
     <div>
           <div style={{background:G,display:"flex",borderBottom:"1px solid rgba(201,168,76,0.2)"}}>{[{id:"stock",l:"📦 STOCK"},{id:"history",l:"📋 HISTORY"},{id:"audit",l:"🔍 AUDIT"}].map(t=><button key={t.id} onClick={()=>sivTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:invTab===t.id?"2.5px solid "+GO:"2.5px solid transparent",color:invTab===t.id?GO:"rgba(245,237,224,0.5)",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:invTab===t.id?700:500,padding:"9px 7px",cursor:"pointer"}}>{t.l}</button>)}</div>
@@ -3283,7 +3286,35 @@ function InventoryTab(p){
             {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item&&!auditScanned.find(s=>s.item&&s.item.id===item.id)){saScanned(p=>[...p,{item,scannedAt:tstr()}]);}else if(!item){toast.warn("Item not found","Code: "+code);}}}/>}
             {missing.length>0&&<div style={{marginBottom:10}}><div style={{fontSize:10,fontWeight:700,color:RE,textTransform:"uppercase",marginBottom:7}}>⚠ NOT SCANNED ({missing.length})</div>{missing.map(i=><div key={i.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 10px",background:REBG,borderRadius:8,marginBottom:5}}><div style={{width:32,height:32,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>{getImg(i)?<img src={getImg(i)} alt="" style={{width:32,height:32,objectFit:"cover"}}/>:<span style={{fontSize:16}}>{i.em}</span>}</div><div><div style={{fontSize:11,fontWeight:700,color:RE}}>{i.id}</div><div style={{fontSize:9,color:RE}}>{i.cat}</div></div></div>)}</div>}
             {auditScanned.length>0&&<div style={{marginBottom:10}}><div style={{fontSize:10,fontWeight:700,color:"#27ae60",textTransform:"uppercase",marginBottom:7}}>✓ CONFIRMED ({auditScanned.length})</div>{auditScanned.map(({item,scannedAt})=><div key={item.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 10px",background:"#edf7f0",borderRadius:8,marginBottom:5}}><div style={{width:32,height:32,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>{getImg(item)?<img src={getImg(item)} alt="" style={{width:32,height:32,objectFit:"cover"}}/>:<span style={{fontSize:16}}>{item.em}</span>}</div><div style={{flex:1}}><div style={{fontSize:11,fontWeight:700,color:T1}}>{item.id}</div><div style={{fontSize:9,color:T3}}>{scannedAt}</div></div><span style={{color:"#27ae60",fontWeight:700}}>✓</span></div>)}</div>}
-            {audits.length>0&&<div><div style={{...S.sh,marginTop:4}}>📋 AUDIT HISTORY</div>{audits.map(r=><div key={r.id} style={{...S.cc({marginBottom:9})}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div><div style={{fontWeight:700,fontSize:12,color:T1}}>{r.loc}</div><div style={{fontSize:10,color:T3}}>{r.date} {r.time}</div></div><div style={{textAlign:"right"}}><div style={{fontWeight:700,color:r.missing.length>0?RE:"#27ae60",fontSize:13}}>{r.scanned}/{r.expected}</div><div style={{fontSize:9,color:T3}}>scanned/expected</div></div></div>{r.missing.length>0?<div style={{fontSize:10,color:RE}}>Missing: {r.missing.join(", ")}</div>:<div style={{fontSize:10,color:"#27ae60",fontWeight:600}}>✓ All confirmed</div>}</div>)}</div>}
+            {audits.length>0&&<div><div style={{...S.sh,marginTop:4}}>📋 AUDIT HISTORY</div>{audits.map(r=>{
+              const editing=editAuditId===r.id;
+              return(
+              <div key={r.id} style={{...S.cc({marginBottom:9})}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                  <div><div style={{fontWeight:700,fontSize:12,color:T1}}>{r.loc}</div><div style={{fontSize:10,color:T3}}>{r.date} {r.time}</div></div>
+                  <div style={{textAlign:"right"}}><div style={{fontWeight:700,color:r.missing.length>0?RE:"#27ae60",fontSize:13}}>{r.scanned}/{r.expected}</div><div style={{fontSize:9,color:T3}}>scanned/expected</div></div>
+                </div>
+                {r.missing.length>0?<div style={{fontSize:10,color:RE}}>Missing: {r.missing.join(", ")}</div>:<div style={{fontSize:10,color:"#27ae60",fontWeight:600}}>✓ All confirmed</div>}
+                {r.note&&!editing&&<div style={{fontSize:10,color:T2,marginTop:6,fontStyle:"italic"}}>📝 {r.note}</div>}
+                {editing?(
+                  <div style={{marginTop:9,paddingTop:9,borderTop:"1px solid "+CRD2}}>
+                    <span style={S.lbl}>LOCATION</span>
+                    <select style={S.inp({marginBottom:8})} value={r.loc} onChange={ev=>updateAuditMeta(r.id,{loc:ev.target.value})}>
+                      {["Exhibition","Office","Storage","Vault","All"].map(l=><option key={l}>{l}</option>)}
+                    </select>
+                    <span style={S.lbl}>NOTE</span>
+                    <textarea style={S.inp({height:56,resize:"none",marginBottom:8})} placeholder="e.g. recounted, discrepancy explained..." value={editAuditNote} onChange={ev=>setEditAuditNote(ev.target.value)}/>
+                    <div style={{display:"flex",gap:7}}>
+                      <button style={S.btn({flex:1,padding:"8px",fontSize:11})} onClick={()=>{updateAuditMeta(r.id,{note:editAuditNote});setEditAuditId(null);}}>✓ Save</button>
+                      <button style={S.bOut({flex:1,padding:"8px",fontSize:11})} onClick={()=>setEditAuditId(null)}>Cancel</button>
+                    </div>
+                  </div>
+                ):(
+                  <button onClick={()=>{setEditAuditId(r.id);setEditAuditNote(r.note||"");}} style={{background:"none",border:"none",color:G,fontSize:10,fontWeight:600,cursor:"pointer",padding:0,marginTop:7}}>✎ Edit location / note</button>
+                )}
+              </div>
+              );
+            })}</div>}
           </div>}
         </div>
   );
@@ -3642,12 +3673,31 @@ function AnalyticsTab(p){
   const lookedUpAndSold=uniqueLookedUpIds.filter(id=>{const it=inv.find(i=>i.id===id);return it&&it.st==="sold";}).length;
   const lookupConvRate=uniqueLookedUpIds.length?Math.round(lookedUpAndSold/uniqueLookedUpIds.length*100):0;
 
+  // ── AUDIT INTELLIGENCE (Stock Audit history) ────────────────────────────
+  const auditsAll=p.audits||[];
+  const auditTrend=[...auditsAll].reverse().map(a=>({
+    id:a.id,loc:a.loc,date:a.date,time:a.time,
+    expected:a.expected,scanned:a.scanned,missingCount:a.missing.length,
+    pct:a.expected?Math.round(a.scanned/a.expected*100):0,
+  }));
+  const maxAuditExpected=Math.max(1,...auditTrend.map(a=>a.expected));
+  const avgAuditPct=auditTrend.length?Math.round(auditTrend.reduce((s,a)=>s+a.pct,0)/auditTrend.length):0;
+  const missingCountMap={};
+  auditsAll.forEach(a=>a.missing.forEach(id=>{missingCountMap[id]=(missingCountMap[id]||0)+1;}));
+  const repeatMissing=Object.entries(missingCountMap)
+    .filter(([,cnt])=>cnt>1)
+    .map(([id,cnt])=>({id,cnt,item:inv.find(i=>i.id===id)}))
+    .sort((a,b)=>b.cnt-a.cnt)
+    .slice(0,15);
+  const maxRepeatMissing=repeatMissing.length?repeatMissing[0].cnt:1;
+
   const TABS=[
     {id:"overview",l:"Overview",ic:"📊"},
     {id:"lookups",l:"Lookups",ic:"🔍"},
     {id:"catalog",l:"Catalog",ic:"📦"},
     {id:"timing",l:"Timing",ic:"⏱"},
     {id:"inventory",l:"Stock IQ",ic:"💎"},
+    {id:"audit",l:"Audit",ic:"🔍"},
     {id:"customers",l:"Customers",ic:"👥"},
     {id:"staff",l:"Staff",ic:"🧑‍💼"},
     {id:"revenue",l:"Revenue",ic:"💰"},
@@ -4030,6 +4080,57 @@ function AnalyticsTab(p){
                   <div style={{fontSize:11,fontWeight:700,color:G}}>{x.cnt}</div>
                   <div style={{fontSize:9,color:T3}}>{fc(x.rev,cur)}</div>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════ AUDIT INTELLIGENCE ═══════════════ */}
+      {atab==="audit"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+            {[{l:"Audits Logged",v:auditTrend.length},{l:"Avg Scan Rate",v:avgAuditPct+"%"},{l:"Repeat Misses",v:repeatMissing.length}].map(k=>(
+              <div key={k.l} style={{...S.card({margin:0,padding:"12px 10px"}),textAlign:"center"}}>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:20,fontWeight:700,color:G}}>{k.v}</div>
+                <div style={{fontSize:9,color:T3,textTransform:"uppercase",marginTop:2}}>{k.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Discrepancy trend over time */}
+          <div style={S.card({margin:0})}>
+            <div style={{...S.sh,marginBottom:10}}>📉 Discrepancy Trend</div>
+            {auditTrend.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11,padding:12}}>No audits saved yet — run a Stock Audit to see trends here.</div>}
+            {auditTrend.length>0&&(
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {auditTrend.map(a=>(
+                  <div key={a.id}>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:T3,marginBottom:3}}>
+                      <span>{a.loc} · {a.date}</span>
+                      <span style={{fontWeight:700,color:a.missingCount>0?RE:"#27ae60"}}>{a.scanned}/{a.expected}{a.missingCount>0?" · "+a.missingCount+" missing":" · complete"}</span>
+                    </div>
+                    <Bar pct={a.pct} col={a.pct>=95?"#27ae60":a.pct>=80?AM:RE} h={7}/>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Repeat offenders */}
+          <div style={S.card({margin:0})}>
+            <div style={{...S.sh,marginBottom:4}}>⚠ Repeat Missing Items</div>
+            <div style={{fontSize:10,color:T3,marginBottom:9,lineHeight:1.5}}>Items that turned up missing in more than one audit — worth investigating for chronic loss or misplacement.</div>
+            {repeatMissing.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11,padding:12}}>No item has been missing more than once — nice work.</div>}
+            {repeatMissing.map((r,i)=>(
+              <div key={r.id} onClick={()=>r.item&&openItem&&openItem(r.item,"view")} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 0",borderBottom:i<repeatMissing.length-1?"1px solid "+CRD2:"none",cursor:r.item&&openItem?"pointer":"default"}}>
+                <div style={{width:30,height:30,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>{r.item?<ItemThumb item={r.item} size={30}/>:<span style={{fontSize:14}}>❓</span>}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:700,fontSize:12,color:T1}}>{r.id}</div>
+                  <div style={{fontSize:10,color:T3}}>{r.item?r.item.cat+" · "+r.item.col:"Item no longer in catalog"}</div>
+                </div>
+                <Bar pct={Math.round(r.cnt/maxRepeatMissing*100)} col={RE}/>
+                <div style={{fontSize:12,fontWeight:700,color:RE,flexShrink:0,width:22,textAlign:"right"}}>{r.cnt}x</div>
               </div>
             ))}
           </div>
@@ -5390,15 +5491,16 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
   const cats=["All",...new Set(inv.map(i=>i.cat))];
   const deadStock=inv.filter(i=>i.st==="available"&&i.views===0&&i.searches===0);
-  const fi=inv.filter(i=>!isq||itemMatchesQ(i,isq));
+  const fi=inv.filter(i=>(icat==="All"||i.cat===icat)&&(ist==="All"||i.st===ist)&&(!isq||itemMatchesQ(i,isq)));
   const fh=sales.filter(s=>hstaff==="All"||s.staff===hstaff);
   const totalRev=sales.reduce((s,x)=>s+x.total,0);
   const stf=[...new Set(sales.map(s=>s.staff))];
-  const locItems=inv.filter(i=>i.loc===auditLoc&&i.st!=="sold");
+  const locItems=inv.filter(i=>i.st!=="sold");
   const missing=locItems.filter(i=>!auditScanned.find(s=>(s.item?s.item.id:s.id)===i.id));
   const TABS=[{id:"lookup",l:"LOOKUP",ic:"🔍"},...(pr.vH?[{id:"sales",l:"SALES",ic:"💰"},{id:"history",l:"HISTORY",ic:"🕐"}]:[]),...(pr.vA?[{id:"analytics",l:"ANALYTICS",ic:"📊"}]:[]),{id:"inventory",l:"STOCK",ic:"📦"},{id:"customers",l:"CUSTOMERS",ic:"👥"},{id:"admin",l:"SETTINGS",ic:"⚙"}];
   const addLead=()=>toast.info("Add customers via Customers tab","Complete a sale to auto-create a customer.");
-  const saveAudit=()=>{if(auditScanned.length===0){toast.warn("No items scanned","Scan items before saving.");}else{const rec={id:uid("AUD"),loc:auditLoc,date:dstr(),time:tstr(),expected:locItems.length,scanned:auditScanned.length,missing:missing.map(i=>i.id),items:auditScanned.map(s=>(s.item?s.item.id:s.id))};const na=[rec,...audits];sAudits(na);syncUp(null,null,null,na);toast.success("Audit saved",""+auditScanned.length+" scanned · "+missing.length+" missing");}};
+  const saveAudit=()=>{if(auditScanned.length===0){toast.warn("No items scanned","Scan items before saving.");}else{const rec={id:uid("AUD"),loc:auditLoc,note:"",date:dstr(),time:tstr(),expected:locItems.length,scanned:auditScanned.length,missing:missing.map(i=>i.id),items:auditScanned.map(s=>(s.item?s.item.id:s.id))};const na=[rec,...audits];sAudits(na);syncUp(null,null,null,na);toast.success("Audit saved",""+auditScanned.length+" scanned · "+missing.length+" missing");}};
+  const updateAuditMeta=(auditId,patch)=>{const na=audits.map(a=>a.id===auditId?{...a,...patch}:a);sAudits(na);syncUp(null,null,null,na);};
   // Computed for lookup display (avoids IIFE in JSX)
   const lkQ = jc.trim();
   const lkResults = applyFilters(inv, lkQ || null);
@@ -5429,7 +5531,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
         {tab==="history"&&<HistoryTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,lookupHistory:lookupHistory,openItem:openItem,imgTick:imgTick}}/>}
 
-        {tab==="inventory"&&<InventoryTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,lookupHistory:lookupHistory,openItem:openItem,imgTick:imgTick}}/>}
+        {tab==="inventory"&&<InventoryTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,updateAuditMeta:updateAuditMeta,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw,lookupHistory:lookupHistory,openItem:openItem,imgTick:imgTick}}/>}
 
         {tab==="customers"&&<CustomersTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,user:user,pr:pr,fc:fc,st:st,doSell:doSell,sinvm:sinvm,syncUp:syncUp,hstaff:hstaff,shs:shs,stf:stf,fh:fh,totalRev:totalRev,onLogout:onLogout,addLead:addLead}}/>}
 

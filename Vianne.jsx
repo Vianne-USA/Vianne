@@ -1466,7 +1466,7 @@ function Login({onLogin,users}){
   const doBio=()=>loginBio(onLogin,msg=>toast.warn("Face ID",msg),users);
   const isIOS=/iPhone|iPad/.test(navigator.userAgent);
   const hasBio=!!localStorage.getItem(BIO_KEY);
-  return(<div ref={scrollRef} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:GD,overflowY:"auto",WebkitOverflowScrolling:"touch",overscrollBehavior:"contain",padding:"calc(12px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
+  return(<div ref={scrollRef} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:GD,overflowY:"auto",WebkitOverflowScrolling:"touch",overscrollBehavior:"contain",display:"flex",flexDirection:"column",justifyContent:"center",padding:"calc(12px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))",fontFamily:"Lato,sans-serif",boxSizing:"border-box"}}>
     <div className="v-login-card" style={{background:CRD,borderRadius:22,padding:"32px 24px 28px",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
       <div style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:24}}><Logo h={52}/><div style={{paddingTop:2}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:G,letterSpacing:"0.14em",textTransform:"uppercase",lineHeight:1.1}}>VIANNE JEWELS</div><div style={{fontSize:9,color:T4,letterSpacing:"0.12em",textTransform:"uppercase",marginTop:4,lineHeight:1.5}}>THE SIGNATURE OF AFFORDABLE<br/>SOPHISTICATION</div></div></div>
       <div style={{fontSize:12,fontWeight:700,color:T1,letterSpacing:"0.18em",textAlign:"center",marginBottom:18,textTransform:"uppercase"}}>SIGN IN TO CONTINUE</div>
@@ -1475,7 +1475,6 @@ function Login({onLogin,users}){
       <div style={{marginBottom:18}}><span style={S.lbl}>PASSWORD</span><div style={{position:"relative"}}><input type={show?"text":"password"} style={S.inp({paddingRight:42})} placeholder="Enter password" value={p} onChange={ev=>{sp(ev.target.value);se("");}} onFocus={focusIn} onKeyDown={ev=>ev.key==="Enter"&&go()}/><button type="button" onClick={()=>ssh(x=>!x)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:T3}}>{show?"🙈":"👁"}</button></div></div>
       {e&&<div style={{color:RE,fontSize:12,marginBottom:12,textAlign:"center",background:REBG,borderRadius:8,padding:"8px 12px"}}>{e}</div>}
       <button type="button" style={S.btn({fontSize:15})} onClick={go}>Sign In</button>
-      <div style={{fontSize:10,color:T4,textAlign:"center",marginTop:14}}>nilay/nilay123 · jimit/jimit123 · naresh/naresh123</div>
     </div>
   </div>);
 }

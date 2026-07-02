@@ -3451,18 +3451,57 @@ function AnalyticsTab(p){
   // ── LOOKUP INTELLIGENCE (Single + Multi Lookup search/scan/view history) ──
   const lookupHistory=p.lookupHistory||[];
   const openItem=p.openItem;
+  const users=p.users||[];
   const lookupCountMap={};
   lookupHistory.forEach(h=>{
     if(!lookupCountMap[h.itemId])lookupCountMap[h.itemId]={itemId:h.itemId,cnt:0,customers:new Set()};
     lookupCountMap[h.itemId].cnt++;
     if(h.custName&&h.custName.trim())lookupCountMap[h.itemId].customers.add(h.custName.trim());
   });
-  const topSearched=Object.values(lookupCountMap)
+  const topSearchedAll=Object.values(lookupCountMap)
     .map(x=>({...x,item:inv.find(i=>i.id===x.itemId),custCount:x.customers.size}))
     .filter(x=>x.item)
-    .sort((a,b)=>b.cnt-a.cnt)
-    .slice(0,20);
+    .sort((a,b)=>b.cnt-a.cnt);
+  const topSearched=topSearchedAll.slice(0,20);
   const maxLookupCnt=topSearched.length?topSearched[0].cnt:1;
+
+  // Top customers by lookup count (across all staff)
+  const lookupCustMap={};
+  lookupHistory.forEach(h=>{
+    const cn=(h.custName||"").trim();
+    if(!cn)return;
+    lookupCustMap[cn]=(lookupCustMap[cn]||0)+1;
+  });
+  const lookupCustArr=Object.entries(lookupCustMap).map(([name,cnt])=>({name,cnt})).sort((a,b)=>b.cnt-a.cnt).slice(0,10);
+  const maxLookupCust=lookupCustArr.length?lookupCustArr[0].cnt:1;
+
+  // By category
+  const lookupCatMap={};
+  lookupHistory.forEach(h=>{
+    const it=inv.find(i=>i.id===h.itemId);
+    const cat=it?it.cat:"Other";
+    lookupCatMap[cat]=(lookupCatMap[cat]||0)+1;
+  });
+  const lookupCatArr=Object.entries(lookupCatMap).sort((a,b)=>b[1]-a[1]);
+
+  // QR scanned vs manual, unique customers overall
+  const qrScannedCount=lookupHistory.filter(h=>h.type==="scan").length;
+  const lookupCustomerTotal=new Set(lookupHistory.map(h=>(h.custName||"").trim()).filter(Boolean)).size;
+
+  // Activity — last 14 days
+  const activityData=(()=>{
+    const buckets=[];
+    for(let i=13;i>=0;i--){
+      const d=new Date();
+      d.setDate(d.getDate()-i);
+      buckets.push({key:d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),label:d.toLocaleDateString("en-US",{weekday:"short"}).slice(0,2)});
+    }
+    const map={};
+    buckets.forEach(b=>{map[b.key]=0;});
+    lookupHistory.forEach(h=>{if(map[h.date]!==undefined)map[h.date]++;});
+    return buckets.map(b=>({...b,v:map[b.key]}));
+  })();
+  const maxActivity=Math.max(1,...activityData.map(x=>x.v));
 
   // Follow-up opportunities: a named customer looked up an item that's still available and hasn't bought it
   const followUpMap={};
@@ -3479,13 +3518,27 @@ function AnalyticsTab(p){
   });
   const followUpArr=Object.values(followUpMap).sort((a,b)=>b.stamp<a.stamp?-1:1).slice(0,30);
 
-  // Lookup activity by staff
+  // Lookup activity by staff — with each staff member's own top items & top customers
   const lookupStaffMap={};
   lookupHistory.forEach(h=>{
-    if(!lookupStaffMap[h.user])lookupStaffMap[h.user]={name:h.user,cnt:0};
-    lookupStaffMap[h.user].cnt++;
+    if(!lookupStaffMap[h.user])lookupStaffMap[h.user]={name:h.user,cnt:0,scanned:0,custSet:new Set(),itemMap:{},custMap:{}};
+    const st=lookupStaffMap[h.user];
+    st.cnt++;
+    if(h.type==="scan")st.scanned++;
+    const cn=(h.custName||"").trim();
+    if(cn){st.custSet.add(cn);st.custMap[cn]=(st.custMap[cn]||0)+1;}
+    st.itemMap[h.itemId]=(st.itemMap[h.itemId]||0)+1;
   });
-  const lookupStaffArr=Object.values(lookupStaffMap).sort((a,b)=>b.cnt-a.cnt);
+  const lookupStaffArr=Object.values(lookupStaffMap).map(st=>({
+    name:st.name,
+    role:(users.find(u=>u.name===st.name)||{}).role||"",
+    cnt:st.cnt,
+    scanned:st.scanned,
+    scanPct:st.cnt?Math.round(st.scanned/st.cnt*100):0,
+    customers:st.custSet.size,
+    topItems:Object.entries(st.itemMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,c])=>({itemId:id,item:inv.find(i=>i.id===id),cnt:c})),
+    topCustomers:Object.entries(st.custMap).sort((a,b)=>b[1]-a[1]).slice(0,5),
+  })).sort((a,b)=>b.cnt-a.cnt);
   const maxLookupStaff=lookupStaffArr.length?lookupStaffArr[0].cnt:1;
 
   // Search-to-sale conversion
@@ -3568,31 +3621,83 @@ function AnalyticsTab(p){
       {atab==="lookups"&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Summary */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-            {[{l:"Total Lookups",v:lookupHistory.length},{l:"Unique Items",v:uniqueLookedUpIds.length},{l:"Search→Sale",v:lookupConvRate+"%"}].map(k=>(
-              <div key={k.l} style={{...S.card({margin:0,padding:"12px 10px"}),textAlign:"center"}}>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:G}}>{k.v}</div>
-                <div style={{fontSize:9,color:T3,textTransform:"uppercase",marginTop:2}}>{k.l}</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            {[{l:"Total Lookups",v:lookupHistory.length},{l:"Unique Items",v:uniqueLookedUpIds.length},{l:"QR Scanned",v:qrScannedCount},{l:"Customers",v:lookupCustomerTotal}].map(k=>(
+              <div key={k.l} style={{...S.card({margin:0,padding:"12px 13px"})}}>
+                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G}}>{k.v}</div>
+                <div style={{fontSize:10,color:T3,textTransform:"uppercase",marginTop:2}}>{k.l}</div>
               </div>
             ))}
           </div>
 
-          {/* Top 20 searched codes */}
+          {/* Activity — last 14 days */}
           <div style={S.card({margin:0})}>
-            <div style={{...S.sh,marginBottom:10}}>🔍 Top 20 Searched Codes</div>
+            <div style={{...S.sh,marginBottom:10}}>📈 Activity — Last 14 Days</div>
+            <div style={{display:"flex",alignItems:"flex-end",gap:4,height:70}}>
+              {activityData.map((d,i)=>(
+                <div key={d.key+i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4,height:"100%",justifyContent:"flex-end"}}>
+                  <div style={{width:"100%",height:Math.max(3,Math.round(d.v/maxActivity*58)),background:d.v>0?G:CRD2,borderRadius:3}}/>
+                </div>
+              ))}
+            </div>
+            <div style={{display:"flex",gap:4,marginTop:5}}>
+              {activityData.map((d,i)=>(
+                <div key={d.key+i+"l"} style={{flex:1,textAlign:"center",fontSize:8,color:T3}}>{d.label}</div>
+              ))}
+            </div>
+          </div>
+
+          {/* Search→Sale conversion */}
+          <div style={S.card({margin:0})}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+              <span style={S.sh}>Search → Sale Conversion</span>
+              <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:G}}>{lookupConvRate}%</span>
+            </div>
+            <Bar pct={lookupConvRate} col={G} h={8}/>
+            <div style={{fontSize:10,color:T3,marginTop:6}}>{lookedUpAndSold} of {uniqueLookedUpIds.length} looked-up items have sold</div>
+          </div>
+
+          {/* Top searched codes */}
+          <div style={S.card({margin:0})}>
+            <div style={{...S.sh,marginBottom:10}}>🔍 Top Searched Codes</div>
             {topSearched.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11,padding:12}}>No lookups recorded yet — search or scan items in the Lookup tab.</div>}
             {topSearched.map((x,i)=>(
               <div key={x.itemId} onClick={()=>openItem&&openItem(x.item,"view")} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 0",borderBottom:i<topSearched.length-1?"1px solid "+CRD2:"none",cursor:openItem?"pointer":"default"}}>
-                <div style={{width:18,fontSize:11,fontWeight:700,color:i<3?GO:T3,flexShrink:0}}>{i+1}</div>
+                <div style={{width:22,height:22,borderRadius:"50%",background:i===0?GO:i===1?"#C0C0C0":i===2?"#CD7F32":G,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:WH,flexShrink:0}}>{i+1}</div>
                 <div style={{width:34,height:34,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}><ItemThumb item={x.item} size={34}/></div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontWeight:700,fontSize:12,color:T1}}>{x.itemId}</div>
                   <div style={{fontSize:10,color:T3}}>{x.item.cat} · {x.item.col}{x.custCount>0?" · "+x.custCount+" customer"+(x.custCount!==1?"s":""):""}</div>
                 </div>
                 <Bar pct={Math.round(x.cnt/maxLookupCnt*100)} col={i===0?GO:G}/>
-                <div style={{fontSize:12,fontWeight:700,color:G,flexShrink:0,width:22,textAlign:"right"}}>{x.cnt}</div>
+                <div style={{fontSize:12,fontWeight:700,color:G,flexShrink:0,width:28,textAlign:"right"}}>{x.cnt}x</div>
               </div>
             ))}
+          </div>
+
+          {/* Top customers by lookup activity */}
+          <div style={S.card({margin:0})}>
+            <div style={{...S.sh,marginBottom:10}}>👥 Top Customers</div>
+            {lookupCustArr.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11,padding:12}}>No named lookups yet.</div>}
+            {lookupCustArr.map((c,i)=>(
+              <div key={c.name} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 0",borderBottom:i<lookupCustArr.length-1?"1px solid "+CRD2:"none"}}>
+                <div style={{width:22,height:22,borderRadius:"50%",background:i===0?GO:i===1?"#C0C0C0":i===2?"#CD7F32":G,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:WH,flexShrink:0}}>{i+1}</div>
+                <div style={{flex:1,fontSize:12,fontWeight:600,color:T1}}>👤 {c.name}</div>
+                <Bar pct={Math.round(c.cnt/maxLookupCust*100)}/>
+                <div style={{fontSize:12,fontWeight:700,color:G,flexShrink:0,width:28,textAlign:"right"}}>{c.cnt}x</div>
+              </div>
+            ))}
+          </div>
+
+          {/* By category */}
+          <div style={S.card({margin:0})}>
+            <div style={{...S.sh,marginBottom:10}}>💎 By Category</div>
+            {lookupCatArr.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11}}>No lookups yet</div>}
+            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+              {lookupCatArr.map(([cat,cnt])=>(
+                <span key={cat} style={{background:CRD,border:"1px solid "+CRD2,borderRadius:20,padding:"5px 11px",fontSize:11,color:T1}}>{cat} <strong>{cnt}</strong></span>
+              ))}
+            </div>
           </div>
 
           {/* Follow-up opportunities */}
@@ -3615,18 +3720,56 @@ function AnalyticsTab(p){
             ))}
           </div>
 
-          {/* Lookups by staff */}
-          <div style={S.card({margin:0})}>
-            <div style={{...S.sh,marginBottom:10}}>🧑‍💼 Lookups by Staff</div>
-            {lookupStaffArr.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11}}>No lookups yet</div>}
-            {lookupStaffArr.map((s,i)=>(
-              <div key={s.name} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:i<lookupStaffArr.length-1?"1px solid "+CRD2:"none"}}>
-                <div style={{flex:1,fontSize:11,fontWeight:600,color:T1}}>{s.name}</div>
-                <Bar pct={Math.round(s.cnt/maxLookupStaff*100)}/>
-                <div style={{fontSize:12,fontWeight:700,color:G,flexShrink:0,width:22,textAlign:"right"}}>{s.cnt}</div>
+          {/* Staff activity breakdown */}
+          <div style={{...S.sh,marginTop:2}}>👤 Staff Activity Breakdown</div>
+          {lookupStaffArr.length===0&&<div style={{...S.card({margin:0,textAlign:"center",padding:20})}}><div style={{color:T3,fontSize:11}}>No lookups yet</div></div>}
+          {lookupStaffArr.map(st=>(
+            <div key={st.name} style={S.card({margin:0})}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:11}}>
+                <div style={{width:34,height:34,borderRadius:"50%",background:G,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:CR,flexShrink:0}}>{st.name[0]}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:700,fontSize:13,color:T1}}>{st.name}</div>
+                  {st.role&&<Bdg t={st.role==="Admin"?"r":st.role==="Manager"?"a":"m"} ch={st.role} sm/>}
+                </div>
+                <div style={{display:"flex",gap:14,textAlign:"center"}}>
+                  {[{l:"Lookups",v:st.cnt},{l:"Scanned",v:st.scanned},{l:"Customers",v:st.customers}].map(k=>(
+                    <div key={k.l}>
+                      <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:G}}>{k.v}</div>
+                      <div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{k.l}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:T3,marginBottom:4}}>
+                <span>📷 Scan {st.scanPct}%</span>
+                <span>⌨ Manual {100-st.scanPct}%</span>
+              </div>
+              <Bar pct={st.scanPct} col={G} h={5}/>
+              {st.topItems.length>0&&(
+                <div style={{marginTop:11}}>
+                  <div style={{fontSize:9,fontWeight:700,color:T3,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:6}}>Top Items</div>
+                  {st.topItems.map(ti=>(
+                    <div key={ti.itemId} onClick={()=>ti.item&&openItem&&openItem(ti.item,"view")} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 9px",background:CRD,borderRadius:8,marginBottom:5,cursor:ti.item&&openItem?"pointer":"default"}}>
+                      <span style={{flex:1,fontSize:11,fontWeight:700,color:T1}}>{ti.itemId}</span>
+                      {ti.item&&<span style={{fontSize:10,color:T3}}>{ti.item.cat}</span>}
+                      <Bdg t="g" ch={ti.cnt+"x"} sm/>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {st.topCustomers.length>0&&(
+                <div style={{marginTop:9}}>
+                  <div style={{fontSize:9,fontWeight:700,color:T3,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:6}}>Top Customers</div>
+                  {st.topCustomers.map(([name,cnt])=>(
+                    <div key={name} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 9px",background:CRD,borderRadius:8,marginBottom:5}}>
+                      <span style={{flex:1,fontSize:11,fontWeight:600,color:T1}}>👤 {name}</span>
+                      <Bdg t="bl" ch={cnt+"x"} sm/>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 

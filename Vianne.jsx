@@ -2257,6 +2257,27 @@ function PhotoSearch({inv,onResult,onClose}){
     if(!bg) return false;
     return colorDist(r,g,b,bg)<38;
   };
+  // ── Skin detection — hands are an extremely common jewellery-photo
+  // background and their warm, moderate-saturation tone overlaps with gold,
+  // so it needs its own check rather than relying on the sampled background ─
+  const isSkinTone=(r,g,b)=>r>95&&g>40&&b>20&&(Math.max(r,g,b)-Math.min(r,g,b))>15&&Math.abs(r-g)>15&&r>g&&r>b;
+  // ── Jewellery-likely pixel — sparkle or a confidently metallic tone.
+  // Used to find the item directly instead of trying to exclude every
+  // possible background (desk, mat, fabric, skin, ...)
+  const isSparklePx=(r,g,b)=>{
+    const brightness=(r+g+b)/3;
+    const spread=Math.max(r,g,b)-Math.min(r,g,b);
+    return brightness>210&&spread<35;
+  };
+  const isMetallicPx=(r,g,b)=>{
+    if(isSkinTone(r,g,b)) return false;
+    const[hue,sat,lig]=toHsl(r,g,b);
+    if(lig<20||lig>92) return false;
+    if(sat<10&&lig>45) return true; // platinum/silver/white gold
+    if(hue>=28&&hue<=65&&sat>32&&lig>30) return true; // yellow gold — high sat to separate from skin
+    if((hue>=340||hue<=20)&&sat>32&&r>b) return true; // rose gold — high sat to separate from skin
+    return false;
+  };
 
   // ── Metal detection — sample brightest metallic pixels ─────────────────
   const detectMetal=(pixels,w,h,bg)=>{
@@ -2266,16 +2287,17 @@ function PhotoSearch({inv,onResult,onClose}){
       const r=pixels[i],g=pixels[i+1],b=pixels[i+2],a=pixels[i+3];
       if(a<80) continue;
       if(isBackground(r,g,b,bg)) continue;
+      if(isSkinTone(r,g,b)) continue;
       const[hue,sat,lig]=toHsl(r,g,b);
       // Only consider metallic-looking pixels (moderate saturation, moderate brightness)
       if(lig<20||lig>92) continue;
       if(sat<5&&lig>45){buckets.PT++;metalPx++;continue;} // platinum/silver/white gold
       if(sat<8) continue; // too grey, skip
       metalPx++;
-      // Yellow gold: warm hue 30-65, decent saturation
-      if(hue>=28&&hue<=65&&sat>12&&lig>30){buckets.YG+=2;continue;}
-      // Rose gold: pinkish red hue, warm
-      if((hue>=340||hue<=25)&&sat>12&&r>b){buckets.RG++;continue;}
+      // Yellow gold: warm hue 30-65, high enough saturation to not be skin
+      if(hue>=28&&hue<=65&&sat>32&&lig>30){buckets.YG+=2;continue;}
+      // Rose gold: pinkish red hue, warm, high enough saturation to not be skin
+      if((hue>=340||hue<=25)&&sat>32&&r>b){buckets.RG++;continue;}
       // White gold / rhodium: cool, low sat
       if(sat<22&&lig>42){buckets.WG++;continue;}
     }
@@ -2292,11 +2314,9 @@ function PhotoSearch({inv,onResult,onClose}){
       if(pixels[i+3]<80) continue;
       const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
       if(isBackground(r,g,b,bg)) continue;
+      if(isSkinTone(r,g,b)) continue;
       total++;
-      const brightness=(r+g+b)/3;
-      const spread=Math.max(r,g,b)-Math.min(r,g,b);
-      // Sparkle: very bright AND colour-neutral (white sparkle of diamond)
-      if(brightness>215&&spread<35) sparklePx++;
+      if(isSparklePx(r,g,b)) sparklePx++;
     }
     if(total===0) return false;
     const ratio=sparklePx/total;
@@ -2305,7 +2325,9 @@ function PhotoSearch({inv,onResult,onClose}){
 
   // ── Shape/Category detection — aspect ratio + mass distribution ─────────
   const detectCategory=(pixels,w,h,bg)=>{
-    // Find bounding box of non-background pixels
+    // First pass: bound just the pixels that actually look like jewellery
+    // (sparkle or confident metal tone). Much more robust than trying to
+    // exclude every possible background, especially hands.
     let minX=w,maxX=0,minY=h,maxY=0;
     let massX=0,massY=0,cnt=0;
     for(let y=0;y<h;y++){
@@ -2313,10 +2335,27 @@ function PhotoSearch({inv,onResult,onClose}){
         const i=(y*w+x)*4;
         if(pixels[i+3]<60) continue;
         const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
-        if(isBackground(r,g,b,bg)) continue;
+        if(!isSparklePx(r,g,b)&&!isMetallicPx(r,g,b)) continue;
         if(x<minX)minX=x; if(x>maxX)maxX=x;
         if(y<minY)minY=y; if(y>maxY)maxY=y;
         massX+=x; massY+=y; cnt++;
+      }
+    }
+    // Fall back to background-exclusion bounding box if too little jewellery
+    // signal was found (e.g. a matte/low-saturation piece)
+    if(cnt<40){
+      minX=w;maxX=0;minY=h;maxY=0;massX=0;massY=0;cnt=0;
+      for(let y=0;y<h;y++){
+        for(let x=0;x<w;x++){
+          const i=(y*w+x)*4;
+          if(pixels[i+3]<60) continue;
+          const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+          if(isBackground(r,g,b,bg)) continue;
+          if(isSkinTone(r,g,b)) continue;
+          if(x<minX)minX=x; if(x>maxX)maxX=x;
+          if(y<minY)minY=y; if(y>maxY)maxY=y;
+          massX+=x; massY+=y; cnt++;
+        }
       }
     }
     if(cnt<50) return{cat:"Rings",conf:30}; // not enough signal
@@ -2346,6 +2385,7 @@ function PhotoSearch({inv,onResult,onClose}){
       if(i>=pixels.length) break;
       if(pixels[i+3]<80) continue;
       if(isBackground(pixels[i],pixels[i+1],pixels[i+2],bg)) continue;
+      if(isSkinTone(pixels[i],pixels[i+1],pixels[i+2])) continue;
       samples.push([pixels[i],pixels[i+1],pixels[i+2]]);
     }
     if(samples.length===0) return[];

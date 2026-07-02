@@ -11014,7 +11014,7 @@ function fetchEventInvBuffer(_x1) {
 }
 function _fetchEventInvBuffer() {
   _fetchEventInvBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17(ev) {
-    var latest, urls, _i2, _urls, url, r, _t9, _t0, _t1;
+    var latest, urls, _i3, _urls, url, r, _t9, _t0, _t1;
     return _regenerator().w(function (_context17) {
       while (1) switch (_context17.p = _context17.n) {
         case 0:
@@ -11027,13 +11027,13 @@ function _fetchEventInvBuffer() {
           urls = [];
           if (latest && latest.driveFileId) urls.push("/api/inventory-file?eventId=" + encodeURIComponent(ev.id) + "&fileId=" + encodeURIComponent(latest.driveFileId));
           if (ev.driveFolderId) urls.push("/api/inventory-file?eventId=" + encodeURIComponent(ev.id) + "&latest=1");
-          _i2 = 0, _urls = urls;
+          _i3 = 0, _urls = urls;
         case 2:
-          if (!(_i2 < _urls.length)) {
+          if (!(_i3 < _urls.length)) {
             _context17.n = 9;
             break;
           }
-          url = _urls[_i2];
+          url = _urls[_i3];
           _context17.p = 3;
           _context17.n = 4;
           return fetch(url, {
@@ -11062,7 +11062,7 @@ function _fetchEventInvBuffer() {
           _t1 = _context17.v;
           console.warn("Fetch inventory sheet", _t1);
         case 8:
-          _i2++;
+          _i3++;
           _context17.n = 2;
           break;
         case 9:
@@ -14470,7 +14470,7 @@ function _cloudSave() {
                 }
               }, _callee38, null, [[5, 7], [1, 3]]);
             }));
-            return function trySave(_x58) {
+            return function trySave(_x59) {
               return _ref109.apply(this, arguments);
             };
           }();
@@ -19331,6 +19331,33 @@ function PhotoSearch(_ref38) {
     if (!bg) return false;
     return colorDist(r, g, b, bg) < 38;
   };
+  // ── Skin detection — hands are an extremely common jewellery-photo
+  // background and their warm, moderate-saturation tone overlaps with gold,
+  // so it needs its own check rather than relying on the sampled background ─
+  var isSkinTone = function isSkinTone(r, g, b) {
+    return r > 95 && g > 40 && b > 20 && Math.max(r, g, b) - Math.min(r, g, b) > 15 && Math.abs(r - g) > 15 && r > g && r > b;
+  };
+  // ── Jewellery-likely pixel — sparkle or a confidently metallic tone.
+  // Used to find the item directly instead of trying to exclude every
+  // possible background (desk, mat, fabric, skin, ...)
+  var isSparklePx = function isSparklePx(r, g, b) {
+    var brightness = (r + g + b) / 3;
+    var spread = Math.max(r, g, b) - Math.min(r, g, b);
+    return brightness > 210 && spread < 35;
+  };
+  var isMetallicPx = function isMetallicPx(r, g, b) {
+    if (isSkinTone(r, g, b)) return false;
+    var _toHsl = toHsl(r, g, b),
+      _toHsl2 = _slicedToArray(_toHsl, 3),
+      hue = _toHsl2[0],
+      sat = _toHsl2[1],
+      lig = _toHsl2[2];
+    if (lig < 20 || lig > 92) return false;
+    if (sat < 10 && lig > 45) return true; // platinum/silver/white gold
+    if (hue >= 28 && hue <= 65 && sat > 32 && lig > 30) return true; // yellow gold — high sat to separate from skin
+    if ((hue >= 340 || hue <= 20) && sat > 32 && r > b) return true; // rose gold — high sat to separate from skin
+    return false;
+  };
 
   // ── Metal detection — sample brightest metallic pixels ─────────────────
   var detectMetal = function detectMetal(pixels, w, h, bg) {
@@ -19348,11 +19375,12 @@ function PhotoSearch(_ref38) {
         a = pixels[i + 3];
       if (a < 80) continue;
       if (isBackground(r, g, b, bg)) continue;
-      var _toHsl = toHsl(r, g, b),
-        _toHsl2 = _slicedToArray(_toHsl, 3),
-        hue = _toHsl2[0],
-        sat = _toHsl2[1],
-        lig = _toHsl2[2];
+      if (isSkinTone(r, g, b)) continue;
+      var _toHsl3 = toHsl(r, g, b),
+        _toHsl4 = _slicedToArray(_toHsl3, 3),
+        hue = _toHsl4[0],
+        sat = _toHsl4[1],
+        lig = _toHsl4[2];
       // Only consider metallic-looking pixels (moderate saturation, moderate brightness)
       if (lig < 20 || lig > 92) continue;
       if (sat < 5 && lig > 45) {
@@ -19362,13 +19390,13 @@ function PhotoSearch(_ref38) {
       } // platinum/silver/white gold
       if (sat < 8) continue; // too grey, skip
       metalPx++;
-      // Yellow gold: warm hue 30-65, decent saturation
-      if (hue >= 28 && hue <= 65 && sat > 12 && lig > 30) {
+      // Yellow gold: warm hue 30-65, high enough saturation to not be skin
+      if (hue >= 28 && hue <= 65 && sat > 32 && lig > 30) {
         buckets.YG += 2;
         continue;
       }
-      // Rose gold: pinkish red hue, warm
-      if ((hue >= 340 || hue <= 25) && sat > 12 && r > b) {
+      // Rose gold: pinkish red hue, warm, high enough saturation to not be skin
+      if ((hue >= 340 || hue <= 25) && sat > 32 && r > b) {
         buckets.RG++;
         continue;
       }
@@ -19402,11 +19430,9 @@ function PhotoSearch(_ref38) {
         g = pixels[i + 1],
         b = pixels[i + 2];
       if (isBackground(r, g, b, bg)) continue;
+      if (isSkinTone(r, g, b)) continue;
       total++;
-      var brightness = (r + g + b) / 3;
-      var spread = Math.max(r, g, b) - Math.min(r, g, b);
-      // Sparkle: very bright AND colour-neutral (white sparkle of diamond)
-      if (brightness > 215 && spread < 35) sparklePx++;
+      if (isSparklePx(r, g, b)) sparklePx++;
     }
     if (total === 0) return false;
     var ratio = sparklePx / total;
@@ -19415,7 +19441,9 @@ function PhotoSearch(_ref38) {
 
   // ── Shape/Category detection — aspect ratio + mass distribution ─────────
   var detectCategory = function detectCategory(pixels, w, h, bg) {
-    // Find bounding box of non-background pixels
+    // First pass: bound just the pixels that actually look like jewellery
+    // (sparkle or confident metal tone). Much more robust than trying to
+    // exclude every possible background, especially hands.
     var minX = w,
       maxX = 0,
       minY = h,
@@ -19430,7 +19458,7 @@ function PhotoSearch(_ref38) {
         var r = pixels[i],
           g = pixels[i + 1],
           b = pixels[i + 2];
-        if (isBackground(r, g, b, bg)) continue;
+        if (!isSparklePx(r, g, b) && !isMetallicPx(r, g, b)) continue;
         if (x < minX) minX = x;
         if (x > maxX) maxX = x;
         if (y < minY) minY = y;
@@ -19438,6 +19466,35 @@ function PhotoSearch(_ref38) {
         massX += x;
         massY += y;
         cnt++;
+      }
+    }
+    // Fall back to background-exclusion bounding box if too little jewellery
+    // signal was found (e.g. a matte/low-saturation piece)
+    if (cnt < 40) {
+      minX = w;
+      maxX = 0;
+      minY = h;
+      maxY = 0;
+      massX = 0;
+      massY = 0;
+      cnt = 0;
+      for (var _y = 0; _y < h; _y++) {
+        for (var _x54 = 0; _x54 < w; _x54++) {
+          var _i2 = (_y * w + _x54) * 4;
+          if (pixels[_i2 + 3] < 60) continue;
+          var _r = pixels[_i2],
+            _g = pixels[_i2 + 1],
+            _b = pixels[_i2 + 2];
+          if (isBackground(_r, _g, _b, bg)) continue;
+          if (isSkinTone(_r, _g, _b)) continue;
+          if (_x54 < minX) minX = _x54;
+          if (_x54 > maxX) maxX = _x54;
+          if (_y < minY) minY = _y;
+          if (_y > maxY) maxY = _y;
+          massX += _x54;
+          massY += _y;
+          cnt++;
+        }
       }
     }
     if (cnt < 50) return {
@@ -19492,6 +19549,7 @@ function PhotoSearch(_ref38) {
       if (i >= pixels.length) break;
       if (pixels[i + 3] < 80) continue;
       if (isBackground(pixels[i], pixels[i + 1], pixels[i + 2], bg)) continue;
+      if (isSkinTone(pixels[i], pixels[i + 1], pixels[i + 2])) continue;
       samples.push([pixels[i], pixels[i + 1], pixels[i + 2]]);
     }
     if (samples.length === 0) return [];
@@ -30713,7 +30771,7 @@ function App() {
         }
       }, _callee7);
     }));
-    return function runCloudSave(_x54, _x55, _x56) {
+    return function runCloudSave(_x55, _x56, _x57) {
       return _ref89.apply(this, arguments);
     };
   }();
@@ -31132,7 +31190,7 @@ function App() {
         }
       }, _callee10);
     }));
-    return function handleLogin(_x57) {
+    return function handleLogin(_x58) {
       return _ref97.apply(this, arguments);
     };
   }();

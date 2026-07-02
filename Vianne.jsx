@@ -2706,7 +2706,10 @@ function SingleLookup(p){
                   <div style={{...S.card({margin:0,marginBottom:10,border:"2px solid "+G})}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:11}}>
                       <div style={{fontWeight:700,fontSize:11,color:G,textTransform:"uppercase",letterSpacing:"0.1em"}}>⚡ Smart Filters</div>
-                      {activeFilters>0&&<button onClick={resetFilters} style={{background:REBG,color:RE,border:"1px solid rgba(160,48,48,0.2)",borderRadius:6,padding:"4px 10px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,cursor:"pointer"}}>✕ Reset All</button>}
+                      <div style={{display:"flex",gap:6}}>
+                        {activeFilters>0&&<button onClick={resetFilters} style={{background:REBG,color:RE,border:"1px solid rgba(160,48,48,0.2)",borderRadius:6,padding:"4px 10px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,cursor:"pointer"}}>✕ Reset All</button>}
+                        <button onClick={()=>sShowFilter(false)} style={{background:G,color:CR,border:"none",borderRadius:6,padding:"4px 10px",fontFamily:"Lato,sans-serif",fontSize:11,fontWeight:600,cursor:"pointer"}}>▲ Minimize</button>
+                      </div>
                     </div>
                     <div style={{marginBottom:10}}><span style={S.lbl}>CATEGORY</span><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{allCats.map(v=><button key={v} onClick={()=>sfCat(v)} style={S.pill(fCat===v,{fontSize:10,padding:"4px 10px"})}>{v}</button>)}</div></div>
                     <div style={{marginBottom:10}}><span style={S.lbl}>COLLECTION</span><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{allCols.map(v=><button key={v} onClick={()=>sfCol(v)} style={S.pill(fCol===v,{fontSize:10,padding:"4px 10px"})}>{v}</button>)}</div></div>
@@ -2724,6 +2727,7 @@ function SingleLookup(p){
                         </div>
                       ))}
                     </div>
+                    <button onClick={()=>sShowFilter(false)} style={{...S.btn({width:"100%",padding:"11px",fontSize:13}),marginTop:14}}>▲ Minimize Filters{activeFilters>0?" ("+activeFilters+" active)":""}</button>
                   </div>
                 )}
 

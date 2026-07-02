@@ -1847,7 +1847,7 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
           </div>
         </div>
       </div>
-      <div style={{...S.cc({marginBottom:11,display:"flex",justifyContent:"space-between",alignItems:"center"})}}><div><div style={{fontWeight:700,fontSize:13,color:T1}}>{item.id}</div><div style={{fontSize:10,color:T3}}>{item.cat} · {item.col}</div></div><div style={{textAlign:"right"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>{fc(tax,cur)}</div>{f.disc>0&&<div style={{fontSize:9,color:AM}}>Disc {f.disc}%</div>}</div></div>
+      <div style={{...S.cc({marginBottom:11,display:"flex",justifyContent:"space-between",alignItems:"center"})}}><div><div style={{fontWeight:700,fontSize:13,color:T1}}>{item.id}</div><div style={{fontSize:10,color:T3}}>{item.cat} · {item.col}</div></div><div style={{textAlign:"right"}}><div style={{fontFamily:"Lato,sans-serif",fontSize:18,fontWeight:700,color:G}}>{fc(tax,cur)}</div>{f.disc>0&&<div style={{fontSize:9,color:AM}}>Disc {f.disc}%</div>}</div></div>
       <div style={{display:"flex",flexDirection:"column",gap:9,marginBottom:11}}>
         <div><span style={S.lbl}>PAYMENT</span><select style={S.inp()} value={f.pm} onChange={ev=>set("pm",ev.target.value)}>{["NEFT","RTGS","Cheque","Cash","UPI","Credit Card","Wire Transfer"].map(x=><option key={x}>{x}</option>)}</select></div>
         {pr.oP&&<div><span style={S.lbl}>DISCOUNT % (MAX 20)</span><input type="number" style={S.inp()} min="0" max="20" value={f.disc} onChange={ev=>set("disc",Math.min(20,Math.max(0,Number(ev.target.value))))}/></div>}
@@ -1870,7 +1870,7 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
           <div key={l} style={{display:"flex",justifyContent:"space-between",fontSize:11,color:T2,marginBottom:3}}><span>{l}</span><span>{v}</span></div>
         ))}
         <div style={{height:2,background:G,borderRadius:1,margin:"6px 0"}}/>
-        <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:14,color:G}}><span>GRAND TOTAL</span><span style={{fontFamily:"Cormorant Garamond,serif",fontSize:18}}>{fc(tot,cur)}</span></div>
+        <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:14,color:G}}><span>GRAND TOTAL</span><span style={{fontFamily:"Lato,sans-serif",fontSize:18}}>{fc(tot,cur)}</span></div>
       </div>
       <button style={S.btn()} onClick={doSell} onMouseDown={e=>{e.currentTarget.style.transform="scale(0.96)";}} onMouseUp={e=>{e.currentTarget.style.transform="";}} onTouchStart={e=>{e.currentTarget.style.transform="scale(0.96)";}} onTouchEnd={e=>{e.currentTarget.style.transform="";}} >✓ Confirm Sale &amp; Invoice</button>
               {!f.cu.trim()&&<div style={{fontSize:11,color:RE,textAlign:"center",marginTop:6}}>⚠ Enter customer name above to confirm</div>}
@@ -1881,7 +1881,7 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
       <div style={{padding:"10px 12px 0"}}><button onClick={onBack} style={{background:"none",border:"none",color:G,cursor:"pointer",fontSize:13,fontWeight:600,display:"flex",alignItems:"center",gap:5}}>← Back to Lookup</button></div>
       <div style={{background:G,padding:"13px 15px",margin:"10px 12px 0",borderRadius:"12px 12px 0 0"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
-          <div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:CR}}>{item.id}</div><div style={{fontSize:10,color:"rgba(245,237,224,0.6)",marginTop:1}}>Style: {item.style}</div></div>
+          <div><div style={{fontFamily:"Lato,sans-serif",fontSize:20,fontWeight:700,color:CR}}>{item.id}</div><div style={{fontSize:10,color:"rgba(245,237,224,0.6)",marginTop:1}}>Style: {item.style}</div></div>
           <span style={{background:"rgba(255,255,255,0.15)",color:CR,border:"1px solid rgba(255,255,255,0.2)",borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:700}}>{item.cat}</span>
         </div>
         <div className="v-hero-img" style={{background:"rgba(0,0,0,0.2)",borderRadius:10,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:12}}>
@@ -1889,7 +1889,7 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
         </div>
         <div style={{fontSize:9,color:"rgba(245,237,224,0.5)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:3}}>FINAL SALE PRICE</div>
         <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:pr.sF?4:10}}>
-          <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:36,fontWeight:700,color:CR,lineHeight:1}}>{fc(dp,cur)}</span>
+          <span style={{fontFamily:"Lato,sans-serif",fontSize:36,fontWeight:700,color:CR,lineHeight:1}}>{fc(dp,cur)}</span>
           <span style={{fontSize:10,color:"rgba(245,237,224,0.5)"}}>list price</span>
         </div>
         {pr.sF&&<div style={{fontSize:9.5,color:"rgba(245,237,224,0.5)",marginBottom:12}}>Today Cost + Tariffs ÷ 0.75 (25% margin)</div>}
@@ -1906,7 +1906,7 @@ function ItemCard({item,user,inv,leads,cur,preCustName,eventName,sales,onSell,on
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>{[["Collection",item.col],["Metal",item.metal],["Size",item.sz||"—"],["Gross Wt",item.gw+"g"],["Net Wt",item.nw+"g"],["Carats",item.tc+"ct"],["Stone Pcs",item.sp],["Qty",item.qty||1]].map(([l,v])=><div key={l}><div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{l}</div><div style={{fontSize:12,fontWeight:700,marginTop:1,color:T1}}>{v}</div></div>)}</div>
         </div>
         {item.stones&&item.stones.length>0&&<><div style={S.sh}>💎 STONES</div><table style={{width:"100%",borderCollapse:"collapse",fontSize:11,marginBottom:13}}><thead><tr style={{background:CRD2}}>{["SHAPE","CLARITY","PCS","CTS","TOTAL"].map(h=><th key={h} style={{padding:"6px 8px",textAlign:"left",fontSize:9,fontWeight:700,color:T2}}>{h}</th>)}</tr></thead><tbody>{item.stones.map((s,i)=><tr key={i} style={{borderBottom:"1px solid "+CRD2}}><td style={{padding:"7px 8px"}}>{s.sh}</td><td style={{padding:"7px 8px"}}>{s.cl}</td><td style={{padding:"7px 8px"}}>{s.pc}</td><td style={{padding:"7px 8px"}}>{s.ct}</td><td style={{padding:"7px 8px"}}>{s.tct}</td></tr>)}</tbody></table></>}
-        {similar.length>0&&<><div style={S.sh}>✨ SIMILAR</div>{similar.map(s=><div key={s.id+"-"+imgTick} onClick={()=>window._switchItem&&window._switchItem(s)} style={{...S.cc({marginBottom:8,display:"flex",gap:9,alignItems:"center",cursor:"pointer"})}}><div style={{width:40,height:40,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}><ItemThumb item={s} size={40}/></div><div style={{flex:1}}><div style={{fontWeight:700,fontSize:12,color:T1}}>{s.id}</div><div style={{fontSize:9.5,color:T3}}>{s.col} · {s.cat}</div></div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G}}>{fc(s.fp,cur)}</div></div>)}</>}
+        {similar.length>0&&<><div style={S.sh}>✨ SIMILAR</div>{similar.map(s=><div key={s.id+"-"+imgTick} onClick={()=>window._switchItem&&window._switchItem(s)} style={{...S.cc({marginBottom:8,display:"flex",gap:9,alignItems:"center",cursor:"pointer"})}}><div style={{width:40,height:40,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}><ItemThumb item={s} size={40}/></div><div style={{flex:1}}><div style={{fontWeight:700,fontSize:12,color:T1}}>{s.id}</div><div style={{fontSize:9.5,color:T3}}>{s.col} · {s.cat}</div></div><div style={{fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,color:G}}>{fc(s.fp,cur)}</div></div>)}</>}
         <div style={{height:40}}/>
       </div>
     </div>

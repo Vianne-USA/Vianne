@@ -10926,9 +10926,9 @@ function _syncImagesToDrive() {
           }
           return _context16.a(2, 0);
         case 3:
-          entries = Object.entries(imgMap).filter(function (_ref92) {
-            var _ref93 = _slicedToArray(_ref92, 2),
-              src = _ref93[1];
+          entries = Object.entries(imgMap).filter(function (_ref93) {
+            var _ref94 = _slicedToArray(_ref93, 2),
+              src = _ref94[1];
             return String(src || "").startsWith("data:image/");
           });
           if (entries.length) {
@@ -10945,10 +10945,10 @@ function _syncImagesToDrive() {
             _context16.n = 12;
             break;
           }
-          chunk = entries.slice(i, i + BATCH).map(function (_ref94) {
-            var _ref95 = _slicedToArray(_ref94, 2),
-              id = _ref95[0],
-              src = _ref95[1];
+          chunk = entries.slice(i, i + BATCH).map(function (_ref95) {
+            var _ref96 = _slicedToArray(_ref95, 2),
+              id = _ref96[0],
+              src = _ref96[1];
             return {
               id: String(id).toUpperCase(),
               data: String(src).replace(/^data:image\/\w+;base64,/, "")
@@ -13492,10 +13492,10 @@ function _idbSaveImages() {
           }
           return _context28.a(2);
         case 1:
-          entries = Object.entries(imgMap).filter(function (_ref96) {
-            var _ref97 = _slicedToArray(_ref96, 2),
-              id = _ref97[0],
-              src = _ref97[1];
+          entries = Object.entries(imgMap).filter(function (_ref97) {
+            var _ref98 = _slicedToArray(_ref97, 2),
+              id = _ref98[0],
+              src = _ref98[1];
             return id && src;
           });
           if (entries.length) {
@@ -13505,10 +13505,10 @@ function _idbSaveImages() {
           return _context28.a(2);
         case 2:
           if (!window.VJ_IMG) window.VJ_IMG = {};
-          entries.forEach(function (_ref98) {
-            var _ref99 = _slicedToArray(_ref98, 2),
-              id = _ref99[0],
-              src = _ref99[1];
+          entries.forEach(function (_ref99) {
+            var _ref100 = _slicedToArray(_ref99, 2),
+              id = _ref100[0],
+              src = _ref100[1];
             window.VJ_IMG[String(id).toUpperCase()] = src;
           });
           notifyImagesChanged();
@@ -13529,10 +13529,10 @@ function _idbSaveImages() {
                   return new Promise(function (res, rej) {
                     var tx = db.transaction(IDB_IMG_STORE, "readwrite");
                     var st = tx.objectStore(IDB_IMG_STORE);
-                    slice.forEach(function (_ref100) {
-                      var _ref101 = _slicedToArray(_ref100, 2),
-                        id = _ref101[0],
-                        src = _ref101[1];
+                    slice.forEach(function (_ref101) {
+                      var _ref102 = _slicedToArray(_ref101, 2),
+                        id = _ref102[0],
+                        src = _ref102[1];
                       return st.put({
                         id: String(id).toUpperCase(),
                         src: src
@@ -14412,7 +14412,7 @@ function _cloudSave() {
             return true;
           });
           trySave = /*#__PURE__*/function () {
-            var _ref102 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(files) {
+            var _ref103 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(files) {
               var body, r, d, msg, _t27, _t28;
               return _regenerator().w(function (_context39) {
                 while (1) switch (_context39.p = _context39.n) {
@@ -14471,7 +14471,7 @@ function _cloudSave() {
               }, _callee38, null, [[5, 7], [1, 3]]);
             }));
             return function trySave(_x58) {
-              return _ref102.apply(this, arguments);
+              return _ref103.apply(this, arguments);
             };
           }();
           _context40.p = 3;
@@ -14517,10 +14517,10 @@ function flushCloudSync(_x42, _x43, _x44) {
 }
 function _flushCloudSync() {
   _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(events, users, deletedEvents) {
-    var _ref103,
-      _ref103$silent,
+    var _ref104,
+      _ref104$silent,
       silent,
-      _ref103$successMsg,
+      _ref104$successMsg,
       successMsg,
       ping,
       tombstones,
@@ -14535,7 +14535,7 @@ function _flushCloudSync() {
     return _regenerator().w(function (_context41) {
       while (1) switch (_context41.n) {
         case 0:
-          _ref103 = _args41.length > 3 && _args41[3] !== undefined ? _args41[3] : {}, _ref103$silent = _ref103.silent, silent = _ref103$silent === void 0 ? false : _ref103$silent, _ref103$successMsg = _ref103.successMsg, successMsg = _ref103$successMsg === void 0 ? "Shared with all users & devices" : _ref103$successMsg;
+          _ref104 = _args41.length > 3 && _args41[3] !== undefined ? _args41[3] : {}, _ref104$silent = _ref104.silent, silent = _ref104$silent === void 0 ? false : _ref104$silent, _ref104$successMsg = _ref104.successMsg, successMsg = _ref104$successMsg === void 0 ? "Shared with all users & devices" : _ref104$successMsg;
           _context41.n = 1;
           return cloudFetchData();
         case 1:
@@ -22661,6 +22661,100 @@ function AnalyticsBucketCard(_ref43) {
     }, x.cnt, " items \xB7 ", x.avail, " avail \xB7 ", x.sold, " sold")));
   }));
 }
+var ANALYTICS_DATE_FILTER_OPTS = [{
+  id: "all",
+  l: "All Time"
+}, {
+  id: "today",
+  l: "Today"
+}, {
+  id: "7d",
+  l: "7 Days"
+}, {
+  id: "14d",
+  l: "14 Days"
+}, {
+  id: "30d",
+  l: "30 Days"
+}, {
+  id: "custom",
+  l: "Custom"
+}];
+function DateFilterBar(_ref44) {
+  var dateFilter = _ref44.dateFilter,
+    setDateFilter = _ref44.setDateFilter,
+    customFrom = _ref44.customFrom,
+    setCustomFrom = _ref44.setCustomFrom,
+    customTo = _ref44.customTo,
+    setCustomTo = _ref44.setCustomTo;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: CRD,
+      borderBottom: "1px solid " + CRD2,
+      padding: "9px 12px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      alignItems: "center",
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      fontWeight: 700,
+      color: T3,
+      textTransform: "uppercase",
+      marginRight: 2
+    }
+  }, "\uD83D\uDCC5"), ANALYTICS_DATE_FILTER_OPTS.map(function (o) {
+    return /*#__PURE__*/React.createElement("button", {
+      key: o.id,
+      onClick: function onClick() {
+        return setDateFilter(o.id);
+      },
+      style: S.pill(dateFilter === o.id, {
+        fontSize: 10,
+        padding: "5px 10px"
+      })
+    }, o.l);
+  })), dateFilter === "custom" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      alignItems: "center",
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: customFrom,
+    onChange: function onChange(e) {
+      return setCustomFrom(e.target.value);
+    },
+    style: S.inp({
+      fontSize: 12,
+      marginBottom: 0,
+      padding: "7px 9px"
+    })
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: T3
+    }
+  }, "to"), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: customTo,
+    onChange: function onChange(e) {
+      return setCustomTo(e.target.value);
+    },
+    style: S.inp({
+      fontSize: 12,
+      marginBottom: 0,
+      padding: "7px 9px"
+    })
+  })));
+}
 function AnalyticsTab(p) {
   var sales = p.sales,
     inv = p.inv,
@@ -22673,10 +22767,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref44) {
-    var pct = _ref44.pct,
-      col = _ref44.col,
-      h = _ref44.h;
+  var Bar = function Bar(_ref45) {
+    var pct = _ref45.pct,
+      col = _ref45.col,
+      h = _ref45.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -22695,6 +22789,77 @@ function AnalyticsTab(p) {
       }
     }));
   };
+
+  // ── DATE RANGE FILTER (applies to every sales/lookup-derived section below) ──
+  var _useState85 = useState("all"),
+    _useState86 = _slicedToArray(_useState85, 2),
+    dateFilter = _useState86[0],
+    setDateFilter = _useState86[1]; // all | today | 7d | 14d | 30d | custom
+  var _useState87 = useState(""),
+    _useState88 = _slicedToArray(_useState87, 2),
+    customFrom = _useState88[0],
+    setCustomFrom = _useState88[1];
+  var _useState89 = useState(""),
+    _useState90 = _slicedToArray(_useState89, 2),
+    customTo = _useState90[0],
+    setCustomTo = _useState90[1];
+  var rangeBounds = function () {
+    if (dateFilter === "all") return null;
+    var now = new Date();
+    var startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (dateFilter === "today") return {
+      start: startOfToday,
+      end: null
+    };
+    if (dateFilter === "7d") {
+      var d = new Date(startOfToday);
+      d.setDate(d.getDate() - 6);
+      return {
+        start: d,
+        end: null
+      };
+    }
+    if (dateFilter === "14d") {
+      var _d = new Date(startOfToday);
+      _d.setDate(_d.getDate() - 13);
+      return {
+        start: _d,
+        end: null
+      };
+    }
+    if (dateFilter === "30d") {
+      var _d2 = new Date(startOfToday);
+      _d2.setDate(_d2.getDate() - 29);
+      return {
+        start: _d2,
+        end: null
+      };
+    }
+    if (dateFilter === "custom") {
+      var start = customFrom ? new Date(customFrom + "T00:00:00") : null;
+      var end = customTo ? new Date(customTo + "T23:59:59") : null;
+      if (!start && !end) return null;
+      return {
+        start: start,
+        end: end
+      };
+    }
+    return null;
+  }();
+  var inRange = function inRange(dateStr) {
+    if (!rangeBounds) return true;
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return true;
+    if (rangeBounds.start && d < rangeBounds.start) return false;
+    if (rangeBounds.end && d > rangeBounds.end) return false;
+    return true;
+  };
+  // Apply the date filter to every sales-derived and lookup-derived metric below.
+  // Point-in-time inventory state (current stock status, dead stock, etc.) is
+  // intentionally left unfiltered — it reflects "right now", not a date range.
+  sales = sales.filter(function (s) {
+    return inRange(s.date);
+  });
 
   // ── OVERVIEW ─────────────────────────────────────────────────────────────
   var totalRev = sales.reduce(function (s, x) {
@@ -22736,10 +22901,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref45) {
-    var _ref46 = _slicedToArray(_ref45, 2),
-      d = _ref46[0],
-      v = _ref46[1];
+  }).map(function (_ref46) {
+    var _ref47 = _slicedToArray(_ref46, 2),
+      d = _ref47[0],
+      v = _ref47[1];
     return {
       d: d,
       v: v
@@ -23035,7 +23200,9 @@ function AnalyticsTab(p) {
   });
 
   // ── LOOKUP INTELLIGENCE (Single + Multi Lookup search/scan/view history) ──
-  var lookupHistory = p.lookupHistory || [];
+  var lookupHistory = (p.lookupHistory || []).filter(function (h) {
+    return inRange(h.date);
+  });
   var openItem = p.openItem;
   var users = p.users || [];
   var lookupCountMap = {};
@@ -23070,10 +23237,10 @@ function AnalyticsTab(p) {
     if (!cn) return;
     lookupCustMap[cn] = (lookupCustMap[cn] || 0) + 1;
   });
-  var lookupCustArr = Object.entries(lookupCustMap).map(function (_ref47) {
-    var _ref48 = _slicedToArray(_ref47, 2),
-      name = _ref48[0],
-      cnt = _ref48[1];
+  var lookupCustArr = Object.entries(lookupCustMap).map(function (_ref48) {
+    var _ref49 = _slicedToArray(_ref48, 2),
+      name = _ref49[0],
+      cnt = _ref49[1];
     return {
       name: name,
       cnt: cnt
@@ -23104,11 +23271,26 @@ function AnalyticsTab(p) {
     return (h.custName || "").trim();
   }).filter(Boolean)).size;
 
-  // Activity — last 14 days
+  // Activity — day-by-day, following the selected date range (defaults to last 14 days for "All Time")
+  var ACTIVITY_MAX_DAYS = 60;
+  var activityRangeEnd = rangeBounds && rangeBounds.end ? new Date(rangeBounds.end) : new Date();
+  var activityRangeStart = function () {
+    if (rangeBounds && rangeBounds.start) return new Date(rangeBounds.start);
+    var d = new Date(activityRangeEnd);
+    d.setDate(d.getDate() - 13);
+    return d;
+  }();
+  var activityCalendarDays = function () {
+    var a = new Date(activityRangeStart.getFullYear(), activityRangeStart.getMonth(), activityRangeStart.getDate());
+    var b = new Date(activityRangeEnd.getFullYear(), activityRangeEnd.getMonth(), activityRangeEnd.getDate());
+    return Math.round((b - a) / 86400000) + 1;
+  }();
+  var activityDayCount = Math.min(ACTIVITY_MAX_DAYS, Math.max(1, activityCalendarDays));
+  var activityTruncated = activityCalendarDays > ACTIVITY_MAX_DAYS;
   var activityData = function () {
     var buckets = [];
-    for (var i = 13; i >= 0; i--) {
-      var d = new Date();
+    for (var i = activityDayCount - 1; i >= 0; i--) {
+      var d = new Date(activityRangeEnd);
       d.setDate(d.getDate() - i);
       buckets.push({
         key: d.toLocaleDateString("en-US", {
@@ -23118,7 +23300,11 @@ function AnalyticsTab(p) {
         }),
         label: d.toLocaleDateString("en-US", {
           weekday: "short"
-        }).slice(0, 2)
+        }).slice(0, 2),
+        md: d.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric"
+        })
       });
     }
     var map = {};
@@ -23200,10 +23386,10 @@ function AnalyticsTab(p) {
       customers: st.custSet.size,
       topItems: Object.entries(st.itemMap).sort(function (a, b) {
         return b[1] - a[1];
-      }).slice(0, 5).map(function (_ref49) {
-        var _ref50 = _slicedToArray(_ref49, 2),
-          id = _ref50[0],
-          c = _ref50[1];
+      }).slice(0, 5).map(function (_ref50) {
+        var _ref51 = _slicedToArray(_ref50, 2),
+          id = _ref51[0],
+          c = _ref51[1];
         return {
           itemId: id,
           item: inv.find(function (i) {
@@ -23303,7 +23489,14 @@ function AnalyticsTab(p) {
         flexShrink: 0
       }
     }, t.ic, " ", t.l);
-  })), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement(DateFilterBar, {
+    dateFilter: dateFilter,
+    setDateFilter: setDateFilter,
+    customFrom: customFrom,
+    setCustomFrom: setCustomFrom,
+    customTo: customTo,
+    setCustomTo: setCustomTo
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "14px 12px"
     }
@@ -23487,18 +23680,29 @@ function AnalyticsTab(p) {
     })
   }, /*#__PURE__*/React.createElement("div", {
     style: _objectSpread(_objectSpread({}, S.sh), {}, {
-      marginBottom: 10
+      marginBottom: 2
     })
-  }, "\uD83D\uDCC8 Activity \u2014 Last 14 Days"), /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDCC8 Activity \u2014 ", activityDayCount === 1 ? "Today" : activityDayCount + " Days"), activityTruncated && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: T3,
+      marginBottom: 8
+    }
+  }, "Showing the most recent ", ACTIVITY_MAX_DAYS, " days of this range"), !activityTruncated && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 8
+    }
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       alignItems: "flex-end",
-      gap: 4,
+      gap: activityDayCount > 30 ? 1 : 4,
       height: 70
     }
   }, activityData.map(function (d, i) {
     return /*#__PURE__*/React.createElement("div", {
       key: d.key + i,
+      title: d.md + ": " + d.v,
       style: {
         flex: 1,
         display: "flex",
@@ -23513,16 +23717,17 @@ function AnalyticsTab(p) {
         width: "100%",
         height: Math.max(3, Math.round(d.v / maxActivity * 58)),
         background: d.v > 0 ? G : CRD2,
-        borderRadius: 3
+        borderRadius: activityDayCount > 30 ? 1 : 3
       }
     }));
   })), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      gap: 4,
+      gap: activityDayCount > 30 ? 1 : 4,
       marginTop: 5
     }
   }, activityData.map(function (d, i) {
+    var showLabel = activityDayCount <= 16 || i % Math.ceil(activityDayCount / 10) === 0;
     return /*#__PURE__*/React.createElement("div", {
       key: d.key + i + "l",
       style: {
@@ -23531,7 +23736,7 @@ function AnalyticsTab(p) {
         fontSize: 8,
         color: T3
       }
-    }, d.label);
+    }, showLabel ? activityDayCount <= 16 ? d.label : d.md : "");
   }))), /*#__PURE__*/React.createElement("div", {
     style: S.card({
       margin: 0
@@ -23569,7 +23774,7 @@ function AnalyticsTab(p) {
     style: _objectSpread(_objectSpread({}, S.sh), {}, {
       marginBottom: 10
     })
-  }, "\uD83D\uDD0D Top Searched Codes"), topSearched.length === 0 && /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDD0D Top 20 Searched Codes"), topSearched.length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       color: T3,
@@ -23726,10 +23931,10 @@ function AnalyticsTab(p) {
       flexWrap: "wrap",
       gap: 6
     }
-  }, lookupCatArr.map(function (_ref51) {
-    var _ref52 = _slicedToArray(_ref51, 2),
-      cat = _ref52[0],
-      cnt = _ref52[1];
+  }, lookupCatArr.map(function (_ref52) {
+    var _ref53 = _slicedToArray(_ref52, 2),
+      cat = _ref53[0],
+      cnt = _ref53[1];
     return /*#__PURE__*/React.createElement("span", {
       key: cat,
       style: {
@@ -23986,10 +24191,10 @@ function AnalyticsTab(p) {
         letterSpacing: "0.06em",
         marginBottom: 6
       }
-    }, "Top Customers"), st.topCustomers.map(function (_ref53) {
-      var _ref54 = _slicedToArray(_ref53, 2),
-        name = _ref54[0],
-        cnt = _ref54[1];
+    }, "Top Customers"), st.topCustomers.map(function (_ref54) {
+      var _ref55 = _slicedToArray(_ref54, 2),
+        name = _ref55[0],
+        cnt = _ref55[1];
       return /*#__PURE__*/React.createElement("div", {
         key: name,
         style: {
@@ -24082,9 +24287,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref55) {
-    var h = _ref55.h,
-      v = _ref55.v;
+  }, hourData.map(function (_ref56) {
+    var h = _ref56.h,
+      v = _ref56.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -24675,10 +24880,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref56, i) {
-    var _ref57 = _slicedToArray(_ref56, 2),
-      src = _ref57[0],
-      cnt = _ref57[1];
+  }, "No leads yet"), srcData.map(function (_ref57, i) {
+    var _ref58 = _slicedToArray(_ref57, 2),
+      src = _ref58[0],
+      cnt = _ref58[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -25362,27 +25567,27 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref58) {
-  var pr = _ref58.pr,
-    allEvents = _ref58.allEvents,
-    appUsers = _ref58.appUsers,
-    onSynced = _ref58.onSynced;
-  var _useState85 = useState(false),
-    _useState86 = _slicedToArray(_useState85, 2),
-    busy = _useState86[0],
-    setBusy = _useState86[1];
-  var _useState87 = useState(getCloudMeta()),
-    _useState88 = _slicedToArray(_useState87, 2),
-    meta = _useState88[0],
-    setMeta = _useState88[1];
-  var _useState89 = useState(""),
-    _useState90 = _slicedToArray(_useState89, 2),
-    lastErr = _useState90[0],
-    setLastErr = _useState90[1];
-  var _useState91 = useState(getCloudPingInfo()),
+function CloudStoragePanel(_ref59) {
+  var pr = _ref59.pr,
+    allEvents = _ref59.allEvents,
+    appUsers = _ref59.appUsers,
+    onSynced = _ref59.onSynced;
+  var _useState91 = useState(false),
     _useState92 = _slicedToArray(_useState91, 2),
-    ping = _useState92[0],
-    setPing = _useState92[1];
+    busy = _useState92[0],
+    setBusy = _useState92[1];
+  var _useState93 = useState(getCloudMeta()),
+    _useState94 = _slicedToArray(_useState93, 2),
+    meta = _useState94[0],
+    setMeta = _useState94[1];
+  var _useState95 = useState(""),
+    _useState96 = _slicedToArray(_useState95, 2),
+    lastErr = _useState96[0],
+    setLastErr = _useState96[1];
+  var _useState97 = useState(getCloudPingInfo()),
+    _useState98 = _slicedToArray(_useState97, 2),
+    ping = _useState98[0],
+    setPing = _useState98[1];
   var online = isCloudOnline();
   useEffect(function () {
     cloudFetchData(true).then(function (d) {
@@ -25393,7 +25598,7 @@ function CloudStoragePanel(_ref58) {
   var driveReadOk = ping && ping.driveRead === "ok";
   var ds = ping && ping.driveStatus;
   var syncNow = /*#__PURE__*/function () {
-    var _ref59 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
+    var _ref60 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
       var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
       return _regenerator().w(function (_context6) {
         while (1) switch (_context6.p = _context6.n) {
@@ -25459,7 +25664,7 @@ function CloudStoragePanel(_ref58) {
       }, _callee6, null, [[1, 7, 8, 9]]);
     }));
     return function syncNow() {
-      return _ref59.apply(this, arguments);
+      return _ref60.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -25541,19 +25746,19 @@ function CloudStoragePanel(_ref58) {
     }
   }, "Auto-sync runs in the background \u2014 use this only if another device looks out of date."));
 }
-function CurrencyManager(_ref60) {
-  var cur = _ref60.cur,
-    scur = _ref60.scur,
-    pr = _ref60.pr,
-    onRatesChanged = _ref60.onRatesChanged;
-  var _useState93 = useState(false),
-    _useState94 = _slicedToArray(_useState93, 2),
-    editMode = _useState94[0],
-    setEditMode = _useState94[1];
-  var _useState95 = useState({}),
-    _useState96 = _slicedToArray(_useState95, 2),
-    editRates = _useState96[0],
-    setEditRates = _useState96[1];
+function CurrencyManager(_ref61) {
+  var cur = _ref61.cur,
+    scur = _ref61.scur,
+    pr = _ref61.pr,
+    onRatesChanged = _ref61.onRatesChanged;
+  var _useState99 = useState(false),
+    _useState100 = _slicedToArray(_useState99, 2),
+    editMode = _useState100[0],
+    setEditMode = _useState100[1];
+  var _useState101 = useState({}),
+    _useState102 = _slicedToArray(_useState101, 2),
+    editRates = _useState102[0],
+    setEditRates = _useState102[1];
   var getCurr = function getCurr() {
     return normalizeCurrencyRates(function () {
       try {
@@ -25565,10 +25770,10 @@ function CurrencyManager(_ref60) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref61) {
-      var _ref62 = _slicedToArray(_ref61, 2),
-        k = _ref62[0],
-        v = _ref62[1];
+    Object.entries(getCurr()).forEach(function (_ref62) {
+      var _ref63 = _slicedToArray(_ref62, 2),
+        k = _ref63[0],
+        v = _ref63[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -25576,10 +25781,10 @@ function CurrencyManager(_ref60) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref63) {
-      var _ref64 = _slicedToArray(_ref63, 2),
-        k = _ref64[0],
-        v = _ref64[1];
+    Object.entries(getCurr()).forEach(function (_ref64) {
+      var _ref65 = _slicedToArray(_ref64, 2),
+        k = _ref65[0],
+        v = _ref65[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -25647,10 +25852,10 @@ function CurrencyManager(_ref60) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref65) {
-    var _ref66 = _slicedToArray(_ref65, 2),
-      k = _ref66[0],
-      v = _ref66[1];
+  }, Object.entries(rates).map(function (_ref66) {
+    var _ref67 = _slicedToArray(_ref66, 2),
+      k = _ref67[0],
+      v = _ref67[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -25678,10 +25883,10 @@ function CurrencyManager(_ref60) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref67, i, arr) {
-    var _ref68 = _slicedToArray(_ref67, 2),
-      k = _ref68[0],
-      v = _ref68[1];
+  })), Object.entries(rates).map(function (_ref68, i, arr) {
+    var _ref69 = _slicedToArray(_ref68, 2),
+      k = _ref69[0],
+      v = _ref69[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -25886,18 +26091,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref69) {
-    var _ref70 = _slicedToArray(_ref69, 2),
-      v = _ref70[1];
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref70) {
+    var _ref71 = _slicedToArray(_ref70, 2),
+      v = _ref71[1];
     return v;
-  }).map(function (_ref71) {
-    var _ref72 = _slicedToArray(_ref71, 1),
-      k = _ref72[0];
+  }).map(function (_ref72) {
+    var _ref73 = _slicedToArray(_ref72, 1),
+      k = _ref73[0];
     return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref73) {
-    var _ref74 = _slicedToArray(_ref73, 2),
-      l = _ref74[0],
-      v = _ref74[1];
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref74) {
+    var _ref75 = _slicedToArray(_ref74, 2),
+      l = _ref75[0],
+      v = _ref75[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -25941,10 +26146,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref75) {
-    var _ref76 = _slicedToArray(_ref75, 2),
-      l = _ref76[0],
-      v = _ref76[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref76) {
+    var _ref77 = _slicedToArray(_ref76, 2),
+      l = _ref77[0],
+      v = _ref77[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -26012,10 +26217,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref77) {
-    var _ref78 = _slicedToArray(_ref77, 2),
-      l = _ref78[0],
-      v = _ref78[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref78) {
+    var _ref79 = _slicedToArray(_ref78, 2),
+      l = _ref79[0],
+      v = _ref79[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -26081,52 +26286,52 @@ function SalesTab(p) {
   var sinvm = p.sinvm;
   var fc = p.fc;
   var onAddLead = p.onAddLead;
-  var _useState97 = useState(false),
-    _useState98 = _slicedToArray(_useState97, 2),
-    showNewSale = _useState98[0],
-    sShowNewSale = _useState98[1];
-  var _useState99 = useState({
+  var _useState103 = useState(false),
+    _useState104 = _slicedToArray(_useState103, 2),
+    showNewSale = _useState104[0],
+    sShowNewSale = _useState104[1];
+  var _useState105 = useState({
       name: "",
       phone: "",
       email: "",
       company: "",
       source: "Walk-in"
     }),
-    _useState100 = _slicedToArray(_useState99, 2),
-    nsCust = _useState100[0],
-    snsCust = _useState100[1];
-  var _useState101 = useState([]),
-    _useState102 = _slicedToArray(_useState101, 2),
-    nsItems = _useState102[0],
-    snsItems = _useState102[1]; // [{...item, overridePrice: null}]
-  var _useState103 = useState("NEFT"),
-    _useState104 = _slicedToArray(_useState103, 2),
-    nsPayment = _useState104[0],
-    snsPayment = _useState104[1];
-  var _useState105 = useState(""),
     _useState106 = _slicedToArray(_useState105, 2),
-    nsDisc = _useState106[0],
-    snsDisc = _useState106[1]; // overall discount %
-  var _useState107 = useState(""),
+    nsCust = _useState106[0],
+    snsCust = _useState106[1];
+  var _useState107 = useState([]),
     _useState108 = _slicedToArray(_useState107, 2),
-    nsMarkup = _useState108[0],
-    snsMarkup = _useState108[1]; // overall markup %
-  var _useState109 = useState("pct"),
+    nsItems = _useState108[0],
+    snsItems = _useState108[1]; // [{...item, overridePrice: null}]
+  var _useState109 = useState("NEFT"),
     _useState110 = _slicedToArray(_useState109, 2),
-    nsCCType = _useState110[0],
-    snsCCType = _useState110[1]; // cc surcharge type
+    nsPayment = _useState110[0],
+    snsPayment = _useState110[1];
   var _useState111 = useState(""),
     _useState112 = _slicedToArray(_useState111, 2),
-    nsCCVal = _useState112[0],
-    snsCCVal = _useState112[1]; // cc surcharge value
+    nsDisc = _useState112[0],
+    snsDisc = _useState112[1]; // overall discount %
   var _useState113 = useState(""),
     _useState114 = _slicedToArray(_useState113, 2),
-    nsSearch = _useState114[0],
-    snsSearch = _useState114[1];
-  var _useState115 = useState(null),
+    nsMarkup = _useState114[0],
+    snsMarkup = _useState114[1]; // overall markup %
+  var _useState115 = useState("pct"),
     _useState116 = _slicedToArray(_useState115, 2),
-    nsMatchedCust = _useState116[0],
-    snsMatchedCust = _useState116[1];
+    nsCCType = _useState116[0],
+    snsCCType = _useState116[1]; // cc surcharge type
+  var _useState117 = useState(""),
+    _useState118 = _slicedToArray(_useState117, 2),
+    nsCCVal = _useState118[0],
+    snsCCVal = _useState118[1]; // cc surcharge value
+  var _useState119 = useState(""),
+    _useState120 = _slicedToArray(_useState119, 2),
+    nsSearch = _useState120[0],
+    snsSearch = _useState120[1];
+  var _useState121 = useState(null),
+    _useState122 = _slicedToArray(_useState121, 2),
+    nsMatchedCust = _useState122[0],
+    snsMatchedCust = _useState122[1];
   var setNC = function setNC(k, v) {
     return snsCust(function (p) {
       return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
@@ -27063,34 +27268,34 @@ function HistoryTab(p) {
   var lookupHistory = p.lookupHistory || [];
   var openItem = p.openItem;
   var stTab = p.st;
-  var _useState117 = useState(""),
-    _useState118 = _slicedToArray(_useState117, 2),
-    search = _useState118[0],
-    setSearch = _useState118[1];
-  var _useState119 = useState("All"),
-    _useState120 = _slicedToArray(_useState119, 2),
-    staffF = _useState120[0],
-    setStaffF = _useState120[1];
-  var _useState121 = useState("All"),
-    _useState122 = _slicedToArray(_useState121, 2),
-    pmF = _useState122[0],
-    setPmF = _useState122[1];
-  var _useState123 = useState("lookups"),
+  var _useState123 = useState(""),
     _useState124 = _slicedToArray(_useState123, 2),
-    mode = _useState124[0],
-    setMode = _useState124[1]; // sales | lookups
-  var _useState125 = useState("list"),
+    search = _useState124[0],
+    setSearch = _useState124[1];
+  var _useState125 = useState("All"),
     _useState126 = _slicedToArray(_useState125, 2),
-    view = _useState126[0],
-    setView = _useState126[1]; // list | analytics
+    staffF = _useState126[0],
+    setStaffF = _useState126[1];
   var _useState127 = useState("All"),
     _useState128 = _slicedToArray(_useState127, 2),
-    lookupUserF = _useState128[0],
-    setLookupUserF = _useState128[1];
-  var _useState129 = useState(null),
+    pmF = _useState128[0],
+    setPmF = _useState128[1];
+  var _useState129 = useState("lookups"),
     _useState130 = _slicedToArray(_useState129, 2),
-    selCust = _useState130[0],
-    setSelCust = _useState130[1];
+    mode = _useState130[0],
+    setMode = _useState130[1]; // sales | lookups
+  var _useState131 = useState("list"),
+    _useState132 = _slicedToArray(_useState131, 2),
+    view = _useState132[0],
+    setView = _useState132[1]; // list | analytics
+  var _useState133 = useState("All"),
+    _useState134 = _slicedToArray(_useState133, 2),
+    lookupUserF = _useState134[0],
+    setLookupUserF = _useState134[1];
+  var _useState135 = useState(null),
+    _useState136 = _slicedToArray(_useState135, 2),
+    selCust = _useState136[0],
+    setSelCust = _useState136[1];
   var stf = ["All"].concat(_toConsumableArray(_toConsumableArray(new Set(sales.map(function (s) {
     return s.staff;
   }))).sort()));
@@ -28024,19 +28229,19 @@ function CustomersTab(p) {
     cur = p.cur,
     pr = p.pr,
     syncUp = p.syncUp;
-  var _useState131 = useState(false),
-    _useState132 = _slicedToArray(_useState131, 2),
-    showForm = _useState132[0],
-    sShowForm = _useState132[1];
-  var _useState133 = useState(""),
-    _useState134 = _slicedToArray(_useState133, 2),
-    search = _useState134[0],
-    setSearch = _useState134[1];
-  var _useState135 = useState(null),
-    _useState136 = _slicedToArray(_useState135, 2),
-    selected = _useState136[0],
-    setSelected = _useState136[1];
-  var _useState137 = useState({
+  var _useState137 = useState(false),
+    _useState138 = _slicedToArray(_useState137, 2),
+    showForm = _useState138[0],
+    sShowForm = _useState138[1];
+  var _useState139 = useState(""),
+    _useState140 = _slicedToArray(_useState139, 2),
+    search = _useState140[0],
+    setSearch = _useState140[1];
+  var _useState141 = useState(null),
+    _useState142 = _slicedToArray(_useState141, 2),
+    selected = _useState142[0],
+    setSelected = _useState142[1];
+  var _useState143 = useState({
       name: "",
       phone: "",
       email: "",
@@ -28045,9 +28250,9 @@ function CustomersTab(p) {
       status: "Warm",
       source: "Walk-in"
     }),
-    _useState138 = _slicedToArray(_useState137, 2),
-    form = _useState138[0],
-    setForm = _useState138[1];
+    _useState144 = _slicedToArray(_useState143, 2),
+    form = _useState144[0],
+    setForm = _useState144[1];
   var filtered = leads.filter(function (l) {
     if (!search) return true;
     var q = search.toLowerCase();
@@ -28197,10 +28402,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref79) {
-      var _ref80 = _slicedToArray(_ref79, 2),
-        ic = _ref80[0],
-        v = _ref80[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref80) {
+      var _ref81 = _slicedToArray(_ref80, 2),
+        ic = _ref81[0],
+        v = _ref81[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -28663,198 +28868,198 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref81) {
-  var ev = _ref81.ev,
-    user = _ref81.user,
-    allUsers = _ref81.allUsers,
-    onUsersChange = _ref81.onUsersChange,
-    allEvents = _ref81.allEvents,
-    onSwitch = _ref81.onSwitch,
-    onUpdateEvent = _ref81.onUpdateEvent,
-    onBack = _ref81.onBack,
-    onLogout = _ref81.onLogout,
-    onCloudSync = _ref81.onCloudSync,
-    cloudReady = _ref81.cloudReady;
+function EventERP(_ref82) {
+  var ev = _ref82.ev,
+    user = _ref82.user,
+    allUsers = _ref82.allUsers,
+    onUsersChange = _ref82.onUsersChange,
+    allEvents = _ref82.allEvents,
+    onSwitch = _ref82.onSwitch,
+    onUpdateEvent = _ref82.onUpdateEvent,
+    onBack = _ref82.onBack,
+    onLogout = _ref82.onLogout,
+    onCloudSync = _ref82.onCloudSync,
+    cloudReady = _ref82.cloudReady;
   ev = normalizeEvent(ev);
   var pr = gp(user.role, user.perms);
   var users = allUsers;
   var accessibleEvents = filterEventsForUser(user, allEvents).map(normalizeEvent);
-  var _useState139 = useState("lookup"),
-    _useState140 = _slicedToArray(_useState139, 2),
-    tab = _useState140[0],
-    st = _useState140[1];
-  var _useState141 = useState(ev.inv),
-    _useState142 = _slicedToArray(_useState141, 2),
-    inv = _useState142[0],
-    si = _useState142[1];
-  var _useState143 = useState(ev.sales),
-    _useState144 = _slicedToArray(_useState143, 2),
-    sales = _useState144[0],
-    ssl = _useState144[1];
-  var _useState145 = useState(ev.leads),
+  var _useState145 = useState("lookup"),
     _useState146 = _slicedToArray(_useState145, 2),
-    leads = _useState146[0],
-    sld = _useState146[1];
-  var _useState147 = useState("USD"),
+    tab = _useState146[0],
+    st = _useState146[1];
+  var _useState147 = useState(ev.inv),
     _useState148 = _slicedToArray(_useState147, 2),
-    cur = _useState148[0],
-    scur = _useState148[1];
-  var _useState149 = useState(""),
+    inv = _useState148[0],
+    si = _useState148[1];
+  var _useState149 = useState(ev.sales),
     _useState150 = _slicedToArray(_useState149, 2),
-    jc = _useState150[0],
-    sjc = _useState150[1];
-  var _useState151 = useState(null),
+    sales = _useState150[0],
+    ssl = _useState150[1];
+  var _useState151 = useState(ev.leads),
     _useState152 = _slicedToArray(_useState151, 2),
-    det = _useState152[0],
-    sdet = _useState152[1];
-  var _useState153 = useState("single"),
+    leads = _useState152[0],
+    sld = _useState152[1];
+  var _useState153 = useState("USD"),
     _useState154 = _slicedToArray(_useState153, 2),
-    mlTab = _useState154[0],
-    smlTab = _useState154[1];
+    cur = _useState154[0],
+    scur = _useState154[1];
   var _useState155 = useState(""),
     _useState156 = _slicedToArray(_useState155, 2),
-    mlInput = _useState156[0],
-    smlInput = _useState156[1];
-  var _useState157 = useState([]),
+    jc = _useState156[0],
+    sjc = _useState156[1];
+  var _useState157 = useState(null),
     _useState158 = _slicedToArray(_useState157, 2),
-    mlItems = _useState158[0],
-    smlItems = _useState158[1];
-  var _useState159 = useState(""),
+    det = _useState158[0],
+    sdet = _useState158[1];
+  var _useState159 = useState("single"),
     _useState160 = _slicedToArray(_useState159, 2),
-    mlDisc = _useState160[0],
-    smlDisc = _useState160[1];
+    mlTab = _useState160[0],
+    smlTab = _useState160[1];
   var _useState161 = useState(""),
     _useState162 = _slicedToArray(_useState161, 2),
-    mlDiscAmt = _useState162[0],
-    smlDiscAmt = _useState162[1];
-  var _useState163 = useState(""),
+    mlInput = _useState162[0],
+    smlInput = _useState162[1];
+  var _useState163 = useState([]),
     _useState164 = _slicedToArray(_useState163, 2),
-    mlMarkup = _useState164[0],
-    smlMarkup = _useState164[1];
-  var _useState165 = useState([]),
+    mlItems = _useState164[0],
+    smlItems = _useState164[1];
+  var _useState165 = useState(""),
     _useState166 = _slicedToArray(_useState165, 2),
-    mlNF = _useState166[0],
-    smlNF = _useState166[1];
-  var _useState167 = useState(false),
+    mlDisc = _useState166[0],
+    smlDisc = _useState166[1];
+  var _useState167 = useState(""),
     _useState168 = _slicedToArray(_useState167, 2),
-    mlScan = _useState168[0],
-    smlScan = _useState168[1];
-  var _useState169 = useState(false),
+    mlDiscAmt = _useState168[0],
+    smlDiscAmt = _useState168[1];
+  var _useState169 = useState(""),
     _useState170 = _slicedToArray(_useState169, 2),
-    showFilter = _useState170[0],
-    sShowFilter = _useState170[1];
-  var _useState171 = useState("All"),
+    mlMarkup = _useState170[0],
+    smlMarkup = _useState170[1];
+  var _useState171 = useState([]),
     _useState172 = _slicedToArray(_useState171, 2),
-    fCat = _useState172[0],
-    sfCat = _useState172[1];
-  var _useState173 = useState("All"),
+    mlNF = _useState172[0],
+    smlNF = _useState172[1];
+  var _useState173 = useState(false),
     _useState174 = _slicedToArray(_useState173, 2),
-    fCol = _useState174[0],
-    sfCol = _useState174[1];
-  var _useState175 = useState("All"),
+    mlScan = _useState174[0],
+    smlScan = _useState174[1];
+  var _useState175 = useState(false),
     _useState176 = _slicedToArray(_useState175, 2),
-    fMetal = _useState176[0],
-    sfMetal = _useState176[1];
+    showFilter = _useState176[0],
+    sShowFilter = _useState176[1];
   var _useState177 = useState("All"),
     _useState178 = _slicedToArray(_useState177, 2),
-    fSt = _useState178[0],
-    sfSt = _useState178[1];
+    fCat = _useState178[0],
+    sfCat = _useState178[1];
   var _useState179 = useState("All"),
     _useState180 = _slicedToArray(_useState179, 2),
-    fShape = _useState180[0],
-    sfShape = _useState180[1];
-  var _useState181 = useState(""),
+    fCol = _useState180[0],
+    sfCol = _useState180[1];
+  var _useState181 = useState("All"),
     _useState182 = _slicedToArray(_useState181, 2),
-    fMinTc = _useState182[0],
-    sfMinTc = _useState182[1];
-  var _useState183 = useState(""),
+    fMetal = _useState182[0],
+    sfMetal = _useState182[1];
+  var _useState183 = useState("All"),
     _useState184 = _slicedToArray(_useState183, 2),
-    fMaxTc = _useState184[0],
-    sfMaxTc = _useState184[1];
-  var _useState185 = useState(""),
+    fSt = _useState184[0],
+    sfSt = _useState184[1];
+  var _useState185 = useState("All"),
     _useState186 = _slicedToArray(_useState185, 2),
-    fMinGw = _useState186[0],
-    sfMinGw = _useState186[1];
+    fShape = _useState186[0],
+    sfShape = _useState186[1];
   var _useState187 = useState(""),
     _useState188 = _slicedToArray(_useState187, 2),
-    fMaxGw = _useState188[0],
-    sfMaxGw = _useState188[1];
+    fMinTc = _useState188[0],
+    sfMinTc = _useState188[1];
   var _useState189 = useState(""),
     _useState190 = _slicedToArray(_useState189, 2),
-    fMinNw = _useState190[0],
-    sfMinNw = _useState190[1];
+    fMaxTc = _useState190[0],
+    sfMaxTc = _useState190[1];
   var _useState191 = useState(""),
     _useState192 = _slicedToArray(_useState191, 2),
-    fMaxNw = _useState192[0],
-    sfMaxNw = _useState192[1];
+    fMinGw = _useState192[0],
+    sfMinGw = _useState192[1];
   var _useState193 = useState(""),
     _useState194 = _slicedToArray(_useState193, 2),
-    fMinFp = _useState194[0],
-    sfMinFp = _useState194[1];
+    fMaxGw = _useState194[0],
+    sfMaxGw = _useState194[1];
   var _useState195 = useState(""),
     _useState196 = _slicedToArray(_useState195, 2),
-    fMaxFp = _useState196[0],
-    sfMaxFp = _useState196[1];
-  var _useState197 = useState(false),
+    fMinNw = _useState196[0],
+    sfMinNw = _useState196[1];
+  var _useState197 = useState(""),
     _useState198 = _slicedToArray(_useState197, 2),
-    scan = _useState198[0],
-    sscan = _useState198[1];
-  var _useState199 = useState(null),
+    fMaxNw = _useState198[0],
+    sfMaxNw = _useState198[1];
+  var _useState199 = useState(""),
     _useState200 = _slicedToArray(_useState199, 2),
-    invm = _useState200[0],
-    sinvm = _useState200[1];
-  var _useState201 = useState(false),
+    fMinFp = _useState200[0],
+    sfMinFp = _useState200[1];
+  var _useState201 = useState(""),
     _useState202 = _slicedToArray(_useState201, 2),
-    showSwitch = _useState202[0],
-    ssw = _useState202[1];
+    fMaxFp = _useState202[0],
+    sfMaxFp = _useState202[1];
   var _useState203 = useState(false),
     _useState204 = _slicedToArray(_useState203, 2),
-    showUser = _useState204[0],
-    ssu = _useState204[1];
-  var _useState205 = useState("stock"),
+    scan = _useState204[0],
+    sscan = _useState204[1];
+  var _useState205 = useState(null),
     _useState206 = _slicedToArray(_useState205, 2),
-    invTab = _useState206[0],
-    sivTab = _useState206[1];
-  var _useState207 = useState(""),
+    invm = _useState206[0],
+    sinvm = _useState206[1];
+  var _useState207 = useState(false),
     _useState208 = _slicedToArray(_useState207, 2),
-    isq = _useState208[0],
-    sisq = _useState208[1];
-  var _useState209 = useState("All"),
+    showSwitch = _useState208[0],
+    ssw = _useState208[1];
+  var _useState209 = useState(false),
     _useState210 = _slicedToArray(_useState209, 2),
-    ist = _useState210[0],
-    sist = _useState210[1];
-  var _useState211 = useState("All"),
+    showUser = _useState210[0],
+    ssu = _useState210[1];
+  var _useState211 = useState("stock"),
     _useState212 = _slicedToArray(_useState211, 2),
-    icat = _useState212[0],
-    sicat = _useState212[1];
-  var _useState213 = useState("Exhibition"),
+    invTab = _useState212[0],
+    sivTab = _useState212[1];
+  var _useState213 = useState(""),
     _useState214 = _slicedToArray(_useState213, 2),
-    auditLoc = _useState214[0],
-    saLoc = _useState214[1];
-  var _useState215 = useState([]),
+    isq = _useState214[0],
+    sisq = _useState214[1];
+  var _useState215 = useState("All"),
     _useState216 = _slicedToArray(_useState215, 2),
-    auditScanned = _useState216[0],
-    saScanned = _useState216[1];
-  var _useState217 = useState(ev.audits || []),
+    ist = _useState216[0],
+    sist = _useState216[1];
+  var _useState217 = useState("All"),
     _useState218 = _slicedToArray(_useState217, 2),
-    audits = _useState218[0],
-    sAudits = _useState218[1];
-  var _useState219 = useState(ev.lookupHistory),
+    icat = _useState218[0],
+    sicat = _useState218[1];
+  var _useState219 = useState("Exhibition"),
     _useState220 = _slicedToArray(_useState219, 2),
-    lookupHistory = _useState220[0],
-    sLookupHistory = _useState220[1];
-  var _useState221 = useState(0),
+    auditLoc = _useState220[0],
+    saLoc = _useState220[1];
+  var _useState221 = useState([]),
     _useState222 = _slicedToArray(_useState221, 2),
-    imgTick = _useState222[0],
-    sImgTick = _useState222[1];
-  var _useState223 = useState("All"),
+    auditScanned = _useState222[0],
+    saScanned = _useState222[1];
+  var _useState223 = useState(ev.audits || []),
     _useState224 = _slicedToArray(_useState223, 2),
-    hstaff = _useState224[0],
-    shs = _useState224[1];
-  var _useState225 = useState("overview"),
+    audits = _useState224[0],
+    sAudits = _useState224[1];
+  var _useState225 = useState(ev.lookupHistory),
     _useState226 = _slicedToArray(_useState225, 2),
-    atab = _useState226[0],
-    sat = _useState226[1];
+    lookupHistory = _useState226[0],
+    sLookupHistory = _useState226[1];
+  var _useState227 = useState(0),
+    _useState228 = _slicedToArray(_useState227, 2),
+    imgTick = _useState228[0],
+    sImgTick = _useState228[1];
+  var _useState229 = useState("All"),
+    _useState230 = _slicedToArray(_useState229, 2),
+    hstaff = _useState230[0],
+    shs = _useState230[1];
+  var _useState231 = useState("overview"),
+    _useState232 = _slicedToArray(_useState231, 2),
+    atab = _useState232[0],
+    sat = _useState232[1];
   useEffect(function () {
     var nextEv = normalizeEvent(ev);
     si(nextEv.inv);
@@ -30027,34 +30232,34 @@ function EventERP(_ref81) {
   })))));
 }
 function App() {
-  var _useState227 = useState(null),
-    _useState228 = _slicedToArray(_useState227, 2),
-    user = _useState228[0],
-    su = _useState228[1];
-  var _useState229 = useState([]),
-    _useState230 = _slicedToArray(_useState229, 2),
-    events = _useState230[0],
-    sevents = _useState230[1];
-  var _useState231 = useState(loadUsers),
-    _useState232 = _slicedToArray(_useState231, 2),
-    appUsers = _useState232[0],
-    sappUsers = _useState232[1];
-  var _useState233 = useState(false),
+  var _useState233 = useState(null),
     _useState234 = _slicedToArray(_useState233, 2),
-    dataReady = _useState234[0],
-    setDataReady = _useState234[1];
-  var _useState235 = useState(false),
+    user = _useState234[0],
+    su = _useState234[1];
+  var _useState235 = useState([]),
     _useState236 = _slicedToArray(_useState235, 2),
-    cloudReady = _useState236[0],
-    setCloudReady = _useState236[1];
-  var _useState237 = useState(null),
+    events = _useState236[0],
+    sevents = _useState236[1];
+  var _useState237 = useState(loadUsers),
     _useState238 = _slicedToArray(_useState237, 2),
-    activeEv = _useState238[0],
-    sae = _useState238[1];
-  var _useState239 = useState(null),
+    appUsers = _useState238[0],
+    sappUsers = _useState238[1];
+  var _useState239 = useState(false),
     _useState240 = _slicedToArray(_useState239, 2),
-    manageEv = _useState240[0],
-    smev = _useState240[1];
+    dataReady = _useState240[0],
+    setDataReady = _useState240[1];
+  var _useState241 = useState(false),
+    _useState242 = _slicedToArray(_useState241, 2),
+    cloudReady = _useState242[0],
+    setCloudReady = _useState242[1];
+  var _useState243 = useState(null),
+    _useState244 = _slicedToArray(_useState243, 2),
+    activeEv = _useState244[0],
+    sae = _useState244[1];
+  var _useState245 = useState(null),
+    _useState246 = _slicedToArray(_useState245, 2),
+    manageEv = _useState246[0],
+    smev = _useState246[1];
   var dark = useDark();
   var cloudSyncRef = useRef(null);
   var autoSyncRef = useRef(null);
@@ -30071,16 +30276,16 @@ function App() {
     appUsersRef.current = appUsers;
   }, [appUsers]);
   var runCloudSave = /*#__PURE__*/function () {
-    var _ref82 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
-      var _ref83,
-        _ref83$silent,
+    var _ref83 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
+      var _ref84,
+        _ref84$silent,
         silent,
         r,
         _args7 = arguments;
       return _regenerator().w(function (_context7) {
         while (1) switch (_context7.n) {
           case 0:
-            _ref83 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref83$silent = _ref83.silent, silent = _ref83$silent === void 0 ? true : _ref83$silent;
+            _ref84 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref84$silent = _ref84.silent, silent = _ref84$silent === void 0 ? true : _ref84$silent;
             _context7.n = 1;
             return flushCloudSync(snap || eventsRef.current, usersSnap || appUsersRef.current, deleted || [], {
               silent: silent
@@ -30110,13 +30315,13 @@ function App() {
       }, _callee7);
     }));
     return function runCloudSave(_x54, _x55, _x56) {
-      return _ref82.apply(this, arguments);
+      return _ref83.apply(this, arguments);
     };
   }();
   var runAutoSyncCycle = /*#__PURE__*/function () {
-    var _ref84 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
-      var _ref85,
-        _ref85$silent,
+    var _ref85 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
+      var _ref86,
+        _ref86$silent,
         silent,
         d,
         cloudVer,
@@ -30128,7 +30333,7 @@ function App() {
       return _regenerator().w(function (_context8) {
         while (1) switch (_context8.p = _context8.n) {
           case 0:
-            _ref85 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref85$silent = _ref85.silent, silent = _ref85$silent === void 0 ? true : _ref85$silent;
+            _ref86 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref86$silent = _ref86.silent, silent = _ref86$silent === void 0 ? true : _ref86$silent;
             if (!(!dataReady || !cloudReady || cloudSyncBusyRef.current)) {
               _context8.n = 1;
               break;
@@ -30178,17 +30383,17 @@ function App() {
       }, _callee8, null, [[2,, 6, 7]]);
     }));
     return function runAutoSyncCycle() {
-      return _ref84.apply(this, arguments);
+      return _ref85.apply(this, arguments);
     };
   }();
   var scheduleCloudSave = function scheduleCloudSave() {
     var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 400;
     var snapshot = arguments.length > 1 ? arguments[1] : undefined;
-    var _ref86 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-      _ref86$silent = _ref86.silent,
-      silent = _ref86$silent === void 0 ? true : _ref86$silent,
-      _ref86$notify = _ref86.notify,
-      notify = _ref86$notify === void 0 ? false : _ref86$notify;
+    var _ref87 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      _ref87$silent = _ref87.silent,
+      silent = _ref87$silent === void 0 ? true : _ref87$silent,
+      _ref87$notify = _ref87.notify,
+      notify = _ref87$notify === void 0 ? false : _ref87$notify;
     localDirtyRef.current = true;
     if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
     cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9() {
@@ -30506,7 +30711,7 @@ function App() {
     }
   }, "Loading\u2026")));
   var handleLogin = /*#__PURE__*/function () {
-    var _ref90 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
+    var _ref91 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
       var d;
       return _regenerator().w(function (_context10) {
         while (1) switch (_context10.n) {
@@ -30529,7 +30734,7 @@ function App() {
       }, _callee10);
     }));
     return function handleLogin(_x57) {
-      return _ref90.apply(this, arguments);
+      return _ref91.apply(this, arguments);
     };
   }();
   var handleCloudSync = function handleCloudSync(mergedEvents, mergedUsers) {

@@ -3293,6 +3293,26 @@ function AnalyticsBucketCard({title,data,cur,fc,maxVal}){
   );
 }
 
+const ANALYTICS_DATE_FILTER_OPTS=[{id:"all",l:"All Time"},{id:"today",l:"Today"},{id:"7d",l:"7 Days"},{id:"14d",l:"14 Days"},{id:"30d",l:"30 Days"},{id:"custom",l:"Custom"}];
+function DateFilterBar({dateFilter,setDateFilter,customFrom,setCustomFrom,customTo,setCustomTo}){
+  return(
+    <div style={{background:CRD,borderBottom:"1px solid "+CRD2,padding:"9px 12px"}}>
+      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+        <span style={{fontSize:10,fontWeight:700,color:T3,textTransform:"uppercase",marginRight:2}}>📅</span>
+        {ANALYTICS_DATE_FILTER_OPTS.map(o=>(
+          <button key={o.id} onClick={()=>setDateFilter(o.id)} style={S.pill(dateFilter===o.id,{fontSize:10,padding:"5px 10px"})}>{o.l}</button>
+        ))}
+      </div>
+      {dateFilter==="custom"&&(
+        <div style={{display:"flex",gap:8,alignItems:"center",marginTop:8}}>
+          <input type="date" value={customFrom} onChange={e=>setCustomFrom(e.target.value)} style={S.inp({fontSize:12,marginBottom:0,padding:"7px 9px"})}/>
+          <span style={{fontSize:11,color:T3}}>to</span>
+          <input type="date" value={customTo} onChange={e=>setCustomTo(e.target.value)} style={S.inp({fontSize:12,marginBottom:0,padding:"7px 9px"})}/>
+        </div>
+      )}
+    </div>
+  );
+}
 function AnalyticsTab(p){
   var sales=p.sales,inv=p.inv,leads=p.leads,cur=p.cur,fc=p.fc,pr=p.pr,ev=p.ev;
   var atab=p.atab,sat=p.sat;
@@ -3303,6 +3323,39 @@ function AnalyticsTab(p){
       <div style={{height:"100%",width:pct+"%",background:col||G,borderRadius:3,transition:"width 0.4s"}}/>
     </div>
   );
+
+  // ── DATE RANGE FILTER (applies to every sales/lookup-derived section below) ──
+  const [dateFilter,setDateFilter]=useState("all"); // all | today | 7d | 14d | 30d | custom
+  const [customFrom,setCustomFrom]=useState("");
+  const [customTo,setCustomTo]=useState("");
+  const rangeBounds=(()=>{
+    if(dateFilter==="all")return null;
+    const now=new Date();
+    const startOfToday=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    if(dateFilter==="today")return{start:startOfToday,end:null};
+    if(dateFilter==="7d"){const d=new Date(startOfToday);d.setDate(d.getDate()-6);return{start:d,end:null};}
+    if(dateFilter==="14d"){const d=new Date(startOfToday);d.setDate(d.getDate()-13);return{start:d,end:null};}
+    if(dateFilter==="30d"){const d=new Date(startOfToday);d.setDate(d.getDate()-29);return{start:d,end:null};}
+    if(dateFilter==="custom"){
+      const start=customFrom?new Date(customFrom+"T00:00:00"):null;
+      const end=customTo?new Date(customTo+"T23:59:59"):null;
+      if(!start&&!end)return null;
+      return{start,end};
+    }
+    return null;
+  })();
+  const inRange=(dateStr)=>{
+    if(!rangeBounds)return true;
+    const d=new Date(dateStr);
+    if(isNaN(d.getTime()))return true;
+    if(rangeBounds.start&&d<rangeBounds.start)return false;
+    if(rangeBounds.end&&d>rangeBounds.end)return false;
+    return true;
+  };
+  // Apply the date filter to every sales-derived and lookup-derived metric below.
+  // Point-in-time inventory state (current stock status, dead stock, etc.) is
+  // intentionally left unfiltered — it reflects "right now", not a date range.
+  sales=sales.filter(s=>inRange(s.date));
 
   // ── OVERVIEW ─────────────────────────────────────────────────────────────
   const totalRev=sales.reduce((s,x)=>s+x.total,0);
@@ -3449,7 +3502,7 @@ function AnalyticsTab(p){
   const byClarity=invBuckets(inv,i=>i.clarity||(i.stones&&i.stones[0]&&i.stones[0].cl)||"");
 
   // ── LOOKUP INTELLIGENCE (Single + Multi Lookup search/scan/view history) ──
-  const lookupHistory=p.lookupHistory||[];
+  const lookupHistory=(p.lookupHistory||[]).filter(h=>inRange(h.date));
   const openItem=p.openItem;
   const users=p.users||[];
   const lookupCountMap={};
@@ -3488,13 +3541,28 @@ function AnalyticsTab(p){
   const qrScannedCount=lookupHistory.filter(h=>h.type==="scan").length;
   const lookupCustomerTotal=new Set(lookupHistory.map(h=>(h.custName||"").trim()).filter(Boolean)).size;
 
-  // Activity — last 14 days
+  // Activity — day-by-day, following the selected date range (defaults to last 14 days for "All Time")
+  const ACTIVITY_MAX_DAYS=60;
+  const activityRangeEnd=rangeBounds&&rangeBounds.end?new Date(rangeBounds.end):new Date();
+  const activityRangeStart=(()=>{
+    if(rangeBounds&&rangeBounds.start)return new Date(rangeBounds.start);
+    const d=new Date(activityRangeEnd);
+    d.setDate(d.getDate()-13);
+    return d;
+  })();
+  const activityCalendarDays=(()=>{
+    const a=new Date(activityRangeStart.getFullYear(),activityRangeStart.getMonth(),activityRangeStart.getDate());
+    const b=new Date(activityRangeEnd.getFullYear(),activityRangeEnd.getMonth(),activityRangeEnd.getDate());
+    return Math.round((b-a)/86400000)+1;
+  })();
+  const activityDayCount=Math.min(ACTIVITY_MAX_DAYS,Math.max(1,activityCalendarDays));
+  const activityTruncated=activityCalendarDays>ACTIVITY_MAX_DAYS;
   const activityData=(()=>{
     const buckets=[];
-    for(let i=13;i>=0;i--){
-      const d=new Date();
+    for(let i=activityDayCount-1;i>=0;i--){
+      const d=new Date(activityRangeEnd);
       d.setDate(d.getDate()-i);
-      buckets.push({key:d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),label:d.toLocaleDateString("en-US",{weekday:"short"}).slice(0,2)});
+      buckets.push({key:d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),label:d.toLocaleDateString("en-US",{weekday:"short"}).slice(0,2),md:d.toLocaleDateString("en-US",{month:"short",day:"numeric"})});
     }
     const map={};
     buckets.forEach(b=>{map[b.key]=0;});
@@ -3570,6 +3638,8 @@ function AnalyticsTab(p){
         ))}
       </div>
 
+      <DateFilterBar dateFilter={dateFilter} setDateFilter={setDateFilter} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo}/>
+
       <div style={{padding:"14px 12px"}}>
 
       {/* ═══════════════ OVERVIEW ═══════════════ */}
@@ -3630,20 +3700,25 @@ function AnalyticsTab(p){
             ))}
           </div>
 
-          {/* Activity — last 14 days */}
+          {/* Activity — day-by-day, following the date filter above */}
           <div style={S.card({margin:0})}>
-            <div style={{...S.sh,marginBottom:10}}>📈 Activity — Last 14 Days</div>
-            <div style={{display:"flex",alignItems:"flex-end",gap:4,height:70}}>
+            <div style={{...S.sh,marginBottom:2}}>📈 Activity — {activityDayCount===1?"Today":activityDayCount+" Days"}</div>
+            {activityTruncated&&<div style={{fontSize:9,color:T3,marginBottom:8}}>Showing the most recent {ACTIVITY_MAX_DAYS} days of this range</div>}
+            {!activityTruncated&&<div style={{marginBottom:8}}/>}
+            <div style={{display:"flex",alignItems:"flex-end",gap:activityDayCount>30?1:4,height:70}}>
               {activityData.map((d,i)=>(
-                <div key={d.key+i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4,height:"100%",justifyContent:"flex-end"}}>
-                  <div style={{width:"100%",height:Math.max(3,Math.round(d.v/maxActivity*58)),background:d.v>0?G:CRD2,borderRadius:3}}/>
+                <div key={d.key+i} title={d.md+": "+d.v} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4,height:"100%",justifyContent:"flex-end"}}>
+                  <div style={{width:"100%",height:Math.max(3,Math.round(d.v/maxActivity*58)),background:d.v>0?G:CRD2,borderRadius:activityDayCount>30?1:3}}/>
                 </div>
               ))}
             </div>
-            <div style={{display:"flex",gap:4,marginTop:5}}>
-              {activityData.map((d,i)=>(
-                <div key={d.key+i+"l"} style={{flex:1,textAlign:"center",fontSize:8,color:T3}}>{d.label}</div>
-              ))}
+            <div style={{display:"flex",gap:activityDayCount>30?1:4,marginTop:5}}>
+              {activityData.map((d,i)=>{
+                const showLabel=activityDayCount<=16||i%Math.ceil(activityDayCount/10)===0;
+                return(
+                  <div key={d.key+i+"l"} style={{flex:1,textAlign:"center",fontSize:8,color:T3}}>{showLabel?(activityDayCount<=16?d.label:d.md):""}</div>
+                );
+              })}
             </div>
           </div>
 
@@ -3659,7 +3734,7 @@ function AnalyticsTab(p){
 
           {/* Top searched codes */}
           <div style={S.card({margin:0})}>
-            <div style={{...S.sh,marginBottom:10}}>🔍 Top Searched Codes</div>
+            <div style={{...S.sh,marginBottom:10}}>🔍 Top 20 Searched Codes</div>
             {topSearched.length===0&&<div style={{textAlign:"center",color:T3,fontSize:11,padding:12}}>No lookups recorded yet — search or scan items in the Lookup tab.</div>}
             {topSearched.map((x,i)=>(
               <div key={x.itemId} onClick={()=>openItem&&openItem(x.item,"view")} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 0",borderBottom:i<topSearched.length-1?"1px solid "+CRD2:"none",cursor:openItem?"pointer":"default"}}>

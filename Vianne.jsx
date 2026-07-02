@@ -2279,27 +2279,75 @@ function PhotoSearch({inv,onResult,onClose}){
     return false;
   };
 
+  // ── Region of interest — find WHERE the jewellery is before analysing it.
+  // Essential for photos where the piece is a small part of a busy frame:
+  // worn on a model, a patterned background, a hand, a display case, etc.
+  // Scans a coarse grid for the densest cluster of sparkle/metallic pixels
+  // rather than assuming the item fills the frame.
+  const findJewelryROI=(pixels,w,h)=>{
+    const GRID=10;
+    const cellW=Math.ceil(w/GRID),cellH=Math.ceil(h/GRID);
+    const density=[];
+    for(let gy=0;gy<GRID;gy++){
+      const row=[];
+      for(let gx=0;gx<GRID;gx++){
+        let cnt=0,total=0;
+        const x0=gx*cellW,y0=gy*cellH,x1=Math.min(w,x0+cellW),y1=Math.min(h,y0+cellH);
+        for(let y=y0;y<y1;y++){
+          for(let x=x0;x<x1;x++){
+            const i=(y*w+x)*4;
+            if(pixels[i+3]<60) continue;
+            total++;
+            const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+            if(isSparklePx(r,g,b)||isMetallicPx(r,g,b))cnt++;
+          }
+        }
+        row.push(total?cnt/total:0);
+      }
+      density.push(row);
+    }
+    const BLOCK=Math.max(2,Math.round(GRID*0.4));
+    let best={score:0,gx:0,gy:0};
+    for(let gy=0;gy<=GRID-BLOCK;gy++){
+      for(let gx=0;gx<=GRID-BLOCK;gx++){
+        let sum=0;
+        for(let dy=0;dy<BLOCK;dy++)for(let dx=0;dx<BLOCK;dx++)sum+=density[gy+dy][gx+dx];
+        if(sum>best.score)best={score:sum,gx,gy};
+      }
+    }
+    if(best.score<BLOCK*BLOCK*0.04) return null; // no meaningful jewellery signal anywhere
+    // pad the block by one cell on each side so the whole piece (not just its brightest core) is included
+    const gx0=Math.max(0,best.gx-1),gy0=Math.max(0,best.gy-1);
+    const gx1=Math.min(GRID,best.gx+BLOCK+1),gy1=Math.min(GRID,best.gy+BLOCK+1);
+    return{x0:gx0*cellW,y0:gy0*cellH,x1:Math.min(w,gx1*cellW),y1:Math.min(h,gy1*cellH)};
+  };
+  const inROI=(x,y,roi)=>!roi||(x>=roi.x0&&x<roi.x1&&y>=roi.y0&&y<roi.y1);
+
   // ── Metal detection — sample brightest metallic pixels ─────────────────
-  const detectMetal=(pixels,w,h,bg)=>{
+  const detectMetal=(pixels,w,h,bg,roi)=>{
     const buckets={YG:0,WG:0,RG:0,PT:0};
     let metalPx=0;
-    for(let i=0;i<pixels.length;i+=4){
-      const r=pixels[i],g=pixels[i+1],b=pixels[i+2],a=pixels[i+3];
-      if(a<80) continue;
-      if(isBackground(r,g,b,bg)) continue;
-      if(isSkinTone(r,g,b)) continue;
-      const[hue,sat,lig]=toHsl(r,g,b);
-      // Only consider metallic-looking pixels (moderate saturation, moderate brightness)
-      if(lig<20||lig>92) continue;
-      if(sat<5&&lig>45){buckets.PT++;metalPx++;continue;} // platinum/silver/white gold
-      if(sat<8) continue; // too grey, skip
-      metalPx++;
-      // Yellow gold: warm hue 30-65, high enough saturation to not be skin
-      if(hue>=28&&hue<=65&&sat>32&&lig>30){buckets.YG+=2;continue;}
-      // Rose gold: pinkish red hue, warm, high enough saturation to not be skin
-      if((hue>=340||hue<=25)&&sat>32&&r>b){buckets.RG++;continue;}
-      // White gold / rhodium: cool, low sat
-      if(sat<22&&lig>42){buckets.WG++;continue;}
+    const y0=roi?roi.y0:0,y1=roi?roi.y1:h,x0=roi?roi.x0:0,x1=roi?roi.x1:w;
+    for(let y=y0;y<y1;y++){
+      for(let x=x0;x<x1;x++){
+        const i=(y*w+x)*4;
+        const r=pixels[i],g=pixels[i+1],b=pixels[i+2],a=pixels[i+3];
+        if(a<80) continue;
+        if(isBackground(r,g,b,bg)) continue;
+        if(isSkinTone(r,g,b)) continue;
+        const[hue,sat,lig]=toHsl(r,g,b);
+        // Only consider metallic-looking pixels (moderate saturation, moderate brightness)
+        if(lig<20||lig>92) continue;
+        if(sat<5&&lig>45){buckets.PT++;metalPx++;continue;} // platinum/silver/white gold
+        if(sat<8) continue; // too grey, skip
+        metalPx++;
+        // Yellow gold: warm hue 30-65, high enough saturation to not be skin
+        if(hue>=28&&hue<=65&&sat>32&&lig>30){buckets.YG+=2;continue;}
+        // Rose gold: pinkish red hue, warm, high enough saturation to not be skin
+        if((hue>=340||hue<=25)&&sat>32&&r>b){buckets.RG++;continue;}
+        // White gold / rhodium: cool, low sat
+        if(sat<22&&lig>42){buckets.WG++;continue;}
+      }
     }
     if(metalPx===0) return{metal:"WG",conf:0};
     const best=Object.entries(buckets).sort((a,b)=>b[1]-a[1])[0];
@@ -2308,15 +2356,19 @@ function PhotoSearch({inv,onResult,onClose}){
   };
 
   // ── Stone/diamond detection — look for sparkle clusters ─────────────────
-  const detectStones=(pixels,w,h,bg)=>{
+  const detectStones=(pixels,w,h,bg,roi)=>{
     let sparklePx=0,total=0;
-    for(let i=0;i<pixels.length;i+=4){
-      if(pixels[i+3]<80) continue;
-      const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
-      if(isBackground(r,g,b,bg)) continue;
-      if(isSkinTone(r,g,b)) continue;
-      total++;
-      if(isSparklePx(r,g,b)) sparklePx++;
+    const y0=roi?roi.y0:0,y1=roi?roi.y1:h,x0=roi?roi.x0:0,x1=roi?roi.x1:w;
+    for(let y=y0;y<y1;y++){
+      for(let x=x0;x<x1;x++){
+        const i=(y*w+x)*4;
+        if(pixels[i+3]<80) continue;
+        const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+        if(isBackground(r,g,b,bg)) continue;
+        if(isSkinTone(r,g,b)) continue;
+        total++;
+        if(isSparklePx(r,g,b)) sparklePx++;
+      }
     }
     if(total===0) return false;
     const ratio=sparklePx/total;
@@ -2324,14 +2376,16 @@ function PhotoSearch({inv,onResult,onClose}){
   };
 
   // ── Shape/Category detection — aspect ratio + mass distribution ─────────
-  const detectCategory=(pixels,w,h,bg)=>{
+  const detectCategory=(pixels,w,h,bg,roi)=>{
     // First pass: bound just the pixels that actually look like jewellery
-    // (sparkle or confident metal tone). Much more robust than trying to
-    // exclude every possible background, especially hands.
+    // (sparkle or confident metal tone), within the region of interest if
+    // one was found. Much more robust than trying to exclude every possible
+    // background, especially hands, hair, clothing on a worn/modelled shot.
+    const sy0=roi?roi.y0:0,sy1=roi?roi.y1:h,sx0=roi?roi.x0:0,sx1=roi?roi.x1:w;
     let minX=w,maxX=0,minY=h,maxY=0;
     let massX=0,massY=0,cnt=0;
-    for(let y=0;y<h;y++){
-      for(let x=0;x<w;x++){
+    for(let y=sy0;y<sy1;y++){
+      for(let x=sx0;x<sx1;x++){
         const i=(y*w+x)*4;
         if(pixels[i+3]<60) continue;
         const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
@@ -2345,8 +2399,8 @@ function PhotoSearch({inv,onResult,onClose}){
     // signal was found (e.g. a matte/low-saturation piece)
     if(cnt<40){
       minX=w;maxX=0;minY=h;maxY=0;massX=0;massY=0;cnt=0;
-      for(let y=0;y<h;y++){
-        for(let x=0;x<w;x++){
+      for(let y=sy0;y<sy1;y++){
+        for(let x=sx0;x<sx1;x++){
           const i=(y*w+x)*4;
           if(pixels[i+3]<60) continue;
           const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
@@ -2366,7 +2420,7 @@ function PhotoSearch({inv,onResult,onClose}){
 
     // Ring detection: roughly square, centre of mass near middle,
     // possible hole in centre — the hole shows background, not the item
-    const centrePx=((Math.round(h/2)*w+Math.round(w/2))*4);
+    const centrePx=((Math.round((minY+maxY)/2)*w+Math.round((minX+maxX)/2))*4);
     const centreIsHole=isBackground(pixels[centrePx],pixels[centrePx+1],pixels[centrePx+2],bg);
 
     if(ar>2.8) return{cat:"Bracelets",conf:85};
@@ -2409,7 +2463,7 @@ function PhotoSearch({inv,onResult,onClose}){
   // ── Main analysis ────────────────────────────────────────────────────────
   const analyzeImage=(imgEl)=>{
     const canvas=canvasRef.current;
-    const SZ=120;
+    const SZ=220; // higher resolution helps find a small piece in a large frame (worn on a model, etc.)
     canvas.width=SZ; canvas.height=SZ;
     const ctx=canvas.getContext("2d");
 
@@ -2419,9 +2473,10 @@ function PhotoSearch({inv,onResult,onClose}){
     const px=data.data;
 
     const bg=sampleBackgroundRGB(px,SZ,SZ);
-    const {metal,conf:mConf}=detectMetal(px,SZ,SZ,bg);
-    const hasStones=detectStones(px,SZ,SZ,bg);
-    const {cat:category,conf:cConf}=detectCategory(px,SZ,SZ,bg);
+    const roi=findJewelryROI(px,SZ,SZ);
+    const {metal,conf:mConf}=detectMetal(px,SZ,SZ,bg,roi);
+    const hasStones=detectStones(px,SZ,SZ,bg,roi);
+    const {cat:category,conf:cConf}=detectCategory(px,SZ,SZ,bg,roi);
     const palette=getPalette(px,bg);
 
     const feat={metal,mConf,hasStones,category,cConf,palette};

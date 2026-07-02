@@ -1104,13 +1104,16 @@ function Logo({h=36}){
   return <img src="assets/vianne-logo.png" alt="Vianne" style={{height:h,width:"auto",display:"block",flexShrink:0,objectFit:"contain"}}/>;
 }
 function Sheet({onClose,title,children}){return(<div className="v-sheet-overlay" onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:400,padding:"0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)"}}><div className="v-sheet-panel" onClick={e=>e.stopPropagation()} style={{background:CRD}}><div style={{padding:"14px 16px 12px",borderBottom:"1px solid "+CRD2,position:"sticky",top:0,background:CRD,zIndex:1}}><div style={{width:36,height:3.5,background:CRD2,borderRadius:2,margin:"0 auto 12px"}} className="v-sheet-handle"/><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>{title}</div><button onClick={onClose} style={{background:"none",border:"none",fontSize:22,color:T3,cursor:"pointer"}}>✕</button></div></div><div style={{padding:"14px 16px calc(36px + env(safe-area-inset-bottom,0px))"}}>{children}</div></div></div>);}
-function QRScanner({onScanned,inv}){
+function QRScanner({onScanned,inv,continuous}){
   const vr=useRef(null),sr=useRef(null),cv=useRef(null),raf=useRef(null);
-  const [err,se]=useState(""),[manual,sm]=useState(""),[scanning,ssc]=useState(false),[lastCode,slc]=useState("");
+  const [err,se]=useState(""),[manual,sm]=useState(""),[scanning,ssc]=useState(false);
+  const lastCodeRef=useRef("");
+  const lastCodeTimer=useRef(null);
 
   const stop=()=>{
     if(raf.current){cancelAnimationFrame(raf.current);raf.current=null;}
     if(sr.current){sr.current.getTracks().forEach(t=>t.stop());sr.current=null;}
+    if(lastCodeTimer.current){clearTimeout(lastCodeTimer.current);lastCodeTimer.current=null;}
     ssc(false);
   };
 
@@ -1126,13 +1129,16 @@ function QRScanner({onScanned,inv}){
       const img=ctx.getImageData(0,0,cv.current.width,cv.current.height);
       if(window.jsQR){
         const qr=window.jsQR(img.data,img.width,img.height,{inversionAttempts:"dontInvert"});
-        if(qr&&qr.data&&qr.data!==lastCode){
+        if(qr&&qr.data&&qr.data!==lastCodeRef.current){
           const code=qr.data.trim().toUpperCase();
-          slc(code);
+          lastCodeRef.current=code;
           const found=inv.find(i=>i.id===code);
           onScanned(code,found||null);
-          stop();
-          return;
+          if(!continuous){stop();return;}
+          // brief cooldown so the same still-in-frame tag isn't re-processed every frame,
+          // but scanning it again later (e.g. re-confirming) is still possible
+          if(lastCodeTimer.current)clearTimeout(lastCodeTimer.current);
+          lastCodeTimer.current=setTimeout(()=>{lastCodeRef.current="";},1500);
         }
       }
     }catch(_){}
@@ -3283,7 +3289,7 @@ function InventoryTab(p){
                 <button style={S.btn({flex:1,padding:"10px",fontSize:12,background:GO,color:G})} onClick={saveAudit}>💾 Save Audit</button>
               </div>
             </div>
-            {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item&&!auditScanned.find(s=>s.item&&s.item.id===item.id)){saScanned(p=>[...p,{item,scannedAt:tstr()}]);}else if(!item){toast.warn("Item not found","Code: "+code);}}}/>}
+            {scan&&<QRScanner inv={inv} continuous onScanned={(code,item)=>{if(item){if(!auditScanned.find(s=>s.item&&s.item.id===item.id)){saScanned(p=>[...p,{item,scannedAt:tstr()}]);toast.success("Scanned",item.id);}else{toast.info("Already scanned",item.id);}}else{toast.warn("Item not found","Code: "+code);}}}/>}
             {missing.length>0&&<div style={{marginBottom:10}}><div style={{fontSize:10,fontWeight:700,color:RE,textTransform:"uppercase",marginBottom:7}}>⚠ NOT SCANNED ({missing.length})</div>{missing.map(i=><div key={i.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 10px",background:REBG,borderRadius:8,marginBottom:5}}><div style={{width:32,height:32,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>{getImg(i)?<img src={getImg(i)} alt="" style={{width:32,height:32,objectFit:"cover"}}/>:<span style={{fontSize:16}}>{i.em}</span>}</div><div><div style={{fontSize:11,fontWeight:700,color:RE}}>{i.id}</div><div style={{fontSize:9,color:RE}}>{i.cat}</div></div></div>)}</div>}
             {auditScanned.length>0&&<div style={{marginBottom:10}}><div style={{fontSize:10,fontWeight:700,color:"#27ae60",textTransform:"uppercase",marginBottom:7}}>✓ CONFIRMED ({auditScanned.length})</div>{auditScanned.map(({item,scannedAt})=><div key={item.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 10px",background:"#edf7f0",borderRadius:8,marginBottom:5}}><div style={{width:32,height:32,borderRadius:6,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>{getImg(item)?<img src={getImg(item)} alt="" style={{width:32,height:32,objectFit:"cover"}}/>:<span style={{fontSize:16}}>{item.em}</span>}</div><div style={{flex:1}}><div style={{fontSize:11,fontWeight:700,color:T1}}>{item.id}</div><div style={{fontSize:9,color:T3}}>{scannedAt}</div></div><span style={{color:"#27ae60",fontWeight:700}}>✓</span></div>)}</div>}
             {audits.length>0&&<div><div style={{...S.sh,marginTop:4}}>📋 AUDIT HISTORY</div>{audits.map(r=>{
@@ -5499,7 +5505,7 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
   const missing=locItems.filter(i=>!auditScanned.find(s=>(s.item?s.item.id:s.id)===i.id));
   const TABS=[{id:"lookup",l:"LOOKUP",ic:"🔍"},...(pr.vH?[{id:"sales",l:"SALES",ic:"💰"},{id:"history",l:"HISTORY",ic:"🕐"}]:[]),...(pr.vA?[{id:"analytics",l:"ANALYTICS",ic:"📊"}]:[]),{id:"inventory",l:"STOCK",ic:"📦"},{id:"customers",l:"CUSTOMERS",ic:"👥"},{id:"admin",l:"SETTINGS",ic:"⚙"}];
   const addLead=()=>toast.info("Add customers via Customers tab","Complete a sale to auto-create a customer.");
-  const saveAudit=()=>{if(auditScanned.length===0){toast.warn("No items scanned","Scan items before saving.");}else{const rec={id:uid("AUD"),loc:auditLoc,note:"",date:dstr(),time:tstr(),expected:locItems.length,scanned:auditScanned.length,missing:missing.map(i=>i.id),items:auditScanned.map(s=>(s.item?s.item.id:s.id))};const na=[rec,...audits];sAudits(na);syncUp(null,null,null,na);toast.success("Audit saved",""+auditScanned.length+" scanned · "+missing.length+" missing");}};
+  const saveAudit=()=>{if(auditScanned.length===0){toast.warn("No items scanned","Scan items before saving.");}else{const rec={id:uid("AUD"),loc:auditLoc,note:"",date:dstr(),time:tstr(),expected:locItems.length,scanned:auditScanned.length,missing:missing.map(i=>i.id),items:auditScanned.map(s=>(s.item?s.item.id:s.id))};const na=[rec,...audits];sAudits(na);syncUp(null,null,null,na);saScanned([]);toast.success("Audit saved",""+auditScanned.length+" scanned · "+missing.length+" missing — ready for a new count");}};
   const updateAuditMeta=(auditId,patch)=>{const na=audits.map(a=>a.id===auditId?{...a,...patch}:a);sAudits(na);syncUp(null,null,null,na);};
   // Computed for lookup display (avoids IIFE in JSX)
   const lkQ = jc.trim();
@@ -5539,7 +5545,6 @@ function EventERP({ev,user,allUsers,onUsersChange,allEvents,onSwitch,onUpdateEve
 
         {tab==="admin"&&<AdminTab {...{ev:ev,inv:inv,si:si,sales:sales,ssl:ssl,leads:leads,sld:sld,cur:cur,scur:scur,user:user,pr:pr,users:users,onUsersChange:onUsersChange,syncUp:syncUp,doSell:doSell,sinvm:sinvm,sdet:sdet,fc:fc,st:st,onLogout:onLogout,onUpdateEvent:onUpdateEvent,onCloudSync:onCloudSync,allEvents:allEvents,onSwitch:onSwitch,jc:jc,sjc:sjc,det:det,scan:scan,sscan:sscan,mlTab:mlTab,smlTab:smlTab,mlInput:mlInput,smlInput:smlInput,mlItems:mlItems,smlItems:smlItems,mlDisc:mlDisc,smlDisc:smlDisc,mlDiscAmt:mlDiscAmt,smlDiscAmt:smlDiscAmt,mlMarkup:mlMarkup,smlMarkup:smlMarkup,mlNF:mlNF,smlNF:smlNF,mlScan:mlScan,smlScan:smlScan,mlSubtotal:mlSubtotal,mlFinal:mlFinal,mlTotal:mlTotal,resolveCodes:resolveCodes,sellMulti:sellMulti,showFilter:showFilter,sShowFilter:sShowFilter,activeFilters:activeFilters,resetFilters:resetFilters,fCat:fCat,sfCat:sfCat,fCol:fCol,sfCol:sfCol,fMetal:fMetal,sfMetal:sfMetal,fSt:fSt,sfSt:sfSt,fShape:fShape,sfShape:sfShape,fMinTc:fMinTc,sfMinTc:sfMinTc,fMaxTc:fMaxTc,sfMaxTc:sfMaxTc,fMinGw:fMinGw,sfMinGw:sfMinGw,fMaxGw:fMaxGw,sfMaxGw:sfMaxGw,fMinNw:fMinNw,sfMinNw:sfMinNw,fMaxNw:fMaxNw,sfMaxNw:sfMaxNw,fMinFp:fMinFp,sfMinFp:sfMinFp,fMaxFp:fMaxFp,sfMaxFp:sfMaxFp,allCats:allCats,allCols:allCols,allMetals:allMetals,allShapes:allShapes,allSt:allSt,lkQ:lkQ,lkResults:lkResults,lkShowResults:lkShowResults,applyFilters:applyFilters,invTab:invTab,sivTab:sivTab,isq:isq,sisq:sisq,ist:ist,sist:sist,icat:icat,sicat:sicat,fi:fi,cats:cats,deadStock:deadStock,auditLoc:auditLoc,saLoc:saLoc,auditScanned:auditScanned,saScanned:saScanned,audits:audits,sAudits:sAudits,locItems:locItems,missing:missing,saveAudit:saveAudit,totalRev:totalRev,stf:stf,hstaff:hstaff,shs:shs,atab:atab,sat:sat,showSwitch:showSwitch,ssw:ssw}}/>}
 
-        {scan&&<QRScanner inv={inv} onScanned={(code,item)=>{sscan(false);if(item)openItem(item,"scan",code);else toast.warn("Item not found","Code: "+code);}}/>}
         {invm&&<InvoiceSheet sale={invm} event={ev} onClose={()=>sinvm(null)}/>}
         {showSwitch&&(
           <Sheet onClose={()=>ssw(false)} title="Switch Event">

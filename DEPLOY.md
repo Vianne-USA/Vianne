@@ -53,6 +53,22 @@ Optional: remove `BLOB_STORE_ID` / Blob env vars — not used anymore.
 
 Debug: `https://vianne-lac.vercel.app/api/data?debug=1` — check `driveStatus`.
 
+### 5. Photo Search AI vision (optional but recommended)
+
+Photo Search uses a real AI vision model to identify a photographed piece
+(category, metal, stones) and match it against inventory. Without this key,
+it silently falls back to a basic on-device color heuristic that's much less
+accurate on busy/real-world photos.
+
+**Vercel env var (Production):**
+| Variable | Value |
+|----------|--------|
+| `ANTHROPIC_API_KEY` | An Anthropic API key from [console.anthropic.com](https://console.anthropic.com) |
+
+Each photo search costs a small, per-image API fee (uses `claude-haiku-4-5`).
+No other setup needed — `api/photo-search.js` picks it up automatically once
+the env var is set and redeployed.
+
 ### 5. First push from Ruchit's Mac
 ```bash
 cd /Users/rj/Downloads/VIANNE/Vianne

@@ -2461,28 +2461,10 @@ function PhotoSearch({inv,onResult,onClose}){
   };
 
   // ── Main analysis ────────────────────────────────────────────────────────
-  const analyzeImage=(imgEl)=>{
-    const canvas=canvasRef.current;
-    const SZ=220; // higher resolution helps find a small piece in a large frame (worn on a model, etc.)
-    canvas.width=SZ; canvas.height=SZ;
-    const ctx=canvas.getContext("2d");
+  // ── Score inventory against a detected category/metal/stones and show results ──
+  const scoreAndFinish=(category,cConf,metal,mConf,hasStones,source)=>{
+    setFeatures({metal,mConf,hasStones,category,cConf,source});
 
-    // Draw greyscale version to help with shape
-    ctx.drawImage(imgEl,0,0,SZ,SZ);
-    const data=ctx.getImageData(0,0,SZ,SZ);
-    const px=data.data;
-
-    const bg=sampleBackgroundRGB(px,SZ,SZ);
-    const roi=findJewelryROI(px,SZ,SZ);
-    const {metal,conf:mConf}=detectMetal(px,SZ,SZ,bg,roi);
-    const hasStones=detectStones(px,SZ,SZ,bg,roi);
-    const {cat:category,conf:cConf}=detectCategory(px,SZ,SZ,bg,roi);
-    const palette=getPalette(px,bg);
-
-    const feat={metal,mConf,hasStones,category,cConf,palette};
-    setFeatures(feat);
-
-    // ── Score inventory items ──────────────────────────────────────────────
     const metalMap={
       YG:["KY","14KY","18KY","G14KY","G18KY"],
       WG:["KW","14KW","18KW","G14KW","G18KW","PT"],
@@ -2541,6 +2523,48 @@ function PhotoSearch({inv,onResult,onClose}){
     setAnalyzing(false);
   };
 
+  // ── Local pixel-heuristic fallback (no network required) ────────────────
+  const analyzeImageLocal=(imgEl)=>{
+    const canvas=canvasRef.current;
+    const SZ=220; // higher resolution helps find a small piece in a large frame (worn on a model, etc.)
+    canvas.width=SZ; canvas.height=SZ;
+    const ctx=canvas.getContext("2d");
+    ctx.drawImage(imgEl,0,0,SZ,SZ);
+    const data=ctx.getImageData(0,0,SZ,SZ);
+    const px=data.data;
+
+    const bg=sampleBackgroundRGB(px,SZ,SZ);
+    const roi=findJewelryROI(px,SZ,SZ);
+    const {metal,conf:mConf}=detectMetal(px,SZ,SZ,bg,roi);
+    const hasStones=detectStones(px,SZ,SZ,bg,roi);
+    const {cat:category,conf:cConf}=detectCategory(px,SZ,SZ,bg,roi);
+    scoreAndFinish(category,cConf,metal,mConf,hasStones,"local");
+  };
+
+  // ── AI vision analysis — resize down, send to /api/photo-search ─────────
+  const resizeForAI=(imgEl)=>{
+    const MAXD=900;
+    let w=imgEl.naturalWidth||imgEl.width,h=imgEl.naturalHeight||imgEl.height;
+    if(w>=h&&w>MAXD){h=Math.round(h*MAXD/w);w=MAXD;}
+    else if(h>w&&h>MAXD){w=Math.round(w*MAXD/h);h=MAXD;}
+    const c=document.createElement("canvas");
+    c.width=w;c.height=h;
+    c.getContext("2d").drawImage(imgEl,0,0,w,h);
+    const dataUrl=c.toDataURL("image/jpeg",0.85);
+    return{base64:dataUrl.split(",")[1],mediaType:"image/jpeg"};
+  };
+  const analyzeImageAI=async(imgEl)=>{
+    const{base64,mediaType}=resizeForAI(imgEl);
+    const resp=await fetch("/api/photo-search",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({imageBase64:base64,mediaType}),
+    });
+    const data=await resp.json();
+    if(!resp.ok||!data.ok)throw new Error(data.error||"AI analysis failed");
+    return data;
+  };
+
   const handleFile=(e)=>{
     const file=e.target.files&&e.target.files[0];
     if(!file) return;
@@ -2552,7 +2576,16 @@ function PhotoSearch({inv,onResult,onClose}){
     reader.onload=(ev)=>{
       setPreview(ev.target.result);
       const img=new Image();
-      img.onload=()=>analyzeImage(img);
+      img.onload=async()=>{
+        try{
+          const{category,metal,hasStones,confidence}=await analyzeImageAI(img);
+          scoreAndFinish(category,confidence,metal,confidence,hasStones,"ai");
+        }catch(err){
+          console.warn("AI Photo Search unavailable, using basic detection:",err.message);
+          toast.info("Using basic photo detection","AI vision unavailable right now");
+          analyzeImageLocal(img);
+        }
+      };
       img.onerror=()=>{setError("Could not load image.");setPhase("upload");setAnalyzing(false);};
       img.src=ev.target.result;
     };
@@ -2628,7 +2661,7 @@ function PhotoSearch({inv,onResult,onClose}){
             <div style={{display:"flex",gap:8,marginBottom:12,alignItems:"flex-start"}}>
               {preview&&<img src={preview} alt="" style={{width:56,height:56,objectFit:"cover",borderRadius:8,flexShrink:0,border:"1.5px solid #C9A4E0"}}/>}
               <div style={{flex:1}}>
-                <div style={{fontSize:9,fontWeight:700,color:T3,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:5}}>Detected</div>
+                <div style={{fontSize:9,fontWeight:700,color:T3,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:5}}>Detected{features.source==="ai"?" · 🤖 AI vision":features.source==="local"?" · basic detection":""}</div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
                   {[
                     features.category+" ("+features.cConf+"%)",

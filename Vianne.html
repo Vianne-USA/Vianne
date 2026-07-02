@@ -10593,21 +10593,21 @@ function clearAllAppData() {
   return _clearAllAppData.apply(this, arguments);
 }
 function _clearAllAppData() {
-  _clearAllAppData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee12() {
-    var _t4;
-    return _regenerator().w(function (_context12) {
-      while (1) switch (_context12.p = _context12.n) {
+  _clearAllAppData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee14() {
+    var _t5;
+    return _regenerator().w(function (_context14) {
+      while (1) switch (_context14.p = _context14.n) {
         case 0:
-          _context12.p = 0;
+          _context14.p = 0;
           ["vj_events", "vj_users", "vj_cloud_meta", "vj_deleted_events", "vj_curr_rates", "vj_dark", "vj_bio_user", "vj_bio_key"].forEach(function (k) {
             return localStorage.removeItem(k);
           });
           sessionStorage.clear();
           if (!(typeof indexedDB !== "undefined")) {
-            _context12.n = 1;
+            _context14.n = 1;
             break;
           }
-          _context12.n = 1;
+          _context14.n = 1;
           return new Promise(function (res) {
             var req = indexedDB.deleteDatabase("vianne_v1");
             req.onsuccess = function () {
@@ -10623,16 +10623,16 @@ function _clearAllAppData() {
         case 1:
           if (window.VJ_IMG) window.VJ_IMG = {};
           if (window.IMGS) window.IMGS = {};
-          _context12.n = 3;
+          _context14.n = 3;
           break;
         case 2:
-          _context12.p = 2;
-          _t4 = _context12.v;
-          console.warn("Clear app data", _t4);
+          _context14.p = 2;
+          _t5 = _context14.v;
+          console.warn("Clear app data", _t5);
         case 3:
-          return _context12.a(2);
+          return _context14.a(2);
       }
-    }, _callee12, null, [[0, 2]]);
+    }, _callee14, null, [[0, 2]]);
   }));
   return _clearAllAppData.apply(this, arguments);
 }
@@ -10734,66 +10734,66 @@ function parseIdByRowFromBuffer(_x) {
   return _parseIdByRowFromBuffer.apply(this, arguments);
 }
 function _parseIdByRowFromBuffer() {
-  _parseIdByRowFromBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee13(buf) {
-    var X, wb, idByRow, _iterator3, _step3, sn, ws, parsed, _t5, _t6;
-    return _regenerator().w(function (_context13) {
-      while (1) switch (_context13.p = _context13.n) {
+  _parseIdByRowFromBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee15(buf) {
+    var X, wb, idByRow, _iterator3, _step3, sn, ws, parsed, _t6, _t7;
+    return _regenerator().w(function (_context15) {
+      while (1) switch (_context15.p = _context15.n) {
         case 0:
-          _context13.n = 1;
+          _context15.n = 1;
           return ensureXLSXAsync();
         case 1:
           X = window.XLSX;
           if (!(!X || !buf)) {
-            _context13.n = 2;
+            _context15.n = 2;
             break;
           }
-          return _context13.a(2, {});
+          return _context15.a(2, {});
         case 2:
-          _context13.p = 2;
+          _context15.p = 2;
           wb = X.read(new Uint8Array(buf), {
             type: "array"
           });
           idByRow = {};
           _iterator3 = _createForOfIteratorHelper(wb.SheetNames);
-          _context13.p = 3;
+          _context15.p = 3;
           _iterator3.s();
         case 4:
           if ((_step3 = _iterator3.n()).done) {
-            _context13.n = 7;
+            _context15.n = 7;
             break;
           }
           sn = _step3.value;
           ws = wb.Sheets[sn];
           if (ws) {
-            _context13.n = 5;
+            _context15.n = 5;
             break;
           }
-          return _context13.a(3, 6);
+          return _context15.a(3, 6);
         case 5:
           parsed = parseSheetRows(X, ws);
           if (Object.keys(parsed.idByRow).length >= Object.keys(idByRow).length) idByRow = parsed.idByRow;
         case 6:
-          _context13.n = 4;
+          _context15.n = 4;
           break;
         case 7:
-          _context13.n = 9;
+          _context15.n = 9;
           break;
         case 8:
-          _context13.p = 8;
-          _t5 = _context13.v;
-          _iterator3.e(_t5);
+          _context15.p = 8;
+          _t6 = _context15.v;
+          _iterator3.e(_t6);
         case 9:
-          _context13.p = 9;
+          _context15.p = 9;
           _iterator3.f();
-          return _context13.f(9);
+          return _context15.f(9);
         case 10:
-          return _context13.a(2, idByRow);
+          return _context15.a(2, idByRow);
         case 11:
-          _context13.p = 11;
-          _t6 = _context13.v;
-          return _context13.a(2, {});
+          _context15.p = 11;
+          _t7 = _context15.v;
+          return _context15.a(2, {});
       }
-    }, _callee13, null, [[3, 8, 9, 10], [2, 11]]);
+    }, _callee15, null, [[3, 8, 9, 10], [2, 11]]);
   }));
   return _parseIdByRowFromBuffer.apply(this, arguments);
 }
@@ -10808,23 +10808,23 @@ function idbSaveInvBuffer(_x2, _x3, _x4) {
   return _idbSaveInvBuffer.apply(this, arguments);
 }
 function _idbSaveInvBuffer() {
-  _idbSaveInvBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee14(eventId, fileName, buf) {
-    var db, _t7;
-    return _regenerator().w(function (_context14) {
-      while (1) switch (_context14.p = _context14.n) {
+  _idbSaveInvBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee16(eventId, fileName, buf) {
+    var db, _t8;
+    return _regenerator().w(function (_context16) {
+      while (1) switch (_context16.p = _context16.n) {
         case 0:
           if (!(!eventId || !buf || !fileName)) {
-            _context14.n = 1;
+            _context16.n = 1;
             break;
           }
-          return _context14.a(2);
+          return _context16.a(2);
         case 1:
-          _context14.p = 1;
-          _context14.n = 2;
+          _context16.p = 1;
+          _context16.n = 2;
           return idbOpen();
         case 2:
-          db = _context14.v;
-          _context14.n = 3;
+          db = _context16.v;
+          _context16.n = 3;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_INV_FILE_STORE, "readwrite");
             tx.objectStore(IDB_INV_FILE_STORE).put({
@@ -10843,16 +10843,16 @@ function _idbSaveInvBuffer() {
             };
           });
         case 3:
-          _context14.n = 5;
+          _context16.n = 5;
           break;
         case 4:
-          _context14.p = 4;
-          _t7 = _context14.v;
-          console.warn("Inventory buffer save failed", _t7);
+          _context16.p = 4;
+          _t8 = _context16.v;
+          console.warn("Inventory buffer save failed", _t8);
         case 5:
-          return _context14.a(2);
+          return _context16.a(2);
       }
-    }, _callee14, null, [[1, 4]]);
+    }, _callee16, null, [[1, 4]]);
   }));
   return _idbSaveInvBuffer.apply(this, arguments);
 }
@@ -10860,45 +10860,45 @@ function extractImagesFromBuffer(_x5, _x6, _x7, _x8) {
   return _extractImagesFromBuffer.apply(this, arguments);
 }
 function _extractImagesFromBuffer() {
-  _extractImagesFromBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee15(buf, inv, fileName, eventId) {
+  _extractImagesFromBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17(buf, inv, fileName, eventId) {
     var idByRow, imgMap, n;
-    return _regenerator().w(function (_context15) {
-      while (1) switch (_context15.n) {
+    return _regenerator().w(function (_context17) {
+      while (1) switch (_context17.n) {
         case 0:
           if (buf) {
-            _context15.n = 1;
+            _context17.n = 1;
             break;
           }
-          return _context15.a(2, 0);
+          return _context17.a(2, 0);
         case 1:
-          _context15.n = 2;
+          _context17.n = 2;
           return ensureJSZipAsync();
         case 2:
           idByRow = buildIdByRowFromInv(inv);
           if (Object.keys(idByRow).length) {
-            _context15.n = 4;
+            _context17.n = 4;
             break;
           }
-          _context15.n = 3;
+          _context17.n = 3;
           return parseIdByRowFromBuffer(buf);
         case 3:
-          idByRow = _context15.v;
+          idByRow = _context17.v;
         case 4:
           if (Object.keys(idByRow).length) {
-            _context15.n = 5;
+            _context17.n = 5;
             break;
           }
-          return _context15.a(2, 0);
+          return _context17.a(2, 0);
         case 5:
-          _context15.n = 6;
+          _context17.n = 6;
           return extractXLImages(buf, idByRow);
         case 6:
-          imgMap = _context15.v;
+          imgMap = _context17.v;
           n = Object.keys(imgMap).length;
           if (n) attachItemImages(inv, imgMap, eventId);
-          return _context15.a(2, n);
+          return _context17.a(2, n);
       }
-    }, _callee15);
+    }, _callee17);
   }));
   return _extractImagesFromBuffer.apply(this, arguments);
 }
@@ -10906,56 +10906,56 @@ function syncImagesToDrive(_x9, _x0) {
   return _syncImagesToDrive.apply(this, arguments);
 }
 function _syncImagesToDrive() {
-  _syncImagesToDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee16(eventId, imgMap) {
-    var entries, BATCH, synced, i, chunk, r, d, _t8;
-    return _regenerator().w(function (_context16) {
-      while (1) switch (_context16.p = _context16.n) {
+  _syncImagesToDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee18(eventId, imgMap) {
+    var entries, BATCH, synced, i, chunk, r, d, _t9;
+    return _regenerator().w(function (_context18) {
+      while (1) switch (_context18.p = _context18.n) {
         case 0:
           if (!(!eventId || !imgMap || !Object.keys(imgMap).length)) {
-            _context16.n = 1;
+            _context18.n = 1;
             break;
           }
-          return _context16.a(2, 0);
+          return _context18.a(2, 0);
         case 1:
-          _context16.n = 2;
+          _context18.n = 2;
           return cloudFetchData();
         case 2:
           if (isCloudOnline()) {
-            _context16.n = 3;
+            _context18.n = 3;
             break;
           }
-          return _context16.a(2, 0);
+          return _context18.a(2, 0);
         case 3:
-          entries = Object.entries(imgMap).filter(function (_ref99) {
-            var _ref100 = _slicedToArray(_ref99, 2),
-              src = _ref100[1];
+          entries = Object.entries(imgMap).filter(function (_ref101) {
+            var _ref102 = _slicedToArray(_ref101, 2),
+              src = _ref102[1];
             return String(src || "").startsWith("data:image/");
           });
           if (entries.length) {
-            _context16.n = 4;
+            _context18.n = 4;
             break;
           }
-          return _context16.a(2, 0);
+          return _context18.a(2, 0);
         case 4:
           BATCH = 6;
           synced = 0;
           i = 0;
         case 5:
           if (!(i < entries.length)) {
-            _context16.n = 12;
+            _context18.n = 12;
             break;
           }
-          chunk = entries.slice(i, i + BATCH).map(function (_ref101) {
-            var _ref102 = _slicedToArray(_ref101, 2),
-              id = _ref102[0],
-              src = _ref102[1];
+          chunk = entries.slice(i, i + BATCH).map(function (_ref103) {
+            var _ref104 = _slicedToArray(_ref103, 2),
+              id = _ref104[0],
+              src = _ref104[1];
             return {
               id: String(id).toUpperCase(),
               data: String(src).replace(/^data:image\/\w+;base64,/, "")
             };
           });
-          _context16.p = 6;
-          _context16.n = 7;
+          _context18.p = 6;
+          _context18.n = 7;
           return fetch("/api/product-images", {
             method: "POST",
             headers: {
@@ -10967,32 +10967,32 @@ function _syncImagesToDrive() {
             })
           });
         case 7:
-          r = _context16.v;
-          _context16.n = 8;
+          r = _context18.v;
+          _context18.n = 8;
           return r.json();
         case 8:
-          d = _context16.v;
+          d = _context18.v;
           if (r.ok && d.ok) synced += d.uploaded || chunk.length;
-          _context16.n = 10;
+          _context18.n = 10;
           break;
         case 9:
-          _context16.p = 9;
-          _t8 = _context16.v;
-          console.warn("Drive image sync", _t8);
+          _context18.p = 9;
+          _t9 = _context18.v;
+          console.warn("Drive image sync", _t9);
         case 10:
-          _context16.n = 11;
+          _context18.n = 11;
           return new Promise(function (res) {
             return setTimeout(res, 40);
           });
         case 11:
           i += BATCH;
-          _context16.n = 5;
+          _context18.n = 5;
           break;
         case 12:
           if (synced) toast.success("Photos synced to cloud", synced + " product photo(s) — visible on all devices");
-          return _context16.a(2, synced);
+          return _context18.a(2, synced);
       }
-    }, _callee16, null, [[6, 9]]);
+    }, _callee18, null, [[6, 9]]);
   }));
   return _syncImagesToDrive.apply(this, arguments);
 }
@@ -11013,12 +11013,12 @@ function fetchEventInvBuffer(_x1) {
   return _fetchEventInvBuffer.apply(this, arguments);
 }
 function _fetchEventInvBuffer() {
-  _fetchEventInvBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17(ev) {
-    var latest, urls, _i3, _urls, url, r, _t9, _t0, _t1;
-    return _regenerator().w(function (_context17) {
-      while (1) switch (_context17.p = _context17.n) {
+  _fetchEventInvBuffer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee19(ev) {
+    var latest, urls, _i3, _urls, url, r, _t0, _t1, _t10;
+    return _regenerator().w(function (_context19) {
+      while (1) switch (_context19.p = _context19.n) {
         case 0:
-          _context17.n = 1;
+          _context19.n = 1;
           return cloudFetchData();
         case 1:
           latest = _toConsumableArray(ev.invHistory || []).reverse().find(function (h) {
@@ -11030,45 +11030,45 @@ function _fetchEventInvBuffer() {
           _i3 = 0, _urls = urls;
         case 2:
           if (!(_i3 < _urls.length)) {
-            _context17.n = 9;
+            _context19.n = 9;
             break;
           }
           url = _urls[_i3];
-          _context17.p = 3;
-          _context17.n = 4;
+          _context19.p = 3;
+          _context19.n = 4;
           return fetch(url, {
             cache: "no-store"
           });
         case 4:
-          r = _context17.v;
+          r = _context19.v;
           if (!r.ok) {
-            _context17.n = 6;
+            _context19.n = 6;
             break;
           }
-          _context17.n = 5;
+          _context19.n = 5;
           return r.arrayBuffer();
         case 5:
-          _t9 = _context17.v;
-          _t0 = (latest === null || latest === void 0 ? void 0 : latest.fileName) || "inventory.xlsx";
-          return _context17.a(2, {
-            buf: _t9,
-            fileName: _t0
+          _t0 = _context19.v;
+          _t1 = (latest === null || latest === void 0 ? void 0 : latest.fileName) || "inventory.xlsx";
+          return _context19.a(2, {
+            buf: _t0,
+            fileName: _t1
           });
         case 6:
-          _context17.n = 8;
+          _context19.n = 8;
           break;
         case 7:
-          _context17.p = 7;
-          _t1 = _context17.v;
-          console.warn("Fetch inventory sheet", _t1);
+          _context19.p = 7;
+          _t10 = _context19.v;
+          console.warn("Fetch inventory sheet", _t10);
         case 8:
           _i3++;
-          _context17.n = 2;
+          _context19.n = 2;
           break;
         case 9:
-          return _context17.a(2, null);
+          return _context19.a(2, null);
       }
-    }, _callee17, null, [[3, 7]]);
+    }, _callee19, null, [[3, 7]]);
   }));
   return _fetchEventInvBuffer.apply(this, arguments);
 }
@@ -11076,33 +11076,33 @@ function prefetchInvImages(_x10) {
   return _prefetchInvImages.apply(this, arguments);
 }
 function _prefetchInvImages() {
-  _prefetchInvImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee18(ids) {
+  _prefetchInvImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20(ids) {
     var list, before, after;
-    return _regenerator().w(function (_context18) {
-      while (1) switch (_context18.n) {
+    return _regenerator().w(function (_context20) {
+      while (1) switch (_context20.n) {
         case 0:
           list = _toConsumableArray(new Set((ids || []).map(function (id) {
             return String(id || "").toUpperCase();
           }).filter(Boolean)));
           if (list.length) {
-            _context18.n = 1;
+            _context20.n = 1;
             break;
           }
-          return _context18.a(2, 0);
+          return _context20.a(2, 0);
         case 1:
           before = list.filter(function (id) {
             return !resolveItemImage(id);
           }).length;
-          _context18.n = 2;
+          _context20.n = 2;
           return idbLoadImagesForIds(list);
         case 2:
           after = list.filter(function (id) {
             return !resolveItemImage(id);
           }).length;
           if (before > after) notifyImagesChanged();
-          return _context18.a(2, before - after);
+          return _context20.a(2, before - after);
       }
-    }, _callee18);
+    }, _callee20);
   }));
   return _prefetchInvImages.apply(this, arguments);
 }
@@ -11122,44 +11122,44 @@ function ensureEventInvImages(_x11) {
   return _ensureEventInvImages.apply(this, arguments);
 }
 function _ensureEventInvImages() {
-  _ensureEventInvImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee19(ev) {
+  _ensureEventInvImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee21(ev) {
     var invList, ids, loaded, missing, stored, n, remote, _n;
-    return _regenerator().w(function (_context19) {
-      while (1) switch (_context19.n) {
+    return _regenerator().w(function (_context21) {
+      while (1) switch (_context21.n) {
         case 0:
           invList = (ev === null || ev === void 0 ? void 0 : ev.inv) || [];
           ids = invList.map(function (i) {
             return i.id;
           });
           if (ids.length) {
-            _context19.n = 1;
+            _context21.n = 1;
             break;
           }
-          return _context19.a(2, 0);
+          return _context21.a(2, 0);
         case 1:
-          _context19.n = 2;
+          _context21.n = 2;
           return prefetchInvImages(ids);
         case 2:
-          loaded = _context19.v;
+          loaded = _context21.v;
           missing = ids.filter(function (id) {
             return !resolveItemImage(id, invItem(invList, id));
           });
           if (!missing.length) {
-            _context19.n = 5;
+            _context21.n = 5;
             break;
           }
-          _context19.n = 3;
+          _context21.n = 3;
           return idbGetLatestInvFile(ev.id);
         case 3:
-          stored = _context19.v;
+          stored = _context21.v;
           if (!stored) {
-            _context19.n = 5;
+            _context21.n = 5;
             break;
           }
-          _context19.n = 4;
+          _context21.n = 4;
           return extractImagesFromInvBase64(stored.contentBase64, invList, ev.id);
         case 4:
-          n = _context19.v;
+          n = _context21.v;
           if (n) {
             loaded += n;
             notifyImagesChanged();
@@ -11175,39 +11175,39 @@ function _ensureEventInvImages() {
             });
           }
           if (missing.length) {
-            _context19.n = 6;
+            _context21.n = 6;
             break;
           }
-          return _context19.a(2, loaded);
+          return _context21.a(2, loaded);
         case 6:
-          _context19.n = 7;
+          _context21.n = 7;
           return fetchEventInvBuffer(ev);
         case 7:
-          remote = _context19.v;
+          remote = _context21.v;
           if (!(remote && remote.buf)) {
-            _context19.n = 9;
+            _context21.n = 9;
             break;
           }
-          _context19.n = 8;
+          _context21.n = 8;
           return extractImagesFromBuffer(remote.buf, invList, remote.fileName, ev.id);
         case 8:
-          _n = _context19.v;
+          _n = _context21.v;
           if (!_n) {
-            _context19.n = 9;
+            _context21.n = 9;
             break;
           }
           loaded += _n;
           notifyImagesChanged();
           if (!(ev.id && remote.buf.byteLength < 12 * 1024 * 1024)) {
-            _context19.n = 9;
+            _context21.n = 9;
             break;
           }
-          _context19.n = 9;
+          _context21.n = 9;
           return idbSaveInvBuffer(ev.id, remote.fileName, remote.buf);
         case 9:
-          return _context19.a(2, loaded);
+          return _context21.a(2, loaded);
       }
-    }, _callee19);
+    }, _callee21);
   }));
   return _ensureEventInvImages.apply(this, arguments);
 }
@@ -11215,18 +11215,18 @@ function applyInventoryUpload(_x12, _x13, _x14, _x15, _x16) {
   return _applyInventoryUpload.apply(this, arguments);
 }
 function _applyInventoryUpload() {
-  _applyInventoryUpload = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee20(ev, file, items, mode, by) {
+  _applyInventoryUpload = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee22(ev, file, items, mode, by) {
     var incoming, _mergeInvItems, inv, added, skipped, addedN, updated, imgN, photos;
-    return _regenerator().w(function (_context20) {
-      while (1) switch (_context20.n) {
+    return _regenerator().w(function (_context22) {
+      while (1) switch (_context22.n) {
         case 0:
           incoming = Array.isArray(items) ? items : [];
           _mergeInvItems = mergeInvItems(ev.inv || [], incoming, mode), inv = _mergeInvItems.inv, added = _mergeInvItems.added, skipped = _mergeInvItems.skipped;
           if (!(mode === "add" && added === 0 && skipped > 0)) {
-            _context20.n = 1;
+            _context22.n = 1;
             break;
           }
-          return _context20.a(2, {
+          return _context22.a(2, {
             ok: false,
             added: added,
             skipped: skipped,
@@ -11247,30 +11247,30 @@ function _applyInventoryUpload() {
           });
           imgN = 0;
           if (!file) {
-            _context20.n = 5;
+            _context22.n = 5;
             break;
           }
-          _context20.n = 2;
+          _context22.n = 2;
           return idbSaveInvFile(ev.id, file);
         case 2:
-          _context20.n = 3;
+          _context22.n = 3;
           return ensureImagesFromInvFile(file, inv, ev.id);
         case 3:
-          imgN = _context20.v;
-          _context20.n = 4;
+          imgN = _context22.v;
+          _context22.n = 4;
           return prefetchInvImages(inv.map(function (i) {
             return i.id;
           }));
         case 4:
           if (!(file.size <= 12 * 1024 * 1024)) {
-            _context20.n = 5;
+            _context22.n = 5;
             break;
           }
-          _context20.n = 5;
+          _context22.n = 5;
           return queueInventoryFileForDrive(ev.id, file);
         case 5:
           photos = countInvImages(inv);
-          return _context20.a(2, {
+          return _context22.a(2, {
             ok: true,
             updated: updated,
             added: addedN,
@@ -11280,7 +11280,7 @@ function _applyInventoryUpload() {
             photos: photos
           });
       }
-    }, _callee20);
+    }, _callee22);
   }));
   return _applyInventoryUpload.apply(this, arguments);
 }
@@ -11721,19 +11721,19 @@ function registerBio(_x18) {
   return _registerBio.apply(this, arguments);
 }
 function _registerBio() {
-  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee21(username) {
-    var cred, _t10;
-    return _regenerator().w(function (_context21) {
-      while (1) switch (_context21.p = _context21.n) {
+  _registerBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee23(username) {
+    var cred, _t11;
+    return _regenerator().w(function (_context23) {
+      while (1) switch (_context23.p = _context23.n) {
         case 0:
           if (window.PublicKeyCredential) {
-            _context21.n = 1;
+            _context23.n = 1;
             break;
           }
-          return _context21.a(2, false);
+          return _context23.a(2, false);
         case 1:
-          _context21.p = 1;
-          _context21.n = 2;
+          _context23.p = 1;
+          _context23.n = 2;
           return navigator.credentials.create({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -11762,22 +11762,22 @@ function _registerBio() {
             }
           });
         case 2:
-          cred = _context21.v;
+          cred = _context23.v;
           if (cred) {
-            _context21.n = 3;
+            _context23.n = 3;
             break;
           }
-          return _context21.a(2, false);
+          return _context23.a(2, false);
         case 3:
           localStorage.setItem(BIO_KEY, b64u(cred.rawId));
           localStorage.setItem(BIO_USER, username.toLowerCase());
-          return _context21.a(2, true);
+          return _context23.a(2, true);
         case 4:
-          _context21.p = 4;
-          _t10 = _context21.v;
-          return _context21.a(2, false);
+          _context23.p = 4;
+          _t11 = _context23.v;
+          return _context23.a(2, false);
       }
-    }, _callee21, null, [[1, 4]]);
+    }, _callee23, null, [[1, 4]]);
   }));
   return _registerBio.apply(this, arguments);
 }
@@ -11785,22 +11785,22 @@ function loginBio(_x19, _x20, _x21) {
   return _loginBio.apply(this, arguments);
 } // ── Dark Mode system ──────────────────────────────────────────────────────
 function _loginBio() {
-  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee22(onLogin, onFail, users) {
-    var id, un, cred, usr, _t11;
-    return _regenerator().w(function (_context22) {
-      while (1) switch (_context22.p = _context22.n) {
+  _loginBio = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee24(onLogin, onFail, users) {
+    var id, un, cred, usr, _t12;
+    return _regenerator().w(function (_context24) {
+      while (1) switch (_context24.p = _context24.n) {
         case 0:
           id = localStorage.getItem(BIO_KEY);
           un = localStorage.getItem(BIO_USER);
           if (!(!id || !un)) {
-            _context22.n = 1;
+            _context24.n = 1;
             break;
           }
           onFail("Sign in with password once to enable Face ID.");
-          return _context22.a(2);
+          return _context24.a(2);
         case 1:
-          _context22.p = 1;
-          _context22.n = 2;
+          _context24.p = 1;
+          _context24.n = 2;
           return navigator.credentials.get({
             publicKey: {
               challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -11815,27 +11815,27 @@ function _loginBio() {
             }
           });
         case 2:
-          cred = _context22.v;
+          cred = _context24.v;
           if (cred) {
-            _context22.n = 3;
+            _context24.n = 3;
             break;
           }
-          return _context22.a(2);
+          return _context24.a(2);
         case 3:
           usr = users.find(function (x) {
             return x.un === un;
           });
           if (usr) onLogin(usr);else onFail("Saved sign-in expired. Use password once.");
-          _context22.n = 5;
+          _context24.n = 5;
           break;
         case 4:
-          _context22.p = 4;
-          _t11 = _context22.v;
-          if (_t11.name !== "NotAllowedError") onFail(_t11.message || "Face ID failed");
+          _context24.p = 4;
+          _t12 = _context24.v;
+          if (_t12.name !== "NotAllowedError") onFail(_t12.message || "Face ID failed");
         case 5:
-          return _context22.a(2);
+          return _context24.a(2);
       }
-    }, _callee22, null, [[1, 4]]);
+    }, _callee24, null, [[1, 4]]);
   }));
   return _loginBio.apply(this, arguments);
 }
@@ -13291,40 +13291,40 @@ function idbSaveInvFile(_x22, _x23) {
   return _idbSaveInvFile.apply(this, arguments);
 }
 function _idbSaveInvFile() {
-  _idbSaveInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee23(eventId, file) {
-    var contentBase64, db, _t12;
-    return _regenerator().w(function (_context23) {
-      while (1) switch (_context23.p = _context23.n) {
+  _idbSaveInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee25(eventId, file) {
+    var contentBase64, db, _t13;
+    return _regenerator().w(function (_context25) {
+      while (1) switch (_context25.p = _context25.n) {
         case 0:
           if (!(!eventId || !file)) {
-            _context23.n = 1;
+            _context25.n = 1;
             break;
           }
-          return _context23.a(2);
+          return _context25.a(2);
         case 1:
           if (!(file.size > 12 * 1024 * 1024)) {
-            _context23.n = 2;
+            _context25.n = 2;
             break;
           }
           console.warn("Skip local xlsx cache — file too large for phone storage");
-          return _context23.a(2);
+          return _context25.a(2);
         case 2:
-          _context23.p = 2;
-          _context23.n = 3;
+          _context25.p = 2;
+          _context25.n = 3;
           return fileToBase64(file);
         case 3:
-          contentBase64 = _context23.v;
+          contentBase64 = _context25.v;
           if (contentBase64) {
-            _context23.n = 4;
+            _context25.n = 4;
             break;
           }
-          return _context23.a(2);
+          return _context25.a(2);
         case 4:
-          _context23.n = 5;
+          _context25.n = 5;
           return idbOpen();
         case 5:
-          db = _context23.v;
-          _context23.n = 6;
+          db = _context25.v;
+          _context25.n = 6;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_INV_FILE_STORE, "readwrite");
             tx.objectStore(IDB_INV_FILE_STORE).put({
@@ -13343,16 +13343,16 @@ function _idbSaveInvFile() {
             };
           });
         case 6:
-          _context23.n = 8;
+          _context25.n = 8;
           break;
         case 7:
-          _context23.p = 7;
-          _t12 = _context23.v;
-          console.warn("Inventory file save failed", _t12);
+          _context25.p = 7;
+          _t13 = _context25.v;
+          console.warn("Inventory file save failed", _t13);
         case 8:
-          return _context23.a(2);
+          return _context25.a(2);
       }
-    }, _callee23, null, [[2, 7]]);
+    }, _callee25, null, [[2, 7]]);
   }));
   return _idbSaveInvFile.apply(this, arguments);
 }
@@ -13360,23 +13360,23 @@ function idbGetLatestInvFile(_x24) {
   return _idbGetLatestInvFile.apply(this, arguments);
 }
 function _idbGetLatestInvFile() {
-  _idbGetLatestInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee24(eventId) {
-    var db, all, hits, _t13;
-    return _regenerator().w(function (_context24) {
-      while (1) switch (_context24.p = _context24.n) {
+  _idbGetLatestInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26(eventId) {
+    var db, all, hits, _t14;
+    return _regenerator().w(function (_context26) {
+      while (1) switch (_context26.p = _context26.n) {
         case 0:
           if (eventId) {
-            _context24.n = 1;
+            _context26.n = 1;
             break;
           }
-          return _context24.a(2, null);
+          return _context26.a(2, null);
         case 1:
-          _context24.p = 1;
-          _context24.n = 2;
+          _context26.p = 1;
+          _context26.n = 2;
           return idbOpen();
         case 2:
-          db = _context24.v;
-          _context24.n = 3;
+          db = _context26.v;
+          _context26.n = 3;
           return new Promise(function (res, rej) {
             var r = db.transaction(IDB_INV_FILE_STORE, "readonly").objectStore(IDB_INV_FILE_STORE).getAll();
             r.onsuccess = function () {
@@ -13387,26 +13387,26 @@ function _idbGetLatestInvFile() {
             };
           });
         case 3:
-          all = _context24.v;
+          all = _context26.v;
           hits = all.filter(function (x) {
             return x && x.eventId === String(eventId) && x.contentBase64 && /\.xlsx?$/i.test(x.fileName || "");
           });
           if (hits.length) {
-            _context24.n = 4;
+            _context26.n = 4;
             break;
           }
-          return _context24.a(2, null);
+          return _context26.a(2, null);
         case 4:
           hits.sort(function (a, b) {
             return String(b.uploadedAt).localeCompare(String(a.uploadedAt));
           });
-          return _context24.a(2, hits[0]);
+          return _context26.a(2, hits[0]);
         case 5:
-          _context24.p = 5;
-          _t13 = _context24.v;
-          return _context24.a(2, null);
+          _context26.p = 5;
+          _t14 = _context26.v;
+          return _context26.a(2, null);
       }
-    }, _callee24, null, [[1, 5]]);
+    }, _callee26, null, [[1, 5]]);
   }));
   return _idbGetLatestInvFile.apply(this, arguments);
 }
@@ -13414,33 +13414,33 @@ function extractImagesFromInvBase64(_x25, _x26, _x27) {
   return _extractImagesFromInvBase.apply(this, arguments);
 }
 function _extractImagesFromInvBase() {
-  _extractImagesFromInvBase = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee25(contentBase64, inv, eventId) {
-    var bin, buf, view, i, _t14;
-    return _regenerator().w(function (_context25) {
-      while (1) switch (_context25.p = _context25.n) {
+  _extractImagesFromInvBase = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27(contentBase64, inv, eventId) {
+    var bin, buf, view, i, _t15;
+    return _regenerator().w(function (_context27) {
+      while (1) switch (_context27.p = _context27.n) {
         case 0:
           if (contentBase64) {
-            _context25.n = 1;
+            _context27.n = 1;
             break;
           }
-          return _context25.a(2, 0);
+          return _context27.a(2, 0);
         case 1:
-          _context25.p = 1;
+          _context27.p = 1;
           bin = atob(contentBase64);
           buf = new ArrayBuffer(bin.length);
           view = new Uint8Array(buf);
           for (i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
-          _context25.n = 2;
+          _context27.n = 2;
           return extractImagesFromBuffer(buf, inv, "inventory.xlsx", eventId);
         case 2:
-          return _context25.a(2, _context25.v);
+          return _context27.a(2, _context27.v);
         case 3:
-          _context25.p = 3;
-          _t14 = _context25.v;
-          console.warn("Image extract from stored file", _t14);
-          return _context25.a(2, 0);
+          _context27.p = 3;
+          _t15 = _context27.v;
+          console.warn("Image extract from stored file", _t15);
+          return _context27.a(2, 0);
       }
-    }, _callee25, null, [[1, 3]]);
+    }, _callee27, null, [[1, 3]]);
   }));
   return _extractImagesFromInvBase.apply(this, arguments);
 }
@@ -13448,32 +13448,32 @@ function ensureImagesFromInvFile(_x28, _x29, _x30) {
   return _ensureImagesFromInvFile.apply(this, arguments);
 }
 function _ensureImagesFromInvFile() {
-  _ensureImagesFromInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26(file, inv, eventId) {
-    var contentBase64, _t15;
-    return _regenerator().w(function (_context26) {
-      while (1) switch (_context26.p = _context26.n) {
+  _ensureImagesFromInvFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28(file, inv, eventId) {
+    var contentBase64, _t16;
+    return _regenerator().w(function (_context28) {
+      while (1) switch (_context28.p = _context28.n) {
         case 0:
           if (!(!file || !/\.xlsx?$/i.test(file.name || ""))) {
-            _context26.n = 1;
+            _context28.n = 1;
             break;
           }
-          return _context26.a(2, 0);
+          return _context28.a(2, 0);
         case 1:
-          _context26.p = 1;
-          _context26.n = 2;
+          _context28.p = 1;
+          _context28.n = 2;
           return fileToBase64(file);
         case 2:
-          contentBase64 = _context26.v;
-          _context26.n = 3;
+          contentBase64 = _context28.v;
+          _context28.n = 3;
           return extractImagesFromInvBase64(contentBase64, inv, eventId);
         case 3:
-          return _context26.a(2, _context26.v);
+          return _context28.a(2, _context28.v);
         case 4:
-          _context26.p = 4;
-          _t15 = _context26.v;
-          return _context26.a(2, 0);
+          _context28.p = 4;
+          _t16 = _context28.v;
+          return _context28.a(2, 0);
       }
-    }, _callee26, null, [[1, 4]]);
+    }, _callee28, null, [[1, 4]]);
   }));
   return _ensureImagesFromInvFile.apply(this, arguments);
 }
@@ -13481,58 +13481,58 @@ function idbSaveImages(_x31) {
   return _idbSaveImages.apply(this, arguments);
 }
 function _idbSaveImages() {
-  _idbSaveImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27(imgMap) {
-    var entries, BATCH, db, _loop3, i, _t17;
-    return _regenerator().w(function (_context28) {
-      while (1) switch (_context28.p = _context28.n) {
+  _idbSaveImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29(imgMap) {
+    var entries, BATCH, db, _loop3, i, _t18;
+    return _regenerator().w(function (_context30) {
+      while (1) switch (_context30.p = _context30.n) {
         case 0:
           if (!(!imgMap || !Object.keys(imgMap).length)) {
-            _context28.n = 1;
+            _context30.n = 1;
             break;
           }
-          return _context28.a(2);
+          return _context30.a(2);
         case 1:
-          entries = Object.entries(imgMap).filter(function (_ref103) {
-            var _ref104 = _slicedToArray(_ref103, 2),
-              id = _ref104[0],
-              src = _ref104[1];
-            return id && src;
-          });
-          if (entries.length) {
-            _context28.n = 2;
-            break;
-          }
-          return _context28.a(2);
-        case 2:
-          if (!window.VJ_IMG) window.VJ_IMG = {};
-          entries.forEach(function (_ref105) {
+          entries = Object.entries(imgMap).filter(function (_ref105) {
             var _ref106 = _slicedToArray(_ref105, 2),
               id = _ref106[0],
               src = _ref106[1];
+            return id && src;
+          });
+          if (entries.length) {
+            _context30.n = 2;
+            break;
+          }
+          return _context30.a(2);
+        case 2:
+          if (!window.VJ_IMG) window.VJ_IMG = {};
+          entries.forEach(function (_ref107) {
+            var _ref108 = _slicedToArray(_ref107, 2),
+              id = _ref108[0],
+              src = _ref108[1];
             window.VJ_IMG[String(id).toUpperCase()] = src;
           });
           notifyImagesChanged();
           BATCH = 20;
-          _context28.p = 3;
-          _context28.n = 4;
+          _context30.p = 3;
+          _context30.n = 4;
           return idbOpen();
         case 4:
-          db = _context28.v;
+          db = _context30.v;
           _loop3 = /*#__PURE__*/_regenerator().m(function _loop3() {
-            var slice, _t16;
-            return _regenerator().w(function (_context27) {
-              while (1) switch (_context27.p = _context27.n) {
+            var slice, _t17;
+            return _regenerator().w(function (_context29) {
+              while (1) switch (_context29.p = _context29.n) {
                 case 0:
                   slice = entries.slice(i, i + BATCH);
-                  _context27.p = 1;
-                  _context27.n = 2;
+                  _context29.p = 1;
+                  _context29.n = 2;
                   return new Promise(function (res, rej) {
                     var tx = db.transaction(IDB_IMG_STORE, "readwrite");
                     var st = tx.objectStore(IDB_IMG_STORE);
-                    slice.forEach(function (_ref107) {
-                      var _ref108 = _slicedToArray(_ref107, 2),
-                        id = _ref108[0],
-                        src = _ref108[1];
+                    slice.forEach(function (_ref109) {
+                      var _ref110 = _slicedToArray(_ref109, 2),
+                        id = _ref110[0],
+                        src = _ref110[1];
                       return st.put({
                         id: String(id).toUpperCase(),
                         src: src
@@ -13546,44 +13546,44 @@ function _idbSaveImages() {
                     };
                   });
                 case 2:
-                  _context27.n = 4;
+                  _context29.n = 4;
                   break;
                 case 3:
-                  _context27.p = 3;
-                  _t16 = _context27.v;
-                  console.warn("Image batch save", _t16);
+                  _context29.p = 3;
+                  _t17 = _context29.v;
+                  console.warn("Image batch save", _t17);
                 case 4:
-                  _context27.n = 5;
+                  _context29.n = 5;
                   return new Promise(function (r) {
                     return setTimeout(r, 0);
                   });
                 case 5:
-                  return _context27.a(2);
+                  return _context29.a(2);
               }
             }, _loop3, null, [[1, 3]]);
           });
           i = 0;
         case 5:
           if (!(i < entries.length)) {
-            _context28.n = 7;
+            _context30.n = 7;
             break;
           }
-          return _context28.d(_regeneratorValues(_loop3()), 6);
+          return _context30.d(_regeneratorValues(_loop3()), 6);
         case 6:
           i += BATCH;
-          _context28.n = 5;
+          _context30.n = 5;
           break;
         case 7:
-          _context28.n = 9;
+          _context30.n = 9;
           break;
         case 8:
-          _context28.p = 8;
-          _t17 = _context28.v;
-          console.warn("Image save failed", _t17);
+          _context30.p = 8;
+          _t18 = _context30.v;
+          console.warn("Image save failed", _t18);
         case 9:
-          return _context28.a(2);
+          return _context30.a(2);
       }
-    }, _callee27, null, [[3, 8]]);
+    }, _callee29, null, [[3, 8]]);
   }));
   return _idbSaveImages.apply(this, arguments);
 }
@@ -13591,10 +13591,10 @@ function idbLoadImagesForIds(_x32) {
   return _idbLoadImagesForIds.apply(this, arguments);
 }
 function _idbLoadImagesForIds() {
-  _idbLoadImagesForIds = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28(ids) {
-    var need, db, loaded, _t18;
-    return _regenerator().w(function (_context29) {
-      while (1) switch (_context29.p = _context29.n) {
+  _idbLoadImagesForIds = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30(ids) {
+    var need, db, loaded, _t19;
+    return _regenerator().w(function (_context31) {
+      while (1) switch (_context31.p = _context31.n) {
         case 0:
           need = _toConsumableArray(new Set((ids || []).map(function (id) {
             return String(id || "").toUpperCase();
@@ -13602,18 +13602,18 @@ function _idbLoadImagesForIds() {
             return id && !(window.VJ_IMG && window.VJ_IMG[id]);
           })));
           if (need.length) {
-            _context29.n = 1;
+            _context31.n = 1;
             break;
           }
-          return _context29.a(2, 0);
+          return _context31.a(2, 0);
         case 1:
-          _context29.p = 1;
-          _context29.n = 2;
+          _context31.p = 1;
+          _context31.n = 2;
           return idbOpen();
         case 2:
-          db = _context29.v;
+          db = _context31.v;
           loaded = 0;
-          _context29.n = 3;
+          _context31.n = 3;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_IMG_STORE, "readonly");
             var st = tx.objectStore(IDB_IMG_STORE);
@@ -13638,13 +13638,13 @@ function _idbLoadImagesForIds() {
           });
         case 3:
           if (loaded) notifyImagesChanged();
-          return _context29.a(2, loaded);
+          return _context31.a(2, loaded);
         case 4:
-          _context29.p = 4;
-          _t18 = _context29.v;
-          return _context29.a(2, 0);
+          _context31.p = 4;
+          _t19 = _context31.v;
+          return _context31.a(2, 0);
       }
-    }, _callee28, null, [[1, 4]]);
+    }, _callee30, null, [[1, 4]]);
   }));
   return _idbLoadImagesForIds.apply(this, arguments);
 }
@@ -13652,17 +13652,17 @@ function idbLoadAllImages() {
   return _idbLoadAllImages.apply(this, arguments);
 }
 function _idbLoadAllImages() {
-  _idbLoadAllImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29() {
-    var db, all, loaded, _t19;
-    return _regenerator().w(function (_context30) {
-      while (1) switch (_context30.p = _context30.n) {
+  _idbLoadAllImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee31() {
+    var db, all, loaded, _t20;
+    return _regenerator().w(function (_context32) {
+      while (1) switch (_context32.p = _context32.n) {
         case 0:
-          _context30.p = 0;
-          _context30.n = 1;
+          _context32.p = 0;
+          _context32.n = 1;
           return idbOpen();
         case 1:
-          db = _context30.v;
-          _context30.n = 2;
+          db = _context32.v;
+          _context32.n = 2;
           return new Promise(function (res, rej) {
             var r = db.transaction(IDB_IMG_STORE, "readonly").objectStore(IDB_IMG_STORE).getAll();
             r.onsuccess = function () {
@@ -13673,7 +13673,7 @@ function _idbLoadAllImages() {
             };
           });
         case 2:
-          all = _context30.v;
+          all = _context32.v;
           if (!window.VJ_IMG) window.VJ_IMG = {};
           loaded = 0;
           all.forEach(function (row) {
@@ -13683,13 +13683,13 @@ function _idbLoadAllImages() {
             }
           });
           if (loaded) notifyImagesChanged();
-          return _context30.a(2, loaded);
+          return _context32.a(2, loaded);
         case 3:
-          _context30.p = 3;
-          _t19 = _context30.v;
-          return _context30.a(2, 0);
+          _context32.p = 3;
+          _t20 = _context32.v;
+          return _context32.a(2, 0);
       }
-    }, _callee29, null, [[0, 3]]);
+    }, _callee31, null, [[0, 3]]);
   }));
   return _idbLoadAllImages.apply(this, arguments);
 }
@@ -13697,17 +13697,17 @@ function idbGetEvents() {
   return _idbGetEvents.apply(this, arguments);
 }
 function _idbGetEvents() {
-  _idbGetEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30() {
-    var db, _t20;
-    return _regenerator().w(function (_context31) {
-      while (1) switch (_context31.p = _context31.n) {
+  _idbGetEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32() {
+    var db, _t21;
+    return _regenerator().w(function (_context33) {
+      while (1) switch (_context33.p = _context33.n) {
         case 0:
-          _context31.p = 0;
-          _context31.n = 1;
+          _context33.p = 0;
+          _context33.n = 1;
           return idbOpen();
         case 1:
-          db = _context31.v;
-          _context31.n = 2;
+          db = _context33.v;
+          _context33.n = 2;
           return new Promise(function (res, rej) {
             var r = db.transaction(IDB_STORE, "readonly").objectStore(IDB_STORE).getAll();
             r.onsuccess = function () {
@@ -13718,13 +13718,13 @@ function _idbGetEvents() {
             };
           });
         case 2:
-          return _context31.a(2, _context31.v);
+          return _context33.a(2, _context33.v);
         case 3:
-          _context31.p = 3;
-          _t20 = _context31.v;
-          return _context31.a(2, null);
+          _context33.p = 3;
+          _t21 = _context33.v;
+          return _context33.a(2, null);
       }
-    }, _callee30, null, [[0, 3]]);
+    }, _callee32, null, [[0, 3]]);
   }));
   return _idbGetEvents.apply(this, arguments);
 }
@@ -13732,17 +13732,17 @@ function idbSaveEvents(_x33) {
   return _idbSaveEvents.apply(this, arguments);
 }
 function _idbSaveEvents() {
-  _idbSaveEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee31(evts) {
-    var db, _t21;
-    return _regenerator().w(function (_context32) {
-      while (1) switch (_context32.p = _context32.n) {
+  _idbSaveEvents = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee33(evts) {
+    var db, _t22;
+    return _regenerator().w(function (_context34) {
+      while (1) switch (_context34.p = _context34.n) {
         case 0:
-          _context32.p = 0;
-          _context32.n = 1;
+          _context34.p = 0;
+          _context34.n = 1;
           return idbOpen();
         case 1:
-          db = _context32.v;
-          _context32.n = 2;
+          db = _context34.v;
+          _context34.n = 2;
           return new Promise(function (res, rej) {
             var tx = db.transaction(IDB_STORE, "readwrite");
             var st = tx.objectStore(IDB_STORE);
@@ -13758,16 +13758,16 @@ function _idbSaveEvents() {
             };
           });
         case 2:
-          _context32.n = 4;
+          _context34.n = 4;
           break;
         case 3:
-          _context32.p = 3;
-          _t21 = _context32.v;
-          console.warn("IndexedDB save failed", _t21);
+          _context34.p = 3;
+          _t22 = _context34.v;
+          console.warn("IndexedDB save failed", _t22);
         case 4:
-          return _context32.a(2);
+          return _context34.a(2);
       }
-    }, _callee31, null, [[0, 3]]);
+    }, _callee33, null, [[0, 3]]);
   }));
   return _idbSaveEvents.apply(this, arguments);
 }
@@ -13804,20 +13804,20 @@ function loadEventsAsync() {
   return _loadEventsAsync.apply(this, arguments);
 }
 function _loadEventsAsync() {
-  _loadEventsAsync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32() {
+  _loadEventsAsync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee34() {
     var local, idb;
-    return _regenerator().w(function (_context33) {
-      while (1) switch (_context33.n) {
+    return _regenerator().w(function (_context35) {
+      while (1) switch (_context35.n) {
         case 0:
           local = loadEvents();
-          _context33.n = 1;
+          _context35.n = 1;
           return idbGetEvents();
         case 1:
-          idb = _context33.v;
+          idb = _context35.v;
           if (idb && idb.length) local = mergeEvents(local, idb);
-          return _context33.a(2, ensureNyOfficeEvent(applyDeletedFilter(local)));
+          return _context35.a(2, ensureNyOfficeEvent(applyDeletedFilter(local)));
       }
-    }, _callee32);
+    }, _callee34);
   }));
   return _loadEventsAsync.apply(this, arguments);
 }
@@ -14054,34 +14054,34 @@ function queueInventoryFileForDrive(_x34, _x35) {
   return _queueInventoryFileForDrive.apply(this, arguments);
 }
 function _queueInventoryFileForDrive() {
-  _queueInventoryFileForDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee33(eventId, file) {
-    var contentBase64, _t22;
-    return _regenerator().w(function (_context34) {
-      while (1) switch (_context34.p = _context34.n) {
+  _queueInventoryFileForDrive = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(eventId, file) {
+    var contentBase64, _t23;
+    return _regenerator().w(function (_context36) {
+      while (1) switch (_context36.p = _context36.n) {
         case 0:
           if (!(!file || !eventId)) {
-            _context34.n = 1;
+            _context36.n = 1;
             break;
           }
-          return _context34.a(2);
+          return _context36.a(2);
         case 1:
           if (!(file.size > MAX_INV_CLOUD_BYTES)) {
-            _context34.n = 2;
+            _context36.n = 2;
             break;
           }
           console.warn("Skip Drive xlsx queue — file too large for cloud API", file.name, file.size);
-          return _context34.a(2);
+          return _context36.a(2);
         case 2:
-          _context34.p = 2;
-          _context34.n = 3;
+          _context36.p = 2;
+          _context36.n = 3;
           return fileToBase64(file);
         case 3:
-          contentBase64 = _context34.v;
+          contentBase64 = _context36.v;
           if (contentBase64) {
-            _context34.n = 4;
+            _context36.n = 4;
             break;
           }
-          return _context34.a(2);
+          return _context36.a(2);
         case 4:
           _pendingInvFiles.push({
             eventId: eventId,
@@ -14089,16 +14089,16 @@ function _queueInventoryFileForDrive() {
             contentBase64: contentBase64,
             mimeType: mimeForFileName(file.name)
           });
-          _context34.n = 6;
+          _context36.n = 6;
           break;
         case 5:
-          _context34.p = 5;
-          _t22 = _context34.v;
-          console.warn("Drive inventory queue", _t22);
+          _context36.p = 5;
+          _t23 = _context36.v;
+          console.warn("Drive inventory queue", _t23);
         case 6:
-          return _context34.a(2);
+          return _context36.a(2);
       }
-    }, _callee33, null, [[2, 5]]);
+    }, _callee35, null, [[2, 5]]);
   }));
   return _queueInventoryFileForDrive.apply(this, arguments);
 }
@@ -14127,29 +14127,29 @@ function cloudUploadInventoryFiles(_x36) {
   return _cloudUploadInventoryFiles.apply(this, arguments);
 }
 function _cloudUploadInventoryFiles() {
-  _cloudUploadInventoryFiles = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee34(files) {
-    var failed, _iterator4, _step4, f, r, d, _t23, _t24;
-    return _regenerator().w(function (_context35) {
-      while (1) switch (_context35.p = _context35.n) {
+  _cloudUploadInventoryFiles = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(files) {
+    var failed, _iterator4, _step4, f, r, d, _t24, _t25;
+    return _regenerator().w(function (_context37) {
+      while (1) switch (_context37.p = _context37.n) {
         case 0:
           failed = [];
           _iterator4 = _createForOfIteratorHelper(files);
-          _context35.p = 1;
+          _context37.p = 1;
           _iterator4.s();
         case 2:
           if ((_step4 = _iterator4.n()).done) {
-            _context35.n = 9;
+            _context37.n = 9;
             break;
           }
           f = _step4.value;
           if (!(!f || !f.contentBase64 || !f.eventId)) {
-            _context35.n = 3;
+            _context37.n = 3;
             break;
           }
-          return _context35.a(3, 8);
+          return _context37.a(3, 8);
         case 3:
-          _context35.p = 3;
-          _context35.n = 4;
+          _context37.p = 3;
+          _context37.n = 4;
           return fetch("/api/inventory-file", {
             method: "POST",
             headers: {
@@ -14158,42 +14158,42 @@ function _cloudUploadInventoryFiles() {
             body: JSON.stringify(f)
           });
         case 4:
-          r = _context35.v;
-          _context35.n = 5;
+          r = _context37.v;
+          _context37.n = 5;
           return r.json();
         case 5:
-          d = _context35.v;
+          d = _context37.v;
           if (!(!r.ok || !d.ok)) {
-            _context35.n = 6;
+            _context37.n = 6;
             break;
           }
           throw new Error(d.error || "Upload failed");
         case 6:
-          _context35.n = 8;
+          _context37.n = 8;
           break;
         case 7:
-          _context35.p = 7;
-          _t23 = _context35.v;
-          console.warn("Inventory file upload", f.fileName, _t23);
+          _context37.p = 7;
+          _t24 = _context37.v;
+          console.warn("Inventory file upload", f.fileName, _t24);
           failed.push(f);
         case 8:
-          _context35.n = 2;
+          _context37.n = 2;
           break;
         case 9:
-          _context35.n = 11;
+          _context37.n = 11;
           break;
         case 10:
-          _context35.p = 10;
-          _t24 = _context35.v;
-          _iterator4.e(_t24);
+          _context37.p = 10;
+          _t25 = _context37.v;
+          _iterator4.e(_t25);
         case 11:
-          _context35.p = 11;
+          _context37.p = 11;
           _iterator4.f();
-          return _context35.f(11);
+          return _context37.f(11);
         case 12:
-          return _context35.a(2, failed);
+          return _context37.a(2, failed);
       }
-    }, _callee34, null, [[3, 7], [1, 10, 11, 12]]);
+    }, _callee36, null, [[3, 7], [1, 10, 11, 12]]);
   }));
   return _cloudUploadInventoryFiles.apply(this, arguments);
 }
@@ -14201,20 +14201,20 @@ function cloudSaveReceipt(_x37) {
   return _cloudSaveReceipt.apply(this, arguments);
 }
 function _cloudSaveReceipt() {
-  _cloudSaveReceipt = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(_ref6) {
-    var eventName, receiptId, html, r, d, _t25;
-    return _regenerator().w(function (_context36) {
-      while (1) switch (_context36.p = _context36.n) {
+  _cloudSaveReceipt = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee37(_ref6) {
+    var eventName, receiptId, html, r, d, _t26;
+    return _regenerator().w(function (_context38) {
+      while (1) switch (_context38.p = _context38.n) {
         case 0:
           eventName = _ref6.eventName, receiptId = _ref6.receiptId, html = _ref6.html;
           if (!(!isCloudOnline() || !eventName || !receiptId || !html)) {
-            _context36.n = 1;
+            _context38.n = 1;
             break;
           }
-          return _context36.a(2, null);
+          return _context38.a(2, null);
         case 1:
-          _context36.p = 1;
-          _context36.n = 2;
+          _context38.p = 1;
+          _context38.n = 2;
           return fetch("/api/invoice-file", {
             method: "POST",
             headers: {
@@ -14227,25 +14227,25 @@ function _cloudSaveReceipt() {
             })
           });
         case 2:
-          r = _context36.v;
-          _context36.n = 3;
+          r = _context38.v;
+          _context38.n = 3;
           return r.json();
         case 3:
-          d = _context36.v;
+          d = _context38.v;
           if (!(!r.ok || !d.ok)) {
-            _context36.n = 4;
+            _context38.n = 4;
             break;
           }
           throw new Error(d.error || "Receipt save failed");
         case 4:
-          return _context36.a(2, d);
+          return _context38.a(2, d);
         case 5:
-          _context36.p = 5;
-          _t25 = _context36.v;
-          console.warn("Receipt Drive save", receiptId, _t25);
-          return _context36.a(2, null);
+          _context38.p = 5;
+          _t26 = _context38.v;
+          console.warn("Receipt Drive save", receiptId, _t26);
+          return _context38.a(2, null);
       }
-    }, _callee35, null, [[1, 5]]);
+    }, _callee37, null, [[1, 5]]);
   }));
   return _cloudSaveReceipt.apply(this, arguments);
 }
@@ -14268,42 +14268,42 @@ function cloudFetchData(_x38) {
   return _cloudFetchData.apply(this, arguments);
 }
 function _cloudFetchData() {
-  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(withDebug) {
-    var url, r, d, _t26;
-    return _regenerator().w(function (_context37) {
-      while (1) switch (_context37.p = _context37.n) {
+  _cloudFetchData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(withDebug) {
+    var url, r, d, _t27;
+    return _regenerator().w(function (_context39) {
+      while (1) switch (_context39.p = _context39.n) {
         case 0:
-          _context37.p = 0;
+          _context39.p = 0;
           url = withDebug ? "/api/data?debug=1" : "/api/data";
-          _context37.n = 1;
+          _context39.n = 1;
           return fetch(url, {
             method: "GET",
             cache: "no-store"
           });
         case 1:
-          r = _context37.v;
-          _context37.n = 2;
+          r = _context39.v;
+          _context39.n = 2;
           return r.json();
         case 2:
-          d = _context37.v;
+          d = _context39.v;
           if (!(!r.ok || !d.configured)) {
-            _context37.n = 3;
+            _context39.n = 3;
             break;
           }
           _cloudOnline = false;
           _lastCloudPing = d;
-          return _context37.a(2, null);
+          return _context39.a(2, null);
         case 3:
           _cloudOnline = true;
           _lastCloudPing = d;
-          return _context37.a(2, d);
+          return _context39.a(2, d);
         case 4:
-          _context37.p = 4;
-          _t26 = _context37.v;
+          _context39.p = 4;
+          _t27 = _context39.v;
           _cloudOnline = false;
-          return _context37.a(2, null);
+          return _context39.a(2, null);
       }
-    }, _callee36, null, [[0, 4]]);
+    }, _callee38, null, [[0, 4]]);
   }));
   return _cloudFetchData.apply(this, arguments);
 }
@@ -14342,20 +14342,20 @@ function cloudLoad() {
   return _cloudLoad.apply(this, arguments);
 }
 function _cloudLoad() {
-  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee37() {
+  _cloudLoad = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee39() {
     var d;
-    return _regenerator().w(function (_context38) {
-      while (1) switch (_context38.n) {
+    return _regenerator().w(function (_context40) {
+      while (1) switch (_context40.n) {
         case 0:
-          _context38.n = 1;
+          _context40.n = 1;
           return cloudFetchData();
         case 1:
-          d = _context38.v;
+          d = _context40.v;
           if (d) {
-            _context38.n = 2;
+            _context40.n = 2;
             break;
           }
-          return _context38.a(2, null);
+          return _context40.a(2, null);
         case 2:
           if (Array.isArray(d.events) && d.events.length) {
             saveEvents(mergeEvents(loadEvents(), d.events));
@@ -14368,9 +14368,9 @@ function _cloudLoad() {
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context38.a(2, d);
+          return _context40.a(2, d);
       }
-    }, _callee37);
+    }, _callee39);
   }));
   return _cloudLoad.apply(this, arguments);
 }
@@ -14382,25 +14382,25 @@ function cloudSave(_x39, _x40, _x41) {
   return _cloudSave.apply(this, arguments);
 }
 function _cloudSave() {
-  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee39(events, users, deletedEvents) {
-    var ping, currency, inventoryFiles, trySave, d, _t29;
-    return _regenerator().w(function (_context40) {
-      while (1) switch (_context40.p = _context40.n) {
+  _cloudSave = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee41(events, users, deletedEvents) {
+    var ping, currency, inventoryFiles, trySave, d, _t30;
+    return _regenerator().w(function (_context42) {
+      while (1) switch (_context42.p = _context42.n) {
         case 0:
           if (_cloudOnline) {
-            _context40.n = 2;
+            _context42.n = 2;
             break;
           }
-          _context40.n = 1;
+          _context42.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context40.v;
+          ping = _context42.v;
           if (ping) {
-            _context40.n = 2;
+            _context42.n = 2;
             break;
           }
           _lastCloudError = "Could not reach company cloud.";
-          return _context40.a(2, null);
+          return _context42.a(2, null);
         case 2:
           currency = getCloudCurrency();
           inventoryFiles = takePendingInvFiles().filter(function (f) {
@@ -14412,10 +14412,10 @@ function _cloudSave() {
             return true;
           });
           trySave = /*#__PURE__*/function () {
-            var _ref109 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(files) {
-              var body, r, d, msg, _t27, _t28;
-              return _regenerator().w(function (_context39) {
-                while (1) switch (_context39.p = _context39.n) {
+            var _ref111 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(files) {
+              var body, r, d, msg, _t28, _t29;
+              return _regenerator().w(function (_context41) {
+                while (1) switch (_context41.p = _context41.n) {
                   case 0:
                     body = {
                       events: events,
@@ -14424,8 +14424,8 @@ function _cloudSave() {
                       deletedEvents: deletedEvents || [],
                       inventoryFiles: files || []
                     };
-                    _context39.p = 1;
-                    _context39.n = 2;
+                    _context41.p = 1;
+                    _context41.n = 2;
                     return fetch("/api/data", {
                       method: "POST",
                       headers: {
@@ -14434,31 +14434,31 @@ function _cloudSave() {
                       body: JSON.stringify(body)
                     });
                   case 2:
-                    r = _context39.v;
-                    _context39.n = 4;
+                    r = _context41.v;
+                    _context41.n = 4;
                     break;
                   case 3:
-                    _context39.p = 3;
-                    _t27 = _context39.v;
+                    _context41.p = 3;
+                    _t28 = _context41.v;
                     _lastCloudError = "Network error saving to cloud.";
-                    throw _t27;
+                    throw _t28;
                   case 4:
                     d = {};
-                    _context39.p = 5;
-                    _context39.n = 6;
+                    _context41.p = 5;
+                    _context41.n = 6;
                     return r.json();
                   case 6:
-                    d = _context39.v;
-                    _context39.n = 8;
+                    d = _context41.v;
+                    _context41.n = 8;
                     break;
                   case 7:
-                    _context39.p = 7;
-                    _t28 = _context39.v;
+                    _context41.p = 7;
+                    _t29 = _context41.v;
                     _lastCloudError = r.status === 413 ? "Upload too large — price list Excel is too big to attach to cloud save. Photos sync separately; inventory data still saves." : "Cloud save failed (HTTP " + r.status + ").";
-                    throw _t28;
+                    throw _t29;
                   case 8:
                     if (!(!r.ok || !d.ok)) {
-                      _context39.n = 9;
+                      _context41.n = 9;
                       break;
                     }
                     msg = d.error || "Save failed (HTTP " + r.status + ")";
@@ -14466,37 +14466,37 @@ function _cloudSave() {
                     throw new Error(msg);
                   case 9:
                     _lastCloudError = "";
-                    return _context39.a(2, d);
+                    return _context41.a(2, d);
                 }
-              }, _callee38, null, [[5, 7], [1, 3]]);
+              }, _callee40, null, [[5, 7], [1, 3]]);
             }));
-            return function trySave(_x59) {
-              return _ref109.apply(this, arguments);
+            return function trySave(_x60) {
+              return _ref111.apply(this, arguments);
             };
           }();
-          _context40.p = 3;
-          _context40.n = 4;
+          _context42.p = 3;
+          _context42.n = 4;
           return trySave(inventoryFiles);
         case 4:
-          d = _context40.v;
+          d = _context42.v;
           _cloudOnline = true;
           if (d.version) setCloudMeta({
             version: d.version,
             updatedAt: d.updatedAt
           });
-          return _context40.a(2, d);
+          return _context42.a(2, d);
         case 5:
-          _context40.p = 5;
-          _t29 = _context40.v;
+          _context42.p = 5;
+          _t30 = _context42.v;
           if (inventoryFiles.length) _pendingInvFiles.unshift.apply(_pendingInvFiles, _toConsumableArray(inventoryFiles.filter(function (f) {
             var n = f && f.contentBase64 ? f.contentBase64.length : 0;
             return n <= MAX_INV_CLOUD_BYTES * 1.4;
           })));
-          if (!_lastCloudError) _lastCloudError = String(_t29 && _t29.message ? _t29.message : "Could not save to company cloud.");
-          console.warn("Cloud save", _t29);
-          return _context40.a(2, null);
+          if (!_lastCloudError) _lastCloudError = String(_t30 && _t30.message ? _t30.message : "Could not save to company cloud.");
+          console.warn("Cloud save", _t30);
+          return _context42.a(2, null);
       }
-    }, _callee39, null, [[3, 5]]);
+    }, _callee41, null, [[3, 5]]);
   }));
   return _cloudSave.apply(this, arguments);
 }
@@ -14516,11 +14516,11 @@ function flushCloudSync(_x42, _x43, _x44) {
   return _flushCloudSync.apply(this, arguments);
 }
 function _flushCloudSync() {
-  _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(events, users, deletedEvents) {
-    var _ref110,
-      _ref110$silent,
+  _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee42(events, users, deletedEvents) {
+    var _ref112,
+      _ref112$silent,
       silent,
-      _ref110$successMsg,
+      _ref112$successMsg,
       successMsg,
       ping,
       tombstones,
@@ -14531,21 +14531,21 @@ function _flushCloudSync() {
       payload,
       result,
       errMsg,
-      _args41 = arguments;
-    return _regenerator().w(function (_context41) {
-      while (1) switch (_context41.n) {
+      _args43 = arguments;
+    return _regenerator().w(function (_context43) {
+      while (1) switch (_context43.n) {
         case 0:
-          _ref110 = _args41.length > 3 && _args41[3] !== undefined ? _args41[3] : {}, _ref110$silent = _ref110.silent, silent = _ref110$silent === void 0 ? false : _ref110$silent, _ref110$successMsg = _ref110.successMsg, successMsg = _ref110$successMsg === void 0 ? "Shared with all users & devices" : _ref110$successMsg;
-          _context41.n = 1;
+          _ref112 = _args43.length > 3 && _args43[3] !== undefined ? _args43[3] : {}, _ref112$silent = _ref112.silent, silent = _ref112$silent === void 0 ? false : _ref112$silent, _ref112$successMsg = _ref112.successMsg, successMsg = _ref112$successMsg === void 0 ? "Shared with all users & devices" : _ref112$successMsg;
+          _context43.n = 1;
           return cloudFetchData();
         case 1:
-          ping = _context41.v;
+          ping = _context43.v;
           if (!(!ping || !ping.configured)) {
-            _context41.n = 2;
+            _context43.n = 2;
             break;
           }
           if (!silent) toast.warn("Cloud not connected", "Data saved on this device only until Google Drive Shared Drive is configured.");
-          return _context41.a(2, {
+          return _context43.a(2, {
             ok: false
           });
         case 2:
@@ -14560,17 +14560,17 @@ function _flushCloudSync() {
           });
           merged = mergeEvents(events, cloudFiltered);
           payload = eventsForCloudPayload(merged);
-          _context41.n = 3;
+          _context43.n = 3;
           return cloudSave(payload, users, allDeleted);
         case 3:
-          result = _context41.v;
+          result = _context43.v;
           if (!(result === null)) {
-            _context41.n = 4;
+            _context43.n = 4;
             break;
           }
           errMsg = getLastCloudError() || "Could not save to company cloud.";
           if (!silent && (events || []).length) toast.error("Cloud sync failed", errMsg);
-          return _context41.a(2, {
+          return _context43.a(2, {
             ok: false,
             error: errMsg
           });
@@ -14579,7 +14579,7 @@ function _flushCloudSync() {
             return d.id;
           }));
           if (!silent && successMsg) toast.success(successMsg, "Saved to Google Drive — visible to all permitted users.");
-          return _context41.a(2, {
+          return _context43.a(2, {
             ok: true,
             synced: result.events || [],
             users: result.users || users || null,
@@ -14587,7 +14587,7 @@ function _flushCloudSync() {
             version: result.version || 0
           });
       }
-    }, _callee40);
+    }, _callee42);
   }));
   return _flushCloudSync.apply(this, arguments);
 }
@@ -15343,26 +15343,26 @@ function mediaDataUrl(_x45, _x46) {
   return _mediaDataUrl.apply(this, arguments);
 }
 function _mediaDataUrl() {
-  _mediaDataUrl = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee41(zip, mediaPath) {
+  _mediaDataUrl = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee43(zip, mediaPath) {
     var ext, mime, b64;
-    return _regenerator().w(function (_context42) {
-      while (1) switch (_context42.n) {
+    return _regenerator().w(function (_context44) {
+      while (1) switch (_context44.n) {
         case 0:
           if (!(!mediaPath || !zip.files[mediaPath])) {
-            _context42.n = 1;
+            _context44.n = 1;
             break;
           }
-          return _context42.a(2, "");
+          return _context44.a(2, "");
         case 1:
           ext = (mediaPath.split(".").pop() || "jpg").toLowerCase().split("?")[0];
           mime = ext === "png" ? "image/png" : ext === "gif" ? "image/gif" : ext === "webp" ? "image/webp" : "image/jpeg";
-          _context42.n = 2;
+          _context44.n = 2;
           return zip.file(mediaPath).async("base64");
         case 2:
-          b64 = _context42.v;
-          return _context42.a(2, "data:" + mime + ";base64," + b64);
+          b64 = _context44.v;
+          return _context44.a(2, "data:" + mime + ";base64," + b64);
       }
-    }, _callee41);
+    }, _callee43);
   }));
   return _mediaDataUrl.apply(this, arguments);
 }
@@ -15370,96 +15370,96 @@ function extractXLImages(_x47, _x48) {
   return _extractXLImages.apply(this, arguments);
 }
 function _extractXLImages() {
-  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee42(arrayBuffer, idByRow) {
-    var zip, imgs, drawingPaths, _iterator5, _step5, dp, xml, relsPath, relMap, re, m, code, mediaPath, dataUrl, _t30, _t31, _t32;
-    return _regenerator().w(function (_context43) {
-      while (1) switch (_context43.p = _context43.n) {
+  _extractXLImages = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee44(arrayBuffer, idByRow) {
+    var zip, imgs, drawingPaths, _iterator5, _step5, dp, xml, relsPath, relMap, re, m, code, mediaPath, dataUrl, _t31, _t32, _t33;
+    return _regenerator().w(function (_context45) {
+      while (1) switch (_context45.p = _context45.n) {
         case 0:
           if (!(!window.JSZip || !idByRow || !Object.keys(idByRow).length)) {
-            _context43.n = 1;
+            _context45.n = 1;
             break;
           }
-          return _context43.a(2, {});
+          return _context45.a(2, {});
         case 1:
-          _context43.p = 1;
-          _context43.n = 2;
+          _context45.p = 1;
+          _context45.n = 2;
           return window.JSZip.loadAsync(arrayBuffer);
         case 2:
-          zip = _context43.v;
+          zip = _context45.v;
           imgs = {};
           drawingPaths = Object.keys(zip.files).filter(function (n) {
             return /xl\/drawings\/drawing\d+\.xml$/i.test(n);
           });
           _iterator5 = _createForOfIteratorHelper(drawingPaths);
-          _context43.p = 3;
+          _context45.p = 3;
           _iterator5.s();
         case 4:
           if ((_step5 = _iterator5.n()).done) {
-            _context43.n = 12;
+            _context45.n = 12;
             break;
           }
           dp = _step5.value;
-          _context43.n = 5;
+          _context45.n = 5;
           return zip.file(dp).async("string");
         case 5:
-          xml = _context43.v;
+          xml = _context45.v;
           relsPath = dp.replace("drawings/", "drawings/_rels/").replace(/\.xml$/i, ".xml.rels");
           if (zip.files[relsPath]) {
-            _context43.n = 6;
+            _context45.n = 6;
             break;
           }
-          return _context43.a(3, 11);
+          return _context45.a(3, 11);
         case 6:
-          _t30 = parseDrawingRels;
-          _context43.n = 7;
+          _t31 = parseDrawingRels;
+          _context45.n = 7;
           return zip.file(relsPath).async("string");
         case 7:
-          relMap = _t30(_context43.v);
+          relMap = _t31(_context45.v);
           re = /<xdr:row>(\d+)<\/xdr:row>[\s\S]*?r:(?:embed|link)="([^"]+)"/g;
           m = void 0;
         case 8:
           if (!(m = re.exec(xml))) {
-            _context43.n = 11;
+            _context45.n = 11;
             break;
           }
           code = codeForExcelRow(parseInt(m[1], 10) + 1, idByRow);
           mediaPath = relMap[m[2]];
           if (!(!code || !mediaPath || imgs[code])) {
-            _context43.n = 9;
+            _context45.n = 9;
             break;
           }
-          return _context43.a(3, 8);
+          return _context45.a(3, 8);
         case 9:
-          _context43.n = 10;
+          _context45.n = 10;
           return mediaDataUrl(zip, mediaPath);
         case 10:
-          dataUrl = _context43.v;
+          dataUrl = _context45.v;
           if (dataUrl) imgs[code] = dataUrl;
-          _context43.n = 8;
+          _context45.n = 8;
           break;
         case 11:
-          _context43.n = 4;
+          _context45.n = 4;
           break;
         case 12:
-          _context43.n = 14;
+          _context45.n = 14;
           break;
         case 13:
-          _context43.p = 13;
-          _t31 = _context43.v;
-          _iterator5.e(_t31);
+          _context45.p = 13;
+          _t32 = _context45.v;
+          _iterator5.e(_t32);
         case 14:
-          _context43.p = 14;
+          _context45.p = 14;
           _iterator5.f();
-          return _context43.f(14);
+          return _context45.f(14);
         case 15:
-          return _context43.a(2, imgs);
+          return _context45.a(2, imgs);
         case 16:
-          _context43.p = 16;
-          _t32 = _context43.v;
-          console.warn("Image extract", _t32);
-          return _context43.a(2, {});
+          _context45.p = 16;
+          _t33 = _context45.v;
+          console.warn("Image extract", _t33);
+          return _context45.a(2, {});
       }
-    }, _callee42, null, [[3, 13, 14, 15], [1, 16]]);
+    }, _callee44, null, [[3, 13, 14, 15], [1, 16]]);
   }));
   return _extractXLImages.apply(this, arguments);
 }
@@ -19676,38 +19676,16 @@ function PhotoSearch(_ref38) {
   };
 
   // ── Main analysis ────────────────────────────────────────────────────────
-  var analyzeImage = function analyzeImage(imgEl) {
-    var canvas = canvasRef.current;
-    var SZ = 220; // higher resolution helps find a small piece in a large frame (worn on a model, etc.)
-    canvas.width = SZ;
-    canvas.height = SZ;
-    var ctx = canvas.getContext("2d");
-
-    // Draw greyscale version to help with shape
-    ctx.drawImage(imgEl, 0, 0, SZ, SZ);
-    var data = ctx.getImageData(0, 0, SZ, SZ);
-    var px = data.data;
-    var bg = sampleBackgroundRGB(px, SZ, SZ);
-    var roi = findJewelryROI(px, SZ, SZ);
-    var _detectMetal = detectMetal(px, SZ, SZ, bg, roi),
-      metal = _detectMetal.metal,
-      mConf = _detectMetal.conf;
-    var hasStones = detectStones(px, SZ, SZ, bg, roi);
-    var _detectCategory = detectCategory(px, SZ, SZ, bg, roi),
-      category = _detectCategory.cat,
-      cConf = _detectCategory.conf;
-    var palette = getPalette(px, bg);
-    var feat = {
+  // ── Score inventory against a detected category/metal/stones and show results ──
+  var scoreAndFinish = function scoreAndFinish(category, cConf, metal, mConf, hasStones, source) {
+    setFeatures({
       metal: metal,
       mConf: mConf,
       hasStones: hasStones,
       category: category,
       cConf: cConf,
-      palette: palette
-    };
-    setFeatures(feat);
-
-    // ── Score inventory items ──────────────────────────────────────────────
+      source: source
+    });
     var metalMap = {
       YG: ["KY", "14KY", "18KY", "G14KY", "G18KY"],
       WG: ["KW", "14KW", "18KW", "G14KW", "G18KW", "PT"],
@@ -19767,6 +19745,89 @@ function PhotoSearch(_ref38) {
     setPhase("results");
     setAnalyzing(false);
   };
+
+  // ── Local pixel-heuristic fallback (no network required) ────────────────
+  var analyzeImageLocal = function analyzeImageLocal(imgEl) {
+    var canvas = canvasRef.current;
+    var SZ = 220; // higher resolution helps find a small piece in a large frame (worn on a model, etc.)
+    canvas.width = SZ;
+    canvas.height = SZ;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(imgEl, 0, 0, SZ, SZ);
+    var data = ctx.getImageData(0, 0, SZ, SZ);
+    var px = data.data;
+    var bg = sampleBackgroundRGB(px, SZ, SZ);
+    var roi = findJewelryROI(px, SZ, SZ);
+    var _detectMetal = detectMetal(px, SZ, SZ, bg, roi),
+      metal = _detectMetal.metal,
+      mConf = _detectMetal.conf;
+    var hasStones = detectStones(px, SZ, SZ, bg, roi);
+    var _detectCategory = detectCategory(px, SZ, SZ, bg, roi),
+      category = _detectCategory.cat,
+      cConf = _detectCategory.conf;
+    scoreAndFinish(category, cConf, metal, mConf, hasStones, "local");
+  };
+
+  // ── AI vision analysis — resize down, send to /api/photo-search ─────────
+  var resizeForAI = function resizeForAI(imgEl) {
+    var MAXD = 900;
+    var w = imgEl.naturalWidth || imgEl.width,
+      h = imgEl.naturalHeight || imgEl.height;
+    if (w >= h && w > MAXD) {
+      h = Math.round(h * MAXD / w);
+      w = MAXD;
+    } else if (h > w && h > MAXD) {
+      w = Math.round(w * MAXD / h);
+      h = MAXD;
+    }
+    var c = document.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    c.getContext("2d").drawImage(imgEl, 0, 0, w, h);
+    var dataUrl = c.toDataURL("image/jpeg", 0.85);
+    return {
+      base64: dataUrl.split(",")[1],
+      mediaType: "image/jpeg"
+    };
+  };
+  var analyzeImageAI = /*#__PURE__*/function () {
+    var _ref41 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(imgEl) {
+      var _resizeForAI, base64, mediaType, resp, data;
+      return _regenerator().w(function (_context6) {
+        while (1) switch (_context6.n) {
+          case 0:
+            _resizeForAI = resizeForAI(imgEl), base64 = _resizeForAI.base64, mediaType = _resizeForAI.mediaType;
+            _context6.n = 1;
+            return fetch("/api/photo-search", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                imageBase64: base64,
+                mediaType: mediaType
+              })
+            });
+          case 1:
+            resp = _context6.v;
+            _context6.n = 2;
+            return resp.json();
+          case 2:
+            data = _context6.v;
+            if (!(!resp.ok || !data.ok)) {
+              _context6.n = 3;
+              break;
+            }
+            throw new Error(data.error || "AI analysis failed");
+          case 3:
+            return _context6.a(2, data);
+        }
+      }, _callee6);
+    }));
+    return function analyzeImageAI(_x55) {
+      return _ref41.apply(this, arguments);
+    };
+  }();
   var handleFile = function handleFile(e) {
     var file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -19781,9 +19842,34 @@ function PhotoSearch(_ref38) {
     reader.onload = function (ev) {
       setPreview(ev.target.result);
       var img = new Image();
-      img.onload = function () {
-        return analyzeImage(img);
-      };
+      img.onload = /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7() {
+        var _yield$analyzeImageAI, category, metal, hasStones, confidence, _t3;
+        return _regenerator().w(function (_context7) {
+          while (1) switch (_context7.p = _context7.n) {
+            case 0:
+              _context7.p = 0;
+              _context7.n = 1;
+              return analyzeImageAI(img);
+            case 1:
+              _yield$analyzeImageAI = _context7.v;
+              category = _yield$analyzeImageAI.category;
+              metal = _yield$analyzeImageAI.metal;
+              hasStones = _yield$analyzeImageAI.hasStones;
+              confidence = _yield$analyzeImageAI.confidence;
+              scoreAndFinish(category, confidence, metal, confidence, hasStones, "ai");
+              _context7.n = 3;
+              break;
+            case 2:
+              _context7.p = 2;
+              _t3 = _context7.v;
+              console.warn("AI Photo Search unavailable, using basic detection:", _t3.message);
+              toast.info("Using basic photo detection", "AI vision unavailable right now");
+              analyzeImageLocal(img);
+            case 3:
+              return _context7.a(2);
+          }
+        }, _callee7, null, [[0, 2]]);
+      }));
       img.onerror = function () {
         setError("Could not load image.");
         setPhase("upload");
@@ -20027,7 +20113,7 @@ function PhotoSearch(_ref38) {
       letterSpacing: "0.07em",
       marginBottom: 5
     }
-  }, "Detected"), /*#__PURE__*/React.createElement("div", {
+  }, "Detected", features.source === "ai" ? " · 🤖 AI vision" : features.source === "local" ? " · basic detection" : ""), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexWrap: "wrap",
@@ -20663,12 +20749,12 @@ function SingleLookup(p) {
     sMin: sfMinFp,
     max: fMaxFp,
     sMax: sfMaxFp
-  }].map(function (_ref41) {
-    var l = _ref41.l,
-      min = _ref41.min,
-      sMin = _ref41.sMin,
-      max = _ref41.max,
-      sMax = _ref41.sMax;
+  }].map(function (_ref43) {
+    var l = _ref43.l,
+      min = _ref43.min,
+      sMin = _ref43.sMin,
+      max = _ref43.max,
+      sMax = _ref43.sMax;
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -22317,10 +22403,10 @@ function InventoryTab(p) {
     return i.st === "available";
   }).reduce(function (s, i) {
     return s + i.fp;
-  }, 0), cur)]].map(function (_ref42) {
-    var _ref43 = _slicedToArray(_ref42, 2),
-      l = _ref43[0],
-      v = _ref43[1];
+  }, 0), cur)]].map(function (_ref44) {
+    var _ref45 = _slicedToArray(_ref44, 2),
+      l = _ref45[0],
+      v = _ref45[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -22675,9 +22761,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref44) {
-    var item = _ref44.item,
-      scannedAt = _ref44.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref46) {
+    var item = _ref46.item,
+      scannedAt = _ref46.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -22895,12 +22981,12 @@ function invBuckets(inv, keyFn) {
     return b.cnt - a.cnt;
   });
 }
-function AnalyticsBucketCard(_ref45) {
-  var title = _ref45.title,
-    data = _ref45.data,
-    cur = _ref45.cur,
-    fc = _ref45.fc,
-    maxVal = _ref45.maxVal;
+function AnalyticsBucketCard(_ref47) {
+  var title = _ref47.title,
+    data = _ref47.data,
+    cur = _ref47.cur,
+    fc = _ref47.fc,
+    maxVal = _ref47.maxVal;
   var mx = maxVal || Math.max.apply(Math, [1].concat(_toConsumableArray(data.map(function (x) {
     return x.cnt;
   }))));
@@ -23000,13 +23086,13 @@ var ANALYTICS_DATE_FILTER_OPTS = [{
   id: "custom",
   l: "Custom"
 }];
-function DateFilterBar(_ref46) {
-  var dateFilter = _ref46.dateFilter,
-    setDateFilter = _ref46.setDateFilter,
-    customFrom = _ref46.customFrom,
-    setCustomFrom = _ref46.setCustomFrom,
-    customTo = _ref46.customTo,
-    setCustomTo = _ref46.setCustomTo;
+function DateFilterBar(_ref48) {
+  var dateFilter = _ref48.dateFilter,
+    setDateFilter = _ref48.setDateFilter,
+    customFrom = _ref48.customFrom,
+    setCustomFrom = _ref48.setCustomFrom,
+    customTo = _ref48.customTo,
+    setCustomTo = _ref48.setCustomTo;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       background: CRD,
@@ -23087,10 +23173,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref47) {
-    var pct = _ref47.pct,
-      col = _ref47.col,
-      h = _ref47.h;
+  var Bar = function Bar(_ref49) {
+    var pct = _ref49.pct,
+      col = _ref49.col,
+      h = _ref49.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -23221,10 +23307,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref48) {
-    var _ref49 = _slicedToArray(_ref48, 2),
-      d = _ref49[0],
-      v = _ref49[1];
+  }).map(function (_ref50) {
+    var _ref51 = _slicedToArray(_ref50, 2),
+      d = _ref51[0],
+      v = _ref51[1];
     return {
       d: d,
       v: v
@@ -23557,10 +23643,10 @@ function AnalyticsTab(p) {
     if (!cn) return;
     lookupCustMap[cn] = (lookupCustMap[cn] || 0) + 1;
   });
-  var lookupCustArr = Object.entries(lookupCustMap).map(function (_ref50) {
-    var _ref51 = _slicedToArray(_ref50, 2),
-      name = _ref51[0],
-      cnt = _ref51[1];
+  var lookupCustArr = Object.entries(lookupCustMap).map(function (_ref52) {
+    var _ref53 = _slicedToArray(_ref52, 2),
+      name = _ref53[0],
+      cnt = _ref53[1];
     return {
       name: name,
       cnt: cnt
@@ -23706,10 +23792,10 @@ function AnalyticsTab(p) {
       customers: st.custSet.size,
       topItems: Object.entries(st.itemMap).sort(function (a, b) {
         return b[1] - a[1];
-      }).slice(0, 5).map(function (_ref52) {
-        var _ref53 = _slicedToArray(_ref52, 2),
-          id = _ref53[0],
-          c = _ref53[1];
+      }).slice(0, 5).map(function (_ref54) {
+        var _ref55 = _slicedToArray(_ref54, 2),
+          id = _ref55[0],
+          c = _ref55[1];
         return {
           itemId: id,
           item: inv.find(function (i) {
@@ -23765,14 +23851,14 @@ function AnalyticsTab(p) {
       missingCountMap[id] = (missingCountMap[id] || 0) + 1;
     });
   });
-  var repeatMissing = Object.entries(missingCountMap).filter(function (_ref54) {
-    var _ref55 = _slicedToArray(_ref54, 2),
-      cnt = _ref55[1];
-    return cnt > 1;
-  }).map(function (_ref56) {
+  var repeatMissing = Object.entries(missingCountMap).filter(function (_ref56) {
     var _ref57 = _slicedToArray(_ref56, 2),
-      id = _ref57[0],
       cnt = _ref57[1];
+    return cnt > 1;
+  }).map(function (_ref58) {
+    var _ref59 = _slicedToArray(_ref58, 2),
+      id = _ref59[0],
+      cnt = _ref59[1];
     return {
       id: id,
       cnt: cnt,
@@ -24301,10 +24387,10 @@ function AnalyticsTab(p) {
       flexWrap: "wrap",
       gap: 6
     }
-  }, lookupCatArr.map(function (_ref58) {
-    var _ref59 = _slicedToArray(_ref58, 2),
-      cat = _ref59[0],
-      cnt = _ref59[1];
+  }, lookupCatArr.map(function (_ref60) {
+    var _ref61 = _slicedToArray(_ref60, 2),
+      cat = _ref61[0],
+      cnt = _ref61[1];
     return /*#__PURE__*/React.createElement("span", {
       key: cat,
       style: {
@@ -24561,10 +24647,10 @@ function AnalyticsTab(p) {
         letterSpacing: "0.06em",
         marginBottom: 6
       }
-    }, "Top Customers"), st.topCustomers.map(function (_ref60) {
-      var _ref61 = _slicedToArray(_ref60, 2),
-        name = _ref61[0],
-        cnt = _ref61[1];
+    }, "Top Customers"), st.topCustomers.map(function (_ref62) {
+      var _ref63 = _slicedToArray(_ref62, 2),
+        name = _ref63[0],
+        cnt = _ref63[1];
       return /*#__PURE__*/React.createElement("div", {
         key: name,
         style: {
@@ -24657,9 +24743,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref62) {
-    var h = _ref62.h,
-      v = _ref62.v;
+  }, hourData.map(function (_ref64) {
+    var h = _ref64.h,
+      v = _ref64.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -25421,10 +25507,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref63, i) {
-    var _ref64 = _slicedToArray(_ref63, 2),
-      src = _ref64[0],
-      cnt = _ref64[1];
+  }, "No leads yet"), srcData.map(function (_ref65, i) {
+    var _ref66 = _slicedToArray(_ref65, 2),
+      src = _ref66[0],
+      cnt = _ref66[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -26108,11 +26194,11 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref65) {
-  var pr = _ref65.pr,
-    allEvents = _ref65.allEvents,
-    appUsers = _ref65.appUsers,
-    onSynced = _ref65.onSynced;
+function CloudStoragePanel(_ref67) {
+  var pr = _ref67.pr,
+    allEvents = _ref67.allEvents,
+    appUsers = _ref67.appUsers,
+    onSynced = _ref67.onSynced;
   var _useState93 = useState(false),
     _useState94 = _slicedToArray(_useState93, 2),
     busy = _useState94[0],
@@ -26139,30 +26225,30 @@ function CloudStoragePanel(_ref65) {
   var driveReadOk = ping && ping.driveRead === "ok";
   var ds = ping && ping.driveStatus;
   var syncNow = /*#__PURE__*/function () {
-    var _ref66 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
-      var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
-      return _regenerator().w(function (_context6) {
-        while (1) switch (_context6.p = _context6.n) {
+    var _ref68 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
+      var d, localFromStore, local, merged, users, cloudUsers, r, _t4;
+      return _regenerator().w(function (_context8) {
+        while (1) switch (_context8.p = _context8.n) {
           case 0:
             setBusy(true);
             setLastErr("");
-            _context6.p = 1;
-            _context6.n = 2;
+            _context8.p = 1;
+            _context8.n = 2;
             return cloudFetchData(true);
           case 2:
-            d = _context6.v;
+            d = _context8.v;
             if (!(!d || !d.configured)) {
-              _context6.n = 3;
+              _context8.n = 3;
               break;
             }
             toast.warn("Cloud not ready", "Set up Google Drive Shared Drive (see instructions below).");
-            return _context6.a(2);
+            return _context8.a(2);
           case 3:
             setPing(d);
-            _context6.n = 4;
+            _context8.n = 4;
             return loadEventsAsync();
           case 4:
-            localFromStore = _context6.v;
+            localFromStore = _context8.v;
             local = allEvents && allEvents.length ? allEvents : localFromStore;
             merged = mergeEvents(local, d.events || []);
             saveEvents(merged);
@@ -26171,41 +26257,41 @@ function CloudStoragePanel(_ref65) {
               cloudUsers = mergeUserDefaults(d.users);
               saveUsers(cloudUsers);
             }
-            _context6.n = 5;
+            _context8.n = 5;
             return flushCloudSync(merged, users, [], {
               silent: true
             });
           case 5:
-            r = _context6.v;
+            r = _context8.v;
             if (r.ok) {
-              _context6.n = 6;
+              _context8.n = 6;
               break;
             }
             setLastErr(r.error || getLastCloudError());
             toast.error("Cloud sync failed", r.error || getLastCloudError() || "Could not save to Google Drive.");
-            return _context6.a(2);
+            return _context8.a(2);
           case 6:
             setMeta(getCloudMeta());
             if (onSynced) onSynced(merged, users);
             toast.success("All devices updated", "Saved to Google Drive — other users see changes within ~8 seconds.");
-            _context6.n = 8;
+            _context8.n = 8;
             break;
           case 7:
-            _context6.p = 7;
-            _t3 = _context6.v;
-            setLastErr(_t3.message || "");
-            toast.warn("Sync failed", _t3.message || "");
+            _context8.p = 7;
+            _t4 = _context8.v;
+            setLastErr(_t4.message || "");
+            toast.warn("Sync failed", _t4.message || "");
           case 8:
-            _context6.p = 8;
+            _context8.p = 8;
             setBusy(false);
-            return _context6.f(8);
+            return _context8.f(8);
           case 9:
-            return _context6.a(2);
+            return _context8.a(2);
         }
-      }, _callee6, null, [[1, 7, 8, 9]]);
+      }, _callee8, null, [[1, 7, 8, 9]]);
     }));
     return function syncNow() {
-      return _ref66.apply(this, arguments);
+      return _ref68.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -26287,11 +26373,11 @@ function CloudStoragePanel(_ref65) {
     }
   }, "Auto-sync runs in the background \u2014 use this only if another device looks out of date."));
 }
-function CurrencyManager(_ref67) {
-  var cur = _ref67.cur,
-    scur = _ref67.scur,
-    pr = _ref67.pr,
-    onRatesChanged = _ref67.onRatesChanged;
+function CurrencyManager(_ref69) {
+  var cur = _ref69.cur,
+    scur = _ref69.scur,
+    pr = _ref69.pr,
+    onRatesChanged = _ref69.onRatesChanged;
   var _useState101 = useState(false),
     _useState102 = _slicedToArray(_useState101, 2),
     editMode = _useState102[0],
@@ -26311,10 +26397,10 @@ function CurrencyManager(_ref67) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref68) {
-      var _ref69 = _slicedToArray(_ref68, 2),
-        k = _ref69[0],
-        v = _ref69[1];
+    Object.entries(getCurr()).forEach(function (_ref70) {
+      var _ref71 = _slicedToArray(_ref70, 2),
+        k = _ref71[0],
+        v = _ref71[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -26322,10 +26408,10 @@ function CurrencyManager(_ref67) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref70) {
-      var _ref71 = _slicedToArray(_ref70, 2),
-        k = _ref71[0],
-        v = _ref71[1];
+    Object.entries(getCurr()).forEach(function (_ref72) {
+      var _ref73 = _slicedToArray(_ref72, 2),
+        k = _ref73[0],
+        v = _ref73[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -26393,10 +26479,10 @@ function CurrencyManager(_ref67) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref72) {
-    var _ref73 = _slicedToArray(_ref72, 2),
-      k = _ref73[0],
-      v = _ref73[1];
+  }, Object.entries(rates).map(function (_ref74) {
+    var _ref75 = _slicedToArray(_ref74, 2),
+      k = _ref75[0],
+      v = _ref75[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -26424,10 +26510,10 @@ function CurrencyManager(_ref67) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref74, i, arr) {
-    var _ref75 = _slicedToArray(_ref74, 2),
-      k = _ref75[0],
-      v = _ref75[1];
+  })), Object.entries(rates).map(function (_ref76, i, arr) {
+    var _ref77 = _slicedToArray(_ref76, 2),
+      k = _ref77[0],
+      v = _ref77[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -26632,18 +26718,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref76) {
-    var _ref77 = _slicedToArray(_ref76, 2),
-      v = _ref77[1];
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref78) {
+    var _ref79 = _slicedToArray(_ref78, 2),
+      v = _ref79[1];
     return v;
-  }).map(function (_ref78) {
-    var _ref79 = _slicedToArray(_ref78, 1),
-      k = _ref79[0];
+  }).map(function (_ref80) {
+    var _ref81 = _slicedToArray(_ref80, 1),
+      k = _ref81[0];
     return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref80) {
-    var _ref81 = _slicedToArray(_ref80, 2),
-      l = _ref81[0],
-      v = _ref81[1];
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref82) {
+    var _ref83 = _slicedToArray(_ref82, 2),
+      l = _ref83[0],
+      v = _ref83[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -26687,10 +26773,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref82) {
-    var _ref83 = _slicedToArray(_ref82, 2),
-      l = _ref83[0],
-      v = _ref83[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref84) {
+    var _ref85 = _slicedToArray(_ref84, 2),
+      l = _ref85[0],
+      v = _ref85[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -26758,10 +26844,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref84) {
-    var _ref85 = _slicedToArray(_ref84, 2),
-      l = _ref85[0],
-      v = _ref85[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref86) {
+    var _ref87 = _slicedToArray(_ref86, 2),
+      l = _ref87[0],
+      v = _ref87[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -28943,10 +29029,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref86) {
-      var _ref87 = _slicedToArray(_ref86, 2),
-        ic = _ref87[0],
-        v = _ref87[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref88) {
+      var _ref89 = _slicedToArray(_ref88, 2),
+        ic = _ref89[0],
+        v = _ref89[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -29409,18 +29495,18 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref88) {
-  var ev = _ref88.ev,
-    user = _ref88.user,
-    allUsers = _ref88.allUsers,
-    onUsersChange = _ref88.onUsersChange,
-    allEvents = _ref88.allEvents,
-    onSwitch = _ref88.onSwitch,
-    onUpdateEvent = _ref88.onUpdateEvent,
-    onBack = _ref88.onBack,
-    onLogout = _ref88.onLogout,
-    onCloudSync = _ref88.onCloudSync,
-    cloudReady = _ref88.cloudReady;
+function EventERP(_ref90) {
+  var ev = _ref90.ev,
+    user = _ref90.user,
+    allUsers = _ref90.allUsers,
+    onUsersChange = _ref90.onUsersChange,
+    allEvents = _ref90.allEvents,
+    onSwitch = _ref90.onSwitch,
+    onUpdateEvent = _ref90.onUpdateEvent,
+    onBack = _ref90.onBack,
+    onLogout = _ref90.onLogout,
+    onCloudSync = _ref90.onCloudSync,
+    cloudReady = _ref90.cloudReady;
   ev = normalizeEvent(ev);
   var pr = gp(user.role, user.perms);
   var users = allUsers;
@@ -30821,22 +30907,22 @@ function App() {
     appUsersRef.current = appUsers;
   }, [appUsers]);
   var runCloudSave = /*#__PURE__*/function () {
-    var _ref89 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
-      var _ref90,
-        _ref90$silent,
+    var _ref91 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9(snap, usersSnap, deleted) {
+      var _ref92,
+        _ref92$silent,
         silent,
         r,
-        _args7 = arguments;
-      return _regenerator().w(function (_context7) {
-        while (1) switch (_context7.n) {
+        _args9 = arguments;
+      return _regenerator().w(function (_context9) {
+        while (1) switch (_context9.n) {
           case 0:
-            _ref90 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref90$silent = _ref90.silent, silent = _ref90$silent === void 0 ? true : _ref90$silent;
-            _context7.n = 1;
+            _ref92 = _args9.length > 3 && _args9[3] !== undefined ? _args9[3] : {}, _ref92$silent = _ref92.silent, silent = _ref92$silent === void 0 ? true : _ref92$silent;
+            _context9.n = 1;
             return flushCloudSync(snap || eventsRef.current, usersSnap || appUsersRef.current, deleted || [], {
               silent: silent
             });
           case 1:
-            r = _context7.v;
+            r = _context9.v;
             if (r.ok) {
               localDirtyRef.current = false;
               pendingCloudSaveRef.current = false;
@@ -30855,18 +30941,18 @@ function App() {
             } else {
               pendingCloudSaveRef.current = true;
             }
-            return _context7.a(2, r);
+            return _context9.a(2, r);
         }
-      }, _callee7);
+      }, _callee9);
     }));
-    return function runCloudSave(_x55, _x56, _x57) {
-      return _ref89.apply(this, arguments);
+    return function runCloudSave(_x56, _x57, _x58) {
+      return _ref91.apply(this, arguments);
     };
   }();
   var runAutoSyncCycle = /*#__PURE__*/function () {
-    var _ref91 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
-      var _ref92,
-        _ref92$silent,
+    var _ref93 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0() {
+      var _ref94,
+        _ref94$silent,
         silent,
         d,
         cloudVer,
@@ -30874,28 +30960,28 @@ function App() {
         _pendingDeletesRef$cu,
         deleted,
         r,
-        _args8 = arguments;
-      return _regenerator().w(function (_context8) {
-        while (1) switch (_context8.p = _context8.n) {
+        _args0 = arguments;
+      return _regenerator().w(function (_context0) {
+        while (1) switch (_context0.p = _context0.n) {
           case 0:
-            _ref92 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref92$silent = _ref92.silent, silent = _ref92$silent === void 0 ? true : _ref92$silent;
+            _ref94 = _args0.length > 0 && _args0[0] !== undefined ? _args0[0] : {}, _ref94$silent = _ref94.silent, silent = _ref94$silent === void 0 ? true : _ref94$silent;
             if (!(!dataReady || !cloudReady || cloudSyncBusyRef.current)) {
-              _context8.n = 1;
+              _context0.n = 1;
               break;
             }
-            return _context8.a(2);
+            return _context0.a(2);
           case 1:
             cloudSyncBusyRef.current = true;
-            _context8.p = 2;
-            _context8.n = 3;
+            _context0.p = 2;
+            _context0.n = 3;
             return cloudFetchData();
           case 3:
-            d = _context8.v;
+            d = _context0.v;
             if (!(!d || !d.configured)) {
-              _context8.n = 4;
+              _context0.n = 4;
               break;
             }
-            return _context8.a(2);
+            return _context0.a(2);
           case 4:
             cloudVer = d.version || 0;
             needsPush = localDirtyRef.current || pendingCloudSaveRef.current || pendingDeletesRef.current.length > 0 || eventsAheadOfCloud(eventsRef.current, d.events || []);
@@ -30907,113 +30993,113 @@ function App() {
               _lastCloudVersion = cloudVer;
             }
             if (!needsPush) {
-              _context8.n = 6;
+              _context0.n = 6;
               break;
             }
             deleted = pendingDeletesRef.current.splice(0);
-            _context8.n = 5;
+            _context0.n = 5;
             return runCloudSave(eventsRef.current, appUsersRef.current, deleted, {
               silent: silent
             });
           case 5:
-            r = _context8.v;
+            r = _context0.v;
             if (!r.ok && deleted.length) (_pendingDeletesRef$cu = pendingDeletesRef.current).unshift.apply(_pendingDeletesRef$cu, _toConsumableArray(deleted));else if (r.ok && r.version) _lastCloudVersion = r.version;
           case 6:
-            _context8.p = 6;
+            _context0.p = 6;
             cloudSyncBusyRef.current = false;
-            return _context8.f(6);
+            return _context0.f(6);
           case 7:
-            return _context8.a(2);
+            return _context0.a(2);
         }
-      }, _callee8, null, [[2,, 6, 7]]);
+      }, _callee0, null, [[2,, 6, 7]]);
     }));
     return function runAutoSyncCycle() {
-      return _ref91.apply(this, arguments);
+      return _ref93.apply(this, arguments);
     };
   }();
   var scheduleCloudSave = function scheduleCloudSave() {
     var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 400;
     var snapshot = arguments.length > 1 ? arguments[1] : undefined;
-    var _ref93 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-      _ref93$silent = _ref93.silent,
-      silent = _ref93$silent === void 0 ? true : _ref93$silent,
-      _ref93$notify = _ref93.notify,
-      notify = _ref93$notify === void 0 ? false : _ref93$notify;
+    var _ref95 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      _ref95$silent = _ref95.silent,
+      silent = _ref95$silent === void 0 ? true : _ref95$silent,
+      _ref95$notify = _ref95.notify,
+      notify = _ref95$notify === void 0 ? false : _ref95$notify;
     localDirtyRef.current = true;
     if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
-    cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9() {
+    cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee1() {
       var _pendingDeletesRef$cu2;
       var deleted, r;
-      return _regenerator().w(function (_context9) {
-        while (1) switch (_context9.n) {
+      return _regenerator().w(function (_context1) {
+        while (1) switch (_context1.n) {
           case 0:
             if (cloudReady) {
-              _context9.n = 1;
+              _context1.n = 1;
               break;
             }
             pendingCloudSaveRef.current = true;
-            return _context9.a(2);
+            return _context1.a(2);
           case 1:
             if (isCloudOnline()) {
-              _context9.n = 2;
+              _context1.n = 2;
               break;
             }
-            _context9.n = 2;
+            _context1.n = 2;
             return cloudFetchData();
           case 2:
             if (isCloudOnline()) {
-              _context9.n = 3;
+              _context1.n = 3;
               break;
             }
             pendingCloudSaveRef.current = true;
-            return _context9.a(2);
+            return _context1.a(2);
           case 3:
             deleted = pendingDeletesRef.current.splice(0);
-            _context9.n = 4;
+            _context1.n = 4;
             return runCloudSave(snapshot || eventsRef.current, appUsersRef.current, deleted, {
               silent: !notify
             });
           case 4:
-            r = _context9.v;
+            r = _context1.v;
             if (!r.ok && deleted.length) (_pendingDeletesRef$cu2 = pendingDeletesRef.current).unshift.apply(_pendingDeletesRef$cu2, _toConsumableArray(deleted));
           case 5:
-            return _context9.a(2);
+            return _context1.a(2);
         }
-      }, _callee9);
+      }, _callee1);
     })), delay);
   };
   useEffect(function () {
     repairCurrencyStorage();
     repairEventsStorage();
-    _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0() {
+    _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10() {
       var local;
-      return _regenerator().w(function (_context0) {
-        while (1) switch (_context0.n) {
+      return _regenerator().w(function (_context10) {
+        while (1) switch (_context10.n) {
           case 0:
-            _context0.n = 1;
+            _context10.n = 1;
             return loadEventsAsync();
           case 1:
-            local = _context0.v;
+            local = _context10.v;
             sevents(local.map(normalizeEvent));
             saveEvents(local);
             setDataReady(true);
           case 2:
-            return _context0.a(2);
+            return _context10.a(2);
         }
-      }, _callee0);
+      }, _callee10);
     }))();
   }, []);
   useEffect(function () {
     if (!dataReady) return;
-    _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee1() {
+    _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee11() {
       var d;
-      return _regenerator().w(function (_context1) {
-        while (1) switch (_context1.n) {
+      return _regenerator().w(function (_context11) {
+        while (1) switch (_context11.n) {
           case 0:
-            _context1.n = 1;
+            _context11.n = 1;
             return cloudFetchData();
           case 1:
-            d = _context1.v;
+            d = _context11.v;
             if (d && d.configured) {
               applyCloudPull(d, sevents, sappUsers, {
                 eventsRef: eventsRef,
@@ -31023,9 +31109,9 @@ function App() {
             }
             setCloudReady(true);
           case 2:
-            return _context1.a(2);
+            return _context11.a(2);
         }
-      }, _callee1);
+      }, _callee11);
     }))();
   }, [dataReady]);
   useEffect(function () {
@@ -31256,15 +31342,15 @@ function App() {
     }
   }, "Loading\u2026")));
   var handleLogin = /*#__PURE__*/function () {
-    var _ref97 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
+    var _ref99 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee12(u) {
       var d;
-      return _regenerator().w(function (_context10) {
-        while (1) switch (_context10.n) {
+      return _regenerator().w(function (_context12) {
+        while (1) switch (_context12.n) {
           case 0:
-            _context10.n = 1;
+            _context12.n = 1;
             return cloudFetchData();
           case 1:
-            d = _context10.v;
+            d = _context12.v;
             if (d && d.configured) {
               applyCloudPull(d, sevents, sappUsers, {
                 eventsRef: eventsRef,
@@ -31274,12 +31360,12 @@ function App() {
             persistSession(u);
             su(u);
           case 2:
-            return _context10.a(2);
+            return _context12.a(2);
         }
-      }, _callee10);
+      }, _callee12);
     }));
-    return function handleLogin(_x58) {
-      return _ref97.apply(this, arguments);
+    return function handleLogin(_x59) {
+      return _ref99.apply(this, arguments);
     };
   }();
   var handleCloudSync = function handleCloudSync(mergedEvents, mergedUsers) {
@@ -31438,21 +31524,21 @@ var ErrorBoundary = /*#__PURE__*/function (_React$Component) {
         }, this.state.errMsg), /*#__PURE__*/React.createElement("button", {
           type: "button",
           disabled: this.state.clearing,
-          onClick: /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee11() {
-            return _regenerator().w(function (_context11) {
-              while (1) switch (_context11.n) {
+          onClick: /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee13() {
+            return _regenerator().w(function (_context13) {
+              while (1) switch (_context13.n) {
                 case 0:
                   _this2.setState({
                     clearing: true
                   });
-                  _context11.n = 1;
+                  _context13.n = 1;
                   return clearAllAppData();
                 case 1:
                   location.reload();
                 case 2:
-                  return _context11.a(2);
+                  return _context13.a(2);
               }
-            }, _callee11);
+            }, _callee13);
           })),
           style: S.btn({
             width: "auto",

@@ -1495,7 +1495,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
       <div style={{padding:"11px 14px"}}>
         <div style={{display:"flex",gap:14,marginBottom:11}}>
           {[{l:"Items",v:(ev.inv||[]).length},...(pr.vA?[{l:"Sales",v:(ev.sales||[]).length},{l:"Revenue",v:"$"+Math.round((ev.sales||[]).reduce((s,x)=>s+x.total,0)/1000)+"k"}]:[])].map(x=>(
-            <div key={x.l} style={{textAlign:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:G}}>{x.v}</div><div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{x.l}</div></div>
+            <div key={x.l} style={{textAlign:"center"}}><div style={{fontFamily:"Lato,sans-serif",fontSize:15,fontWeight:700,color:G}}>{x.v}</div><div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{x.l}</div></div>
           ))}
         </div>
         <div style={{display:"flex",gap:8}}>
@@ -1515,7 +1515,7 @@ function EventHub({user,events,onEnter,onCreate,onManage,onDelete,onLogout}){
     <div className="v-content">
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9,marginBottom:16}}>
         {[{l:"Events",v:visibleEvents.length},...(pr.vA?[{l:"Total Sales",v:visibleEvents.reduce((s,e)=>s+(e.sales||[]).length,0)},{l:"Revenue",v:"$"+Math.round(visibleEvents.reduce((s,e)=>s+(e.sales||[]).reduce((ss,x)=>ss+x.total,0),0)/1000)+"k"}]:[])].map(x=>(
-          <div key={x.l} style={{background:WH,borderRadius:11,padding:"12px 8px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.08)"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:3,textTransform:"uppercase"}}>{x.l}</div></div>
+          <div key={x.l} style={{background:WH,borderRadius:11,padding:"12px 8px",textAlign:"center",boxShadow:"0 1px 6px rgba(0,0,0,0.08)"}}><div style={{fontFamily:"Lato,sans-serif",fontSize:22,fontWeight:700,color:G,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:3,textTransform:"uppercase"}}>{x.l}</div></div>
         ))}
       </div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:11}}>
@@ -1674,7 +1674,7 @@ function ManageEvent({ev, onClose, onUpdate, onDelete, user}){
                   <div style={{fontSize:12,fontWeight:700,color:T1}}>{item.id}</div>
                   <div style={{fontSize:9.5,color:T3}}>{item.cat} · {item.col} · {item.st}</div>
                 </div>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G}}>{f$(item.fp)}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,color:G}}>{f$(item.fp)}</div>
               </div>
             ))}
             {(ev.inv||[]).length===0&&<div style={{padding:20,textAlign:"center",fontSize:12,color:T3}}>No inventory yet — use Upload tab to add Excel.</div>}
@@ -1730,7 +1730,7 @@ function SaleSuccess({sale,item,fc,cur,onDone,onPrint}){
       {sale.custName&&<div style={{fontSize:15,fontWeight:700,color:"#3D5C4A",marginBottom:14}}>👤 {sale.custName}</div>}
       {!sale.custName&&<div style={{fontSize:13,color:"#7A8C7E",marginBottom:14}}>Walk-in customer</div>}
       {/* Amount */}
-      <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:42,fontWeight:900,color:"#C9A84C",lineHeight:1,marginBottom:6}}>{fc(sale.total,cur)}</div>
+      <div style={{fontFamily:"Lato,sans-serif",fontSize:42,fontWeight:900,color:"#C9A84C",lineHeight:1,marginBottom:6}}>{fc(sale.total,cur)}</div>
       {/* Item detail */}
       <div style={{background:"#fff",borderRadius:12,padding:"10px 16px",marginBottom:24,textAlign:"center",border:"1px solid #E8DCCB",minWidth:220}}>
         <div style={{fontWeight:800,fontSize:14,color:"#1E5C45"}}>{sale.itemId}</div>
@@ -2043,13 +2043,13 @@ function ReceiptPreview({sale}){
         </div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:14,fontSize:11,fontWeight:600,color:G,lineHeight:1.5}}>
           <div style={{flex:1,minWidth:0}}>{line}</div>
-          <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,flexShrink:0}}>{fmt(sub)}</div>
+          <div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,flexShrink:0}}>{fmt(sub)}</div>
         </div>
         <div style={{height:2,background:G,margin:"6px 0 8px"}}/>
         <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:T2,marginBottom:4}}><span>Subtotal</span><span>{fmt(sub)}</span></div>
         {sale.disc>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:AM,marginBottom:4}}><span>Discount ({sale.disc}%)</span><span>− {fmt(dsc)}</span></div>}
         {ccAmt>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:T2,marginBottom:4}}><span>CC Surcharge{sale.ccType==="pct"?" ("+sale.ccVal+"%)":""}</span><span>{fmt(ccAmt)}</span></div>}
-        <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:15,color:G,paddingTop:8,marginTop:4,borderTop:"2px solid "+G}}><span>GRAND TOTAL</span><span style={{fontFamily:"Cormorant Garamond,serif",fontSize:18}}>{fmt(tot)}</span></div>
+        <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:15,color:G,paddingTop:8,marginTop:4,borderTop:"2px solid "+G}}><span>GRAND TOTAL</span><span style={{fontFamily:"Lato,sans-serif",fontSize:18}}>{fmt(tot)}</span></div>
         {sale.remark&&<div style={{marginTop:12}}><div style={{fontSize:8,color:T4,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:3}}>REMARKS</div><div style={{fontSize:10,color:T3,lineHeight:1.45}}>{sale.remark}</div></div>}
         <div style={{height:3,background:G,margin:"18px 0 10px"}}/>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",gap:12,fontSize:9,color:T3,lineHeight:1.45}}>
@@ -2228,13 +2228,38 @@ function PhotoSearch({inv,onResult,onClose}){
     return[h*360,s*100,l*100];
   };
 
+  // ── Background detection — sample the corners instead of assuming ──────
+  // white/black, so mats, desks, fabric, or hands don't get read as the item
+  const sampleBackgroundRGB=(pixels,w,h)=>{
+    const patch=Math.max(2,Math.round(Math.min(w,h)*0.08));
+    const corners=[[0,0],[w-patch,0],[0,h-patch],[w-patch,h-patch]];
+    let r=0,g=0,b=0,n=0;
+    corners.forEach(([ox,oy])=>{
+      for(let y=oy;y<oy+patch;y++){
+        for(let x=ox;x<ox+patch;x++){
+          const i=(y*w+x)*4;
+          if(pixels[i+3]<80) continue;
+          r+=pixels[i];g+=pixels[i+1];b+=pixels[i+2];n++;
+        }
+      }
+    });
+    if(!n) return null;
+    return[r/n,g/n,b/n];
+  };
+  const colorDist=(r,g,b,ref)=>Math.sqrt((r-ref[0])**2+(g-ref[1])**2+(b-ref[2])**2);
+  const isBackground=(r,g,b,bg)=>{
+    if(!bg) return false;
+    return colorDist(r,g,b,bg)<38;
+  };
+
   // ── Metal detection — sample brightest metallic pixels ─────────────────
-  const detectMetal=(pixels,w,h)=>{
+  const detectMetal=(pixels,w,h,bg)=>{
     const buckets={YG:0,WG:0,RG:0,PT:0};
     let metalPx=0;
     for(let i=0;i<pixels.length;i+=4){
       const r=pixels[i],g=pixels[i+1],b=pixels[i+2],a=pixels[i+3];
       if(a<80) continue;
+      if(isBackground(r,g,b,bg)) continue;
       const[hue,sat,lig]=toHsl(r,g,b);
       // Only consider metallic-looking pixels (moderate saturation, moderate brightness)
       if(lig<20||lig>92) continue;
@@ -2255,12 +2280,13 @@ function PhotoSearch({inv,onResult,onClose}){
   };
 
   // ── Stone/diamond detection — look for sparkle clusters ─────────────────
-  const detectStones=(pixels,w,h)=>{
+  const detectStones=(pixels,w,h,bg)=>{
     let sparklePx=0,total=0;
     for(let i=0;i<pixels.length;i+=4){
       if(pixels[i+3]<80) continue;
-      total++;
       const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+      if(isBackground(r,g,b,bg)) continue;
+      total++;
       const brightness=(r+g+b)/3;
       const spread=Math.max(r,g,b)-Math.min(r,g,b);
       // Sparkle: very bright AND colour-neutral (white sparkle of diamond)
@@ -2272,7 +2298,7 @@ function PhotoSearch({inv,onResult,onClose}){
   };
 
   // ── Shape/Category detection — aspect ratio + mass distribution ─────────
-  const detectCategory=(pixels,w,h)=>{
+  const detectCategory=(pixels,w,h,bg)=>{
     // Find bounding box of non-background pixels
     let minX=w,maxX=0,minY=h,maxY=0;
     let massX=0,massY=0,cnt=0;
@@ -2280,9 +2306,8 @@ function PhotoSearch({inv,onResult,onClose}){
       for(let x=0;x<w;x++){
         const i=(y*w+x)*4;
         if(pixels[i+3]<60) continue;
-        const br=(pixels[i]+pixels[i+1]+pixels[i+2])/3;
-        if(br>240) continue; // skip near-white background
-        if(br<8) continue;   // skip near-black background
+        const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+        if(isBackground(r,g,b,bg)) continue;
         if(x<minX)minX=x; if(x>maxX)maxX=x;
         if(y<minY)minY=y; if(y>maxY)maxY=y;
         massX+=x; massY+=y; cnt++;
@@ -2295,27 +2320,26 @@ function PhotoSearch({inv,onResult,onClose}){
     const cx=massX/cnt/w, cy=massY/cnt/h; // centre of mass (normalised)
 
     // Ring detection: roughly square, centre of mass near middle,
-    // possible hole in centre (check centre pixel brightness)
+    // possible hole in centre — the hole shows background, not the item
     const centrePx=((Math.round(h/2)*w+Math.round(w/2))*4);
-    const centreIsLight=(pixels[centrePx]+pixels[centrePx+1]+pixels[centrePx+2])/3>180;
+    const centreIsHole=isBackground(pixels[centrePx],pixels[centrePx+1],pixels[centrePx+2],bg);
 
     if(ar>2.8) return{cat:"Bracelets",conf:85};
     if(ar>1.8) return{cat:"Necklaces",conf:75};
     if(ar<0.55) return{cat:"Pendants",conf:75};
-    if(ar>0.75&&ar<1.4&&centreIsLight) return{cat:"Rings",conf:80};
+    if(ar>0.75&&ar<1.4&&centreIsHole) return{cat:"Rings",conf:80};
     if(ar>0.6&&ar<1.6&&(cy<0.42||cy>0.58)) return{cat:"Earrings",conf:70};
     if(ar>0.9&&ar<1.5) return{cat:"Rings",conf:60};
     return{cat:"Pendants",conf:40};
   };
 
   // ── Colour palette extraction (k-means lite, 4 clusters) ────────────────
-  const getPalette=(pixels)=>{
+  const getPalette=(pixels,bg)=>{
     const samples=[];
     for(let i=0;i<pixels.length;i+=pixels.length/200*4|0){
       if(i>=pixels.length) break;
       if(pixels[i+3]<80) continue;
-      const br=(pixels[i]+pixels[i+1]+pixels[i+2])/3;
-      if(br<12||br>245) continue;
+      if(isBackground(pixels[i],pixels[i+1],pixels[i+2],bg)) continue;
       samples.push([pixels[i],pixels[i+1],pixels[i+2]]);
     }
     if(samples.length===0) return[];
@@ -2348,10 +2372,11 @@ function PhotoSearch({inv,onResult,onClose}){
     const data=ctx.getImageData(0,0,SZ,SZ);
     const px=data.data;
 
-    const {metal,conf:mConf}=detectMetal(px,SZ,SZ);
-    const hasStones=detectStones(px,SZ,SZ);
-    const {cat:category,conf:cConf}=detectCategory(px,SZ,SZ);
-    const palette=getPalette(px);
+    const bg=sampleBackgroundRGB(px,SZ,SZ);
+    const {metal,conf:mConf}=detectMetal(px,SZ,SZ,bg);
+    const hasStones=detectStones(px,SZ,SZ,bg);
+    const {cat:category,conf:cConf}=detectCategory(px,SZ,SZ,bg);
+    const palette=getPalette(px,bg);
 
     const feat={metal,mConf,hasStones,category,cConf,palette};
     setFeatures(feat);
@@ -2547,8 +2572,8 @@ function PhotoSearch({inv,onResult,onClose}){
                   {idx===0&&<div style={{position:"absolute",top:-7,left:10,background:"#7B3FA0",color:WH,fontSize:8,fontWeight:700,padding:"2px 7px",borderRadius:10}}>BEST MATCH</div>}
                   {/* Photo */}
                   <div style={{width:48,height:48,borderRadius:8,overflow:"hidden",flexShrink:0,background:CRD,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    {r.item.img
-                      ?<img src={r.item.img} alt="" style={{width:48,height:48,objectFit:"cover"}}/>
+                    {getImg(r.item)
+                      ?<img src={getImg(r.item)} alt="" style={{width:48,height:48,objectFit:"cover"}}/>
                       :<span style={{fontSize:22}}>{r.item.em||"💎"}</span>
                     }
                   </div>
@@ -2561,7 +2586,7 @@ function PhotoSearch({inv,onResult,onClose}){
                   </div>
                   {/* Price + status */}
                   <div style={{textAlign:"right",flexShrink:0}}>
-                    <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G}}>${r.item.fp}</div>
+                    <div style={{fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:700,color:G}}>${r.item.fp}</div>
                     <div style={{fontSize:9,marginTop:2,padding:"2px 6px",borderRadius:8,background:r.item.st==="available"?"#edf7f0":REBG,color:r.item.st==="available"?"#27ae60":RE,fontWeight:700}}>{r.item.st}</div>
                   </div>
                 </div>
@@ -2764,7 +2789,7 @@ function SingleLookup(p){
                           <div style={{fontSize:9.5,color:T4}}>{item.tc}ct · {item.gw}g gross · {item.nw}g net</div>
                         </div>
                         <div style={{textAlign:"right",flexShrink:0}}>
-                          <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
+                          <div style={{fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
                           <Bdg t={item.st==="available"?"g":item.st==="sold"?"r":"a"} ch={item.st} sm/>
                         </div>
                       </div>
@@ -2790,7 +2815,7 @@ function SingleLookup(p){
                             <div style={{fontSize:12,fontWeight:700,color:T1}}>{hi.id}</div>
                             <div style={{fontSize:10,color:T3}}>{ic} {h.query||h.type}{h.custName?" · "+h.custName:""} · {h.time}</div>
                           </div>
-                          <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(hi.fp,cur)}</div>
+                          <div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,color:G}}>{fc(hi.fp,cur)}</div>
                         </div>
                       );
                     })}
@@ -2807,7 +2832,7 @@ function SingleLookup(p){
                           <ItemThumb item={item} size={36}/>
                         </div>
                         <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700,color:T1}}>{item.id}</div><div style={{fontSize:10,color:T3}}>{item.col} · {(item.searches||0)}🔍</div></div>
-                        <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
+                        <div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
                       </div>
                     ))}
                   </div>
@@ -2931,7 +2956,7 @@ function MultiLookup(p){
                           </div>
                           <div style={{flex:1}}><div style={{fontWeight:700,fontSize:12,color:T1}}>{item.id}</div><div style={{fontSize:10,color:T3}}>{item.cat} · {item.metal}</div></div>
                           <div style={{textAlign:"right"}}>
-                            <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
+                            <div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
                             <button onClick={()=>smlItems(p=>p.filter(x=>x.id!==item.id))} style={{background:"none",border:"none",color:RE,fontSize:10,cursor:"pointer"}}>✕</button>
                           </div>
                         </div>
@@ -2952,7 +2977,7 @@ function MultiLookup(p){
                         <div style={{height:1,background:CRD2,margin:"6px 0"}}/>
                         <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:T3,marginBottom:3}}><span>GST 3%</span><span>{fc(mlFinal*0.03,cur)}</span></div>
                         <div style={{height:2,background:G,borderRadius:1,margin:"5px 0"}}/>
-                        <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:16,color:G}}><span>Grand Total</span><span style={{fontFamily:"Cormorant Garamond,serif",fontSize:19}}>{fc(mlTotal,cur)}</span></div>
+                        <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:16,color:G}}><span>Grand Total</span><span style={{fontFamily:"Lato,sans-serif",fontSize:19}}>{fc(mlTotal,cur)}</span></div>
                       </div>
                     </div>
                     <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
@@ -3182,7 +3207,7 @@ function InventoryTab(p){
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontWeight:700,fontSize:12,color:T1}}>{item.id}</div><Bdg t={item.st==="available"?"g":item.st==="reserved"?"a":"r"} ch={item.st}/></div>
                     <div style={{fontSize:10,color:T3}}>{item.cat} · {item.col} · {item.metal}</div>
-                    <div style={{display:"flex",justifyContent:"space-between",marginTop:1}}><div style={{fontSize:9,color:T4}}>👁 {item.views}</div><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div></div>
+                    <div style={{display:"flex",justifyContent:"space-between",marginTop:1}}><div style={{fontSize:9,color:T4}}>👁 {item.views}</div><div style={{fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div></div>
                   </div>
                 </div>
               ))}
@@ -3246,7 +3271,7 @@ function InventoryTab(p){
               </select>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
                 {[{l:"Expected",v:locItems.length,c:G},{l:"Scanned",v:auditScanned.length,c:"#27ae60"},{l:"Missing",v:missing.length,c:missing.length>0?RE:T3}].map(x=>(
-                  <div key={x.l} style={{background:CRD,borderRadius:9,padding:"10px 8px",textAlign:"center"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:x.c,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:2,textTransform:"uppercase"}}>{x.l}</div></div>
+                  <div key={x.l} style={{background:CRD,borderRadius:9,padding:"10px 8px",textAlign:"center"}}><div style={{fontFamily:"Lato,sans-serif",fontSize:22,fontWeight:700,color:x.c,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:2,textTransform:"uppercase"}}>{x.l}</div></div>
                 ))}
               </div>
               <div style={{display:"flex",gap:7,marginBottom:12}}>
@@ -3285,7 +3310,7 @@ function AnalyticsBucketCard({title,data,cur,fc,maxVal}){
           <div style={{flex:1,minWidth:0}}>
             <div style={{display:"flex",justifyContent:"space-between",gap:6,marginBottom:3}}>
               <span style={{fontSize:11,fontWeight:600,color:T1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{x.k}</span>
-              <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G,flexShrink:0}}>{fc(x.val,cur)}</span>
+              <span style={{fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,color:G,flexShrink:0}}>{fc(x.val,cur)}</span>
             </div>
             <div style={{height:5,background:CRD2,borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",width:Math.round(x.cnt/mx*100)+"%",background:G,borderRadius:3}}/></div>
             <div style={{fontSize:9,color:T3,marginTop:2}}>{x.cnt} items · {x.avail} avail · {x.sold} sold</div>
@@ -3661,7 +3686,7 @@ function AnalyticsTab(p){
               {l:"CC Surcharge",v:fc(totalCC,cur),sub:"recovered"},
             ].map(k=>(
               <div key={k.l} style={{...S.card({margin:0,padding:"12px 13px"}),borderLeft:"3px solid "+(k.hi?GO:k.warn?RE:G)}}>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:k.hi?GO:k.warn?RE:G}}>{k.v}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:20,fontWeight:700,color:k.hi?GO:k.warn?RE:G}}>{k.v}</div>
                 <div style={{fontSize:10,fontWeight:700,color:T1,marginTop:2}}>{k.l}</div>
                 <div style={{fontSize:9,color:T3,marginTop:1}}>{k.sub}</div>
               </div>
@@ -3671,7 +3696,7 @@ function AnalyticsTab(p){
           <div style={S.card({margin:0})}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
               <span style={S.sh}>Sell-Through Rate</span>
-              <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:sellThru>=30?G:AM}}>{sellThru}%</span>
+              <span style={{fontFamily:"Lato,sans-serif",fontSize:16,fontWeight:700,color:sellThru>=30?G:AM}}>{sellThru}%</span>
             </div>
             <Bar pct={sellThru} col={sellThru>=30?G:AM} h={8}/>
             <div style={{display:"flex",justifyContent:"space-between",marginTop:5,fontSize:9,color:T3}}>
@@ -3697,7 +3722,7 @@ function AnalyticsTab(p){
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             {[{l:"Total Lookups",v:lookupHistory.length},{l:"Unique Items",v:uniqueLookedUpIds.length},{l:"QR Scanned",v:qrScannedCount},{l:"Customers",v:lookupCustomerTotal}].map(k=>(
               <div key={k.l} style={{...S.card({margin:0,padding:"12px 13px"})}}>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:22,fontWeight:700,color:G}}>{k.v}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:22,fontWeight:700,color:G}}>{k.v}</div>
                 <div style={{fontSize:10,color:T3,textTransform:"uppercase",marginTop:2}}>{k.l}</div>
               </div>
             ))}
@@ -3729,7 +3754,7 @@ function AnalyticsTab(p){
           <div style={S.card({margin:0})}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
               <span style={S.sh}>Search → Sale Conversion</span>
-              <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:G}}>{lookupConvRate}%</span>
+              <span style={{fontFamily:"Lato,sans-serif",fontSize:16,fontWeight:700,color:G}}>{lookupConvRate}%</span>
             </div>
             <Bar pct={lookupConvRate} col={G} h={8}/>
             <div style={{fontSize:10,color:T3,marginTop:6}}>{lookedUpAndSold} of {uniqueLookedUpIds.length} looked-up items have sold</div>
@@ -3791,7 +3816,7 @@ function AnalyticsTab(p){
                   <div style={{fontSize:10,color:T3}}>{f.itemId} · {f.item.cat} · {f.date}</div>
                 </div>
                 <div style={{textAlign:"right",flexShrink:0}}>
-                  <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(f.item.fp,cur)}</div>
+                  <div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,color:G}}>{fc(f.item.fp,cur)}</div>
                   <div style={{fontSize:9,color:T3}}>by {f.user}</div>
                 </div>
               </div>
@@ -3812,7 +3837,7 @@ function AnalyticsTab(p){
                 <div style={{display:"flex",gap:14,textAlign:"center"}}>
                   {[{l:"Lookups",v:st.cnt},{l:"Scanned",v:st.scanned},{l:"Customers",v:st.customers}].map(k=>(
                     <div key={k.l}>
-                      <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:G}}>{k.v}</div>
+                      <div style={{fontFamily:"Lato,sans-serif",fontSize:16,fontWeight:700,color:G}}>{k.v}</div>
                       <div style={{fontSize:8,color:T3,textTransform:"uppercase"}}>{k.l}</div>
                     </div>
                   ))}
@@ -3930,7 +3955,7 @@ function AnalyticsTab(p){
                 </div>
                 <div style={{textAlign:"right",flexShrink:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:RE}}>{x.scans}× scanned</div>
-                  <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:11,color:G}}>${x.item.fp}</div>
+                  <div style={{fontFamily:"Lato,sans-serif",fontSize:11,color:G}}>${x.item.fp}</div>
                 </div>
               </div>
             ))}
@@ -3948,7 +3973,7 @@ function AnalyticsTab(p){
                   <div style={{fontWeight:700,fontSize:11,color:T1}}>{item.id}</div>
                   <div style={{fontSize:9,color:T3}}>{item.cat} · {item.metal}</div>
                 </div>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:T3}}>${item.fp}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,color:T3}}>${item.fp}</div>
               </div>
             ))}
             {deadStock.length>6&&<div style={{fontSize:10,color:T3,textAlign:"center",marginTop:6}}>+{deadStock.length-6} more</div>}
@@ -3987,7 +4012,7 @@ function AnalyticsTab(p){
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
                     <span style={{fontSize:11,fontWeight:600,color:T1}}>{x.col}</span>
-                    <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G}}>{fc(x.rev,cur)}</span>
+                    <span style={{fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,color:G}}>{fc(x.rev,cur)}</span>
                   </div>
                   <Bar pct={Math.round(x.rev/maxColRev*100)}/>
                   <div style={{fontSize:9,color:T3,marginTop:2}}>{x.cnt} units</div>
@@ -4018,7 +4043,7 @@ function AnalyticsTab(p){
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
             {[{l:"Total",v:custArr.length},{l:"Multi-buy",v:multiItem},{l:"Avg Items",v:avgItemsPerCust.toFixed(1)}].map(k=>(
               <div key={k.l} style={{...S.card({margin:0,padding:"12px 10px"}),textAlign:"center"}}>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:20,fontWeight:700,color:G}}>{k.v}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:20,fontWeight:700,color:G}}>{k.v}</div>
                 <div style={{fontSize:9,color:T3,textTransform:"uppercase",marginTop:2}}>{k.l}</div>
               </div>
             ))}
@@ -4035,7 +4060,7 @@ function AnalyticsTab(p){
                   <div style={{fontWeight:700,fontSize:12,color:T1}}>{cust.name}</div>
                   <div style={{fontSize:10,color:T3}}>{cust.cnt} purchase{cust.cnt!==1?"s":""}</div>
                 </div>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G,flexShrink:0}}>{fc(cust.rev,cur)}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:700,color:G,flexShrink:0}}>{fc(cust.rev,cur)}</div>
               </div>
             ))}
           </div>
@@ -4079,7 +4104,7 @@ function AnalyticsTab(p){
                   </div>
                 </div>
                 <div style={{textAlign:"right"}}>
-                  <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:G}}>{fc(st.rev,cur)}</div>
+                  <div style={{fontFamily:"Lato,sans-serif",fontSize:16,fontWeight:700,color:G}}>{fc(st.rev,cur)}</div>
                   <div style={{fontSize:9,color:T3}}>avg {fc(st.cnt?st.rev/st.cnt:0,cur)}/deal</div>
                 </div>
               </div>
@@ -4120,7 +4145,7 @@ function AnalyticsTab(p){
               {l:"Discount Given",v:fc(totalDisc,cur),sub:discImpact+"% of gross",warn:discImpact>15},
             ].map(k=>(
               <div key={k.l} style={{...S.card({margin:0,padding:"12px 13px"}),borderLeft:"3px solid "+(k.hi?GO:k.warn?RE:G)}}>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:k.hi?GO:k.warn?RE:G}}>{k.v}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:18,fontWeight:700,color:k.hi?GO:k.warn?RE:G}}>{k.v}</div>
                 <div style={{fontSize:10,fontWeight:700,color:T1,marginTop:2}}>{k.l}</div>
                 {k.sub&&<div style={{fontSize:9,color:T3,marginTop:1}}>{k.sub}</div>}
               </div>
@@ -4159,15 +4184,15 @@ function AnalyticsTab(p){
             <div style={{...S.sh,marginBottom:8,color:discImpact>15?RE:T2}}>💸 Discount Impact</div>
             <div style={{display:"flex",gap:16,marginBottom:8}}>
               <div style={{textAlign:"center"}}>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:RE}}>{fc(totalDisc,cur)}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:18,fontWeight:700,color:RE}}>{fc(totalDisc,cur)}</div>
                 <div style={{fontSize:9,color:T3}}>Given away</div>
               </div>
               <div style={{textAlign:"center"}}>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:G}}>{discImpact}%</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:18,fontWeight:700,color:G}}>{discImpact}%</div>
                 <div style={{fontSize:9,color:T3}}>of gross rev</div>
               </div>
               <div style={{textAlign:"center"}}>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:18,fontWeight:700,color:AM}}>{sales.filter(s=>s.disc>0).length}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:18,fontWeight:700,color:AM}}>{sales.filter(s=>s.disc>0).length}</div>
                 <div style={{fontSize:9,color:T3}}>discounted</div>
               </div>
             </div>
@@ -4225,7 +4250,7 @@ function AnalyticsTab(p){
           {pipelineVal>0&&(
             <div style={{...S.card({margin:0}),background:"rgba(201,168,76,0.07)",border:"1px solid "+GO}}>
               <div style={{fontWeight:700,fontSize:12,color:G,marginBottom:4}}>💡 Estimated Pipeline</div>
-              <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:24,fontWeight:700,color:GO,marginBottom:4}}>{fc(pipelineVal,cur)}</div>
+              <div style={{fontFamily:"Lato,sans-serif",fontSize:24,fontWeight:700,color:GO,marginBottom:4}}>{fc(pipelineVal,cur)}</div>
               <div style={{fontSize:11,color:T2}}>Potential value from {hotLeads.length} hot lead{hotLeads.length!==1?"s":""} if converted.</div>
             </div>
           )}
@@ -4347,7 +4372,7 @@ function CurrencyManager({cur,scur,pr,onRatesChanged}){
             <span style={{fontSize:11,color:T3}}>{v.name}</span>
             {editMode&&pr.mU
               ?<input type="number" step="0.01" style={{width:"100%",border:"1.5px solid "+G,borderRadius:6,padding:"3px 6px",fontSize:12,fontWeight:700,color:G,textAlign:"right",background:WH,fontFamily:"Lato,sans-serif"}} value={editRates[k]||v.r} onChange={e=>setEditRates(p=>({...p,[k]:e.target.value}))}/>
-              :<span style={{fontSize:13,fontWeight:700,color:T1,textAlign:"right",fontFamily:"Cormorant Garamond,serif"}}>{k==="USD"?"Base":v.r.toFixed(k==="JPY"?0:2)}</span>
+              :<span style={{fontSize:13,fontWeight:700,color:T1,textAlign:"right",fontFamily:"Lato,sans-serif"}}>{k==="USD"?"Base":v.r.toFixed(k==="JPY"?0:2)}</span>
             }
           </div>
         ))}
@@ -4567,7 +4592,7 @@ function SalesTab(p){
     <div style={{padding:"13px 12px 40px"}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:11}}>
               {[{l:"Sales",v:sales.length,c:G},...(pr.vA?[{l:"Revenue",v:"$"+Math.round(totalRev/1000)+"k",c:"#27ae60"}]:[]),...(pr.vA?[{l:"Margin",v:sales.length?Math.round(sales.reduce((s,x)=>s+(x.margin||25),0)/sales.length)+"%":"—",c:AM}]:[])].map(x=>(
-                <div key={x.l} style={{background:WH,borderRadius:10,padding:"10px 6px",textAlign:"center",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}><div style={{fontFamily:"Cormorant Garamond,serif",fontSize:17,fontWeight:700,color:x.c,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:2,textTransform:"uppercase"}}>{x.l}</div></div>
+                <div key={x.l} style={{background:WH,borderRadius:10,padding:"10px 6px",textAlign:"center",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}><div style={{fontFamily:"Lato,sans-serif",fontSize:17,fontWeight:700,color:x.c,lineHeight:1}}>{x.v}</div><div style={{fontSize:9,color:T3,marginTop:2,textTransform:"uppercase"}}>{x.l}</div></div>
               ))}
             </div>
             {/* ── New Sale Button ── */}
@@ -4637,7 +4662,7 @@ function SalesTab(p){
                         <div style={{fontSize:12,fontWeight:700,color:T1}}>{item.id}</div>
                         <div style={{fontSize:10,color:T3}}>{item.cat} · {item.col} · {item.metal} · {item.tc}ct</div>
                       </div>
-                      <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
+                      <div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,color:G}}>{fc(item.fp,cur)}</div>
                     </div>
                   ))}
                   {nsAvail.filter(i=>!nsItems.find(x=>x.id===i.id)).length===0&&<div style={{textAlign:"center",padding:14,color:T3,fontSize:11}}>No available items found</div>}
@@ -4687,7 +4712,7 @@ function SalesTab(p){
                       </div>}
                       <div style={{display:"flex",justifyContent:"space-between",fontWeight:800,fontSize:14,color:G,borderTop:"1px solid "+CRD2,paddingTop:6,marginTop:4}}>
                         <span>GRAND TOTAL</span>
-                        <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:18}}>{fc(nsTotal,cur)}</span>
+                        <span style={{fontFamily:"Lato,sans-serif",fontSize:18}}>{fc(nsTotal,cur)}</span>
                       </div>
                     </div>
                   </div>
@@ -4711,7 +4736,7 @@ function SalesTab(p){
                     <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>sinvm(s)}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                         <div style={{fontWeight:700,fontSize:13,color:G}}>{s.itemId}</div>
-                        <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G,marginLeft:8}}>{fc(s.total,cur)}</div>
+                        <div style={{fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:700,color:G,marginLeft:8}}>{fc(s.total,cur)}</div>
                       </div>
                       <div style={{fontSize:11,color:T2,marginTop:1}}>{s.custName}</div>
                       <div style={{fontSize:10,color:T3}}>{s.id} · {s.staff} · {s.payment} · {s.date}</div>
@@ -4826,7 +4851,7 @@ function HistoryTab(p){
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:0}}>
             {[{l:"Purchases",v:cSales.length},{l:"Total Spent",v:fc(cRev,cur)},{l:"Avg Deal",v:fc(cRev/Math.max(cSales.length,1),cur)}].map(x=>(
               <div key={x.l} style={{textAlign:"center"}}>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:17,fontWeight:700,color:G}}>{x.v}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:17,fontWeight:700,color:G}}>{x.v}</div>
                 <div style={{fontSize:9,color:T3,marginTop:2,textTransform:"uppercase"}}>{x.l}</div>
               </div>
             ))}
@@ -4849,7 +4874,7 @@ function HistoryTab(p){
                     {s.remark&&<div style={{fontSize:9,color:T3,fontStyle:"italic"}}>{s.remark}</div>}
                   </div>
                   <div style={{textAlign:"right",flexShrink:0}}>
-                    <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G}}>{fc(s.total,cur)}</div>
+                    <div style={{fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:700,color:G}}>{fc(s.total,cur)}</div>
                     <Bdg t={s.st==="delivered"?"gr":s.st==="pending"?"a":"bl"} ch={s.st} sm/>
                   </div>
                 </div>
@@ -4905,7 +4930,7 @@ function HistoryTab(p){
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:10}}>
           {[{l:"Revenue",v:fc(rev,cur)},{l:"Sales",v:filtered.length},{l:"Avg Deal",v:fc(avgDeal,cur)}].map(x=>(
             <div key={x.l} style={{...S.card({margin:0,padding:"10px 8px"}),textAlign:"center"}}>
-              <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:16,fontWeight:700,color:G}}>{x.v}</div>
+              <div style={{fontFamily:"Lato,sans-serif",fontSize:16,fontWeight:700,color:G}}>{x.v}</div>
               <div style={{fontSize:8,color:T3,marginTop:2,textTransform:"uppercase"}}>{x.l}</div>
             </div>
           ))}
@@ -4933,7 +4958,7 @@ function HistoryTab(p){
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                     <div style={{fontWeight:700,fontSize:12,color:T1}}>{s.itemId}</div>
-                    <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G,flexShrink:0,marginLeft:6}}>{fc(s.total,cur)}</div>
+                    <div style={{fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:700,color:G,flexShrink:0,marginLeft:6}}>{fc(s.total,cur)}</div>
                   </div>
                   {s.custName&&(
                     <div style={{fontSize:11,fontWeight:600,color:T1,marginTop:1,cursor:"pointer"}}
@@ -4980,7 +5005,7 @@ function HistoryTab(p){
                   <div style={{fontSize:10,color:T3}}>{hi.col} · {hi.cat}{h.custName?" · 👤 "+h.custName:""}</div>
                   <div style={{fontSize:10,color:T2,marginTop:2}}>{ic} {h.query||h.type} · {h.user} · {h.date} {h.time}</div>
                 </div>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:14,fontWeight:700,color:G,flexShrink:0}}>{fc(hi.fp,cur)}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:14,fontWeight:700,color:G,flexShrink:0}}>{fc(hi.fp,cur)}</div>
               </div>
             );
           })}
@@ -5005,7 +5030,7 @@ function HistoryTab(p){
                   <div style={{fontSize:10,color:T3}}>{cust.count} purchase{cust.count!==1?"s":""} · Last: {cust.lastDate}</div>
                 </div>
                 <div style={{textAlign:"right",flexShrink:0}}>
-                  <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(cust.total,cur)}</div>
+                  <div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,color:G}}>{fc(cust.total,cur)}</div>
                   {i===0&&<div style={{fontSize:8,color:GO,fontWeight:700}}>TOP BUYER</div>}
                 </div>
               </div>
@@ -5026,7 +5051,7 @@ function HistoryTab(p){
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
                       <span style={{fontWeight:700,fontSize:12,color:T1}}>{item.id}</span>
-                      <span style={{fontFamily:"Cormorant Garamond,serif",fontSize:12,fontWeight:700,color:G}}>{fc(item.total,cur)}</span>
+                      <span style={{fontFamily:"Lato,sans-serif",fontSize:12,fontWeight:700,color:G}}>{fc(item.total,cur)}</span>
                     </div>
                     <div style={{height:4,background:CRD2,borderRadius:2,overflow:"hidden"}}>
                       <div style={{height:"100%",background:G,borderRadius:2,width:Math.round(item.total/maxT*100)+"%"}}/>
@@ -5054,7 +5079,7 @@ function HistoryTab(p){
                       <div style={{height:"100%",background:GO,borderRadius:2,width:pct+"%"}}/>
                     </div>
                   </div>
-                  <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G,flexShrink:0}}>{fc(pm.total,cur)}</div>
+                  <div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,color:G,flexShrink:0}}>{fc(pm.total,cur)}</div>
                 </div>
               );
             })}
@@ -5143,7 +5168,7 @@ function CustomersTab(p){
         <div style={{...S.card({margin:0})}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:11}}>
             <div style={S.sh}>🛍 PURCHASE HISTORY</div>
-            <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:15,fontWeight:700,color:G}}>{fc(spent,cur)}</div>
+            <div style={{fontFamily:"Lato,sans-serif",fontSize:15,fontWeight:700,color:G}}>{fc(spent,cur)}</div>
           </div>
           {cs.length===0?<div style={{textAlign:"center",padding:20,color:T3,fontSize:12}}>No purchases yet</div>:cs.map((s,i)=>{
             const it=inv.find(x=>x.id===s.itemId);
@@ -5156,7 +5181,7 @@ function CustomersTab(p){
                   <div style={{fontSize:12,fontWeight:700,color:T1}}>{s.itemId}</div>
                   <div style={{fontSize:10,color:T3}}>{s.date} · {s.payment}</div>
                 </div>
-                <div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(s.total,cur)}</div>
+                <div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,color:G}}>{fc(s.total,cur)}</div>
               </div>
             );
           })}
@@ -5218,7 +5243,7 @@ function CustomersTab(p){
                   {lead.company&&<div style={{fontSize:10,color:T4}}>{lead.company}</div>}
                 </div>
                 <div style={{textAlign:"right",flexShrink:0}}>
-                  {spent>0&&<div style={{fontFamily:"Cormorant Garamond,serif",fontSize:13,fontWeight:700,color:G}}>{fc(spent,cur)}</div>}
+                  {spent>0&&<div style={{fontFamily:"Lato,sans-serif",fontSize:13,fontWeight:700,color:G}}>{fc(spent,cur)}</div>}
                   <div style={{fontSize:9,color:T3}}>{cs.length} purchase{cs.length!==1?"s":""}</div>
                   <span style={{fontSize:9,padding:"2px 7px",borderRadius:10,background:lead.status==="Hot"?REBG:lead.status==="Warm"?AMBG:"#edf7f0",color:lead.status==="Hot"?RE:lead.status==="Warm"?AM:"#27ae60",fontWeight:700}}>{lead.status}</span>
                 </div>

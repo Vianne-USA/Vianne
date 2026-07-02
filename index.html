@@ -10926,9 +10926,9 @@ function _syncImagesToDrive() {
           }
           return _context16.a(2, 0);
         case 3:
-          entries = Object.entries(imgMap).filter(function (_ref93) {
-            var _ref94 = _slicedToArray(_ref93, 2),
-              src = _ref94[1];
+          entries = Object.entries(imgMap).filter(function (_ref95) {
+            var _ref96 = _slicedToArray(_ref95, 2),
+              src = _ref96[1];
             return String(src || "").startsWith("data:image/");
           });
           if (entries.length) {
@@ -10945,10 +10945,10 @@ function _syncImagesToDrive() {
             _context16.n = 12;
             break;
           }
-          chunk = entries.slice(i, i + BATCH).map(function (_ref95) {
-            var _ref96 = _slicedToArray(_ref95, 2),
-              id = _ref96[0],
-              src = _ref96[1];
+          chunk = entries.slice(i, i + BATCH).map(function (_ref97) {
+            var _ref98 = _slicedToArray(_ref97, 2),
+              id = _ref98[0],
+              src = _ref98[1];
             return {
               id: String(id).toUpperCase(),
               data: String(src).replace(/^data:image\/\w+;base64,/, "")
@@ -13492,10 +13492,10 @@ function _idbSaveImages() {
           }
           return _context28.a(2);
         case 1:
-          entries = Object.entries(imgMap).filter(function (_ref97) {
-            var _ref98 = _slicedToArray(_ref97, 2),
-              id = _ref98[0],
-              src = _ref98[1];
+          entries = Object.entries(imgMap).filter(function (_ref99) {
+            var _ref100 = _slicedToArray(_ref99, 2),
+              id = _ref100[0],
+              src = _ref100[1];
             return id && src;
           });
           if (entries.length) {
@@ -13505,10 +13505,10 @@ function _idbSaveImages() {
           return _context28.a(2);
         case 2:
           if (!window.VJ_IMG) window.VJ_IMG = {};
-          entries.forEach(function (_ref99) {
-            var _ref100 = _slicedToArray(_ref99, 2),
-              id = _ref100[0],
-              src = _ref100[1];
+          entries.forEach(function (_ref101) {
+            var _ref102 = _slicedToArray(_ref101, 2),
+              id = _ref102[0],
+              src = _ref102[1];
             window.VJ_IMG[String(id).toUpperCase()] = src;
           });
           notifyImagesChanged();
@@ -13529,10 +13529,10 @@ function _idbSaveImages() {
                   return new Promise(function (res, rej) {
                     var tx = db.transaction(IDB_IMG_STORE, "readwrite");
                     var st = tx.objectStore(IDB_IMG_STORE);
-                    slice.forEach(function (_ref101) {
-                      var _ref102 = _slicedToArray(_ref101, 2),
-                        id = _ref102[0],
-                        src = _ref102[1];
+                    slice.forEach(function (_ref103) {
+                      var _ref104 = _slicedToArray(_ref103, 2),
+                        id = _ref104[0],
+                        src = _ref104[1];
                       return st.put({
                         id: String(id).toUpperCase(),
                         src: src
@@ -14412,7 +14412,7 @@ function _cloudSave() {
             return true;
           });
           trySave = /*#__PURE__*/function () {
-            var _ref103 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(files) {
+            var _ref105 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(files) {
               var body, r, d, msg, _t27, _t28;
               return _regenerator().w(function (_context39) {
                 while (1) switch (_context39.p = _context39.n) {
@@ -14471,7 +14471,7 @@ function _cloudSave() {
               }, _callee38, null, [[5, 7], [1, 3]]);
             }));
             return function trySave(_x58) {
-              return _ref103.apply(this, arguments);
+              return _ref105.apply(this, arguments);
             };
           }();
           _context40.p = 3;
@@ -14517,10 +14517,10 @@ function flushCloudSync(_x42, _x43, _x44) {
 }
 function _flushCloudSync() {
   _flushCloudSync = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(events, users, deletedEvents) {
-    var _ref104,
-      _ref104$silent,
+    var _ref106,
+      _ref106$silent,
       silent,
-      _ref104$successMsg,
+      _ref106$successMsg,
       successMsg,
       ping,
       tombstones,
@@ -14535,7 +14535,7 @@ function _flushCloudSync() {
     return _regenerator().w(function (_context41) {
       while (1) switch (_context41.n) {
         case 0:
-          _ref104 = _args41.length > 3 && _args41[3] !== undefined ? _args41[3] : {}, _ref104$silent = _ref104.silent, silent = _ref104$silent === void 0 ? false : _ref104$silent, _ref104$successMsg = _ref104.successMsg, successMsg = _ref104$successMsg === void 0 ? "Shared with all users & devices" : _ref104$successMsg;
+          _ref106 = _args41.length > 3 && _args41[3] !== undefined ? _args41[3] : {}, _ref106$silent = _ref106.silent, silent = _ref106$silent === void 0 ? false : _ref106$silent, _ref106$successMsg = _ref106.successMsg, successMsg = _ref106$successMsg === void 0 ? "Shared with all users & devices" : _ref106$successMsg;
           _context41.n = 1;
           return cloudFetchData();
         case 1:
@@ -16135,7 +16135,7 @@ function EventHub(_ref21) {
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
-          fontFamily: "Cormorant Garamond,serif",
+          fontFamily: "Lato,sans-serif",
           fontSize: 15,
           fontWeight: 700,
           color: G
@@ -16420,7 +16420,7 @@ function EventHub(_ref21) {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 22,
         fontWeight: 700,
         color: G,
@@ -16977,7 +16977,7 @@ function ManageEvent(_ref24) {
       }
     }, item.cat, " \xB7 ", item.col, " \xB7 ", item.st)), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 12,
         fontWeight: 700,
         color: G
@@ -17160,7 +17160,7 @@ function SaleSuccess(_ref25) {
     }
   }, "Walk-in customer"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 42,
       fontWeight: 900,
       color: "#C9A84C",
@@ -18476,7 +18476,7 @@ function ReceiptPreview(_ref33) {
     }
   }, line), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 13,
       fontWeight: 700,
       flexShrink: 0
@@ -18524,7 +18524,7 @@ function ReceiptPreview(_ref33) {
     }
   }, /*#__PURE__*/React.createElement("span", null, "GRAND TOTAL"), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 18
     }
   }, fmt(tot))), sale.remark && /*#__PURE__*/React.createElement("div", {
@@ -19286,8 +19286,43 @@ function PhotoSearch(_ref38) {
     return [h * 360, s * 100, l * 100];
   };
 
+  // ── Background detection — sample the corners instead of assuming ──────
+  // white/black, so mats, desks, fabric, or hands don't get read as the item
+  var sampleBackgroundRGB = function sampleBackgroundRGB(pixels, w, h) {
+    var patch = Math.max(2, Math.round(Math.min(w, h) * 0.08));
+    var corners = [[0, 0], [w - patch, 0], [0, h - patch], [w - patch, h - patch]];
+    var r = 0,
+      g = 0,
+      b = 0,
+      n = 0;
+    corners.forEach(function (_ref39) {
+      var _ref40 = _slicedToArray(_ref39, 2),
+        ox = _ref40[0],
+        oy = _ref40[1];
+      for (var y = oy; y < oy + patch; y++) {
+        for (var x = ox; x < ox + patch; x++) {
+          var i = (y * w + x) * 4;
+          if (pixels[i + 3] < 80) continue;
+          r += pixels[i];
+          g += pixels[i + 1];
+          b += pixels[i + 2];
+          n++;
+        }
+      }
+    });
+    if (!n) return null;
+    return [r / n, g / n, b / n];
+  };
+  var colorDist = function colorDist(r, g, b, ref) {
+    return Math.sqrt(Math.pow(r - ref[0], 2) + Math.pow(g - ref[1], 2) + Math.pow(b - ref[2], 2));
+  };
+  var isBackground = function isBackground(r, g, b, bg) {
+    if (!bg) return false;
+    return colorDist(r, g, b, bg) < 38;
+  };
+
   // ── Metal detection — sample brightest metallic pixels ─────────────────
-  var detectMetal = function detectMetal(pixels, w, h) {
+  var detectMetal = function detectMetal(pixels, w, h, bg) {
     var buckets = {
       YG: 0,
       WG: 0,
@@ -19301,6 +19336,7 @@ function PhotoSearch(_ref38) {
         b = pixels[i + 2],
         a = pixels[i + 3];
       if (a < 80) continue;
+      if (isBackground(r, g, b, bg)) continue;
       var _toHsl = toHsl(r, g, b),
         _toHsl2 = _slicedToArray(_toHsl, 3),
         hue = _toHsl2[0],
@@ -19346,15 +19382,16 @@ function PhotoSearch(_ref38) {
   };
 
   // ── Stone/diamond detection — look for sparkle clusters ─────────────────
-  var detectStones = function detectStones(pixels, w, h) {
+  var detectStones = function detectStones(pixels, w, h, bg) {
     var sparklePx = 0,
       total = 0;
     for (var i = 0; i < pixels.length; i += 4) {
       if (pixels[i + 3] < 80) continue;
-      total++;
       var r = pixels[i],
         g = pixels[i + 1],
         b = pixels[i + 2];
+      if (isBackground(r, g, b, bg)) continue;
+      total++;
       var brightness = (r + g + b) / 3;
       var spread = Math.max(r, g, b) - Math.min(r, g, b);
       // Sparkle: very bright AND colour-neutral (white sparkle of diamond)
@@ -19366,7 +19403,7 @@ function PhotoSearch(_ref38) {
   };
 
   // ── Shape/Category detection — aspect ratio + mass distribution ─────────
-  var detectCategory = function detectCategory(pixels, w, h) {
+  var detectCategory = function detectCategory(pixels, w, h, bg) {
     // Find bounding box of non-background pixels
     var minX = w,
       maxX = 0,
@@ -19379,9 +19416,10 @@ function PhotoSearch(_ref38) {
       for (var x = 0; x < w; x++) {
         var i = (y * w + x) * 4;
         if (pixels[i + 3] < 60) continue;
-        var br = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
-        if (br > 240) continue; // skip near-white background
-        if (br < 8) continue; // skip near-black background
+        var r = pixels[i],
+          g = pixels[i + 1],
+          b = pixels[i + 2];
+        if (isBackground(r, g, b, bg)) continue;
         if (x < minX) minX = x;
         if (x > maxX) maxX = x;
         if (y < minY) minY = y;
@@ -19403,9 +19441,9 @@ function PhotoSearch(_ref38) {
       cy = massY / cnt / h; // centre of mass (normalised)
 
     // Ring detection: roughly square, centre of mass near middle,
-    // possible hole in centre (check centre pixel brightness)
+    // possible hole in centre — the hole shows background, not the item
     var centrePx = (Math.round(h / 2) * w + Math.round(w / 2)) * 4;
-    var centreIsLight = (pixels[centrePx] + pixels[centrePx + 1] + pixels[centrePx + 2]) / 3 > 180;
+    var centreIsHole = isBackground(pixels[centrePx], pixels[centrePx + 1], pixels[centrePx + 2], bg);
     if (ar > 2.8) return {
       cat: "Bracelets",
       conf: 85
@@ -19418,7 +19456,7 @@ function PhotoSearch(_ref38) {
       cat: "Pendants",
       conf: 75
     };
-    if (ar > 0.75 && ar < 1.4 && centreIsLight) return {
+    if (ar > 0.75 && ar < 1.4 && centreIsHole) return {
       cat: "Rings",
       conf: 80
     };
@@ -19437,13 +19475,12 @@ function PhotoSearch(_ref38) {
   };
 
   // ── Colour palette extraction (k-means lite, 4 clusters) ────────────────
-  var getPalette = function getPalette(pixels) {
+  var getPalette = function getPalette(pixels, bg) {
     var samples = [];
     for (var i = 0; i < pixels.length; i += pixels.length / 200 * 4 | 0) {
       if (i >= pixels.length) break;
       if (pixels[i + 3] < 80) continue;
-      var br = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
-      if (br < 12 || br > 245) continue;
+      if (isBackground(pixels[i], pixels[i + 1], pixels[i + 2], bg)) continue;
       samples.push([pixels[i], pixels[i + 1], pixels[i + 2]]);
     }
     if (samples.length === 0) return [];
@@ -19494,14 +19531,15 @@ function PhotoSearch(_ref38) {
     ctx.drawImage(imgEl, 0, 0, SZ, SZ);
     var data = ctx.getImageData(0, 0, SZ, SZ);
     var px = data.data;
-    var _detectMetal = detectMetal(px, SZ, SZ),
+    var bg = sampleBackgroundRGB(px, SZ, SZ);
+    var _detectMetal = detectMetal(px, SZ, SZ, bg),
       metal = _detectMetal.metal,
       mConf = _detectMetal.conf;
-    var hasStones = detectStones(px, SZ, SZ);
-    var _detectCategory = detectCategory(px, SZ, SZ),
+    var hasStones = detectStones(px, SZ, SZ, bg);
+    var _detectCategory = detectCategory(px, SZ, SZ, bg),
       category = _detectCategory.cat,
       cConf = _detectCategory.conf;
-    var palette = getPalette(px);
+    var palette = getPalette(px, bg);
     var feat = {
       metal: metal,
       mConf: mConf,
@@ -19932,8 +19970,8 @@ function PhotoSearch(_ref38) {
         alignItems: "center",
         justifyContent: "center"
       }
-    }, r.item.img ? /*#__PURE__*/React.createElement("img", {
-      src: r.item.img,
+    }, getImg(r.item) ? /*#__PURE__*/React.createElement("img", {
+      src: getImg(r.item),
       alt: "",
       style: {
         width: 48,
@@ -19972,7 +20010,7 @@ function PhotoSearch(_ref38) {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 14,
         fontWeight: 700,
         color: G
@@ -20468,12 +20506,12 @@ function SingleLookup(p) {
     sMin: sfMinFp,
     max: fMaxFp,
     sMax: sfMaxFp
-  }].map(function (_ref39) {
-    var l = _ref39.l,
-      min = _ref39.min,
-      sMin = _ref39.sMin,
-      max = _ref39.max,
-      sMax = _ref39.sMax;
+  }].map(function (_ref41) {
+    var l = _ref41.l,
+      min = _ref41.min,
+      sMin = _ref41.sMin,
+      max = _ref41.max,
+      sMax = _ref41.sMax;
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -20628,7 +20666,7 @@ function SingleLookup(p) {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 14,
         fontWeight: 700,
         color: G
@@ -20705,7 +20743,7 @@ function SingleLookup(p) {
       }
     }, ic, " ", h.query || h.type, h.custName ? " · " + h.custName : "", " \xB7 ", h.time)), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 13,
         fontWeight: 700,
         color: G
@@ -20765,7 +20803,7 @@ function SingleLookup(p) {
       }
     }, item.col, " \xB7 ", item.searches || 0, "\uD83D\uDD0D")), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 13,
         fontWeight: 700,
         color: G
@@ -21094,7 +21132,7 @@ function MultiLookup(p) {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 13,
         fontWeight: 700,
         color: G
@@ -21255,7 +21293,7 @@ function MultiLookup(p) {
     }
   }, /*#__PURE__*/React.createElement("span", null, "Grand Total"), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 19
     }
   }, fc(mlTotal, cur))))), /*#__PURE__*/React.createElement("div", {
@@ -22023,7 +22061,7 @@ function InventoryTab(p) {
       }
     }, "\uD83D\uDC41 ", item.views), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 12,
         fontWeight: 700,
         color: G
@@ -22113,10 +22151,10 @@ function InventoryTab(p) {
     return i.st === "available";
   }).reduce(function (s, i) {
     return s + i.fp;
-  }, 0), cur)]].map(function (_ref40) {
-    var _ref41 = _slicedToArray(_ref40, 2),
-      l = _ref41[0],
-      v = _ref41[1];
+  }, 0), cur)]].map(function (_ref42) {
+    var _ref43 = _slicedToArray(_ref42, 2),
+      l = _ref43[0],
+      v = _ref43[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -22328,7 +22366,7 @@ function InventoryTab(p) {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 22,
         fontWeight: 700,
         color: x.c,
@@ -22466,9 +22504,9 @@ function InventoryTab(p) {
       textTransform: "uppercase",
       marginBottom: 7
     }
-  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref42) {
-    var item = _ref42.item,
-      scannedAt = _ref42.scannedAt;
+  }, "\u2713 CONFIRMED (", auditScanned.length, ")"), auditScanned.map(function (_ref44) {
+    var item = _ref44.item,
+      scannedAt = _ref44.scannedAt;
     return /*#__PURE__*/React.createElement("div", {
       key: item.id,
       style: {
@@ -22602,12 +22640,12 @@ function invBuckets(inv, keyFn) {
     return b.cnt - a.cnt;
   });
 }
-function AnalyticsBucketCard(_ref43) {
-  var title = _ref43.title,
-    data = _ref43.data,
-    cur = _ref43.cur,
-    fc = _ref43.fc,
-    maxVal = _ref43.maxVal;
+function AnalyticsBucketCard(_ref45) {
+  var title = _ref45.title,
+    data = _ref45.data,
+    cur = _ref45.cur,
+    fc = _ref45.fc,
+    maxVal = _ref45.maxVal;
   var mx = maxVal || Math.max.apply(Math, [1].concat(_toConsumableArray(data.map(function (x) {
     return x.cnt;
   }))));
@@ -22659,7 +22697,7 @@ function AnalyticsBucketCard(_ref43) {
       }
     }, x.k), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 12,
         fontWeight: 700,
         color: G,
@@ -22707,13 +22745,13 @@ var ANALYTICS_DATE_FILTER_OPTS = [{
   id: "custom",
   l: "Custom"
 }];
-function DateFilterBar(_ref44) {
-  var dateFilter = _ref44.dateFilter,
-    setDateFilter = _ref44.setDateFilter,
-    customFrom = _ref44.customFrom,
-    setCustomFrom = _ref44.setCustomFrom,
-    customTo = _ref44.customTo,
-    setCustomTo = _ref44.setCustomTo;
+function DateFilterBar(_ref46) {
+  var dateFilter = _ref46.dateFilter,
+    setDateFilter = _ref46.setDateFilter,
+    customFrom = _ref46.customFrom,
+    setCustomFrom = _ref46.setCustomFrom,
+    customTo = _ref46.customTo,
+    setCustomTo = _ref46.setCustomTo;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       background: CRD,
@@ -22794,10 +22832,10 @@ function AnalyticsTab(p) {
     sat = p.sat;
 
   // ── Helper: bar ─────────────────────────────────────────────────────────
-  var Bar = function Bar(_ref45) {
-    var pct = _ref45.pct,
-      col = _ref45.col,
-      h = _ref45.h;
+  var Bar = function Bar(_ref47) {
+    var pct = _ref47.pct,
+      col = _ref47.col,
+      h = _ref47.h;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         height: h || 5,
@@ -22928,10 +22966,10 @@ function AnalyticsTab(p) {
   var maxHr = Math.max.apply(Math, [1].concat(_toConsumableArray(Object.values(hourMap))));
   var dayData = Object.entries(dayMap).sort(function (a, b) {
     return a[0] > b[0] ? 1 : -1;
-  }).map(function (_ref46) {
-    var _ref47 = _slicedToArray(_ref46, 2),
-      d = _ref47[0],
-      v = _ref47[1];
+  }).map(function (_ref48) {
+    var _ref49 = _slicedToArray(_ref48, 2),
+      d = _ref49[0],
+      v = _ref49[1];
     return {
       d: d,
       v: v
@@ -23264,10 +23302,10 @@ function AnalyticsTab(p) {
     if (!cn) return;
     lookupCustMap[cn] = (lookupCustMap[cn] || 0) + 1;
   });
-  var lookupCustArr = Object.entries(lookupCustMap).map(function (_ref48) {
-    var _ref49 = _slicedToArray(_ref48, 2),
-      name = _ref49[0],
-      cnt = _ref49[1];
+  var lookupCustArr = Object.entries(lookupCustMap).map(function (_ref50) {
+    var _ref51 = _slicedToArray(_ref50, 2),
+      name = _ref51[0],
+      cnt = _ref51[1];
     return {
       name: name,
       cnt: cnt
@@ -23413,10 +23451,10 @@ function AnalyticsTab(p) {
       customers: st.custSet.size,
       topItems: Object.entries(st.itemMap).sort(function (a, b) {
         return b[1] - a[1];
-      }).slice(0, 5).map(function (_ref50) {
-        var _ref51 = _slicedToArray(_ref50, 2),
-          id = _ref51[0],
-          c = _ref51[1];
+      }).slice(0, 5).map(function (_ref52) {
+        var _ref53 = _slicedToArray(_ref52, 2),
+          id = _ref53[0],
+          c = _ref53[1];
         return {
           itemId: id,
           item: inv.find(function (i) {
@@ -23585,7 +23623,7 @@ function AnalyticsTab(p) {
       })
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 20,
         fontWeight: 700,
         color: k.hi ? GO : k.warn ? RE : G
@@ -23618,7 +23656,7 @@ function AnalyticsTab(p) {
     style: S.sh
   }, "Sell-Through Rate"), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 16,
       fontWeight: 700,
       color: sellThru >= 30 ? G : AM
@@ -23688,7 +23726,7 @@ function AnalyticsTab(p) {
       }))
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 22,
         fontWeight: 700,
         color: G
@@ -23778,7 +23816,7 @@ function AnalyticsTab(p) {
     style: S.sh
   }, "Search \u2192 Sale Conversion"), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 16,
       fontWeight: 700,
       color: G
@@ -23958,10 +23996,10 @@ function AnalyticsTab(p) {
       flexWrap: "wrap",
       gap: 6
     }
-  }, lookupCatArr.map(function (_ref52) {
-    var _ref53 = _slicedToArray(_ref52, 2),
-      cat = _ref53[0],
-      cnt = _ref53[1];
+  }, lookupCatArr.map(function (_ref54) {
+    var _ref55 = _slicedToArray(_ref54, 2),
+      cat = _ref55[0],
+      cnt = _ref55[1];
     return /*#__PURE__*/React.createElement("span", {
       key: cat,
       style: {
@@ -24047,7 +24085,7 @@ function AnalyticsTab(p) {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 13,
         fontWeight: 700,
         color: G
@@ -24135,7 +24173,7 @@ function AnalyticsTab(p) {
         key: k.l
       }, /*#__PURE__*/React.createElement("div", {
         style: {
-          fontFamily: "Cormorant Garamond,serif",
+          fontFamily: "Lato,sans-serif",
           fontSize: 16,
           fontWeight: 700,
           color: G
@@ -24218,10 +24256,10 @@ function AnalyticsTab(p) {
         letterSpacing: "0.06em",
         marginBottom: 6
       }
-    }, "Top Customers"), st.topCustomers.map(function (_ref54) {
-      var _ref55 = _slicedToArray(_ref54, 2),
-        name = _ref55[0],
-        cnt = _ref55[1];
+    }, "Top Customers"), st.topCustomers.map(function (_ref56) {
+      var _ref57 = _slicedToArray(_ref56, 2),
+        name = _ref57[0],
+        cnt = _ref57[1];
       return /*#__PURE__*/React.createElement("div", {
         key: name,
         style: {
@@ -24314,9 +24352,9 @@ function AnalyticsTab(p) {
       alignItems: "flex-end",
       height: 60
     }
-  }, hourData.map(function (_ref56) {
-    var h = _ref56.h,
-      v = _ref56.v;
+  }, hourData.map(function (_ref58) {
+    var h = _ref58.h,
+      v = _ref58.v;
     return /*#__PURE__*/React.createElement("div", {
       key: h,
       style: {
@@ -24528,7 +24566,7 @@ function AnalyticsTab(p) {
       }
     }, x.scans, "\xD7 scanned"), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 11,
         color: G
       }
@@ -24584,7 +24622,7 @@ function AnalyticsTab(p) {
       }
     }, item.cat, " \xB7 ", item.metal)), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 12,
         fontWeight: 700,
         color: T3
@@ -24730,7 +24768,7 @@ function AnalyticsTab(p) {
       }
     }, x.col), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 12,
         fontWeight: 700,
         color: G
@@ -24823,7 +24861,7 @@ function AnalyticsTab(p) {
       })
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 20,
         fontWeight: 700,
         color: G
@@ -24886,7 +24924,7 @@ function AnalyticsTab(p) {
       }
     }, cust.cnt, " purchase", cust.cnt !== 1 ? "s" : "")), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 14,
         fontWeight: 700,
         color: G,
@@ -24907,10 +24945,10 @@ function AnalyticsTab(p) {
       color: T3,
       fontSize: 11
     }
-  }, "No leads yet"), srcData.map(function (_ref57, i) {
-    var _ref58 = _slicedToArray(_ref57, 2),
-      src = _ref58[0],
-      cnt = _ref58[1];
+  }, "No leads yet"), srcData.map(function (_ref59, i) {
+    var _ref60 = _slicedToArray(_ref59, 2),
+      src = _ref60[0],
+      cnt = _ref60[1];
     return /*#__PURE__*/React.createElement("div", {
       key: src,
       style: {
@@ -25037,7 +25075,7 @@ function AnalyticsTab(p) {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 16,
         fontWeight: 700,
         color: G
@@ -25150,7 +25188,7 @@ function AnalyticsTab(p) {
       })
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 18,
         fontWeight: 700,
         color: k.hi ? GO : k.warn ? RE : G
@@ -25274,7 +25312,7 @@ function AnalyticsTab(p) {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 18,
       fontWeight: 700,
       color: RE
@@ -25290,7 +25328,7 @@ function AnalyticsTab(p) {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 18,
       fontWeight: 700,
       color: G
@@ -25306,7 +25344,7 @@ function AnalyticsTab(p) {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 18,
       fontWeight: 700,
       color: AM
@@ -25518,7 +25556,7 @@ function AnalyticsTab(p) {
     }
   }, "\uD83D\uDCA1 Estimated Pipeline"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 24,
       fontWeight: 700,
       color: GO,
@@ -25594,11 +25632,11 @@ function AnalyticsTab(p) {
     }, l.created));
   })))));
 }
-function CloudStoragePanel(_ref59) {
-  var pr = _ref59.pr,
-    allEvents = _ref59.allEvents,
-    appUsers = _ref59.appUsers,
-    onSynced = _ref59.onSynced;
+function CloudStoragePanel(_ref61) {
+  var pr = _ref61.pr,
+    allEvents = _ref61.allEvents,
+    appUsers = _ref61.appUsers,
+    onSynced = _ref61.onSynced;
   var _useState91 = useState(false),
     _useState92 = _slicedToArray(_useState91, 2),
     busy = _useState92[0],
@@ -25625,7 +25663,7 @@ function CloudStoragePanel(_ref59) {
   var driveReadOk = ping && ping.driveRead === "ok";
   var ds = ping && ping.driveStatus;
   var syncNow = /*#__PURE__*/function () {
-    var _ref60 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
+    var _ref62 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
       var d, localFromStore, local, merged, users, cloudUsers, r, _t3;
       return _regenerator().w(function (_context6) {
         while (1) switch (_context6.p = _context6.n) {
@@ -25691,7 +25729,7 @@ function CloudStoragePanel(_ref59) {
       }, _callee6, null, [[1, 7, 8, 9]]);
     }));
     return function syncNow() {
-      return _ref60.apply(this, arguments);
+      return _ref62.apply(this, arguments);
     };
   }();
   if (!pr.mU) return null;
@@ -25773,11 +25811,11 @@ function CloudStoragePanel(_ref59) {
     }
   }, "Auto-sync runs in the background \u2014 use this only if another device looks out of date."));
 }
-function CurrencyManager(_ref61) {
-  var cur = _ref61.cur,
-    scur = _ref61.scur,
-    pr = _ref61.pr,
-    onRatesChanged = _ref61.onRatesChanged;
+function CurrencyManager(_ref63) {
+  var cur = _ref63.cur,
+    scur = _ref63.scur,
+    pr = _ref63.pr,
+    onRatesChanged = _ref63.onRatesChanged;
   var _useState99 = useState(false),
     _useState100 = _slicedToArray(_useState99, 2),
     editMode = _useState100[0],
@@ -25797,10 +25835,10 @@ function CurrencyManager(_ref61) {
   };
   var startEdit = function startEdit() {
     var r = {};
-    Object.entries(getCurr()).forEach(function (_ref62) {
-      var _ref63 = _slicedToArray(_ref62, 2),
-        k = _ref63[0],
-        v = _ref63[1];
+    Object.entries(getCurr()).forEach(function (_ref64) {
+      var _ref65 = _slicedToArray(_ref64, 2),
+        k = _ref65[0],
+        v = _ref65[1];
       r[k] = v.r;
     });
     setEditRates(r);
@@ -25808,10 +25846,10 @@ function CurrencyManager(_ref61) {
   };
   var saveRates = function saveRates() {
     var u = {};
-    Object.entries(getCurr()).forEach(function (_ref64) {
-      var _ref65 = _slicedToArray(_ref64, 2),
-        k = _ref65[0],
-        v = _ref65[1];
+    Object.entries(getCurr()).forEach(function (_ref66) {
+      var _ref67 = _slicedToArray(_ref66, 2),
+        k = _ref67[0],
+        v = _ref67[1];
       u[k] = {
         s: v.s,
         r: parseFloat(editRates[k]) || v.r,
@@ -25879,10 +25917,10 @@ function CurrencyManager(_ref61) {
     onChange: function onChange(e) {
       return scur(e.target.value);
     }
-  }, Object.entries(rates).map(function (_ref66) {
-    var _ref67 = _slicedToArray(_ref66, 2),
-      k = _ref67[0],
-      v = _ref67[1];
+  }, Object.entries(rates).map(function (_ref68) {
+    var _ref69 = _slicedToArray(_ref68, 2),
+      k = _ref69[0],
+      v = _ref69[1];
     return /*#__PURE__*/React.createElement("option", {
       key: k,
       value: k
@@ -25910,10 +25948,10 @@ function CurrencyManager(_ref61) {
         textTransform: "uppercase"
       }
     }, h);
-  })), Object.entries(rates).map(function (_ref68, i, arr) {
-    var _ref69 = _slicedToArray(_ref68, 2),
-      k = _ref69[0],
-      v = _ref69[1];
+  })), Object.entries(rates).map(function (_ref70, i, arr) {
+    var _ref71 = _slicedToArray(_ref70, 2),
+      k = _ref71[0],
+      v = _ref71[1];
     return /*#__PURE__*/React.createElement("div", {
       key: k,
       style: {
@@ -25977,7 +26015,7 @@ function CurrencyManager(_ref61) {
         fontWeight: 700,
         color: T1,
         textAlign: "right",
-        fontFamily: "Cormorant Garamond,serif"
+        fontFamily: "Lato,sans-serif"
       }
     }, k === "USD" ? "Base" : v.r.toFixed(k === "JPY" ? 0 : 2)));
   })), editMode && /*#__PURE__*/React.createElement("div", {
@@ -26118,18 +26156,18 @@ function AdminTab(p) {
       borderRadius: 9,
       padding: "10px 12px"
     }
-  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref70) {
-    var _ref71 = _slicedToArray(_ref70, 2),
-      v = _ref71[1];
+  }, [["Role", user.role], ["Permissions", Object.entries(pr).filter(function (_ref72) {
+    var _ref73 = _slicedToArray(_ref72, 2),
+      v = _ref73[1];
     return v;
-  }).map(function (_ref72) {
-    var _ref73 = _slicedToArray(_ref72, 1),
-      k = _ref73[0];
+  }).map(function (_ref74) {
+    var _ref75 = _slicedToArray(_ref74, 1),
+      k = _ref75[0];
     return k;
-  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref74) {
-    var _ref75 = _slicedToArray(_ref74, 2),
-      l = _ref75[0],
-      v = _ref75[1];
+  }).join(", ") || "None"], ["Events", isSuperAdmin(user) ? "All (Super Admin)" : normalizeEventAccess(user.eventAccess) === "all" ? "All assigned" : normalizeEventAccess(user.eventAccess).length + " event(s)"], ["Event", ev.name], ["Signed in as", user.un]].map(function (_ref76) {
+    var _ref77 = _slicedToArray(_ref76, 2),
+      l = _ref77[0],
+      v = _ref77[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -26173,10 +26211,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref76) {
-    var _ref77 = _slicedToArray(_ref76, 2),
-      l = _ref77[0],
-      v = _ref77[1];
+  }, "\uD83D\uDCC5 EVENT INFO"), [["Name", ev.name], ["Location", ev.loc || "—"], ["Dates", (ev.start || "") + " → " + (ev.end || "")], ["Status", ev.status], ["Items", inv.length], ["Sales", sales.length], ["Revenue", fc(totalRev, cur)], ["Leads", leads.length], ["Audit Records", audits.length]].map(function (_ref78) {
+    var _ref79 = _slicedToArray(_ref78, 2),
+      l = _ref79[0],
+      v = _ref79[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -26244,10 +26282,10 @@ function AdminTab(p) {
       letterSpacing: "0.1em",
       marginBottom: 12
     }
-  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref78) {
-    var _ref79 = _slicedToArray(_ref78, 2),
-      l = _ref79[0],
-      v = _ref79[1];
+  }, "\uD83D\uDD10 YOUR PERMISSIONS"), [["View Prices", pr.vP], ["View History", pr.vH], ["View Analytics", pr.vA], ["Override Price", pr.oP], ["Export CSV", pr.eC], ["Manage Users", pr.mU], ["Show Formula", pr.sF], ["Show Breakdown", pr.sB]].map(function (_ref80) {
+    var _ref81 = _slicedToArray(_ref80, 2),
+      l = _ref81[0],
+      v = _ref81[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -26567,7 +26605,7 @@ function SalesTab(p) {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 17,
         fontWeight: 700,
         color: x.c,
@@ -26879,7 +26917,7 @@ function SalesTab(p) {
       }
     }, item.cat, " \xB7 ", item.col, " \xB7 ", item.metal, " \xB7 ", item.tc, "ct")), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 13,
         fontWeight: 700,
         color: G
@@ -27077,7 +27115,7 @@ function SalesTab(p) {
     }
   }, /*#__PURE__*/React.createElement("span", null, "GRAND TOTAL"), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: "Cormorant Garamond,serif",
+      fontFamily: "Lato,sans-serif",
       fontSize: 18
     }
   }, fc(nsTotal, cur))))), /*#__PURE__*/React.createElement("button", {
@@ -27185,7 +27223,7 @@ function SalesTab(p) {
       }
     }, s.itemId), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 14,
         fontWeight: 700,
         color: G,
@@ -27473,7 +27511,7 @@ function HistoryTab(p) {
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
-          fontFamily: "Cormorant Garamond,serif",
+          fontFamily: "Lato,sans-serif",
           fontSize: 17,
           fontWeight: 700,
           color: G
@@ -27566,7 +27604,7 @@ function HistoryTab(p) {
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
-          fontFamily: "Cormorant Garamond,serif",
+          fontFamily: "Lato,sans-serif",
           fontSize: 14,
           fontWeight: 700,
           color: G
@@ -27739,7 +27777,7 @@ function HistoryTab(p) {
       })
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 16,
         fontWeight: 700,
         color: G
@@ -27841,7 +27879,7 @@ function HistoryTab(p) {
       }
     }, s.itemId), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 14,
         fontWeight: 700,
         color: G,
@@ -27983,7 +28021,7 @@ function HistoryTab(p) {
       }
     }, ic, " ", h.query || h.type, " \xB7 ", h.user, " \xB7 ", h.date, " ", h.time)), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 14,
         fontWeight: 700,
         color: G,
@@ -28055,7 +28093,7 @@ function HistoryTab(p) {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 13,
         fontWeight: 700,
         color: G
@@ -28132,7 +28170,7 @@ function HistoryTab(p) {
       }
     }, item.id), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 12,
         fontWeight: 700,
         color: G
@@ -28214,7 +28252,7 @@ function HistoryTab(p) {
       }
     }))), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 13,
         fontWeight: 700,
         color: G,
@@ -28429,10 +28467,10 @@ function CustomersTab(p) {
         padding: "2px 8px",
         borderRadius: 20
       }
-    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref80) {
-      var _ref81 = _slicedToArray(_ref80, 2),
-        ic = _ref81[0],
-        v = _ref81[1];
+    }, cust.source || "Walk-in")))), [["📞", cust.phone || "—"], ["✉️", cust.email || cust.contact || "—"], ["📅", cust.created || "—"]].map(function (_ref82) {
+      var _ref83 = _slicedToArray(_ref82, 2),
+        ic = _ref83[0],
+        v = _ref83[1];
       return /*#__PURE__*/React.createElement("div", {
         key: ic,
         style: {
@@ -28525,7 +28563,7 @@ function CustomersTab(p) {
       style: S.sh
     }, "\uD83D\uDECD PURCHASE HISTORY"), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 15,
         fontWeight: 700,
         color: G
@@ -28592,7 +28630,7 @@ function CustomersTab(p) {
         }
       }, s.date, " \xB7 ", s.payment)), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontFamily: "Cormorant Garamond,serif",
+          fontFamily: "Lato,sans-serif",
           fontSize: 13,
           fontWeight: 700,
           color: G
@@ -28873,7 +28911,7 @@ function CustomersTab(p) {
       }
     }, spent > 0 && /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "Cormorant Garamond,serif",
+        fontFamily: "Lato,sans-serif",
         fontSize: 13,
         fontWeight: 700,
         color: G
@@ -28895,18 +28933,18 @@ function CustomersTab(p) {
     }, lead.status)));
   })));
 }
-function EventERP(_ref82) {
-  var ev = _ref82.ev,
-    user = _ref82.user,
-    allUsers = _ref82.allUsers,
-    onUsersChange = _ref82.onUsersChange,
-    allEvents = _ref82.allEvents,
-    onSwitch = _ref82.onSwitch,
-    onUpdateEvent = _ref82.onUpdateEvent,
-    onBack = _ref82.onBack,
-    onLogout = _ref82.onLogout,
-    onCloudSync = _ref82.onCloudSync,
-    cloudReady = _ref82.cloudReady;
+function EventERP(_ref84) {
+  var ev = _ref84.ev,
+    user = _ref84.user,
+    allUsers = _ref84.allUsers,
+    onUsersChange = _ref84.onUsersChange,
+    allEvents = _ref84.allEvents,
+    onSwitch = _ref84.onSwitch,
+    onUpdateEvent = _ref84.onUpdateEvent,
+    onBack = _ref84.onBack,
+    onLogout = _ref84.onLogout,
+    onCloudSync = _ref84.onCloudSync,
+    cloudReady = _ref84.cloudReady;
   ev = normalizeEvent(ev);
   var pr = gp(user.role, user.perms);
   var users = allUsers;
@@ -30303,16 +30341,16 @@ function App() {
     appUsersRef.current = appUsers;
   }, [appUsers]);
   var runCloudSave = /*#__PURE__*/function () {
-    var _ref83 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
-      var _ref84,
-        _ref84$silent,
+    var _ref85 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(snap, usersSnap, deleted) {
+      var _ref86,
+        _ref86$silent,
         silent,
         r,
         _args7 = arguments;
       return _regenerator().w(function (_context7) {
         while (1) switch (_context7.n) {
           case 0:
-            _ref84 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref84$silent = _ref84.silent, silent = _ref84$silent === void 0 ? true : _ref84$silent;
+            _ref86 = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : {}, _ref86$silent = _ref86.silent, silent = _ref86$silent === void 0 ? true : _ref86$silent;
             _context7.n = 1;
             return flushCloudSync(snap || eventsRef.current, usersSnap || appUsersRef.current, deleted || [], {
               silent: silent
@@ -30342,13 +30380,13 @@ function App() {
       }, _callee7);
     }));
     return function runCloudSave(_x54, _x55, _x56) {
-      return _ref83.apply(this, arguments);
+      return _ref85.apply(this, arguments);
     };
   }();
   var runAutoSyncCycle = /*#__PURE__*/function () {
-    var _ref85 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
-      var _ref86,
-        _ref86$silent,
+    var _ref87 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8() {
+      var _ref88,
+        _ref88$silent,
         silent,
         d,
         cloudVer,
@@ -30360,7 +30398,7 @@ function App() {
       return _regenerator().w(function (_context8) {
         while (1) switch (_context8.p = _context8.n) {
           case 0:
-            _ref86 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref86$silent = _ref86.silent, silent = _ref86$silent === void 0 ? true : _ref86$silent;
+            _ref88 = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {}, _ref88$silent = _ref88.silent, silent = _ref88$silent === void 0 ? true : _ref88$silent;
             if (!(!dataReady || !cloudReady || cloudSyncBusyRef.current)) {
               _context8.n = 1;
               break;
@@ -30410,17 +30448,17 @@ function App() {
       }, _callee8, null, [[2,, 6, 7]]);
     }));
     return function runAutoSyncCycle() {
-      return _ref85.apply(this, arguments);
+      return _ref87.apply(this, arguments);
     };
   }();
   var scheduleCloudSave = function scheduleCloudSave() {
     var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 400;
     var snapshot = arguments.length > 1 ? arguments[1] : undefined;
-    var _ref87 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-      _ref87$silent = _ref87.silent,
-      silent = _ref87$silent === void 0 ? true : _ref87$silent,
-      _ref87$notify = _ref87.notify,
-      notify = _ref87$notify === void 0 ? false : _ref87$notify;
+    var _ref89 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      _ref89$silent = _ref89.silent,
+      silent = _ref89$silent === void 0 ? true : _ref89$silent,
+      _ref89$notify = _ref89.notify,
+      notify = _ref89$notify === void 0 ? false : _ref89$notify;
     localDirtyRef.current = true;
     if (cloudSyncRef.current) clearTimeout(cloudSyncRef.current);
     cloudSyncRef.current = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee9() {
@@ -30738,7 +30776,7 @@ function App() {
     }
   }, "Loading\u2026")));
   var handleLogin = /*#__PURE__*/function () {
-    var _ref91 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
+    var _ref93 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee10(u) {
       var d;
       return _regenerator().w(function (_context10) {
         while (1) switch (_context10.n) {
@@ -30761,7 +30799,7 @@ function App() {
       }, _callee10);
     }));
     return function handleLogin(_x57) {
-      return _ref91.apply(this, arguments);
+      return _ref93.apply(this, arguments);
     };
   }();
   var handleCloudSync = function handleCloudSync(mergedEvents, mergedUsers) {

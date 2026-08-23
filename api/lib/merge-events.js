@@ -1,5 +1,5 @@
 function eventTime(ev) {
-  const t = (ev && (ev.syncedAt || ev.updatedAt || ev.localUpdatedAt)) || "";
+  const t = (ev && (ev.localUpdatedAt || ev.syncedAt || ev.updatedAt)) || "";
   return t ? Date.parse(t) || 0 : 0;
 }
 

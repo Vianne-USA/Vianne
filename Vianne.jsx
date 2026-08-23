@@ -750,7 +750,7 @@ async function loadEventsAsync(){
   return ensureNyOfficeEvent(applyDeletedFilter(local));
 }
 function eventTime(ev){
-  const t=(ev&& (ev.syncedAt||ev.updatedAt||ev.localUpdatedAt))||"";
+  const t=(ev&& (ev.localUpdatedAt||ev.syncedAt||ev.updatedAt))||"";
   return t?Date.parse(t)||0:0;
 }
 function mergeEventPair(local,cloud){
@@ -785,9 +785,13 @@ function mergeEventPair(local,cloud){
     return out.slice(0,300);
   };
   const lookupHistory=pickLocal?mergeLookupHist(local.lookupHistory,cloud.lookupHistory):mergeLookupHist(cloud.lookupHistory,local.lookupHistory);
+  let pickedInv;
+  if(cloudInv===0&&localInv>0)pickedInv=local.inv||[];
+  else if(localInv===0&&cloudInv>0)pickedInv=cloud.inv||[];
+  else pickedInv=pickLocal?(local.inv||[]):(cloud.inv||[]);
   return{
     ...meta,
-    inv:(localInv>=cloudInv?(local.inv||[]):(cloud.inv||[])).map(normalizeInvItem).filter(Boolean),
+    inv:pickedInv.map(normalizeInvItem).filter(Boolean),
     invHistory,
     lookupHistory,
     sales:pickLocal?(local.sales||[]):(cloud.sales||[]),
@@ -797,7 +801,7 @@ function mergeEventPair(local,cloud){
     driveFolderId:cloud.driveFolderId||local.driveFolderId,
     driveFileId:cloud.driveFileId||local.driveFileId,
     syncedAt:cloud.syncedAt||local.syncedAt,
-    localUpdatedAt:local.localUpdatedAt||cloud.localUpdatedAt,
+    localUpdatedAt:pickLocal?(local.localUpdatedAt||cloud.localUpdatedAt):(cloud.localUpdatedAt||local.localUpdatedAt),
   };
 }
 function applyCloudDriveMeta(localEvents,synced){

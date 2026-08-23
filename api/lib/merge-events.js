@@ -18,9 +18,13 @@ function mergeEventPair(local, cloud) {
       [...(local.invHistory || []), ...(cloud.invHistory || [])].map((h) => [invHistKey(h), h])
     ).values(),
   ];
+  let inv;
+  if (cloudInv === 0 && localInv > 0) inv = local.inv || [];
+  else if (localInv === 0 && cloudInv > 0) inv = cloud.inv || [];
+  else inv = pickLocal ? local.inv || [] : cloud.inv || [];
   return {
     ...meta,
-    inv: localInv >= cloudInv ? local.inv || [] : cloud.inv || [],
+    inv,
     invHistory,
     sales: pickLocal ? local.sales || [] : cloud.sales || [],
     leads: pickLocal ? local.leads || [] : cloud.leads || [],
@@ -29,7 +33,7 @@ function mergeEventPair(local, cloud) {
     driveFolderId: cloud.driveFolderId || local.driveFolderId,
     driveFileId: cloud.driveFileId || local.driveFileId,
     syncedAt: cloud.syncedAt || local.syncedAt,
-    localUpdatedAt: local.localUpdatedAt || cloud.localUpdatedAt,
+    localUpdatedAt: pickLocal ? local.localUpdatedAt || cloud.localUpdatedAt : cloud.localUpdatedAt || local.localUpdatedAt,
   };
 }
 

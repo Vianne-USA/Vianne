@@ -109,7 +109,8 @@ function rowToItem(row, excelRow) {
     tc: cts || xlNum(xlVal(row, ["Total Carats", "TC"])),
     sp: pcs || xlNum(xlVal(row, ["Total PCS", "Stone Pcs"])),
     iv: xlNum(xlVal(row, ["Inward Value $", "Inward Value", "IV"])),
-    tod: xlNum(xlVal(row, ["Today Value $", "Today Cost $", "Today Cost", "TOD"])),
+    tod: xlNum(xlVal(row, ["Today Value $", "Today Cost $", "Today Cost", "TOD"])) ||
+      xlNum(xlVal(row, ["Today Cost + Tariffs", "Cost+Tariffs", "CPT"])),
     cpt: xlNum(xlVal(row, ["Today Cost + Tariffs", "Cost+Tariffs", "CPT"])),
     ipt: xlNum(xlVal(row, ["Inward + Tarriffs", "Inward + Tariffs", "Inward+Tariffs", "IPT"])),
     fp,
